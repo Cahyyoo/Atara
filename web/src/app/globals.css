@@ -1,0 +1,286 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-geist-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-canvas: var(--canvas);
+  --color-field: var(--field);
+  --shadow-soft: var(--shadow-soft);
+  --shadow-raised: var(--shadow-raised);
+  --shadow-hero: var(--shadow-hero);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.511 0.096 186.391);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  /* 0.556 read 4.03:1 as a placeholder on --field, just under AA. At 0.525
+     it is 4.63:1, and every other muted pair only improves. */
+  --muted-foreground: oklch(0.525 0 0);
+  --accent: oklch(0.953 0.051 180.801);
+  --accent-foreground: oklch(0.437 0.078 188.216);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.704 0.14 182.503);
+  --chart-1: oklch(0.855 0.138 181.071);
+  --chart-2: oklch(0.704 0.14 182.503);
+  --chart-3: oklch(0.6 0.118 184.704);
+  --chart-4: oklch(0.437 0.078 188.216);
+  --chart-5: oklch(0.277 0.046 192.524);
+  --radius: 1rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.511 0.096 186.391);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.953 0.051 180.801);
+  --sidebar-accent-foreground: oklch(0.437 0.078 188.216);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.704 0.14 182.503);
+  /*
+   * An iOS surface is separated by depth, not by a line. These replace the
+   * hairline rings the cards used to wear: soft, low-contrast, and stacked so
+   * a raised thing reads as raised rather than as outlined.
+   */
+  --shadow-soft: 0 1px 2px oklch(0.2 0.02 190 / 0.04), 0 4px 16px oklch(0.2 0.02 190 / 0.06);
+  --shadow-raised: 0 2px 4px oklch(0.2 0.02 190 / 0.06), 0 12px 32px oklch(0.2 0.02 190 / 0.10);
+  --shadow-hero: 0 8px 24px oklch(0.45 0.09 187 / 0.28);
+
+  /* The page the cards sit on: a hair off white, so white reads as raised. */
+  --canvas: oklch(0.975 0.004 190);
+
+  /*
+   * The inside of a text box, a textarea and a select trigger.
+   *
+   * Its own token rather than `muted`, which also paints row hovers and
+   * badges: darkening those to make a field visible would make every hover
+   * heavy. #eaeeed reads 1.17:1 against a white card. That is not 3:1 and it
+   * cannot be — iOS systemGray6 on white is 1.12:1, so no filled field in any
+   * design system clears that line. What carries the boundary instead is a
+   * visible label on every field, which is checked rather than assumed.
+   */
+  --field: oklch(0.945 0.004 190);
+
+  /*
+   * Gradients live on large surfaces only — a hero tile, a primary button, a
+   * decorative panel. Never on a chart mark: a categorical colour has to stay
+   * one flat colour, or the eye reads the shift as meaning.
+   */
+  /* The light end is capped at L .50: above that, white/85 text on it drops
+     under 4.5:1. The gradient is decoration; the label has to stay read. */
+  --gradient-hero: linear-gradient(145deg, oklch(0.50 0.105 184) 0%, oklch(0.38 0.085 191) 100%);
+  --gradient-primary: linear-gradient(180deg, oklch(0.545 0.101 186) 0%, oklch(0.478 0.093 187) 100%);
+  --gradient-sheen: linear-gradient(145deg, oklch(1 0 0 / 0.14) 0%, oklch(1 0 0 / 0) 55%);
+
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.704 0.14 182.503);
+  --primary-foreground: oklch(0.145 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.279 0.046 186.4);
+  --accent-foreground: oklch(0.855 0.138 181.071);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.704 0.14 182.503);
+  --chart-1: oklch(0.855 0.138 181.071);
+  --chart-2: oklch(0.704 0.14 182.503);
+  --chart-3: oklch(0.6 0.118 184.704);
+  --chart-4: oklch(0.437 0.078 188.216);
+  --chart-5: oklch(0.277 0.046 192.524);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.704 0.14 182.503);
+  --sidebar-primary-foreground: oklch(0.145 0 0);
+  --sidebar-accent: oklch(0.279 0.046 186.4);
+  --sidebar-accent-foreground: oklch(0.855 0.138 181.071);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.704 0.14 182.503);
+  --shadow-soft: 0 1px 2px oklch(0 0 0 / 0.4), 0 4px 16px oklch(0 0 0 / 0.36);
+  --shadow-raised: 0 2px 4px oklch(0 0 0 / 0.45), 0 12px 32px oklch(0 0 0 / 0.5);
+  --shadow-hero: 0 8px 24px oklch(0 0 0 / 0.55);
+
+  --canvas: oklch(0.125 0 0);
+
+  /* Lifted off the card rather than sunk into it: 1.19:1, the light side's twin. */
+  --field: oklch(0.27 0.004 190);
+
+  --gradient-hero: linear-gradient(145deg, oklch(0.50 0.10 185) 0%, oklch(0.30 0.07 192) 100%);
+  --gradient-primary: linear-gradient(180deg, oklch(0.72 0.135 183) 0%, oklch(0.645 0.126 184) 100%);
+  --gradient-sheen: linear-gradient(145deg, oklch(1 0 0 / 0.10) 0%, oklch(1 0 0 / 0) 55%);
+
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+/*
+ * Motion is a setting, not a decision this stylesheet gets to make.
+ *
+ * This is the half that covers everything which is not a motion component:
+ * the tw-animate-css popup animations, every `transition-*` class, the
+ * spinners and the skeleton pulse. The other half is <MotionConfig
+ * reducedMotion="user"> in app-shell.tsx, and neither one covers the other.
+ *
+ * Durations go to 0.01ms rather than to `animation: none`, because an
+ * animation that never runs also never fires `animationend`, and anything
+ * waiting on that event would hang instead of finishing instantly.
+ *
+ * Spinners are the deliberate exception. A frozen spinner says "this is
+ * broken" where a turning one says "this is working", so it keeps turning --
+ * slowly, and only it.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-spin {
+    animation-duration: 1.5s !important;
+    animation-iteration-count: infinite !important;
+  }
+}
+
+/*
+ * The sheen travels with a transform, not with background-position.
+ *
+ * background-position is a paint property: animating it repaints the element
+ * on every frame, and loading.tsx puts dozens of placeholders on screen at
+ * once. A transform is handled by the compositor and repaints nothing. Same
+ * light, same speed, none of the work.
+ */
+@keyframes skeleton-sheen {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@layer utilities {
+  /* A large surface carrying a gradient, with a soft sheen over the top so it
+     catches light the way an iOS tile does. */
+  .surface-hero {
+    background-image: var(--gradient-sheen), var(--gradient-hero);
+    box-shadow: var(--shadow-hero);
+  }
+
+  .surface-soft {
+    box-shadow: var(--shadow-soft);
+  }
+
+  .surface-raised {
+    box-shadow: var(--shadow-raised);
+  }
+
+  /*
+   * A light passing across a placeholder, rather than the whole block
+   * breathing. It is the difference between "this is working" and "this is
+   * stuck", which is the only job a placeholder has.
+   *
+   * The band is a highlight laid over the muted fill, so it reads in both
+   * themes without a second set of colours. The reduce block above already
+   * shortens the animation to nothing, which leaves a plain muted block --
+   * still a placeholder, still says the same thing, just still.
+   */
+  .skeleton-sheen {
+    position: relative;
+    /* clip, not hidden: hidden would make every placeholder a scroll
+       container, which is the blast radius mistake this file just undid
+       elsewhere. */
+    overflow: clip;
+  }
+
+  .skeleton-sheen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(
+      90deg,
+      transparent 0%,
+      color-mix(in oklch, var(--foreground) 7%, transparent) 50%,
+      transparent 100%
+    );
+    /* The band starts off the left edge and crosses; the reduce block above
+       shortens it to nothing, leaving a plain muted block that still reads as
+       "not here yet". */
+    transform: translateX(-100%);
+    animation: skeleton-sheen 1.6s ease-in-out infinite;
+  }
+}

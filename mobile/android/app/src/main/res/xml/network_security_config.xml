@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 9 (API 28) and later block cleartext HTTP by default. Without this the
+  app cannot reach a server at http://<lan-ip>:3001 at all, and the failure looks
+  like an ordinary "could not reach the server" error, which hides the cause.
+
+  The server address is configurable per device, so the exception cannot be
+  narrowed to a fixed list of hosts here. It is therefore opened for plain HTTP,
+  which is what an on-premise lab LAN normally runs.
+
+  Understand what that costs: the sign-in password and the bearer token travel
+  unencrypted, so anyone on the same network can read them. Point the app at an
+  https:// address wherever one exists, and set cleartextTrafficPermitted="false"
+  once every deployment has one.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

@@ -1,0 +1,338 @@
+{
+  "@@locale": "id",
+  "tabHome": "Beranda",
+  "tabScan": "Pindai",
+  "statusPending": "Menunggu",
+  "statusInProgress": "Berjalan",
+  "statusCompleted": "Selesai",
+  "roleAdmin": "Administrator",
+  "roleOperator": "Operator",
+  "roleDatabase": "Database",
+  "roleAnalisis": "Analisis",
+  "cameraBlockedTitle": "Kamera tidak dapat digunakan",
+  "cameraBlockedBody": "Izin kamera belum diberikan, jadi barcode tidak bisa dipindai. Anda tetap dapat mengetik kodenya.",
+  "openAppSettings": "Buka Pengaturan Aplikasi",
+  "scanTitle": "Pindai",
+  "signOutSection": "Akun",
+  "historyTitle": "Riwayat",
+  "historySeeAll": "Lihat semua ({count})",
+  "@historySeeAll": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "historyEmpty": "Belum ada tahap yang tercatat untuk sampel ini.",
+  "historyCorrection": "Koreksi",
+  "historyUnknownOnCache": "Riwayat tidak tersimpan di HP. Sambungkan ke server untuk melihatnya.",
+  "overrideTitle": "Melanggar urutan tahap",
+  "overrideBody": "Tahap ini bukan lanjutan dari tahap sekarang. Anda boleh menimpanya, tapi alasannya wajib dicatat.",
+  "overrideReason": "Alasan koreksi",
+  "overrideReasonHint": "mis. salah pindai, label tertukar",
+  "overrideReasonTooShort": "Alasan minimal 5 karakter.",
+  "continuousMode": "Pindai beruntun",
+  "continuousRecorded": "{count} tercatat",
+  "@continuousRecorded": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "workflowComplete": "Sampel ini sudah menyelesaikan seluruh tahap.",
+  "detailTitle": "Detail Sampel",
+  "detailUpdateStage": "Perbarui tahap",
+  "seeAll": "Lihat semua ({count})",
+  "@seeAll": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "queueSeeAll": "Lihat seluruh antrean ({count})",
+  "@queueSeeAll": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "myWorkAllTitle": "Kerja Saya",
+  "queueAllTitle": "Antrean",
+  "queueEmptyTitle": "Tidak ada lagi yang perlu dikirim",
+  "queueEmptyMessage": "Semua scan di HP ini sudah sampai ke server.",
+  "appTitle": "Atara Operator",
+  "loginSubtitle": "Masuk untuk mulai memindai sampel",
+  "email": "Email",
+  "password": "Kata Sandi",
+  "signIn": "Masuk",
+  "signOut": "Keluar",
+  "signOutConfirm": "Keluar dari akun ini?",
+  "cancel": "Batal",
+  "retry": "Coba lagi",
+  "discard": "Buang",
+  "save": "Simpan",
+  "scanButton": "Pindai Barcode Sampel",
+  "scanHint": "Arahkan kamera ke barcode/QR pada label sampel",
+  "updateStageTitle": "Perbarui Tahap",
+  "selectNextStage": "Pilih Tahap Berikutnya",
+  "fieldNotes": "Catatan Lapangan (Opsional)",
+  "fieldNotesHint": "mis. Sampel dalam kondisi baik, kadar air normal.",
+  "saveAndUpdate": "Simpan & Perbarui Tahap",
+  "sampleIdent": "Sample ID: {ident}",
+  "@sampleIdent": {
+    "placeholders": {
+      "ident": {}
+    }
+  },
+  "currentStage": "Tahap saat ini: {stage}",
+  "@currentStage": {
+    "placeholders": {
+      "stage": {}
+    }
+  },
+  "status": "Status: {status}",
+  "@status": {
+    "placeholders": {
+      "status": {}
+    }
+  },
+  "notStarted": "Belum Dimulai",
+  "pendingTitle": "Menunggu Terkirim ({count})",
+  "@pendingTitle": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "pendingDescription": "Tersimpan di perangkat, akan dikirim saat jaringan kembali.",
+  "syncNow": "Kirim sekarang",
+  "savedOffline": "Jaringan tidak tersedia. Pindai disimpan dan akan dikirim otomatis.",
+  "syncedCount": "{count} pindai berhasil dikirim.",
+  "@syncedCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "failedTitle": "Gagal Disinkronkan ({count})",
+  "@failedTitle": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "failedDescription": "Ditolak server. Periksa alasannya, lalu coba lagi atau buang.",
+  "settingsTitle": "Pengaturan",
+  "serverAddress": "Alamat Server",
+  "serverAddressHint": "http://192.168.1.10:3000/api",
+  "serverAddressHelp": "Ubah bila aplikasi dipakai di lokasi atau jaringan lain.",
+  "appearance": "Tampilan",
+  "appearanceSystem": "Ikuti Sistem",
+  "appearanceLight": "Terang",
+  "appearanceDark": "Gelap",
+  "language": "Bahasa",
+  "settingsSaved": "Pengaturan tersimpan.",
+  "resetDefault": "Kembalikan ke bawaan",
+  "connectionTimeout": "Koneksi habis waktu. Periksa jaringan lalu coba lagi.",
+  "connectionFailed": "Tidak dapat menghubungi server. Periksa koneksi jaringan Anda.",
+  "unknownError": "Terjadi kesalahan yang tidak diketahui. Silakan coba lagi.",
+  "sampleNotRegistered": "Sampel Tidak Terdaftar",
+  "unexpectedError": "Terjadi kesalahan yang tidak terduga.",
+  "emailRequired": "Email wajib diisi",
+  "passwordRequired": "Kata sandi wajib diisi",
+  "scanScreenTitle": "Pindai Barcode Sampel",
+  "sampleNotFoundBody": "Kode \"{code}\" tidak ditemukan di database. Pastikan barcode yang dipindai benar.",
+  "scanAgain": "Pindai Lagi",
+  "loadFailed": "Gagal memuat data sampel.",
+  "tryAgain": "Coba Lagi",
+  "updateSuccessful": "Berhasil Diperbarui",
+  "stageSaved": "Tahap \"{stage}\" telah disimpan.",
+  "@sampleNotFoundBody": {
+    "placeholders": {
+      "code": {}
+    }
+  },
+  "@stageSaved": {
+    "placeholders": {
+      "stage": {}
+    }
+  },
+  "stageListEmpty": "Belum ada tahap yang dikonfigurasi di server. Hubungi administrator.",
+  "stageListFailed": "Gagal memuat daftar tahap. Periksa koneksi jaringan Anda.",
+  "errorTimeout": "Sambungan habis waktu. Periksa jaringan lalu coba lagi.",
+  "errorUnreachable": "Server tidak dapat dihubungi. Periksa koneksi jaringan Anda.",
+  "serverAddressInvalid": "Alamat tidak valid. Gunakan bentuk http://host:port/api.",
+  "triedServerAddress": "Alamat yang dicoba: {address}",
+  "@triedServerAddress": {
+    "placeholders": {
+      "address": {}
+    }
+  },
+  "manualEntry": "Ketik kode sampel",
+  "manualEntryTitle": "Masukkan Kode Sampel",
+  "manualEntryHelp": "Pakai ini kalau kamera bermasalah atau labelnya rusak.",
+  "manualEntryRequired": "Kode sampel wajib diisi.",
+  "manualEntryContinue": "Lanjut",
+  "offlineUnknownTitle": "Sampel belum tersimpan di HP",
+  "offlineUnknownBody": "Tidak ada sinyal, jadi tahap saat ini tidak diketahui. Anda tetap bisa mencatat tahapnya — server akan memeriksa urutannya saat terkirim.",
+  "cachedNotice": "Data tersimpan di HP; tahapnya mungkin sudah berubah di server.",
+  "scanHistoryTitle": "Riwayat Scan",
+  "scanHistoryOpen": "Lihat riwayat scan",
+  "scanHistoryToday": "Hari ini",
+  "scanHistoryYesterday": "Kemarin",
+  "scanHistoryEmptyTitle": "Belum ada riwayat",
+  "scanHistoryEmptyBody": "Scan yang Anda kirim akan muncul di sini, dikelompokkan per hari shift.",
+  "scanHistoryCachedNotice": "Tersimpan di HP; tanpa sinyal hanya shift ini yang bisa ditampilkan.",
+  "scanHistoryOlderOffline": "Hari sebelumnya butuh koneksi ke server.",
+  "scanHistoryLoadMore": "Muat lagi",
+  "scanHistoryLoadMoreFailed": "Gagal memuat sisanya.",
+  "scanHistoryWindow": "Riwayat mencakup 90 hari shift terakhir.",
+  "myWorkTitle": "Kerja Saya",
+  "myWorkSummary": "{count} sampel shift ini",
+  "myWorkEmpty": "Belum ada scan pada shift ini.",
+  "@myWorkSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "emailHint": "nama@atara.local",
+  "passwordHint": "Kata sandi Anda",
+  "checkServerAddress": "Periksa alamat server",
+  "sameLabelIgnored": "Label yang sama diabaikan. Arahkan ke label lain.",
+  "scanThisAgain": "Pindai ulang",
+  "stageReceived": "DITERIMA",
+  "stageWetPrep": "PREP BASAH",
+  "stageDryPrep": "PREP KERING",
+  "stageAnalysis": "ANALISA",
+  "stageReport": "REPORT",
+  "onboardingTitle": "Panduan Singkat",
+  "onboardingSkip": "Lewati",
+  "onboardingNext": "Lanjut",
+  "onboardingStart": "Mulai",
+  "onboardingDone": "Selesai",
+  "onboardingPageOf": "Halaman {current} dari {total}",
+  "onboardingWelcomeBody": "Panduan singkat sebelum Anda mulai memindai sampel.",
+  "onboardingScanTitle": "Pindai label sampel",
+  "onboardingScanBody": "Arahkan kamera ke barcode atau QR pada label sampel. Kalau labelnya rusak, kodenya bisa diketik.",
+  "onboardingStageTitle": "Perbarui tahapnya",
+  "onboardingStageBody": "Setelah sampel terbaca, pilih tahap berikutnya lalu simpan. Catatan lapangan boleh ditambahkan bila perlu.",
+  "onboardingOfflineTitle": "Tanpa sinyal tetap jalan",
+  "onboardingOfflineBody": "Pindai tetap tersimpan di HP saat jaringan hilang, lalu terkirim sendiri begitu koneksi kembali.",
+  "onboardingWorkTitle": "Lihat hasil kerja Anda",
+  "onboardingWorkBody": "Beranda merekap jumlah sampel yang Anda pindai pada shift ini, lengkap dengan riwayat tiap sampel.",
+  "helpSection": "Panduan",
+  "onboardingReopen": "Lihat panduan lagi",
+  "onboardingReopenHelp": "Ulangi panduan lima langkah ini kapan saja.",
+  "@onboardingPageOf": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "errorUnreadableAnswer": "Server menjawab dalam bentuk yang tidak dikenali. Periksa alamat server atau hubungi administrator.",
+  "signInOperatorsOnly": "Aplikasi ini khusus Operator. Silakan gunakan situs web.",
+  "errorForbidden": "Peran akun Anda tidak mengizinkan ini. Aplikasi ini khusus Operator.",
+  "mfaTitle": "Verifikasi Identitas",
+  "mfaStepLabel": "Langkah 2 dari 2",
+  "mfaGreeting": "Halo, {name}",
+  "mfaChooseSubtitle": "Pilih cara verifikasi untuk menyelesaikan masuk.",
+  "mfaMethodFace": "Verifikasi wajah",
+  "mfaMethodFaceHint": "Hadap kamera dan berkedip sekali",
+  "mfaMethodTotp": "Kode Authenticator",
+  "mfaMethodTotpHint": "Kode 6 digit dari aplikasi authenticator",
+  "mfaMethodSetup": "Siapkan Authenticator",
+  "mfaMethodSetupHint": "Hubungkan aplikasi authenticator di HP ini",
+  "mfaUseAnotherMethod": "Gunakan metode lain",
+  "mfaBackToPassword": "Kembali ke kata sandi",
+  "mfaExpiresIn": "Berlaku {seconds} detik lagi",
+  "mfaExpiredTitle": "Sesi masuk sudah kedaluwarsa",
+  "mfaExpiredBody": "Batas dua menit sudah terlewat. Masukkan kata sandi lagi untuk memulai ulang.",
+  "mfaStartAgain": "Mulai ulang",
+  "mfaTotpSubtitle": "Buka aplikasi authenticator Anda dan masukkan kode 6 digit untuk akun ATARA.",
+  "mfaCodeLabel": "Kode 6 digit",
+  "mfaCodeHint": "Ketik 6 digit",
+  "mfaVerify": "Verifikasi",
+  "mfaVerified": "Kode benar. Masuk…",
+  "mfaCodeIncomplete": "Kodenya 6 digit.",
+  "mfaCodeWrong": "Kode salah atau sudah dipakai. Tunggu kode berikutnya lalu coba lagi.",
+  "mfaSetupTitle": "Siapkan Authenticator",
+  "mfaSetupIntro": "Tambahkan akun ini ke aplikasi authenticator di HP ini, lalu masukkan kode yang muncul.",
+  "mfaSetupManualSteps": "Di aplikasi authenticator: ketuk +, pilih “Akun lain”, lalu “Masukkan kunci secara manual”.",
+  "mfaSetupAccountLabel": "Nama akun",
+  "mfaSetupKeyLabel": "Kunci rahasia",
+  "mfaSetupCopyKey": "Salin kunci",
+  "mfaSetupKeyCopied": "Kunci disalin.",
+  "mfaSetupKeyWarning": "Kunci ini hanya ditampilkan sekali.",
+  "mfaSetupLoading": "Menyiapkan kunci…",
+  "mfaSetupUnavailable": "Tidak ada pendaftaran Authenticator yang menunggu untuk akun ini. Hubungi administrator.",
+  "mfaSetupCodeTitle": "Masukkan kode",
+  "mfaSetupCodeHint": "Ketik kode 6 digit yang muncul di aplikasi authenticator untuk akun ATARA.",
+  "mfaEnrolled": "Authenticator tersambung. Masuk…",
+  "mfaTooManyAttempts": "Terlalu banyak percobaan. Tunggu beberapa menit, lalu masuk lagi.",
+  "mfaUnsupportedMethod": "Akun ini memakai metode verifikasi yang belum didukung aplikasi. Selesaikan lewat situs web.",
+  "overrideNotesReplaced": "Pada koreksi, alasan di atas yang tercatat sebagai catatan. Catatan lapangan tidak dikirim.",
+  "@mfaGreeting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@mfaExpiresIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "mfaFaceTitle": "Verifikasi wajah",
+  "mfaFaceSubtitle": "Hadap kamera dan berkedip sekali.",
+  "mfaFaceBlinkNow": "Berkedip sekarang",
+  "mfaFaceChecking": "Memeriksa…",
+  "mfaFaceVerified": "Wajah cocok. Masuk…",
+  "faceNoFace": "Wajah tidak terdeteksi. Pastikan pencahayaan cukup, lalu coba lagi.",
+  "faceNotAlive": "Tidak terlihat kedipan. Hadap kamera dan berkedip sekali.",
+  "faceQualityUnsure": "Wajah belum terbaca jelas. Hadap lurus ke kamera.",
+  "faceQualityTooFar": "Wajah terlalu jauh. Mendekat ke kamera.",
+  "faceQualityTooClose": "Wajah terlalu dekat. Mundur sedikit.",
+  "faceQualityOffCentre": "Tengahkan wajah di dalam bingkai.",
+  "faceQualityTooDark": "Terlalu gelap. Tambah pencahayaan atau hadap ke arah cahaya.",
+  "faceServiceDown": "Pengenalan wajah sedang tidak tersedia. Hubungi administrator.",
+  "faceMismatch": "Wajah tidak cocok dengan akun ini.",
+  "faceCameraDenied": "Izin kamera belum diberikan, jadi verifikasi wajah tidak bisa dijalankan.",
+  "sessionReplaced": "Akun Anda dibuka di HP lain, jadi Anda dikeluarkan dari HP ini.",
+  "sessionReplacedAt": "Akun Anda dibuka di HP lain pukul {time}, jadi Anda dikeluarkan dari HP ini.",
+  "@sessionReplacedAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionReplacedOnAt": "Akun Anda dibuka di HP lain ({device}) pukul {time}, jadi Anda dikeluarkan dari HP ini.",
+  "@sessionReplacedOnAt": {
+    "placeholders": {
+      "device": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionReplacedElsewhere": "Akun Anda dibuka di perangkat lain, sehingga Anda dikeluarkan dari HP ini.",
+  "sessionReplacedElsewhereAt": "Akun Anda dibuka di perangkat lain pukul {time}, sehingga Anda dikeluarkan dari HP ini.",
+  "@sessionReplacedElsewhereAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionReplacedDevice": "Perangkat",
+  "sessionReplacedSystem": "Sistem",
+  "sessionReplacedBrowser": "Browser",
+  "sessionReplacedApp": "Aplikasi",
+  "sessionReplacedModel": "Model",
+  "deviceKindPhone": "HP",
+  "deviceKindComputer": "Komputer",
+  "deviceKindTablet": "Tablet"
+}

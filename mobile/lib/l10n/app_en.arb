@@ -1,0 +1,312 @@
+{
+  "@@locale": "en",
+  "tabHome": "Home",
+  "tabScan": "Scan",
+  "statusPending": "Pending",
+  "statusInProgress": "In Progress",
+  "statusCompleted": "Completed",
+  "roleAdmin": "Administrator",
+  "roleOperator": "Operator",
+  "roleDatabase": "Database",
+  "roleAnalisis": "Analyst",
+  "cameraBlockedTitle": "The camera is unavailable",
+  "cameraBlockedBody": "Camera access has not been granted, so barcodes cannot be scanned. You can still type the code.",
+  "openAppSettings": "Open App Settings",
+  "scanTitle": "Scan",
+  "signOutSection": "Account",
+  "historyTitle": "History",
+  "historySeeAll": "See all ({count})",
+  "@historySeeAll": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "historyEmpty": "No stages have been recorded for this sample yet.",
+  "historyCorrection": "Correction",
+  "historyUnknownOnCache": "History is not stored on the phone. Connect to the server to see it.",
+  "overrideTitle": "Out of stage order",
+  "overrideBody": "This stage does not follow the current one. You may override that, but the reason has to be recorded.",
+  "overrideReason": "Reason for the correction",
+  "overrideReasonHint": "e.g. mis-scan, labels swapped",
+  "overrideReasonTooShort": "The reason must be at least 5 characters.",
+  "continuousMode": "Continuous scan",
+  "continuousRecorded": "{count} recorded",
+  "@continuousRecorded": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "workflowComplete": "This sample has completed every stage.",
+  "detailTitle": "Sample Detail",
+  "detailUpdateStage": "Update stage",
+  "seeAll": "See all ({count})",
+  "@seeAll": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "queueSeeAll": "See the whole queue ({count})",
+  "@queueSeeAll": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "myWorkAllTitle": "My Work",
+  "queueAllTitle": "Queue",
+  "queueEmptyTitle": "Nothing left to send",
+  "queueEmptyMessage": "Every scan on this device has reached the server.",
+  "appTitle": "Atara Operator",
+  "loginSubtitle": "Sign in to start scanning nickel samples",
+  "email": "Email",
+  "password": "Password",
+  "signIn": "Sign In",
+  "signOut": "Sign Out",
+  "signOutConfirm": "Sign out of this account?",
+  "cancel": "Cancel",
+  "retry": "Retry",
+  "discard": "Discard",
+  "save": "Save",
+  "scanButton": "Scan Sample Barcode",
+  "scanHint": "Point the camera at the barcode/QR on the sample label",
+  "updateStageTitle": "Update Sample Stage",
+  "selectNextStage": "Select Next Stage",
+  "fieldNotes": "Field Notes (Optional)",
+  "fieldNotesHint": "e.g. Sample is in good condition, normal moisture level.",
+  "saveAndUpdate": "Save & Update Stage",
+  "sampleIdent": "Sample ID: {ident}",
+  "@sampleIdent": {
+    "placeholders": {
+      "ident": {}
+    }
+  },
+  "currentStage": "Current stage: {stage}",
+  "@currentStage": {
+    "placeholders": {
+      "stage": {}
+    }
+  },
+  "status": "Status: {status}",
+  "@status": {
+    "placeholders": {
+      "status": {}
+    }
+  },
+  "notStarted": "Not Started",
+  "pendingTitle": "Waiting to send ({count})",
+  "@pendingTitle": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "pendingDescription": "Saved on this device; they will be sent when the network is back.",
+  "syncNow": "Send now",
+  "savedOffline": "No network. The scan was saved and will be sent automatically.",
+  "syncedCount": "{count} scan(s) sent.",
+  "@syncedCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "failedTitle": "Failed to sync ({count})",
+  "@failedTitle": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "failedDescription": "Refused by the server. Check the reason, then retry or discard.",
+  "settingsTitle": "Settings",
+  "serverAddress": "Server address",
+  "serverAddressHint": "http://192.168.1.10:3000/api",
+  "serverAddressHelp": "Change this when the app is used at another site or network.",
+  "appearance": "Appearance",
+  "appearanceSystem": "Follow System",
+  "appearanceLight": "Light",
+  "appearanceDark": "Dark",
+  "language": "Language",
+  "settingsSaved": "Settings saved.",
+  "resetDefault": "Reset to default",
+  "connectionTimeout": "Connection timed out. Check your network and try again.",
+  "connectionFailed": "Could not reach the server. Please check your network connection.",
+  "unknownError": "An unknown error occurred. Please try again.",
+  "sampleNotRegistered": "Sample Not Registered",
+  "unexpectedError": "An unexpected error occurred.",
+  "emailRequired": "Email is required",
+  "passwordRequired": "Password is required",
+  "scanScreenTitle": "Scan Sample Barcode",
+  "sampleNotFoundBody": "Code \"{code}\" was not found in the database. Make sure the scanned barcode is valid.",
+  "scanAgain": "Scan Again",
+  "loadFailed": "Failed to load sample data.",
+  "tryAgain": "Try Again",
+  "updateSuccessful": "Update Successful",
+  "stageSaved": "Stage \"{stage}\" has been saved.",
+  "@sampleNotFoundBody": {
+    "placeholders": {
+      "code": {}
+    }
+  },
+  "@stageSaved": {
+    "placeholders": {
+      "stage": {}
+    }
+  },
+  "stageListEmpty": "No stages are configured on the server. Contact an administrator.",
+  "stageListFailed": "Failed to load the stage list. Please check your network connection.",
+  "errorTimeout": "The connection timed out. Check your network and try again.",
+  "errorUnreachable": "Could not reach the server. Please check your network connection.",
+  "serverAddressInvalid": "Not a valid address. Use the form http://host:port/api.",
+  "triedServerAddress": "Tried: {address}",
+  "manualEntry": "Enter code manually",
+  "manualEntryTitle": "Enter Sample Code",
+  "manualEntryHelp": "Use this when the camera is unavailable or the label is damaged.",
+  "manualEntryRequired": "A sample code is required.",
+  "manualEntryContinue": "Continue",
+  "offlineUnknownTitle": "This sample is not stored on the phone",
+  "offlineUnknownBody": "There is no signal, so the current stage is unknown. You can still record a stage — the server will check the order when it is sent.",
+  "cachedNotice": "Stored on this phone; the stage may have moved on since.",
+  "scanHistoryTitle": "Scan History",
+  "scanHistoryOpen": "See scan history",
+  "scanHistoryToday": "Today",
+  "scanHistoryYesterday": "Yesterday",
+  "scanHistoryEmptyTitle": "No history yet",
+  "scanHistoryEmptyBody": "Scans you send appear here, grouped by shift day.",
+  "scanHistoryCachedNotice": "Stored on the phone; without a signal only this shift can be shown.",
+  "scanHistoryOlderOffline": "Earlier days need a connection to the server.",
+  "scanHistoryLoadMore": "Load more",
+  "scanHistoryLoadMoreFailed": "Could not load the rest.",
+  "scanHistoryWindow": "History covers the last 90 shift days.",
+  "myWorkTitle": "My Work",
+  "myWorkSummary": "{count} sample(s) this shift",
+  "myWorkEmpty": "No scans yet on this shift.",
+  "emailHint": "name@atara.local",
+  "passwordHint": "Your password",
+  "checkServerAddress": "Check the server address",
+  "sameLabelIgnored": "Same label ignored. Point at a different one.",
+  "scanThisAgain": "Scan it again",
+  "stageReceived": "RECEIVED",
+  "stageWetPrep": "WET PREP",
+  "stageDryPrep": "DRY PREP",
+  "stageAnalysis": "ANALYSIS",
+  "stageReport": "REPORT",
+  "onboardingTitle": "Quick Guide",
+  "onboardingSkip": "Skip",
+  "onboardingNext": "Next",
+  "onboardingStart": "Get Started",
+  "onboardingDone": "Done",
+  "onboardingPageOf": "Page {current} of {total}",
+  "onboardingWelcomeBody": "A short guide before you start scanning samples.",
+  "onboardingScanTitle": "Scan the sample label",
+  "onboardingScanBody": "Point the camera at the barcode or QR on the sample label. If the label is damaged, you can type the code instead.",
+  "onboardingStageTitle": "Move it to the next stage",
+  "onboardingStageBody": "Once the sample is read, pick the next stage and save. Add field notes when they are worth recording.",
+  "onboardingOfflineTitle": "It keeps working offline",
+  "onboardingOfflineBody": "Scans are saved on the phone when the network drops, then sent on their own as soon as it is back.",
+  "onboardingWorkTitle": "See what you have done",
+  "onboardingWorkBody": "Home tallies the samples you scanned this shift, with the history of each one.",
+  "helpSection": "Guide",
+  "onboardingReopen": "See the guide again",
+  "onboardingReopenHelp": "Replay the five-step guide at any time.",
+  "@onboardingPageOf": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "errorUnreadableAnswer": "The server answered in a form the app does not recognise. Check the server address or contact an administrator.",
+  "signInOperatorsOnly": "This app is for Operators. Please use the website.",
+  "errorForbidden": "Your account's role does not allow this. This app is for Operators.",
+  "mfaTitle": "Verify It's You",
+  "mfaStepLabel": "Step 2 of 2",
+  "mfaGreeting": "Hello, {name}",
+  "mfaChooseSubtitle": "Choose how to verify to finish signing in.",
+  "mfaMethodFace": "Face verification",
+  "mfaMethodFaceHint": "Face the camera and blink once",
+  "mfaMethodTotp": "Authenticator code",
+  "mfaMethodTotpHint": "6-digit code from your authenticator app",
+  "mfaMethodSetup": "Set up Authenticator",
+  "mfaMethodSetupHint": "Connect an authenticator app on this phone",
+  "mfaUseAnotherMethod": "Use another method",
+  "mfaBackToPassword": "Back to password",
+  "mfaExpiresIn": "Valid for {seconds} more seconds",
+  "mfaExpiredTitle": "That sign-in attempt has expired",
+  "mfaExpiredBody": "The two-minute window has passed. Enter your password again to start over.",
+  "mfaStartAgain": "Start again",
+  "mfaTotpSubtitle": "Open your authenticator app and enter the 6-digit code for your ATARA account.",
+  "mfaCodeLabel": "6-digit code",
+  "mfaCodeHint": "Type the 6 digits",
+  "mfaVerify": "Verify",
+  "mfaVerified": "Code accepted. Signing in…",
+  "mfaCodeIncomplete": "The code is six digits.",
+  "mfaCodeWrong": "That code is wrong or was already used. Wait for the next code and try again.",
+  "mfaSetupTitle": "Set up Authenticator",
+  "mfaSetupIntro": "Add this account to an authenticator app on this phone, then enter the code it shows.",
+  "mfaSetupManualSteps": "In your authenticator app: tap +, choose “Other account”, then “Enter key manually”.",
+  "mfaSetupAccountLabel": "Account name",
+  "mfaSetupKeyLabel": "Secret key",
+  "mfaSetupCopyKey": "Copy key",
+  "mfaSetupKeyCopied": "Key copied.",
+  "mfaSetupKeyWarning": "This key is shown only once.",
+  "mfaSetupLoading": "Preparing the key…",
+  "mfaSetupUnavailable": "No Authenticator setup is waiting for this account. Contact an administrator.",
+  "mfaSetupCodeTitle": "Enter the code",
+  "mfaSetupCodeHint": "Type the 6-digit code your authenticator app shows for your ATARA account.",
+  "mfaEnrolled": "Authenticator connected. Signing in…",
+  "mfaTooManyAttempts": "Too many attempts. Wait a few minutes, then sign in again.",
+  "mfaUnsupportedMethod": "This account uses a verification method the app does not support yet. Finish signing in on the website.",
+  "overrideNotesReplaced": "On a correction the reason above is recorded as the note. Field notes are not sent.",
+  "mfaFaceTitle": "Face check",
+  "mfaFaceSubtitle": "Look at the camera and blink once.",
+  "mfaFaceBlinkNow": "Blink now",
+  "mfaFaceChecking": "Checking…",
+  "mfaFaceVerified": "Face matched. Signing in…",
+  "faceNoFace": "No face detected. Check the lighting and try again.",
+  "faceNotAlive": "No blink seen. Look at the camera and blink once.",
+  "faceQualityUnsure": "The face is not clear yet. Look straight at the camera.",
+  "faceQualityTooFar": "Too far away. Move closer to the camera.",
+  "faceQualityTooClose": "Too close. Move back a little.",
+  "faceQualityOffCentre": "Centre your face inside the outline.",
+  "faceQualityTooDark": "Too dark. Add light or turn towards it.",
+  "faceServiceDown": "Face recognition is temporarily unavailable. Contact an administrator.",
+  "faceMismatch": "That face did not match this account.",
+  "faceCameraDenied": "Camera access has not been granted, so face verification cannot run.",
+  "sessionReplaced": "Your account was opened on another phone, so you were signed out here.",
+  "sessionReplacedAt": "Your account was opened on another phone at {time}, so you were signed out here.",
+  "@sessionReplacedAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionReplacedOnAt": "Your account was opened on another phone ({device}) at {time}, so you were signed out here.",
+  "@sessionReplacedOnAt": {
+    "placeholders": {
+      "device": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionReplacedElsewhere": "Your account was opened on another device, so you were signed out on this phone.",
+  "sessionReplacedElsewhereAt": "Your account was opened on another device at {time}, so you were signed out on this phone.",
+  "@sessionReplacedElsewhereAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionReplacedDevice": "Device",
+  "sessionReplacedSystem": "System",
+  "sessionReplacedBrowser": "Browser",
+  "sessionReplacedApp": "App",
+  "sessionReplacedModel": "Model",
+  "deviceKindPhone": "Phone",
+  "deviceKindComputer": "Computer",
+  "deviceKindTablet": "Tablet"
+}

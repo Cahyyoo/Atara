@@ -1,0 +1,19 @@
+# Pinned because the wheel is the whole point: dlib-bin ships prebuilt binaries,
+# so no CMake and no Visual Studio Build Tools are needed on Windows. Building
+# plain `dlib` from source here takes a C++ toolchain and roughly twenty minutes.
+#
+# It is built without BLAS, which makes the descriptor ~14x slower than it
+# could be. scripts/build_dlib_blas.ps1 builds a drop-in replacement; see
+# "Faster descriptors" in README.md. Re-running this file afterwards puts
+# dlib-bin back over it.
+dlib-bin==20.0.1
+
+fastapi>=0.115,<1.0
+uvicorn[standard]>=0.30,<1.0
+numpy>=1.26,<3.0
+pillow>=10.0,<12.0
+python-dotenv>=1.0,<2.0
+
+# Tests
+pytest>=8.0,<9.0
+httpx>=0.27,<1.0

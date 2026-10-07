@@ -1,0 +1,746 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for English (`en`).
+class AppLocalizationsEn extends AppLocalizations {
+  AppLocalizationsEn([String locale = 'en']) : super(locale);
+
+  @override
+  String get tabHome => 'Home';
+
+  @override
+  String get tabScan => 'Scan';
+
+  @override
+  String get statusPending => 'Pending';
+
+  @override
+  String get statusInProgress => 'In Progress';
+
+  @override
+  String get statusCompleted => 'Completed';
+
+  @override
+  String get roleAdmin => 'Administrator';
+
+  @override
+  String get roleOperator => 'Operator';
+
+  @override
+  String get roleDatabase => 'Database';
+
+  @override
+  String get roleAnalisis => 'Analyst';
+
+  @override
+  String get cameraBlockedTitle => 'The camera is unavailable';
+
+  @override
+  String get cameraBlockedBody =>
+      'Camera access has not been granted, so barcodes cannot be scanned. You can still type the code.';
+
+  @override
+  String get openAppSettings => 'Open App Settings';
+
+  @override
+  String get scanTitle => 'Scan';
+
+  @override
+  String get signOutSection => 'Account';
+
+  @override
+  String get historyTitle => 'History';
+
+  @override
+  String historySeeAll(Object count) {
+    return 'See all ($count)';
+  }
+
+  @override
+  String get historyEmpty =>
+      'No stages have been recorded for this sample yet.';
+
+  @override
+  String get historyCorrection => 'Correction';
+
+  @override
+  String get historyUnknownOnCache =>
+      'History is not stored on the phone. Connect to the server to see it.';
+
+  @override
+  String get overrideTitle => 'Out of stage order';
+
+  @override
+  String get overrideBody =>
+      'This stage does not follow the current one. You may override that, but the reason has to be recorded.';
+
+  @override
+  String get overrideReason => 'Reason for the correction';
+
+  @override
+  String get overrideReasonHint => 'e.g. mis-scan, labels swapped';
+
+  @override
+  String get overrideReasonTooShort =>
+      'The reason must be at least 5 characters.';
+
+  @override
+  String get continuousMode => 'Continuous scan';
+
+  @override
+  String continuousRecorded(Object count) {
+    return '$count recorded';
+  }
+
+  @override
+  String get workflowComplete => 'This sample has completed every stage.';
+
+  @override
+  String get detailTitle => 'Sample Detail';
+
+  @override
+  String get detailUpdateStage => 'Update stage';
+
+  @override
+  String seeAll(Object count) {
+    return 'See all ($count)';
+  }
+
+  @override
+  String queueSeeAll(Object count) {
+    return 'See the whole queue ($count)';
+  }
+
+  @override
+  String get myWorkAllTitle => 'My Work';
+
+  @override
+  String get queueAllTitle => 'Queue';
+
+  @override
+  String get queueEmptyTitle => 'Nothing left to send';
+
+  @override
+  String get queueEmptyMessage =>
+      'Every scan on this device has reached the server.';
+
+  @override
+  String get appTitle => 'Atara Operator';
+
+  @override
+  String get loginSubtitle => 'Sign in to start scanning nickel samples';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get password => 'Password';
+
+  @override
+  String get signIn => 'Sign In';
+
+  @override
+  String get signOut => 'Sign Out';
+
+  @override
+  String get signOutConfirm => 'Sign out of this account?';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get discard => 'Discard';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get scanButton => 'Scan Sample Barcode';
+
+  @override
+  String get scanHint =>
+      'Point the camera at the barcode/QR on the sample label';
+
+  @override
+  String get updateStageTitle => 'Update Sample Stage';
+
+  @override
+  String get selectNextStage => 'Select Next Stage';
+
+  @override
+  String get fieldNotes => 'Field Notes (Optional)';
+
+  @override
+  String get fieldNotesHint =>
+      'e.g. Sample is in good condition, normal moisture level.';
+
+  @override
+  String get saveAndUpdate => 'Save & Update Stage';
+
+  @override
+  String sampleIdent(Object ident) {
+    return 'Sample ID: $ident';
+  }
+
+  @override
+  String currentStage(Object stage) {
+    return 'Current stage: $stage';
+  }
+
+  @override
+  String status(Object status) {
+    return 'Status: $status';
+  }
+
+  @override
+  String get notStarted => 'Not Started';
+
+  @override
+  String pendingTitle(Object count) {
+    return 'Waiting to send ($count)';
+  }
+
+  @override
+  String get pendingDescription =>
+      'Saved on this device; they will be sent when the network is back.';
+
+  @override
+  String get syncNow => 'Send now';
+
+  @override
+  String get savedOffline =>
+      'No network. The scan was saved and will be sent automatically.';
+
+  @override
+  String syncedCount(Object count) {
+    return '$count scan(s) sent.';
+  }
+
+  @override
+  String failedTitle(Object count) {
+    return 'Failed to sync ($count)';
+  }
+
+  @override
+  String get failedDescription =>
+      'Refused by the server. Check the reason, then retry or discard.';
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get serverAddress => 'Server address';
+
+  @override
+  String get serverAddressHint => 'http://192.168.1.10:3000/api';
+
+  @override
+  String get serverAddressHelp =>
+      'Change this when the app is used at another site or network.';
+
+  @override
+  String get appearance => 'Appearance';
+
+  @override
+  String get appearanceSystem => 'Follow System';
+
+  @override
+  String get appearanceLight => 'Light';
+
+  @override
+  String get appearanceDark => 'Dark';
+
+  @override
+  String get language => 'Language';
+
+  @override
+  String get settingsSaved => 'Settings saved.';
+
+  @override
+  String get resetDefault => 'Reset to default';
+
+  @override
+  String get connectionTimeout =>
+      'Connection timed out. Check your network and try again.';
+
+  @override
+  String get connectionFailed =>
+      'Could not reach the server. Please check your network connection.';
+
+  @override
+  String get unknownError => 'An unknown error occurred. Please try again.';
+
+  @override
+  String get sampleNotRegistered => 'Sample Not Registered';
+
+  @override
+  String get unexpectedError => 'An unexpected error occurred.';
+
+  @override
+  String get emailRequired => 'Email is required';
+
+  @override
+  String get passwordRequired => 'Password is required';
+
+  @override
+  String get scanScreenTitle => 'Scan Sample Barcode';
+
+  @override
+  String sampleNotFoundBody(Object code) {
+    return 'Code \"$code\" was not found in the database. Make sure the scanned barcode is valid.';
+  }
+
+  @override
+  String get scanAgain => 'Scan Again';
+
+  @override
+  String get loadFailed => 'Failed to load sample data.';
+
+  @override
+  String get tryAgain => 'Try Again';
+
+  @override
+  String get updateSuccessful => 'Update Successful';
+
+  @override
+  String stageSaved(Object stage) {
+    return 'Stage \"$stage\" has been saved.';
+  }
+
+  @override
+  String get stageListEmpty =>
+      'No stages are configured on the server. Contact an administrator.';
+
+  @override
+  String get stageListFailed =>
+      'Failed to load the stage list. Please check your network connection.';
+
+  @override
+  String get errorTimeout =>
+      'The connection timed out. Check your network and try again.';
+
+  @override
+  String get errorUnreachable =>
+      'Could not reach the server. Please check your network connection.';
+
+  @override
+  String get serverAddressInvalid =>
+      'Not a valid address. Use the form http://host:port/api.';
+
+  @override
+  String triedServerAddress(Object address) {
+    return 'Tried: $address';
+  }
+
+  @override
+  String get manualEntry => 'Enter code manually';
+
+  @override
+  String get manualEntryTitle => 'Enter Sample Code';
+
+  @override
+  String get manualEntryHelp =>
+      'Use this when the camera is unavailable or the label is damaged.';
+
+  @override
+  String get manualEntryRequired => 'A sample code is required.';
+
+  @override
+  String get manualEntryContinue => 'Continue';
+
+  @override
+  String get offlineUnknownTitle => 'This sample is not stored on the phone';
+
+  @override
+  String get offlineUnknownBody =>
+      'There is no signal, so the current stage is unknown. You can still record a stage — the server will check the order when it is sent.';
+
+  @override
+  String get cachedNotice =>
+      'Stored on this phone; the stage may have moved on since.';
+
+  @override
+  String get scanHistoryTitle => 'Scan History';
+
+  @override
+  String get scanHistoryOpen => 'See scan history';
+
+  @override
+  String get scanHistoryToday => 'Today';
+
+  @override
+  String get scanHistoryYesterday => 'Yesterday';
+
+  @override
+  String get scanHistoryEmptyTitle => 'No history yet';
+
+  @override
+  String get scanHistoryEmptyBody =>
+      'Scans you send appear here, grouped by shift day.';
+
+  @override
+  String get scanHistoryCachedNotice =>
+      'Stored on the phone; without a signal only this shift can be shown.';
+
+  @override
+  String get scanHistoryOlderOffline =>
+      'Earlier days need a connection to the server.';
+
+  @override
+  String get scanHistoryLoadMore => 'Load more';
+
+  @override
+  String get scanHistoryLoadMoreFailed => 'Could not load the rest.';
+
+  @override
+  String get scanHistoryWindow => 'History covers the last 90 shift days.';
+
+  @override
+  String get myWorkTitle => 'My Work';
+
+  @override
+  String myWorkSummary(int count) {
+    return '$count sample(s) this shift';
+  }
+
+  @override
+  String get myWorkEmpty => 'No scans yet on this shift.';
+
+  @override
+  String get emailHint => 'name@atara.local';
+
+  @override
+  String get passwordHint => 'Your password';
+
+  @override
+  String get checkServerAddress => 'Check the server address';
+
+  @override
+  String get sameLabelIgnored =>
+      'Same label ignored. Point at a different one.';
+
+  @override
+  String get scanThisAgain => 'Scan it again';
+
+  @override
+  String get stageReceived => 'RECEIVED';
+
+  @override
+  String get stageWetPrep => 'WET PREP';
+
+  @override
+  String get stageDryPrep => 'DRY PREP';
+
+  @override
+  String get stageAnalysis => 'ANALYSIS';
+
+  @override
+  String get stageReport => 'REPORT';
+
+  @override
+  String get onboardingTitle => 'Quick Guide';
+
+  @override
+  String get onboardingSkip => 'Skip';
+
+  @override
+  String get onboardingNext => 'Next';
+
+  @override
+  String get onboardingStart => 'Get Started';
+
+  @override
+  String get onboardingDone => 'Done';
+
+  @override
+  String onboardingPageOf(int current, int total) {
+    return 'Page $current of $total';
+  }
+
+  @override
+  String get onboardingWelcomeBody =>
+      'A short guide before you start scanning samples.';
+
+  @override
+  String get onboardingScanTitle => 'Scan the sample label';
+
+  @override
+  String get onboardingScanBody =>
+      'Point the camera at the barcode or QR on the sample label. If the label is damaged, you can type the code instead.';
+
+  @override
+  String get onboardingStageTitle => 'Move it to the next stage';
+
+  @override
+  String get onboardingStageBody =>
+      'Once the sample is read, pick the next stage and save. Add field notes when they are worth recording.';
+
+  @override
+  String get onboardingOfflineTitle => 'It keeps working offline';
+
+  @override
+  String get onboardingOfflineBody =>
+      'Scans are saved on the phone when the network drops, then sent on their own as soon as it is back.';
+
+  @override
+  String get onboardingWorkTitle => 'See what you have done';
+
+  @override
+  String get onboardingWorkBody =>
+      'Home tallies the samples you scanned this shift, with the history of each one.';
+
+  @override
+  String get helpSection => 'Guide';
+
+  @override
+  String get onboardingReopen => 'See the guide again';
+
+  @override
+  String get onboardingReopenHelp => 'Replay the five-step guide at any time.';
+
+  @override
+  String get errorUnreadableAnswer =>
+      'The server answered in a form the app does not recognise. Check the server address or contact an administrator.';
+
+  @override
+  String get signInOperatorsOnly =>
+      'This app is for Operators. Please use the website.';
+
+  @override
+  String get errorForbidden =>
+      'Your account\'s role does not allow this. This app is for Operators.';
+
+  @override
+  String get mfaTitle => 'Verify It\'s You';
+
+  @override
+  String get mfaStepLabel => 'Step 2 of 2';
+
+  @override
+  String mfaGreeting(String name) {
+    return 'Hello, $name';
+  }
+
+  @override
+  String get mfaChooseSubtitle => 'Choose how to verify to finish signing in.';
+
+  @override
+  String get mfaMethodFace => 'Face verification';
+
+  @override
+  String get mfaMethodFaceHint => 'Face the camera and blink once';
+
+  @override
+  String get mfaMethodTotp => 'Authenticator code';
+
+  @override
+  String get mfaMethodTotpHint => '6-digit code from your authenticator app';
+
+  @override
+  String get mfaMethodSetup => 'Set up Authenticator';
+
+  @override
+  String get mfaMethodSetupHint => 'Connect an authenticator app on this phone';
+
+  @override
+  String get mfaUseAnotherMethod => 'Use another method';
+
+  @override
+  String get mfaBackToPassword => 'Back to password';
+
+  @override
+  String mfaExpiresIn(int seconds) {
+    return 'Valid for $seconds more seconds';
+  }
+
+  @override
+  String get mfaExpiredTitle => 'That sign-in attempt has expired';
+
+  @override
+  String get mfaExpiredBody =>
+      'The two-minute window has passed. Enter your password again to start over.';
+
+  @override
+  String get mfaStartAgain => 'Start again';
+
+  @override
+  String get mfaTotpSubtitle =>
+      'Open your authenticator app and enter the 6-digit code for your ATARA account.';
+
+  @override
+  String get mfaCodeLabel => '6-digit code';
+
+  @override
+  String get mfaCodeHint => 'Type the 6 digits';
+
+  @override
+  String get mfaVerify => 'Verify';
+
+  @override
+  String get mfaVerified => 'Code accepted. Signing in…';
+
+  @override
+  String get mfaCodeIncomplete => 'The code is six digits.';
+
+  @override
+  String get mfaCodeWrong =>
+      'That code is wrong or was already used. Wait for the next code and try again.';
+
+  @override
+  String get mfaSetupTitle => 'Set up Authenticator';
+
+  @override
+  String get mfaSetupIntro =>
+      'Add this account to an authenticator app on this phone, then enter the code it shows.';
+
+  @override
+  String get mfaSetupManualSteps =>
+      'In your authenticator app: tap +, choose “Other account”, then “Enter key manually”.';
+
+  @override
+  String get mfaSetupAccountLabel => 'Account name';
+
+  @override
+  String get mfaSetupKeyLabel => 'Secret key';
+
+  @override
+  String get mfaSetupCopyKey => 'Copy key';
+
+  @override
+  String get mfaSetupKeyCopied => 'Key copied.';
+
+  @override
+  String get mfaSetupKeyWarning => 'This key is shown only once.';
+
+  @override
+  String get mfaSetupLoading => 'Preparing the key…';
+
+  @override
+  String get mfaSetupUnavailable =>
+      'No Authenticator setup is waiting for this account. Contact an administrator.';
+
+  @override
+  String get mfaSetupCodeTitle => 'Enter the code';
+
+  @override
+  String get mfaSetupCodeHint =>
+      'Type the 6-digit code your authenticator app shows for your ATARA account.';
+
+  @override
+  String get mfaEnrolled => 'Authenticator connected. Signing in…';
+
+  @override
+  String get mfaTooManyAttempts =>
+      'Too many attempts. Wait a few minutes, then sign in again.';
+
+  @override
+  String get mfaUnsupportedMethod =>
+      'This account uses a verification method the app does not support yet. Finish signing in on the website.';
+
+  @override
+  String get overrideNotesReplaced =>
+      'On a correction the reason above is recorded as the note. Field notes are not sent.';
+
+  @override
+  String get mfaFaceTitle => 'Face check';
+
+  @override
+  String get mfaFaceSubtitle => 'Look at the camera and blink once.';
+
+  @override
+  String get mfaFaceBlinkNow => 'Blink now';
+
+  @override
+  String get mfaFaceChecking => 'Checking…';
+
+  @override
+  String get mfaFaceVerified => 'Face matched. Signing in…';
+
+  @override
+  String get faceNoFace =>
+      'No face detected. Check the lighting and try again.';
+
+  @override
+  String get faceNotAlive =>
+      'No blink seen. Look at the camera and blink once.';
+
+  @override
+  String get faceQualityUnsure =>
+      'The face is not clear yet. Look straight at the camera.';
+
+  @override
+  String get faceQualityTooFar => 'Too far away. Move closer to the camera.';
+
+  @override
+  String get faceQualityTooClose => 'Too close. Move back a little.';
+
+  @override
+  String get faceQualityOffCentre => 'Centre your face inside the outline.';
+
+  @override
+  String get faceQualityTooDark => 'Too dark. Add light or turn towards it.';
+
+  @override
+  String get faceServiceDown =>
+      'Face recognition is temporarily unavailable. Contact an administrator.';
+
+  @override
+  String get faceMismatch => 'That face did not match this account.';
+
+  @override
+  String get faceCameraDenied =>
+      'Camera access has not been granted, so face verification cannot run.';
+
+  @override
+  String get sessionReplaced =>
+      'Your account was opened on another phone, so you were signed out here.';
+
+  @override
+  String sessionReplacedAt(String time) {
+    return 'Your account was opened on another phone at $time, so you were signed out here.';
+  }
+
+  @override
+  String sessionReplacedOnAt(String device, String time) {
+    return 'Your account was opened on another phone ($device) at $time, so you were signed out here.';
+  }
+
+  @override
+  String get sessionReplacedElsewhere =>
+      'Your account was opened on another device, so you were signed out on this phone.';
+
+  @override
+  String sessionReplacedElsewhereAt(String time) {
+    return 'Your account was opened on another device at $time, so you were signed out on this phone.';
+  }
+
+  @override
+  String get sessionReplacedDevice => 'Device';
+
+  @override
+  String get sessionReplacedSystem => 'System';
+
+  @override
+  String get sessionReplacedBrowser => 'Browser';
+
+  @override
+  String get sessionReplacedApp => 'App';
+
+  @override
+  String get sessionReplacedModel => 'Model';
+
+  @override
+  String get deviceKindPhone => 'Phone';
+
+  @override
+  String get deviceKindComputer => 'Computer';
+
+  @override
+  String get deviceKindTablet => 'Tablet';
+}

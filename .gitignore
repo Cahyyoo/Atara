@@ -1,0 +1,15 @@
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Never commit real credentials; each project keeps its own .env.example
+.env
+.env.*
+!.env.example
+
+# Agent scratch dirs
+.agents/
+.windsurf/

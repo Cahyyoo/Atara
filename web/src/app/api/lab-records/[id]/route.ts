@@ -1,0 +1,87 @@
+import { NextRequest } from "next/server";
+import { invalidateAnalytics } from "@/lib/analytics-cache";
+import { Prisma } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
+import { jsonSuccess, handleApiError, ApiError } from "@/lib/api-response";
+import { requireCapability } from "@/lib/api-auth";
+import { updateLabRecordSchema } from "@/lib/validation";
+import { diffLabRecord, toLabRecordDTO } from "@/lib/lab-record";
+import { IDENTITY_FIELDS, resolveSampleIdent } from "@/lib/sample-ident-server";
+import { ACTIVE_LAB_RECORD } from "@/lib/soft-delete";
+import { readJsonBody } from "@/lib/api-request";
+import { syncSubs } from "@/lib/sub-records";
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await requireCapability(request, "editDatabase");
+
+    const { id } = await params;
+    const data = updateLabRecordSchema.parse(await readJsonBody(request));
+
+    // A deleted sample's record is not editable; it reads as missing,
+    // which is what it is until someone restores it.
+    const existing = await prisma.labRecord.findFirst({
+      where: { id, ...ACTIVE_LAB_RECORD },
+    });
+    if (!existing) {
+      throw new ApiError("Sample record not found.", 404);
+    }
+    // A sub-sample's identity is its parent's, kept in step from there.
+    if (existing.parentId && IDENTITY_FIELDS.some((field) => data[field] !== undefined)) {
+      throw new ApiError("A sub-sample's identity follows its parent; change it on the parent sample.", 422);
+    }
+
+    const record = await prisma.$transaction(async (tx) => {
+      // Rebuilt on every write that could move one of its parts: the id is
+      // stored, so a corrected pit would otherwise leave the old one in it.
+      const sampleIdent = await resolveSampleIdent(tx, existing, data);
+      // Named rather than left to the unique index, whose refusal would say
+      // only that something already exists. Identities are now filled in
+      // here, after the barcodes are made, so this is where clashes surface.
+      if (sampleIdent && sampleIdent !== existing.sampleIdent) {
+        const holder = await tx.labRecord.findUnique({
+          where: { sampleIdent },
+          select: { id: true, labCode: true, sample: { select: { sampleCode: true } } },
+        });
+        if (holder && holder.id !== id) {
+          throw new ApiError(
+            `Sample ID ${sampleIdent} is already used by sample ${holder.sample?.sampleCode ?? holder.labCode}.`,
+            409
+          );
+        }
+      }
+      const payload = sampleIdent === undefined ? data : { ...data, sampleIdent };
+
+      const changes = diffLabRecord(existing, payload);
+      const hasChanges = Object.keys(changes).length > 0;
+
+      const updated = await tx.labRecord.update({
+        where: { id },
+        data: hasChanges ? { ...payload, updatedById: session.userId } : payload,
+      });
+
+      if (hasChanges) {
+        await tx.labRecordAudit.create({
+          data: {
+            labRecordId: id,
+            changedById: session.userId,
+            changes: changes as unknown as Prisma.InputJsonObject,
+          },
+        });
+      }
+      // Its sub-samples carry its identity: they move with it.
+      if (sampleIdent !== undefined) await syncSubs(tx, [id]);
+
+      return updated;
+    });
+
+    // The author of this change is about to look for it on the dashboard.
+    invalidateAnalytics();
+    return jsonSuccess(toLabRecordDTO(record));
+  } catch (error) {
+    return handleApiError(error);
+  }
+}

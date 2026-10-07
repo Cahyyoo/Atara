@@ -1,0 +1,1666 @@
+{
+  "session": {
+    "replacedTitle": "Masuk di perangkat lain",
+    "replacedBody": "Akun Anda dibuka di perangkat lain pukul {time}, sehingga Anda dikeluarkan dari perangkat ini.",
+    "replacedBodyNoTime": "Akun Anda dibuka di perangkat lain, sehingga Anda dikeluarkan dari perangkat ini.",
+    "detailDevice": "Perangkat",
+    "detailSystem": "Sistem",
+    "detailBrowser": "Browser",
+    "detailApp": "Aplikasi",
+    "detailModel": "Model",
+    "detailTime": "Waktu",
+    "kindDesktop": "Komputer",
+    "kindPhone": "HP",
+    "kindTablet": "Tablet",
+    "appName": "Aplikasi mobile Atara",
+    "signInAgain": "Masuk lagi",
+    "endedByAdminTitle": "Dikeluarkan oleh admin",
+    "endedByAdminBody": "Admin mengakhiri sesi ini pukul {time}. Masuk lagi untuk melanjutkan.",
+    "endedByAdminBodyNoTime": "Admin mengakhiri sesi ini. Masuk lagi untuk melanjutkan.",
+    "passwordChangedTitle": "Password Anda diubah",
+    "passwordChangedBody": "Password akun ini diubah pukul {time}, sehingga Anda dikeluarkan dari perangkat ini.",
+    "passwordChangedBodyNoTime": "Password akun ini diubah, sehingga Anda dikeluarkan dari perangkat ini."
+  },
+  "tab": {
+    "title": "Atara dibuka di tab lain",
+    "body": "Hanya satu tab yang bisa dipakai sekaligus. Pakai Atara di tab ini saja? Tab lain akan dikunci.",
+    "useHere": "Gunakan di tab ini"
+  },
+  "common": {
+    "save": "Simpan",
+    "cancel": "Batal",
+    "edit": "Ubah",
+    "close": "Tutup",
+    "search": "Cari",
+    "loading": "Memuat…",
+    "actions": "Aksi",
+    "status": "Status",
+    "active": "Aktif",
+    "archived": "Diarsipkan",
+    "notes": "Catatan",
+    "name": "Nama",
+    "empty": "—",
+    "export": "Ekspor",
+    "exportExcel": "Excel (.xlsx)",
+    "exportCsv": "CSV",
+    "columns": "Kolom",
+    "perPage": "per halaman",
+    "showing": "Menampilkan {shown} dari {total} {noun}",
+    "pageOf": "Halaman {page} dari {total}",
+    "networkError": "Gagal menghubungi server. Periksa koneksi jaringan Anda.",
+    "loadError": "Gagal memuat data. Periksa koneksi jaringan Anda.",
+    "errorTitle": "Terjadi kesalahan",
+    "errorBody": "Halaman tidak bisa dimuat. Server mungkin sedang sibuk sesaat; mencoba lagi biasanya berhasil.",
+    "retry": "Coba lagi",
+    "viewDetail": "Buka sampelnya",
+    "previousPage": "Halaman sebelumnya",
+    "nextPage": "Halaman berikutnya"
+  },
+  "nav": {
+    "account": "Akun",
+    "appearance": "Tampilan",
+    "assayEntry": "Input Hasil Uji",
+    "brandSubtitle": "Monitoring Sampel",
+    "dashboard": "Dasbor",
+    "generateSamples": "Buat Barcode",
+    "language": "Bahasa",
+    "logOut": "Keluar",
+    "logOutBody": "Anda akan dikembalikan ke halaman masuk. Pekerjaan yang belum disimpan akan hilang.",
+    "logOutTitle": "Keluar dari akun?",
+    "masterData": "Master Data",
+    "menu": "Menu",
+    "openNavigation": "Buka navigasi",
+    "reprintLabels": "Cetak Ulang Label",
+    "sampleDatabase": "Database Sampel",
+    "activity": "Aktivitas",
+    "themeDark": "Gelap",
+    "themeLight": "Terang",
+    "users": "Pengguna",
+    "changePassword": "Ganti password",
+    "gradeControl": "Kesimpulan",
+    "dataQuality": "Kualitas Data",
+    "admin": "Administrasi",
+    "help": "Panduan"
+  },
+  "auth": {
+    "title": "Sistem Tracking Sampel",
+    "subtitle": "Masuk untuk membuka dasbor monitoring",
+    "email": "Email",
+    "password": "Kata Sandi",
+    "signIn": "Masuk",
+    "signInFailed": "Gagal masuk. Periksa email dan kata sandi Anda.",
+    "replacedNotice": "Akun Anda dibuka di perangkat lain, sehingga Anda dikeluarkan dari perangkat ini. Masuk lagi untuk melanjutkan di sini.",
+    "emailPlaceholder": "nama@atara.local",
+    "passwordPlaceholder": "Kata sandi Anda",
+    "showPassword": "Tampilkan kata sandi",
+    "hidePassword": "Sembunyikan kata sandi",
+    "endedByAdminNotice": "Admin mengeluarkan Anda. Masuk lagi untuk melanjutkan.",
+    "passwordChangedNotice": "Password Anda diubah, sehingga Anda dikeluarkan dari perangkat ini. Masuk dengan password baru."
+  },
+  "samples": {
+    "status": {
+      "PENDING": "Menunggu",
+      "IN_PROGRESS": "Berjalan",
+      "COMPLETED": "Selesai"
+    },
+    "barcodeCode": "Kode Barcode",
+    "labCode": "Kode Lab",
+    "currentStage": "Tahap Saat Ini",
+    "lastUpdated": "Terakhir Diperbarui",
+    "notStarted": "Belum Dimulai",
+    "searchPlaceholder": "Cari kode barcode…",
+    "allStatuses": "Semua Status",
+    "allStages": "Semua Tahap",
+    "empty": "Tidak ada sampel ditemukan.",
+    "noun": "sampel",
+    "generate": {
+      "title": "Buat & Cetak Label",
+      "subtitle": "Buat kode sampel baru dan cetak label QR untuk ditempel pada wadah sampel.",
+      "formTitle": "Buat barcode baru",
+      "submit": "Buat {count} barcode",
+      "sessionTitle": "Barcode yang Baru Dibuat ({count})",
+      "sessionDescription": "Centang sampel yang labelnya ingin dicetak, lalu klik \"Cetak Grid Label\".",
+      "selectAll": "Pilih Semua",
+      "print": "Cetak Grid Label",
+      "previewTitle": "Pratinjau Cetak (A4)",
+      "previewDescription": "{count} label dipilih untuk dicetak.",
+      "backToForm": "Buat barcode lagi",
+      "viewBatch": "Lihat {count} barcode yang baru dibuat",
+      "formDescription": "Barcode dibuat lebih dulu; identitas (dan Sample ID-nya) diisi kemudian di Database Sampel.",
+      "quantity": "Jumlah barcode",
+      "quantityHint": "Bilangan bulat 1 sampai {max}.",
+      "identityLater": "Barcode baru belum punya Sample ID. Isi identitasnya — satu atau banyak record sekaligus — di Database Sampel.",
+      "openDatabase": "Isi identitas di Database"
+    },
+    "printOptions": {
+      "copies": "Salinan",
+      "perRow": "Label per Baris",
+      "perRowValue": "{count} per baris",
+      "sheetHint": "{total} label ≈ {sheets} lembar A4."
+    },
+    "labels": {
+      "title": "Cetak Ulang Label",
+      "subtitle": "Cetak label untuk sampel yang dibuat kapan pun, bukan hanya dari sesi ini.",
+      "findTitle": "Cari Sampel",
+      "findDescription": "Label cetak ulang terbaca sama persis seperti aslinya.",
+      "showingMatching": "Menampilkan {shown} dari {total} sampel yang cocok",
+      "noMatch": "Tidak ada sampel yang cocok dengan filter ini.",
+      "clearAll": "Kosongkan",
+      "nothingSelected": "Centang sampel di daftar untuk mencetak labelnya. Pilihan tetap tersimpan saat filter diubah.",
+      "printOne": "Cetak label",
+      "selectShown": "Pilih semua yang tampil ({count})",
+      "loadMore": "Muat lebih banyak ({remaining} lagi)",
+      "shiftHint": "Tip: tahan Shift lalu klik untuk memilih satu rentang sekaligus.",
+      "printPanelTitle": "Dipilih ({count})",
+      "removeFromSelection": "Hapus {code} dari pilihan",
+      "printCount": "Cetak {count} label",
+      "preview": "Pratinjau",
+      "previewTitle": "Pratinjau ({count} label)",
+      "identLabel": "Sample ID",
+      "identAll": "Semua Sample ID",
+      "identHas": "Sudah ada Sample ID",
+      "identMissing": "Belum ada Sample ID",
+      "noIdent": "Belum ada Sample ID",
+      "columnBarcode": "Barcode",
+      "columnSampleId": "Sample ID",
+      "columnStatus": "Status"
+    },
+    "detail": {
+      "back": "Kembali",
+      "createdBy": "Dibuat Oleh",
+      "createdAt": "Dibuat Pada",
+      "timelineTitle": "Riwayat Perpindahan Sampel",
+      "timelineEmpty": "Belum ada riwayat perpindahan untuk sampel ini.",
+      "correction": "Koreksi",
+      "reason": "Alasan:"
+    },
+    "labRecord": {
+      "title": "Data Lab",
+      "labCode": "Kode Lab",
+      "shiftDay": "Hari Shift (07.00–06.59 WITA)",
+      "sequence": "Urutan",
+      "noResults": "Belum ada hasil uji yang tercatat untuk sampel ini.",
+      "remarks": "Keterangan",
+      "lastEditedBy": "Terakhir diubah oleh {name} pada {date}",
+      "historyTitle": "Riwayat Perubahan Hasil Uji"
+    },
+    "correct": {
+      "button": "Koreksi tahap",
+      "title": "Koreksi tahap {code}",
+      "description": "Pindahkan sampel ke tahap yang sebenarnya. Dicatat sebagai koreksi, beserta alasan Anda, di timeline dan jejak aktivitas.",
+      "stage": "Pindah ke tahap",
+      "stagePlaceholder": "Pilih tahap",
+      "reason": "Alasan",
+      "reasonPlaceholder": "mis. salah scan ke Dry Prep; sampel masih di Wet Prep",
+      "reasonHint": "Minimal {min} karakter. Ditampilkan di timeline sampel.",
+      "confirmHint": "{code} akan dipindah ke {stage}. Tercatat atas nama Anda.",
+      "submit": "Koreksi tahap",
+      "confirm": "Ya, pindahkan",
+      "done": "Tahap dikoreksi ke {stage}."
+    },
+    "sub": {
+      "title": "Sub sampel ({code})",
+      "parent": "Sampel induk",
+      "stageFollows": "Mengikuti sampel induk",
+      "created": "Dibuat",
+      "others": "Sub sampel lain",
+      "listTitle": "Sub sampel",
+      "backTo": "Ke sampel induk {code}",
+      "none": "Belum ada sub sampel lain."
+    }
+  },
+  "dashboard": {
+    "title": "Dasbor Monitoring",
+    "subtitle": "Throughput, waktu proses, dan titik penumpukan, plus daftar sampel lengkap.",
+    "rangeFrom": "Dari hari shift",
+    "rangeTo": "Sampai hari shift",
+    "rangeReset": "{days} hari terakhir",
+    "rangeLabel": "{days} hari terakhir",
+    "kpi": {
+      "samples": "Sampel",
+      "inProgress": "Berjalan",
+      "completed": "Selesai",
+      "completedHint": "{percent}% dari rentang",
+      "cycleTime": "Waktu Siklus",
+      "cycleTimeHint": "Scan pertama sampai Reporting",
+      "awaitingAssay": "Menunggu Hasil Uji",
+      "awaitingAssayHint": "Sudah dianalisis, hasil belum diisi",
+      "needsAttention": "Perlu Perhatian",
+      "needsAttentionHint": "Melewati SLA tahap"
+    },
+    "throughput": {
+      "title": "Throughput Harian",
+      "description": "Sampel yang didaftarkan dibanding yang mencapai Reporting, per hari shift.",
+      "registered": "Didaftarkan",
+      "completed": "Selesai"
+    },
+    "stageHours": {
+      "title": "Rata-rata Jam per Tahap",
+      "description": "Berapa lama sampel berada di tiap tahap sebelum scan berikutnya."
+    },
+    "waiting": {
+      "title": "Di Mana Sampel Menumpuk",
+      "description": "Sampel terbuka yang saat ini berada di tiap tahap."
+    },
+    "niDistribution": {
+      "title": "Sebaran Kadar Ni",
+      "description": "Kadar nikel yang tercatat, dalam rentang 0,25%.",
+      "empty": "Belum ada hasil uji pada rentang ini."
+    },
+    "codeSplit": {
+      "title": "Sampel per Tempat",
+      "description": "Asal sampel pada rentang ini.",
+      "unplaced": "Belum ada Tempat"
+    },
+    "chartEmpty": "Tidak ada data pada rentang ini.",
+    "needsAttention": {
+      "title": "Perlu perhatian ({count})",
+      "empty": "Semua sampel terbuka masih dalam batas SLA tahapnya.",
+      "showTable": "Tampilkan data grafik",
+      "hideTable": "Sembunyikan data grafik",
+      "stuckIn": "Tertahan di",
+      "hours": "Jam",
+      "sla": "SLA"
+    },
+    "chartData": {
+      "title": "Data Grafik",
+      "shiftDay": "Hari shift"
+    },
+    "allSamples": {
+      "title": "Semua sampel",
+      "subtitle": "Seluruh sampel yang tercatat — tabel ini punya filter sendiri dan tidak dibatasi rentang di atas."
+    },
+    "myScans": {
+      "title": "Scan saya shift ini",
+      "description": "Hari shift {shiftDate}, dicatat lewat aplikasi mobile.",
+      "scans": "scan",
+      "corrections": "{count} di antaranya koreksi",
+      "empty": "Belum ada yang dicatat di shift ini."
+    },
+    "filters": "Saringan",
+    "removeFilter": "Lepas saringan {name}",
+    "lastUpdated": "Diperbarui {time}",
+    "refresh": "Perbarui sekarang",
+    "downloadReport": "Unduh ringkasan",
+    "tvMode": "Mode TV"
+  },
+  "database": {
+    "title": "Database Sampel",
+    "subtitle": "Cari sampel lewat kode barcode, kode lab, atau Sample ID, lalu klik baris untuk melihat semua hasil ujinya.",
+    "searchPlaceholder": "Cari kode lab, Sample ID, atau kode barcode…",
+    "shiftDate": "Tanggal shift",
+    "empty": "Tidak ada data sampel ditemukan.",
+    "noun": "data",
+    "dialog": {
+      "title": "Ubah Parameter Sampel",
+      "remarks": "Keterangan",
+      "remarksPlaceholder": "Catatan opsional tentang sampel ini.",
+      "save": "Simpan Parameter"
+    },
+    "identity": {
+      "title": "Identitas Sampel",
+      "choose": "Pilih…",
+      "none": "— tidak ada —",
+      "bargingNo": "Urutan Barging",
+      "sequenceNo": "No Urutan",
+      "sampleNo": "No Sample",
+      "sackCount": "Jumlah Karung",
+      "preview": "Sample ID yang akan tersimpan",
+      "incomplete": "Isi Tempat untuk menyusun Sample ID.",
+      "followsParent": "Sub sampel mengikuti identitas sampel induknya. Ubah di sampel induk."
+    },
+    "sampleIdent": "Sample ID",
+    "selectShown": "Pilih baris di halaman ini",
+    "selectedCount": "{count} baris dipilih",
+    "clearSelection": "Kosongkan",
+    "measurementMethod": "Metode Pengukuran",
+    "solutionId": "ID Larutan",
+    "measurementFinished": "Selesai Diukur",
+    "instrumentColumns": "Kolom Instrumen",
+    "remove": "Hapus",
+    "restore": "Pulihkan",
+    "deletedView": "Terhapus",
+    "sampleColumn": "Sampel",
+    "viewLabel": "Tampilan",
+    "activeView": "Aktif",
+    "emptyFiltered": "Tidak ada sampel yang cocok dengan filter ini.",
+    "removeConfirmTitle": "Hapus {count} sampel?",
+    "removeConfirmBody": "Sampel akan hilang dari daftar dan dari aplikasi scan. Anda bisa memulihkannya dari tampilan Terhapus.",
+    "restoreConfirmTitle": "Pulihkan {count} sampel?",
+    "restoreConfirmBody": "Sampel akan muncul kembali di daftar dan bisa di-scan lagi.",
+    "filters": {
+      "dateLabel": "Tanggal shift",
+      "dateAll": "Semua tanggal",
+      "dateToday": "Hari ini",
+      "date7": "7 hari terakhir",
+      "date30": "30 hari terakhir",
+      "dateCustom": "Pilih rentang…",
+      "dateFrom": "Dari tanggal",
+      "dateTo": "Sampai tanggal",
+      "resultsLabel": "Hasil uji",
+      "resultsAll": "Semua",
+      "resultsMissing": "Belum ada hasil",
+      "resultsPresent": "Sudah ada hasil",
+      "reset": "Reset filter",
+      "identLabel": "Sample ID",
+      "identAll": "Semua",
+      "identHas": "Sudah ada",
+      "identMissing": "Belum ada"
+    },
+    "sheet": {
+      "identity": "Identitas",
+      "results": "Hasil uji (%)",
+      "openSample": "Buka halaman sampel",
+      "open": "Buka detail",
+      "openFor": "Buka detail {code}"
+    },
+    "caption": "{count} sampel",
+    "noResultsYet": "Belum ada hasil uji",
+    "paste": {
+      "open": "Tempel dari Excel",
+      "title": "Tempel Hasil dari Excel",
+      "description": "Salin barisnya dari spreadsheet lalu tempel di sini. Isinya akan diterapkan pada {count} baris yang Anda pilih, dan tidak ada yang tersimpan sebelum Anda membaca pratinjaunya.",
+      "boxLabel": "Baris yang ditempel",
+      "placeholder": "Tempel di sini (Ctrl+V)…",
+      "auditReason": "Ditempel dari spreadsheet",
+      "rowsRead": "{count} baris ditempel",
+      "toUpdate": "{count} akan diperbarui",
+      "unchanged": "{count} tidak berubah",
+      "unknown": "{count} tidak cocok",
+      "invalid": "{count} tidak valid",
+      "matchedBy": {
+        "ident": "Dicocokkan lewat Sample ID",
+        "labCode": "Dicocokkan lewat Sample ID (kolom Lab Code dibaca sebagai Sample ID)",
+        "order": "Dicocokkan lewat urutan baris"
+      },
+      "countMismatch": "{pasted} baris ditempel ke {selected} baris terpilih. Tanpa kolom Sample ID, barisnya dipasangkan berurutan, jadi jumlahnya harus sama.",
+      "noColumns": "Tidak ada kolom yang ditempel yang merupakan hasil yang disimpan database ini.",
+      "tooMany": "{count} baris akan tersimpan sekaligus, batasnya {max}. Tempel per blok yang lebih kecil.",
+      "fixRows": "Perbaiki dulu baris yang ditandai merah sebelum tempelan ini bisa diterapkan.",
+      "line": "Baris",
+      "row": "Menuju",
+      "result": "Hasil",
+      "changes": "Perubahan",
+      "status": {
+        "update": "Akan diperbarui",
+        "unchanged": "Tidak berubah",
+        "unknown": "Tidak ada baris yang cocok",
+        "invalid": "Nilai tidak valid",
+        "create": "Sub baru"
+      },
+      "reason": {
+        "noMatch": "ID ini tidak ada di antara baris yang dipilih.",
+        "noRow": "Tidak ada baris terpilih di posisi ini.",
+        "duplicate": "Baris ini sudah menerima nilai dari baris tempelan sebelumnya.",
+        "futureDate": "Ini terbaca sebagai tanggal di masa depan, jadi tidak mungkin waktu selesai pengukuran. Periksa apakah sheet menulis bulan atau hari lebih dulu.",
+        "notFound": "Tidak ada sampel dengan Sample ID ini.",
+        "ambiguous": "Sample ID ini cocok dengan lebih dari satu sampel bila jumlah karung diabaikan. Tambahkan jumlah karungnya."
+      },
+      "apply": "Terapkan ke {count} baris",
+      "previewTruncated": "Menampilkan {shown} dari {total} baris.",
+      "fill": "Isi {count} baris",
+      "fillHint": "Barisnya diisikan di bawah — tidak ada yang tersimpan sampai Anda menekan Simpan.",
+      "applied": "Hasil dari Excel tersimpan.",
+      "downloadTemplate": "Unduh template kosong",
+      "descriptionAll": "Tempel baris dengan kolom Sample ID — tidak perlu mencentang sampel dulu. Jumlah karung di akhir boleh tidak ditulis. Sample ID yang diakhiri kode dalam kurung, seperti \"(-20)\", mengisi sub sampel itu, atau membuatnya di bawah sampelnya. Tidak ada yang disimpan sebelum Anda membaca pratinjau.",
+      "placeholderAll": "Tempel di sini (Ctrl+V)…\n\nSample ID\tNi\tFe\nLAM SAP S4/B24/3475.3\t1.86\t42.25\nLAM SAP S4/B24/3475.3 (-20)\t1.92\t41.80",
+      "needKey": "Sertakan kolom Sample ID, agar setiap baris menemukan sampelnya.",
+      "tooManyKeys": "Tempelan ini menyebut lebih dari {max} sampel. Tempel dalam beberapa bagian.",
+      "resolving": "Mencari sampel…",
+      "toCreate": "{count} sub sampel baru",
+      "toOverwrite": "{count} baris menimpa hasil sebelumnya",
+      "fixUnknown": "Beberapa Sample ID tidak ditemukan. Perbaiki atau hapus baris itu: tidak ada yang disimpan sebelum semua baris menemukan sampelnya.",
+      "subOf": "Sub sampel ({code})",
+      "overwrites": "menimpa {count} hasil sebelumnya",
+      "overwriteTitle": "{count} hasil sebelumnya pada {records} sampel akan ditimpa",
+      "overwriteBody": "Hasil ini sudah berisi nilai. Timpa hanya jika sheet ini adalah uji ulang atau koreksi.",
+      "backToPreview": "Kembali ke pratinjau",
+      "saveWithoutOverwrite": "Simpan tanpa menimpa",
+      "overwriteAndSave": "Timpa & simpan",
+      "nothingLeft": "Tanpa menimpa hasil sebelumnya, tidak ada lagi yang perlu disimpan.",
+      "openAll": "Tempel via Sample ID",
+      "matchNote": "Jumlah karung tidak ikut dicocokkan."
+    },
+    "enterResults": "Isi hasil",
+    "importFile": "Impor berkas",
+    "enterManually": "Isi manual",
+    "layout": {
+      "selectAll": "Pilih semua",
+      "reset": "Kembalikan tata letak",
+      "resize": "Ubah lebar kolom {column}",
+      "move": "Seret untuk memindah kolom ini (atau Alt+←/→)"
+    },
+    "bulkIdentity": {
+      "open": "Isi / ubah identitas ({count})",
+      "title": "Isi atau ubah identitas {count} record",
+      "description": "Setiap field berisi nilai saat ini. Ubah untuk mengganti, kosongkan untuk menghapus; yang tidak disentuh tidak berubah.",
+      "incomplete": "Perbaiki field yang ditandai merah.",
+      "changedSummary": "{changed} record akan berubah, {unchanged} tidak berubah.",
+      "noIdent": "(kosong)",
+      "more": "…dan {count} lainnya",
+      "clash": "Sample ID ini akan dipakai dua kali: {ids}. Ubah isiannya, atau beri nomor sampel berurutan.",
+      "save": "Simpan {count} record",
+      "done": "Identitas {count} record diperbarui.",
+      "mixedPlaceholder": "Beragam — biarkan kosong agar tidak berubah",
+      "mixedOption": "(Beragam — tidak diubah)",
+      "emptyOption": "— Kosong —",
+      "changed": "Diubah",
+      "revert": "Kembalikan",
+      "numberSequentially": "Beri nomor berurutan mulai dari angka ini, sesuai urutan baris di tabel",
+      "invalidNumber": "Bilangan bulat",
+      "groupNoIdent": "Belum ada Sample ID",
+      "groupCount": "{count} record",
+      "modeTogether": "Satu form untuk semua ({count})",
+      "modeEach": "Per Sample ID ({count})",
+      "search": "Cari Sample ID atau kode sampel",
+      "onlyChanged": "Hanya yang diubah",
+      "changedCount": "{count} diubah",
+      "noMatch": "Tidak ada yang cocok.",
+      "minimize": "Perkecil",
+      "restore": "Buka lagi",
+      "minimizedTitle": "Isi / ubah identitas",
+      "minimizedSummary": "{count} record · {changed, plural, =0 {belum ada perubahan} other {# perubahan}}",
+      "discard": "Tutup dan buang perubahan",
+      "listLabel": "Sample ID",
+      "previous": "Sebelumnya",
+      "next": "Berikutnya",
+      "position": "{at} / {count}",
+      "statusNone": "Belum ada perubahan",
+      "statusChecking": "Memeriksa…",
+      "statusChanged": "{count} record akan berubah",
+      "statusClash": "{count} Sample ID akan dipakai dua kali",
+      "showPreview": "Pratinjau",
+      "otherModeChanges": "Perubahan di mode lain tidak ikut disimpan.",
+      "cleared": "Dikosongkan"
+    },
+    "selection": {
+      "allOnPage": "Semua {count} di halaman ini dipilih.",
+      "selectAllMatching": "Pilih semua {count} yang cocok",
+      "selectFirstMatching": "Pilih {count} pertama dari {total} yang cocok",
+      "allMatchingSelected": "Semua {count} record yang cocok dipilih.",
+      "firstMatchingSelected": "{count} pertama dari {total} record yang cocok dipilih.",
+      "clear": "Hapus pilihan"
+    },
+    "identCta": {
+      "title": "{count} barcode belum punya Sample ID.",
+      "hint": "Isi lokasi, pit, dan lainnya sekaligus.",
+      "action": "Isi identitas semuanya ({count})",
+      "actionFirst": "Isi {count} pertama"
+    },
+    "subs": {
+      "label": "Sub sampel ({code})",
+      "remove": "Hapus sub ({count})",
+      "removeShort": "Hapus",
+      "removeConfirmTitle": "Hapus {count} sub sampel?",
+      "removeConfirmBody": "Sub sampel dan hasilnya dihapus permanen. Sampel induknya tetap ada dan mencatat penghapusan ini di riwayatnya.",
+      "exportOption": "Sertakan sub sampel",
+      "filter": {
+        "label": "Sampel",
+        "parents": "Induk saja",
+        "all": "Termasuk sub",
+        "subs": "Hanya sub"
+      },
+      "toggle": "Tampilkan/sembunyikan {count} sub sampel",
+      "count": "{count} sub"
+    },
+    "history": {
+      "open": "Riwayat update",
+      "rowLabel": "Riwayat {code}"
+    }
+  },
+  "users": {
+    "title": "Pengguna",
+    "subtitle": "Atur siapa yang bisa masuk dan apa yang boleh mereka lakukan.",
+    "add": "Tambah Pengguna",
+    "searchPlaceholder": "Cari nama atau email…",
+    "user": "Pengguna",
+    "email": "Email",
+    "role": "Peran",
+    "created": "Dibuat",
+    "you": "(Anda)",
+    "empty": "Tidak ada pengguna ditemukan.",
+    "noun": "pengguna",
+    "statusActive": "Aktif",
+    "statusDeactivated": "Dinonaktifkan",
+    "statusLocked": "Terkunci",
+    "dialog": {
+      "addTitle": "Tambah Pengguna",
+      "editTitle": "Ubah Pengguna",
+      "addDescription": "Setiap peran hanya melihat halaman yang dibutuhkan pekerjaannya.",
+      "roleAdmin": "Admin",
+      "roleAdminHint": "Dashboard, pengguna, master data, dan aktivitas. Melihat database sampel tanpa mengubahnya.",
+      "roleDatabase": "Database",
+      "roleDatabaseHint": "Membuat barcode, mencetak ulang label, dan mengelola database sampel.",
+      "roleAnalisis": "Analisis",
+      "roleAnalisisHint": "Menginput hasil uji.",
+      "roleOperator": "Operator",
+      "roleOperatorHint": "Memperbarui tahap sampel lewat aplikasi mobile. Di web hanya melihat dashboard.",
+      "selfNote": "Anda tidak bisa mengubah peran atau status akun sendiri.",
+      "activeLabel": "Aktif",
+      "activeDescription": "Pengguna yang dinonaktifkan tidak bisa masuk, dan sesi yang sedang berjalan langsung berhenti.",
+      "lockedNotice": "Terkunci setelah terlalu banyak percobaan masuk yang gagal.",
+      "unlock": "Buka kunci sekarang",
+      "emailPlaceholder": "nama@atara.local",
+      "create": "Buat Pengguna",
+      "save": "Simpan Perubahan",
+      "defaultPasswordNote": "Akun memakai password default role {role}. User wajib menggantinya saat login pertama.",
+      "noRoleDefault": "Role {role} belum punya password default.",
+      "noRoleDefaultLink": "Atur di Administrasi"
+    },
+    "verification": "Verifikasi",
+    "moreActions": "Aksi lain untuk {name}",
+    "sessions": {
+      "menuLabel": "Sesi",
+      "menuItem": "Perangkat yang masuk",
+      "title": "Perangkat yang masuk — {name}",
+      "description": "Di mana akun ini sedang masuk, dan beberapa sesi terakhir yang sudah berakhir.",
+      "activeHeading": "Sedang masuk",
+      "recentHeading": "Baru berakhir",
+      "noneActive": "Tidak sedang masuk di mana pun.",
+      "web": "Web",
+      "mobile": "Aplikasi mobile",
+      "thisDevice": "Anda, di sini",
+      "unknownDevice": "Perangkat tidak dikenal",
+      "since": "Sejak {time}",
+      "endedAt": "berakhir {time} ({reason})",
+      "end": "Keluarkan",
+      "endAll": "Keluarkan dari semua perangkat",
+      "confirmEndAll": "Ya, keluarkan dari semua",
+      "endAllHint": "{name} akan dikeluarkan dari semua perangkat dan harus masuk lagi.",
+      "ended": "{count, plural, =0 {Tidak ada sesi yang diakhiri} other {# sesi {name} diakhiri}}.",
+      "reason": {
+        "REPLACED": "masuk di perangkat lain",
+        "LOGOUT": "keluar",
+        "ADMIN_ENDED": "oleh admin",
+        "PASSWORD_CHANGED": "password diubah"
+      }
+    },
+    "mustChange": "Wajib ganti password",
+    "mustChangeHint": "Akun ini masih memakai password dari admin (default role), dan akan diminta menggantinya saat login berikutnya.",
+    "resetDefault": {
+      "menuLabel": "Password",
+      "menuItem": "Reset ke password default",
+      "title": "Reset ke password default",
+      "confirm": "Password {name} dikembalikan ke password default role {role}. Semua perangkat yang sedang login akan dikeluarkan, dan ia wajib mengganti password saat login berikutnya.",
+      "action": "Reset password",
+      "done": "Password {name} direset ke default."
+    }
+  },
+  "masterData": {
+    "title": "Master Data",
+    "subtitle": "Daftar pilihan yang menyusun Sample ID. Menonaktifkan sebuah kode membuatnya hilang dari pilihan, tanpa mengubah data lama.",
+    "kind": {
+      "PLACE": "Tempat",
+      "ROCK_TYPE": "Ore Class",
+      "NON_PROD": "Kode Non-Produksi",
+      "PIT": "Lokasi Pit",
+      "SIR": "Sir (Tempat Penumpukan)"
+    },
+    "code": "Kode",
+    "label": "Keterangan",
+    "addCode": "Kode baru",
+    "addLabel": "Keterangan (opsional)",
+    "add": "Tambah",
+    "empty": "Belum ada pilihan.",
+    "codeHint": "Huruf, angka, dan tanda hubung saja — kode ini masuk ke dalam Sample ID.",
+    "inUse": "Dipakai",
+    "retired": "Nonaktif",
+    "retire": "Nonaktifkan",
+    "restore": "Aktifkan",
+    "allOf": "Semua {kind}",
+    "usedBy": "di {count} Sample ID",
+    "codeLocked": "Kode ini ada di dalam {count} Sample ID, jadi tidak bisa diganti — id-id itu akan berhenti cocok. Sunting keterangannya saja, atau nonaktifkan lalu tambahkan kode baru.",
+    "delete": {
+      "button": "Hapus",
+      "title": "Hapus {code}?",
+      "unusedBody": "Kode ini belum dipakai di Sample ID mana pun, jadi bisa langsung dihapus.",
+      "usedBody": "{code} dipakai di {count} Sample ID. Record-record itu akan dipindah ke kode yang Anda pilih, dan Sample ID-nya ditulis ulang.",
+      "chooseReplacement": "Pilih kode pengganti",
+      "noReplacement": "Tidak ada kode aktif lain di daftar ini untuk menampung record tersebut. Tambahkan dulu.",
+      "preview": "{count} lab record dipindah dari {code} ke {replacement}:",
+      "clashTitle": "Pindah ke {replacement} akan membuat {count} sampel punya Sample ID yang sudah ada:",
+      "clashHint": "Pilih kode lain, atau perbaiki sampel-sampel itu dulu. Belum ada yang diubah.",
+      "cannotUndo": "Tindakan ini tidak bisa dibatalkan.",
+      "replaceAndDelete": "Ganti & hapus",
+      "confirm": "Ya, hapus {code}",
+      "confirmUsed": "Ya, pindahkan {count} dan hapus {code}",
+      "done": "{code} dihapus.",
+      "doneMoved": "{code} dihapus; {count} record dipindah ke {replacement}."
+    }
+  },
+  "assay": {
+    "title": "Isi Hasil Uji",
+    "subtitle": "Centang sampel yang akan diisi, lalu tempel hasilnya dari Excel atau ketik manual.",
+    "discard": "Batalkan",
+    "saveRows": "Simpan {count} baris",
+    "saved": "{count} data tersimpan.",
+    "noMatch": "Tidak ada data yang cocok dengan filter ini.",
+    "sampleColumn": "Sampel",
+    "allDone": "Semua sampel pada filter ini sudah ada hasilnya.",
+    "dirtyRows": "{count} baris diubah",
+    "invalidCells": "{count} sel belum valid",
+    "saveHint": "Ctrl+S untuk menyimpan · Enter pindah ke bawah · Esc membatalkan sel",
+    "cell": {
+      "notNumber": "Isi dengan angka, mis. 1,86",
+      "outOfRange": "Nilai harus antara 0 dan {max}",
+      "tooManyDecimals": "Maksimal 3 angka di belakang koma"
+    },
+    "unsaved": {
+      "title": "{count} baris belum disimpan",
+      "body": "Simpan dulu perubahan di halaman ini, atau buang perubahannya untuk melanjutkan.",
+      "discard": "Buang perubahan",
+      "save": "Simpan lalu lanjutkan"
+    },
+    "paste": {
+      "step1": "Di Excel, blok baris hasil beserta baris judul kolomnya, lalu tekan Ctrl+C.",
+      "step2": "Tekan Ctrl+V di halaman ini — atau jatuhkan berkas CSV ke kotak di bawah.",
+      "step3": "Periksa pratinjaunya, lalu tekan Simpan.",
+      "boxLabel": "Data hasil dari Excel",
+      "placeholder": "Tempel di sini (Ctrl+V)…\n\nSample ID\tNi\tFe\tCo\tSiO2\tMgO\nLAM/SAM/S2/PA4/B10/3778.1\t1,86\t42,25\t0,14\t9,96\t2,37",
+      "chooseFile": "Pilih berkas CSV atau Excel",
+      "copyHeader": "Salin judul kolom contoh",
+      "headerHint": "Baris pertama harus berisi judul kolom: Sample ID (jumlah karung boleh tidak ditulis), lalu unsur mana pun, Measurement Finished, Measurement Method, atau Solution ID.",
+      "headerCopied": "Judul kolom disalin. Tempel di baris pertama sheet Excel Anda.",
+      "headerCopyFailed": "Tidak bisa menyalin otomatis. Judul kolomnya: {header}",
+      "checking": "Memeriksa…",
+      "rowsRead": "{count} baris dibaca",
+      "toUpdate": "{count} akan diperbarui",
+      "unchanged": "{count} tidak berubah",
+      "unknown": "{count} tidak ditemukan",
+      "invalid": "{count} tidak valid",
+      "problemsOnly": "Hanya yang bermasalah",
+      "line": "Baris",
+      "sample": "Sampel",
+      "result": "Hasil",
+      "changes": "Perubahan",
+      "status": {
+        "update": "Akan diperbarui",
+        "unchanged": "Tidak berubah",
+        "unknown": "Tidak ditemukan — dilewati",
+        "invalid": "Tidak valid",
+        "create": "Sub baru"
+      },
+      "previewTruncated": "Menampilkan {shown} dari {total} baris.",
+      "ready": "{count} baris siap disimpan",
+      "skipped": "{count} tidak ditemukan akan dilewati",
+      "fixInvalid": "{count} baris tidak valid. Perbaiki di Excel, lalu tempel ulang.",
+      "nothingToSave": "Tidak ada yang berubah — semua nilai sudah sama dengan yang tersimpan.",
+      "clear": "Kosongkan",
+      "save": "Simpan {count} baris",
+      "auditReason": "Tempel dari Excel",
+      "doneTitle": "{count} sampel diperbarui",
+      "doneBody": "Hasilnya sudah tersimpan dan tercatat di riwayat perubahan tiap sampel.",
+      "pasteAnother": "Tempel data lain",
+      "openDatabase": "Lihat di Database Sampel",
+      "errors": {
+        "empty": "Belum ada data untuk dibaca. Salin baris judul kolom beserta minimal satu baris hasil.",
+        "noKey": "Baris pertama belum berisi kolom Sample ID, jadi baris tidak bisa dicocokkan ke sampel. Pastikan baris judul ikut tersalin.",
+        "noFields": "Tidak ada kolom hasil yang dikenali (Ni, Fe, Co, SiO2, MgO, …). Periksa judul kolomnya."
+      },
+      "downloadTemplate": "Unduh template kosong",
+      "toCreate": "{count} sub sampel baru",
+      "toOverwrite": "{count} baris menimpa hasil sebelumnya",
+      "subOf": "Sub sampel ({code})",
+      "overwrites": "menimpa {count} hasil sebelumnya",
+      "overwriteConfirm": "{count} baris menimpa hasil yang sudah berisi nilai. Timpa?",
+      "overwriteAndSave": "Timpa & simpan"
+    },
+    "selection": {
+      "back": "Kembali ke daftar",
+      "editing": "Mengisi hasil untuk {count} sampel terpilih"
+    },
+    "importTitle": "Impor berkas hasil",
+    "importDescription": "Untuk sheet besar: setiap baris dicocokkan ke seluruh sampel lewat Lab Code atau Sample ID, tanpa perlu mencentang dulu.",
+    "overwrite": {
+      "title": "Timpa {count} hasil sebelumnya?",
+      "body": "Kotak ini sudah berisi hasil. Timpa hanya jika ini uji ulang atau koreksi.",
+      "keepOld": "Pakai nilai sebelumnya",
+      "confirm": "Timpa & simpan"
+    }
+  },
+  "stages": {
+    "RECEIVED": "DITERIMA",
+    "WET_PREP": "PREP BASAH",
+    "DRY_PREP": "PREP KERING",
+    "ANALYSIS": "ANALISA",
+    "REPORT": "REPORT"
+  },
+  "stageActivity": {
+    "allOperators": "Semua orang",
+    "allStages": "Semua stage",
+    "by": "Oleh",
+    "corrections": "Koreksi",
+    "correctionsAll": "Termasuk koreksi",
+    "correctionsExclude": "Tanpa koreksi",
+    "correctionsOnly": "Hanya koreksi",
+    "empty": "Belum ada perpindahan stage yang cocok.",
+    "isCorrection": "Koreksi",
+    "notes": "Catatan",
+    "noun": "perpindahan",
+    "recordedAt": "Waktu",
+    "sample": "Sampel",
+    "searchPlaceholder": "Cari kode barcode…",
+    "shiftDate": "Hari kerja",
+    "stage": "Stage",
+    "subtitle": "Siapa memindahkan sampel mana, ke stage mana, dan kapan.",
+    "summaryEmpty": "Tidak ada perpindahan stage pada saringan ini.",
+    "summaryHint": "Dihitung dari seluruh hasil saringan, bukan hanya halaman ini. Memilih satu orang menyaring daftarnya, tapi ringkasan ini tetap menampilkan semuanya.",
+    "summaryTitle": "Ringkasan per orang",
+    "title": "Riwayat Stage"
+  },
+  "activity": {
+    "title": "Aktivitas"
+  },
+  "signInAudit": {
+    "title": "Riwayat Masuk",
+    "subtitle": "Siapa yang masuk, dan apa yang dibuktikan selain kata sandi.",
+    "noun": "percobaan",
+    "empty": "Belum ada percobaan masuk yang cocok.",
+    "when": "Waktu",
+    "who": "Siapa",
+    "result": "Hasil",
+    "verified": "Terverifikasi",
+    "verifiedFace": "Wajah",
+    "verifiedTotp": "Authenticator",
+    "verifiedNone": "—",
+    "address": "Alamat",
+    "addressUnknown": "—",
+    "from": "Dari tanggal",
+    "to": "Sampai tanggal",
+    "allPeople": "Semua orang",
+    "allOutcomes": "Semua hasil",
+    "summaryTitle": "Ringkasan per hasil",
+    "summaryHint": "Dihitung dari seluruh hasil saringan, bukan hanya halaman ini. Memilih satu hasil menyaring daftarnya, tapi ringkasan ini tetap menampilkan semuanya.",
+    "summaryEmpty": "Tidak ada percobaan masuk pada saringan ini.",
+    "outcomes": {
+      "FACE_VERIFIED": "Masuk dengan wajah",
+      "TOTP_VERIFIED": "Masuk dengan kode",
+      "TOTP_ENROLLED": "Authenticator didaftarkan",
+      "PASSWORD_ONLY": "Kata sandi saja",
+      "FACE_MISMATCH": "Wajah tidak cocok",
+      "TOTP_MISMATCH": "Kode salah",
+      "FACE_UNREADABLE": "Wajah tidak terbaca",
+      "FACE_SERVICE_DOWN": "Layanan wajah mati",
+      "PASSWORD_FAILED": "Kata sandi salah",
+      "ACCOUNT_LOCKED": "Akun terkunci",
+      "ACCOUNT_INACTIVE": "Akun nonaktif",
+      "SESSION_REPLACED": "Dikeluarkan oleh perangkat lain",
+      "PASSWORD_CHANGED": "Password diganti",
+      "SESSION_ENDED_BY_ADMIN": "Dikeluarkan oleh admin"
+    }
+  },
+  "face": {
+    "backToPassword": "Kembali ke kata sandi",
+    "blinkNow": "Berkedip sekarang",
+    "cameraBlank": "Kamera menyala tapi tidak mengirim gambar. Lensanya mungkin tertutup, atau sedang dipakai aplikasi lain.",
+    "cameraDenied": "Akses kamera ditolak. Izinkan kamera di peramban, lalu coba lagi.",
+    "cameraInsecure": "Kamera hanya bisa dipakai lewat HTTPS atau localhost. Halaman ini dibuka lewat koneksi biasa, jadi peramban tidak akan menawarkan izin kamera sama sekali.",
+    "cameraMissing": "Tidak ada kamera yang bisa dipakai di perangkat ini.",
+    "checking": "Memeriksa…",
+    "consentBody": "Data wajah termasuk data pribadi spesifik menurut UU PDP No. 27/2022. Orang yang didaftarkan harus menyetujui secara sadar dan bisa menariknya kapan saja.",
+    "consentCheck": "Orang ini sudah diberi tahu dan menyetujui wajahnya didaftarkan",
+    "consentRequired": "Persetujuan harus dicentang sebelum mendaftar.",
+    "consentTitle": "Persetujuan",
+    "enroll": "Daftarkan wajah",
+    "enrollDifferentPerson": "Bacaan ini tampak orang lain. Pastikan hanya satu orang di depan kamera.",
+    "enrollDone": "{count} bacaan wajah tersimpan untuk {name}.",
+    "enrollSaving": "Menyimpan…",
+    "enrollSubtitle": "Ambil {count} bacaan untuk {name}. Minta orangnya menghadap kamera, sedikit menoleh, dan berkedip.",
+    "enrollTitle": "Daftarkan wajah",
+    "enrollTooSimilar": "Terlalu mirip bacaan sebelumnya. Ubah sedikit posisi kepala.",
+    "greeting": "Halo, {name}",
+    "noFace": "Wajah tidak terdeteksi. Pastikan pencahayaan cukup, lalu coba lagi.",
+    "notAlive": "Tidak terlihat kedipan. Hadap kamera dan berkedip sekali.",
+    "poseDown": "Tundukkan kepala sedikit",
+    "poseFront": "Hadap lurus ke kamera",
+    "poseFrontAgain": "Hadap lurus lagi",
+    "poseLeft": "Tengokkan kepala sedikit ke kiri",
+    "poseRight": "Tengokkan kepala sedikit ke kanan",
+    "qualityOffCentre": "Tengahkan wajah di dalam bingkai.",
+    "qualityTooClose": "Wajah terlalu dekat. Mundur sedikit.",
+    "qualityTooDark": "Terlalu gelap. Tambah pencahayaan atau hadap ke arah cahaya.",
+    "qualityTooFar": "Wajah terlalu jauh. Mendekat ke kamera.",
+    "qualityUnsure": "Wajah belum terbaca jelas. Hadap lurus ke kamera.",
+    "reEnroll": "Daftar ulang",
+    "removeConfirm": "Hapus data wajah {name}? Setelah ini ia masuk dengan kata sandi saja, dan bacaan wajahnya dihapus permanen.",
+    "removeFace": "Hapus data wajah",
+    "removed": "Data wajah {name} dihapus.",
+    "start": "Nyalakan kamera",
+    "stepOf": "Langkah {current} dari {total}",
+    "subtitle": "Hadap kamera dan berkedip sekali.",
+    "title": "Verifikasi wajah",
+    "verified": "Wajah cocok. Masuk…",
+    "serviceDown": "Pengenalan wajah sedang tidak tersedia. Hubungi administrator.",
+    "serviceBusy": "Pengenalan wajah sedang sibuk. Akan dicoba lagi sebentar lagi.",
+    "previewExpired": "Percobaan masuk Anda sudah kedaluwarsa. Kembali dan masukkan kata sandi lagi.",
+    "positioning": "Posisikan wajah di dalam oval",
+    "autoIn": "Mengambil dalam {count}…",
+    "autoHold": "Tahan posisi",
+    "autoVerify": "Kamera memeriksa sendiri begitu wajah Anda di dalam oval",
+    "consentGiven": "Persetujuan tercatat. Ketuk untuk mengubah.",
+    "enrollProgress": "Bacaan {current} dari {total}",
+    "tryAgain": "Coba lagi"
+  },
+  "mfa": {
+    "stepOf": "Langkah {current} dari {total}",
+    "chooseTitle": "Verifikasi identitas",
+    "chooseSubtitle": "Pilih cara verifikasi untuk menyelesaikan masuk.",
+    "methodFace": "Verifikasi wajah",
+    "methodFaceHint": "Hadap kamera dan berkedip sekali",
+    "methodTotp": "Kode Authenticator",
+    "methodTotpHint": "Kode 6 digit dari Microsoft Authenticator",
+    "methodSetup": "Siapkan Authenticator",
+    "methodSetupHint": "Hubungkan Microsoft Authenticator di HP Anda",
+    "useAnotherMethod": "Gunakan metode lain",
+    "backToPassword": "Kembali ke kata sandi",
+    "totpTitle": "Kode Authenticator",
+    "totpSubtitle": "Buka Microsoft Authenticator dan masukkan kode 6 digit untuk akun ATARA.",
+    "codeLabel": "Kode 6 digit",
+    "verify": "Verifikasi",
+    "verified": "Kode benar. Masuk…",
+    "mismatch": "Kode salah atau sudah dipakai. Tunggu kode berikutnya lalu coba lagi.",
+    "setupTitle": "Siapkan Authenticator",
+    "setupScanTitle": "Pindai kode QR",
+    "setupScanHint": "Di Microsoft Authenticator, ketuk ＋ → Akun lain → Pindai kode QR. Belum punya? Pasang dari Play Store atau App Store.",
+    "next": "Lanjut",
+    "setupCodeTitle": "Masukkan kode",
+    "setupCodeHint": "Ketik kode 6 digit yang muncul di Microsoft Authenticator untuk akun ATARA.",
+    "showQrAgain": "Tampilkan kode QR lagi",
+    "progressScan": "Pindai",
+    "progressCode": "Kode",
+    "setupLoading": "Menyiapkan kode QR…",
+    "manualKey": "Tidak bisa memindai? Tampilkan kunci",
+    "showQrCode": "Tampilkan kode QR",
+    "qrLabel": "Kode QR untuk Microsoft Authenticator",
+    "enrolled": "Authenticator tersambung. Masuk…",
+    "admin": {
+      "badgeFace": "Wajah",
+      "badgeTotp": "Authenticator",
+      "badgePending": "Authenticator (menunggu)",
+      "none": "Kata sandi saja",
+      "manage": "Kelola Authenticator…",
+      "title": "Microsoft Authenticator",
+      "statusOff": "Belum diaktifkan. {name} masuk tanpa kode Authenticator.",
+      "statusPending": "Menunggu pendaftaran sejak {date}. {name} akan diminta memindai kode QR saat masuk berikutnya.",
+      "statusActive": "Aktif sejak {date}.",
+      "require": "Wajibkan Authenticator",
+      "requireHint": "Pada login berikutnya, setelah kata sandi benar, {name} memindai kode QR dengan HP-nya sendiri. Anda tidak akan melihat kodenya.",
+      "cancelRequest": "Batalkan permintaan",
+      "reset": "Reset & daftar ulang",
+      "resetHint": "Pakai ini jika HP hilang atau diganti. Kode dari HP lama langsung berhenti berlaku, dan {name} mendaftar ulang saat masuk berikutnya.",
+      "disable": "Nonaktifkan",
+      "disableHint": "{name} tidak lagi diminta kode Authenticator saat masuk.",
+      "confirm": "Ya, lanjutkan",
+      "requested": "Authenticator diwajibkan untuk {name}.",
+      "resetDone": "Authenticator {name} direset.",
+      "disabled": "Authenticator {name} dinonaktifkan.",
+      "pendingHint": "Menunggu pendaftaran saat login berikutnya"
+    }
+  },
+  "account": {
+    "password": {
+      "title": "Ganti password",
+      "description": "Anda tetap masuk di sini. Perangkat lain yang memakai akun Anda akan dikeluarkan.",
+      "current": "Password saat ini",
+      "new": "Password baru",
+      "confirm": "Ulangi password baru",
+      "hint": "Minimal {min} karakter.",
+      "submit": "Ganti password",
+      "tooShort": "Password baru minimal {min} karakter.",
+      "mismatch": "Password baru tidak sama.",
+      "sameAsCurrent": "Password baru harus berbeda dari yang sekarang.",
+      "wrongCurrent": "Password saat ini salah.",
+      "done": "Password diganti.",
+      "doneWithSignOut": "Password diganti. {count} perangkat lain dikeluarkan.",
+      "roleDefault": "Itu password default role. Pilih password Anda sendiri."
+    },
+    "forceChange": {
+      "title": "Ganti password Anda",
+      "description": "Demi keamanan, ganti password yang diberikan admin sebelum melanjutkan. Ini hanya perlu dilakukan sekali.",
+      "submit": "Simpan & lanjutkan",
+      "signOut": "Keluar"
+    }
+  },
+  "search": {
+    "open": "Cari sampel…",
+    "shortcut": "Ctrl K",
+    "placeholder": "Barcode, Lab Code, atau Sample ID…",
+    "minChars": "Ketik minimal 2 karakter, atau scan barcode.",
+    "noResults": "Tidak ada sampel yang cocok.",
+    "error": "Pencarian gagal. Periksa koneksi lalu coba lagi.",
+    "hint": "↑↓ pilih · Enter buka · Esc tutup"
+  },
+  "tv": {
+    "title": "Monitoring Sampel",
+    "updated": "Diperbarui {time}",
+    "fullscreen": "Layar penuh",
+    "inProgress": "Sedang diproses",
+    "overdue": "Lewat {hours} jam",
+    "done": "Selesai (24 jam)",
+    "byStage": "Per tahap",
+    "last24h": "24 jam terakhir",
+    "overdueShort": "{count} terlambat",
+    "longest": "Paling lama menunggu",
+    "allClear": "Tidak ada sampel yang melewati SLA.",
+    "expired": "Sesi layar ini sudah berakhir.",
+    "signInAgain": "Masuk lagi",
+    "hours": "{hours} jam",
+    "days": "{days} hr {hours} jam"
+  },
+  "grade": {
+    "title": "Kesimpulan",
+    "subtitle": "Rata-rata kadar per pit, SIR, lokasi, ore class, kode non-prod, atau barging run — atau kombinasinya — untuk sampel yang dibuat dalam rentang ini.",
+    "from": "Dari",
+    "to": "Sampai",
+    "groupBy": "Kelompokkan per (boleh lebih dari satu)",
+    "groups": {
+      "pit": "Pit",
+      "sir": "SIR",
+      "place": "Lokasi",
+      "rockType": "Ore class",
+      "nonProd": "Non-prod",
+      "barging": "Barging run"
+    },
+    "download": "Unduh xlsx",
+    "range": "{from} → {to}",
+    "defaultRange": "{days} hari terakhir",
+    "averagesNote": "Rata-rata dihitung dari sampel yang sudah punya hasil Ni.",
+    "none": "(kosong)",
+    "chartTitle": "Rata-rata Ni per {group}",
+    "chartDescription": "Tertinggi di atas, maksimal 30 batang. Baris tanpa hasil Ni tidak ditampilkan di grafik; tabel memuat semuanya.",
+    "empty": "Tidak ada sampel dalam rentang ini.",
+    "samples": "Sampel",
+    "assayed": "Sudah diuji",
+    "niRange": "Ni min – maks",
+    "avgOf": "Rata-rata {field}"
+  },
+  "dataQuality": {
+    "title": "Kualitas Data",
+    "subtitle": "Sampel yang datanya perlu dibereskan: identitas belum lengkap, atau belum ada hasil lama setelah sampel dibuat.",
+    "identityCard": "Identitas belum lengkap",
+    "resultsCard": "Belum ada hasil Ni setelah {days} hari",
+    "anyExpected": "Semua kolom wajib",
+    "optional": "opsional",
+    "gaps": {
+      "place": "Lokasi",
+      "rockType": "Ore class",
+      "pit": "Pit",
+      "bargingNo": "Barging",
+      "sampleIdent": "Sample ID",
+      "nonProd": "Non-prod",
+      "sir": "SIR"
+    },
+    "olderThan": "Dibuat lebih dari",
+    "daysOption": "{days} hari lalu",
+    "columns": {
+      "sample": "Barcode",
+      "labCode": "Lab Code",
+      "sampleIdent": "Sample ID",
+      "stage": "Tahap",
+      "age": "Umur",
+      "missing": "Kosong"
+    },
+    "allGood": "Tidak ada yang perlu dibereskan.",
+    "ageValue": "{days} hr",
+    "pageOf": "Halaman {page} dari {pages} · {total} record",
+    "previous": "Halaman sebelumnya",
+    "next": "Halaman berikutnya"
+  },
+  "admin": {
+    "title": "Administrasi",
+    "subtitle": "Pengumuman di atas semua halaman, dan backup lengkap data.",
+    "rolePasswords": {
+      "title": "Password default per role",
+      "description": "Setiap akun baru memakai password default role-nya, dan password yang lupa direset ke password ini. User wajib menggantinya saat login berikutnya.",
+      "set": "Sudah diatur",
+      "notSet": "Belum diatur",
+      "notSetHint": "Akun dengan role ini belum bisa dibuat atau direset.",
+      "setAt": "Diperbarui {when} oleh {by}",
+      "setAction": "Atur",
+      "change": "Ganti",
+      "editFor": "Atur password default untuk {role}",
+      "note": "Disimpan terenkripsi dan tidak bisa dilihat lagi. Perubahan hanya berlaku untuk akun baru dan reset berikutnya; akun yang masih memakai default lama tetap memakainya.",
+      "dialogTitle": "Password default {role}",
+      "dialogDescription": "Catat di tempat aman untuk diberikan ke user baru: setelah disimpan, password ini tidak bisa ditampilkan lagi.",
+      "password": "Password default",
+      "confirm": "Ulangi password default",
+      "hint": "Minimal 8 karakter.",
+      "show": "Tampilkan password",
+      "hide": "Sembunyikan password",
+      "tooShort": "Password minimal 8 karakter.",
+      "mismatch": "Password tidak sama.",
+      "save": "Simpan",
+      "saved": "Password default {role} disimpan."
+    }
+  },
+  "announcements": {
+    "title": "Pengumuman",
+    "description": "Banner di atas semua halaman, untuk semua orang atau peran tertentu. Info bisa ditutup oleh tiap pembaca; peringatan tetap tampil sampai berakhir.",
+    "message": "Pesan",
+    "messagePlaceholder": "mis. Maintenance XRF besok 08.00–10.00. Tahan sampel analisis sampai selesai.",
+    "tone": "Jenis",
+    "tones": {
+      "INFO": "Info",
+      "WARNING": "Peringatan"
+    },
+    "roles": "Ditampilkan ke",
+    "rolesHint": "Kosongkan semua untuk menampilkan ke semua orang.",
+    "startsAt": "Mulai (WITA)",
+    "endsAt": "Selesai (WITA)",
+    "timesHint": "Kosongkan waktu mulai untuk tampil sekarang, dan waktu selesai agar tampil sampai Anda akhiri.",
+    "publish": "Terbitkan",
+    "save": "Simpan perubahan",
+    "created": "Pengumuman diterbitkan.",
+    "saved": "Pengumuman disimpan.",
+    "ended": "Pengumuman diakhiri.",
+    "deleted": "Pengumuman dihapus.",
+    "empty": "Belum ada pengumuman.",
+    "everyone": "Semua orang",
+    "untilEnded": "sampai diakhiri",
+    "window": "{start} → {end}",
+    "status": {
+      "active": "Tampil",
+      "scheduled": "Terjadwal",
+      "ended": "Berakhir"
+    },
+    "endNow": "Akhiri sekarang",
+    "delete": "Hapus",
+    "dismiss": "Tutup pengumuman ini"
+  },
+  "backup": {
+    "title": "Backup",
+    "description": "Semua data dalam satu file Excel: setiap sampel beserta hasilnya (termasuk yang dihapus, ditandai), riwayat tahap, perubahan hasil, master data, tahap, dan pengguna.",
+    "samples": "Sampel",
+    "logs": "Riwayat tahap",
+    "changes": "Perubahan hasil",
+    "masterOptions": "Kode master",
+    "users": "Pengguna",
+    "excluded": "Tidak disertakan: password, rahasia authenticator, data wajah, dan sesi login. Simpan file di tempat aman; isinya semua hasil uji.",
+    "download": "Unduh backup",
+    "preparing": "Menyiapkan…",
+    "done": "Backup diunduh."
+  },
+  "help": {
+    "title": "Panduan",
+    "subtitle": "Cara kerja tiap bagian Atara, untuk halaman yang bisa dibuka peran Anda.",
+    "contents": "Daftar isi",
+    "sections": {
+      "dashboard": {
+        "title": "Dashboard",
+        "intro": "Angka-angka lab untuk rentang tanggal: jumlah sampel, progres, waktu siklus, dan yang terlambat.",
+        "steps": {
+          "1": "Pilih Dari/Sampai untuk mengganti rentang; kosongkan untuk 14 hari terakhir.",
+          "2": "Pakai Filter untuk mempersempit per lokasi, ore class, kode non-prod, SIR, atau pit. Chip menunjukkan filter aktif; klik chip untuk menghapusnya.",
+          "3": "Angka diperbarui sendiri tiap menit. \"Diperbarui\" menunjukkan kapan dihitung; tombol refresh meminta ulang sekarang.",
+          "4": "Needs attention berisi sampel yang lebih dari 24 jam di satu tahap.",
+          "5": "Mode TV membuka tampilan layar penuh untuk monitor di lab. Admin dan Database bisa mengunduh ringkasan Excel."
+        },
+        "tip": "Angka diperbarui sendiri tiap menit. Buka Mode TV di monitor lab supaya semua orang melihat sampel yang terlambat."
+      },
+      "quickSearch": {
+        "title": "Pencarian cepat",
+        "intro": "Buka sampel mana pun dari halaman mana pun.",
+        "steps": {
+          "1": "Tekan Ctrl+K (atau /), atau klik \"Cari sampel\" di bagian atas.",
+          "2": "Ketik barcode, lab code, atau potongan Sample ID; pilih dengan ↑↓ lalu tekan Enter.",
+          "3": "Scanner barcode USB bisa dipakai di kotak yang sama: hasil yang persis cocok langsung terbuka."
+        },
+        "tip": "Colokkan scanner barcode USB lalu scan ke kotak pencarian: hasil yang persis cocok langsung terbuka tanpa menekan apa pun."
+      },
+      "sampleDetail": {
+        "title": "Halaman sampel",
+        "intro": "Semua tentang satu sampel: posisinya, hasilnya, dan apa yang terjadi padanya.",
+        "steps": {
+          "1": "Timeline berisi setiap scan tahap; koreksi ditandai beserta alasannya.",
+          "2": "Lab record menampilkan identitas dan hasil uji; Admin dan Database juga melihat riwayat perubahannya.",
+          "3": "Database bisa mencetak ulang label di sini. Admin bisa mengoreksi tahap, dengan alasan."
+        }
+      },
+      "generate": {
+        "title": "Buat Barcode",
+        "intro": "Buat barcode baru dan cetak label QR-nya. Identitasnya diisi kemudian.",
+        "steps": {
+          "1": "Isi jumlah barcode yang dibutuhkan, lalu buat. Tiap barcode mendapat kode dan Lab Code, belum dengan Sample ID.",
+          "2": "Cetak label dari pratinjau, lalu tempel di kantong sampel.",
+          "3": "Di Database Sampel, saring \"Belum ada\" Sample ID, centang barisnya, lalu pakai Isi identitas."
+        }
+      },
+      "labels": {
+        "title": "Cetak Ulang Label",
+        "intro": "Cetak lagi label untuk sampel yang sudah ada.",
+        "steps": {
+          "1": "Cari atau saring sampel, lalu centang yang dibutuhkan.",
+          "2": "Pilih jumlah salinan dan kolom, lalu cetak."
+        }
+      },
+      "database": {
+        "title": "Database Sampel",
+        "intro": "Semua lab record, dengan filter, ekspor, dan riwayat.",
+        "steps": {
+          "1": "Cari dengan barcode, lab code, atau Sample ID, dan saring per lokasi, tanggal, atau ada tidaknya hasil.",
+          "2": "Database mengedit record dari barisnya; mengubah identitas akan menulis ulang Sample ID otomatis.",
+          "3": "Sampel yang dihapus tetap tersimpan dan bisa dipulihkan dari tampilan data terhapus.",
+          "4": "Ekspor daftar yang sedang disaring ke Excel atau CSV.",
+          "5": "Barcode tanpa Sample ID: saring Sample ID → Belum ada, lalu tekan Isi identitas semuanya. Untuk mengoreksi banyak record sekaligus, centang barisnya (atau pilih semua yang cocok) lalu Isi / ubah identitas: field berisi nilai saat ini — ubah untuk mengganti di semua record, kosongkan untuk menghapus. Seret judul kolom untuk memindahnya, seret tepinya untuk mengubah lebar."
+        },
+        "tip": "Mengubah lokasi, pit, atau identitas lain otomatis menulis ulang Sample ID; tidak perlu mengedit ID secara manual."
+      },
+      "dataQuality": {
+        "title": "Kualitas Data",
+        "intro": "Record yang perlu dibereskan: identitas belum lengkap, atau belum ada hasil lama setelah sampel dibuat.",
+        "steps": {
+          "1": "\"Identitas belum lengkap\" menghitung record yang kosong di kolom wajib; klik nama kolom untuk menampilkan itu saja.",
+          "2": "\"Belum ada hasil Ni\" berisi sampel yang lebih tua dari jumlah hari yang dipilih dan belum punya hasil.",
+          "3": "Buka sampel dari daftar untuk memperbaikinya, atau ekspor daftarnya."
+        }
+      },
+      "assay": {
+        "title": "Input Hasil Uji",
+        "intro": "Masukkan hasil uji, manual atau dari spreadsheet alat.",
+        "steps": {
+          "1": "Ketik di grid, atau tempel blok yang disalin dari Excel.",
+          "2": "Atau unggah workbook; unduh template dulu bila perlu susunan kolomnya.",
+          "3": "Periksa pratinjau: baris dicocokkan dengan Sample ID (spasi atau garis miring, jumlah karung boleh tidak ditulis, tanpa perlu mencentang) sebelum disimpan.",
+          "4": "Sub sampel dan hasil yang ditimpa: Sample ID yang diakhiri kode dalam kurung, seperti \"(-20)\", mengisi sub sampel itu atau membuatnya di bawah sampelnya. Hasil yang sudah berisi nilai hanya ditimpa setelah Anda mengonfirmasinya."
+        },
+        "tip": "Salin seluruh blok dari Excel alat lalu tempel sekaligus; baris dicocokkan lewat Lab Code atau Sample ID."
+      },
+      "grade": {
+        "title": "Kesimpulan",
+        "intro": "Rata-rata kadar per pit, SIR, lokasi, ore class, kode non-prod, atau barging run, atau kombinasinya.",
+        "steps": {
+          "1": "Pilih rentang tanggal, lalu satu atau beberapa kelompok: Pit saja, atau Pit + Ore class untuk setiap kombinasinya.",
+          "2": "Grafik menampilkan rata-rata Ni per baris; tabel menambahkan satu kolom per kelompok, Fe, Co, MgO, SiO₂, dan rentang Ni.",
+          "3": "Rata-rata hanya dari sampel yang sudah punya hasil Ni. Unduh tabelnya sebagai Excel."
+        }
+      },
+      "masterData": {
+        "title": "Master Data",
+        "intro": "Kode-kode pembentuk Sample ID: lokasi, ore class, non-prod, pit, dan SIR.",
+        "steps": {
+          "1": "Tambah kode beserta deskripsi opsionalnya.",
+          "2": "Kode yang sudah dipakai di Sample ID tidak bisa diganti namanya; ubah deskripsinya saja.",
+          "3": "Retire mengeluarkan kode dari pilihan. Hapus memindahkan sampelnya ke kode pengganti lebih dulu dan menulis ulang Sample ID-nya."
+        },
+        "tip": "Bila kode masih dipakai di Sample ID, Retire lebih aman: sampel lama tetap terbaca dengan benar."
+      },
+      "activity": {
+        "title": "Aktivitas",
+        "intro": "Siapa melakukan apa: setiap scan tahap dan setiap percobaan login.",
+        "steps": {
+          "1": "Aktivitas tahap berisi scan dan koreksi; saring per orang, tahap, atau hari.",
+          "2": "Audit login menampilkan tiap login dan cara verifikasinya (wajah, kode, hanya password), juga ganti password dan sesi yang diakhiri.",
+          "3": "Keduanya bisa diekspor."
+        }
+      },
+      "users": {
+        "title": "Pengguna",
+        "intro": "Siapa yang bisa masuk, dan apa yang boleh dilakukan.",
+        "steps": {
+          "1": "Tambah pengguna dengan perannya; Ubah untuk mengganti peran, reset password, membuka kunci, atau menonaktifkan.",
+          "2": "Dari menu ⋯: daftarkan wajah, wajibkan aplikasi authenticator, atau lihat perangkat yang sedang masuk.",
+          "3": "Reset password mengeluarkan orang itu dari semua perangkat."
+        },
+        "tip": "Reset password mengeluarkan orang itu dari semua perangkat, jadi pakai bila password mungkin diketahui orang lain."
+      },
+      "admin": {
+        "title": "Administrasi",
+        "intro": "Pengumuman di atas semua halaman, dan backup lengkap.",
+        "steps": {
+          "1": "Tulis pengumuman, pilih Info atau Peringatan dan siapa yang melihat; atur mulai dan selesai, atau biarkan kosong.",
+          "2": "Akhiri sekarang menurunkan pengumuman tapi tetap di daftar; Hapus membuangnya.",
+          "3": "Unduh backup memberi satu file Excel berisi semua data, tanpa password atau rahasia."
+        }
+      },
+      "mobile": {
+        "title": "Aplikasi mobile (scan)",
+        "intro": "Memindahkan sampel antar tahap dengan HP.",
+        "steps": {
+          "1": "Masuk dengan password dan wajah atau kode authenticator.",
+          "2": "Pilih tahap, lalu scan QR di tiap kantong; sampel berpindah ke tahap itu.",
+          "3": "Salah tahap? Pakai koreksi dengan alasan. Scan yang dibuat saat offline dikirim begitu koneksi kembali."
+        },
+        "tip": "Tidak ada sinyal? Tetap scan: hasil scan disimpan di HP dan dikirim begitu koneksi kembali."
+      },
+      "account": {
+        "title": "Akun Anda",
+        "intro": "Pengaturan di menu di bawah nama Anda, kanan atas.",
+        "steps": {
+          "1": "Ganti password di sana; perangkat lain yang memakai akun Anda akan dikeluarkan.",
+          "2": "Ganti bahasa dan tampilan terang atau gelap.",
+          "3": "Satu akun hanya masuk di satu browser dan satu HP sekaligus: masuk di tempat lain akan mengeluarkan yang lama."
+        },
+        "tip": "Masuk di browser lain akan mengeluarkan sesi yang lama. Bila Anda tiba-tiba keluar, mungkin ada orang lain yang memakai akun Anda."
+      }
+    },
+    "welcome": {
+      "hello": "Selamat datang, {name}",
+      "counter": "{step} dari {total}",
+      "next": "Lanjut",
+      "back": "Kembali",
+      "done": "Selesai",
+      "openGuide": "Buka panduan lengkap",
+      "ADMIN": {
+        "steps": {
+          "1": {
+            "title": "Anda mengelola seluruh sistem",
+            "body": "Dashboard, Mode TV, dan Kesimpulan menunjukkan kondisi lab. Aktivitas menunjukkan siapa melakukan apa."
+          },
+          "2": {
+            "title": "Orang dan kode",
+            "body": "Pengguna untuk mengelola akun, peran, dan cara login. Master Data berisi kode pembentuk setiap Sample ID."
+          },
+          "3": {
+            "title": "Pengumuman dan backup",
+            "body": "Administrasi memasang banner di atas semua halaman dan mengunduh backup lengkap data."
+          },
+          "4": {
+            "title": "Bantuan selalu ada",
+            "body": "Tekan ? di atas halaman mana pun untuk panduan halaman itu, atau Ctrl+K untuk membuka sampel mana pun."
+          }
+        }
+      },
+      "DATABASE": {
+        "steps": {
+          "1": {
+            "title": "Anda menjaga data sampel",
+            "body": "Buat Barcode membuat barcode baru dan mencetak labelnya; identitasnya diisi kemudian. Cetak Ulang Label untuk mencetak lagi."
+          },
+          "2": {
+            "title": "Database Sampel",
+            "body": "Isi identitas — banyak record sekaligus — hapus atau pulihkan sampel, dan ekspor. Kualitas Data berisi yang masih perlu dibereskan."
+          },
+          "3": {
+            "title": "Bantuan selalu ada",
+            "body": "Tekan ? di atas halaman mana pun untuk panduan halaman itu, atau Ctrl+K untuk membuka sampel mana pun."
+          }
+        }
+      },
+      "ANALISIS": {
+        "steps": {
+          "1": {
+            "title": "Anda memasukkan hasil uji",
+            "body": "Input Hasil Uji menerima grid, tempelan dari Excel, atau workbook dari alat."
+          },
+          "2": {
+            "title": "Lihat kadarnya",
+            "body": "Kesimpulan menampilkan rata-rata kadar per pit, SIR, lokasi, atau kombinasinya untuk rentang mana pun."
+          },
+          "3": {
+            "title": "Bantuan selalu ada",
+            "body": "Tekan ? di atas halaman mana pun untuk panduan halaman itu, atau Ctrl+K untuk membuka sampel mana pun."
+          }
+        }
+      },
+      "OPERATOR": {
+        "steps": {
+          "1": {
+            "title": "Anda memindahkan sampel",
+            "body": "Scan dilakukan di aplikasi mobile: pilih tahap, lalu scan QR di tiap kantong."
+          },
+          "2": {
+            "title": "Lihat yang menunggu",
+            "body": "Di Dashboard, Needs attention berisi sampel yang lebih dari 24 jam di satu tahap; Mode TV menampilkannya di monitor lab."
+          },
+          "3": {
+            "title": "Bantuan selalu ada",
+            "body": "Tekan ? di atas halaman mana pun untuk panduan halaman itu, atau Ctrl+K untuk membuka sampel mana pun."
+          }
+        }
+      }
+    },
+    "openPage": "Buka halaman",
+    "tip": "Tips",
+    "forRole": "Panduan untuk: {role}",
+    "sectionCount": "{count} bagian"
+  },
+  "tour": {
+    "start": "Coba sekarang",
+    "startTour": "Mulai tur",
+    "next": "Lanjut",
+    "back": "Kembali",
+    "done": "Selesai",
+    "close": "Tutup tur",
+    "stepOf": "Langkah {step} dari {total}",
+    "savesData": "Menyimpan data — coba hanya bila memang perlu.",
+    "notShown": "Bagian ini belum tampil di layar (mungkin belum ada data, atau peran Anda tidak memilikinya). Lanjutkan ke langkah berikutnya.",
+    "finished": "Tur selesai. Buka Panduan untuk mencoba tur lain.",
+    "noSample": "Belum ada sampel untuk dicoba."
+  },
+  "tours": {
+    "dashboard": {
+      "1": {
+        "title": "Pilih rentang tanggal",
+        "body": "Coba isi Dari dan Sampai. Kosongkan untuk 14 hari terakhir; semua angka di bawahnya ikut berubah."
+      },
+      "2": {
+        "title": "Buka filter",
+        "body": "Klik Filter untuk mempersempit per lokasi, ore class, non-prod, SIR, atau pit. Tur lanjut sendiri setelah Anda klik."
+      },
+      "3": {
+        "title": "Pilih filter",
+        "body": "Pilih satu kode, misalnya lokasi. Filter yang aktif tampil sebagai chip; klik chip untuk menghapusnya."
+      },
+      "4": {
+        "title": "Selalu terbaru",
+        "body": "Angka diperbarui sendiri tiap menit. Tombol ini meminta ulang sekarang; label di sampingnya menunjukkan kapan dihitung."
+      },
+      "5": {
+        "title": "Angka utama",
+        "body": "Ringkasan rentang ini. Kotak Needs attention bisa diklik untuk langsung ke sampel yang terlambat."
+      },
+      "6": {
+        "title": "Sampel terlambat",
+        "body": "Sampel yang lebih dari 24 jam di satu tahap, yang paling lama di atas. Klik barcode untuk membuka sampelnya."
+      },
+      "7": {
+        "title": "Mode TV",
+        "body": "Membuka tampilan layar penuh di tab baru, untuk monitor di ruang lab."
+      },
+      "8": {
+        "title": "Unduh ringkasan",
+        "body": "Satu file Excel berisi angka untuk rentang dan filter yang sedang dipakai."
+      }
+    },
+    "quickSearch": {
+      "1": {
+        "title": "Cari sampel dari mana saja",
+        "body": "Klik di sini atau tekan Ctrl+K, lalu ketik barcode, Lab Code, atau potongan Sample ID. Scanner barcode USB juga bisa dipakai di kotak ini."
+      },
+      "2": {
+        "title": "Panduan halaman ini",
+        "body": "Tombol ? membuka bagian panduan untuk halaman yang sedang dibuka, lengkap dengan tombol Coba sekarang."
+      }
+    },
+    "sampleDetail": {
+      "1": {
+        "title": "Sampel ini",
+        "body": "Barcode, Sample ID, dan statusnya."
+      },
+      "2": {
+        "title": "Posisinya sekarang",
+        "body": "Tahap saat ini, siapa yang mendaftarkan sampel, dan kapan."
+      },
+      "3": {
+        "title": "Data lab & hasil uji",
+        "body": "Identitas lengkap dan hasil uji. Admin dan Database juga melihat riwayat perubahannya."
+      },
+      "4": {
+        "title": "Riwayat tahap",
+        "body": "Setiap scan tahap tercatat di sini, termasuk koreksi beserta alasannya."
+      },
+      "5": {
+        "title": "Cetak ulang label",
+        "body": "Pilih jumlah salinan lalu cetak, bila label di kantong rusak atau hilang."
+      },
+      "6": {
+        "title": "Koreksi tahap",
+        "body": "Bila sampel tercatat di tahap yang salah, pindahkan ke tahap yang benar dengan alasan. Tercatat atas nama Anda."
+      }
+    },
+    "generate": {
+      "1": {
+        "title": "Jumlah barcode",
+        "body": "Isi jumlah barcode yang mau dibuat, maksimal 500. Belum ada yang ditanyakan tentang sampelnya."
+      },
+      "2": {
+        "title": "Buat barcode",
+        "body": "Tombol ini membuat barcode sungguhan beserta Lab Code-nya, lalu menampilkan label untuk dicetak."
+      },
+      "3": {
+        "title": "Identitas menyusul",
+        "body": "Barcode baru belum punya Sample ID. Tautan ini membuka Database Sampel tepat pada barcode itu, untuk diisi identitasnya."
+      }
+    },
+    "labels": {
+      "1": {
+        "title": "Cari sampel",
+        "body": "Cari dengan barcode, atau saring per status dan tahap."
+      },
+      "2": {
+        "title": "Pilih sampel",
+        "body": "Coba centang kotak ini untuk memilih semua sampel yang tampil. Tur lanjut setelah Anda klik."
+      },
+      "3": {
+        "title": "Atur cetakan",
+        "body": "Jumlah salinan per sampel dan jumlah kolom label di kertas A4."
+      },
+      "4": {
+        "title": "Cetak",
+        "body": "Membuka jendela cetak browser. Pratinjau menunjukkan susunan label lebih dulu."
+      }
+    },
+    "database": {
+      "1": {
+        "title": "Cari record",
+        "body": "Ketik barcode, Lab Code, atau potongan Sample ID. Di sebelahnya ada filter lokasi dan tanggal."
+      },
+      "2": {
+        "title": "Ada hasil atau belum",
+        "body": "Tampilkan hanya record yang sudah, atau belum, punya hasil uji."
+      },
+      "3": {
+        "title": "Sudah ada Sample ID atau belum",
+        "body": "Tampilkan hanya record yang belum punya Sample ID. Saat aktif, satu tombol mengisi identitas semuanya sekaligus."
+      },
+      "4": {
+        "title": "Pilih kolom",
+        "body": "Tampilkan atau sembunyikan kolom tabel. Pilihan Anda diingat di browser ini."
+      },
+      "5": {
+        "title": "Aktif atau terhapus",
+        "body": "Lihat sampel yang sudah dihapus dan pulihkan bila perlu."
+      },
+      "6": {
+        "title": "Ekspor",
+        "body": "Unduh daftar yang sedang disaring ke Excel atau CSV."
+      },
+      "7": {
+        "title": "Buka detail",
+        "body": "Klik baris untuk melihat record. Peran Database bisa mengedit identitas dari sana."
+      }
+    },
+    "dataQuality": {
+      "1": {
+        "title": "Dua pemeriksaan",
+        "body": "Identitas belum lengkap, dan sampel yang belum punya hasil. Klik kartu untuk beralih."
+      },
+      "2": {
+        "title": "Persempit",
+        "body": "Pilih kolom yang kosong, atau umur sampel dalam hari."
+      },
+      "3": {
+        "title": "Yang perlu dibereskan",
+        "body": "Yang tertua di atas. Klik barcode untuk membuka sampel dan memperbaikinya."
+      },
+      "4": {
+        "title": "Ekspor daftar",
+        "body": "Unduh daftar ini untuk dibagikan ke tim."
+      }
+    },
+    "assay": {
+      "1": {
+        "title": "Mana yang belum ada hasil",
+        "body": "Secara default tampil record yang belum punya hasil. Ganti ke Semua atau Sudah ada bila perlu."
+      },
+      "2": {
+        "title": "Pilih record",
+        "body": "Coba centang satu baris. Tur lanjut setelah Anda klik."
+      },
+      "3": {
+        "title": "Masukkan hasil",
+        "body": "Bar ini muncul setelah memilih: tempel dari Excel atau isi manual. Belum ada yang tersimpan sampai Anda menekan Simpan di layar berikutnya."
+      },
+      "4": {
+        "title": "Impor file",
+        "body": "Unggah workbook dari alat, atau tempel satu blok sekaligus. Ada pratinjau sebelum disimpan."
+      }
+    },
+    "grade": {
+      "1": {
+        "title": "Rentang tanggal",
+        "body": "Sama dengan dashboard: kosongkan untuk 14 hari terakhir."
+      },
+      "2": {
+        "title": "Kelompokkan per",
+        "body": "Pilih satu atau beberapa sekaligus, mis. Pit dan Ore class, untuk melihat setiap kombinasinya. Tabel dan grafik langsung berubah."
+      },
+      "3": {
+        "title": "Rata-rata Ni",
+        "body": "Kelompok dengan kadar tertinggi ada di atas."
+      },
+      "4": {
+        "title": "Tabel kadar",
+        "body": "Jumlah sampel, yang sudah diuji, rentang Ni, serta rata-rata Fe, Co, MgO, dan SiO₂."
+      },
+      "5": {
+        "title": "Unduh",
+        "body": "Tabel yang sama dalam file Excel."
+      }
+    },
+    "masterData": {
+      "1": {
+        "title": "Satu kartu per jenis kode",
+        "body": "Lokasi, ore class, non-prod, pit, dan SIR. Angka \"in N Sample ID\" menunjukkan berapa sampel memakai kode itu."
+      },
+      "2": {
+        "title": "Tambah kode",
+        "body": "Isi kode dan deskripsi opsional, lalu Tambah. Kode langsung tersedia di formulir sampel."
+      },
+      "3": {
+        "title": "Ubah",
+        "body": "Deskripsi selalu bisa diubah; nama kode terkunci bila sudah dipakai sampel."
+      },
+      "4": {
+        "title": "Retire",
+        "body": "Mengeluarkan kode dari pilihan tanpa menyentuh sampel lama. Langsung tersimpan saat diklik."
+      },
+      "5": {
+        "title": "Hapus",
+        "body": "Kode yang dipakai dipindah ke kode pengganti dulu; ada pratinjau sebelum Anda mengonfirmasi."
+      }
+    },
+    "activity": {
+      "1": {
+        "title": "Dua jejak",
+        "body": "Aktivitas tahap (scan) dan audit login. Coba beralih tab."
+      },
+      "2": {
+        "title": "Per orang",
+        "body": "Siapa melakukan berapa scan. Klik nama untuk menyaring tabel."
+      },
+      "3": {
+        "title": "Saring",
+        "body": "Per orang, tahap, hari, atau koreksi saja."
+      },
+      "4": {
+        "title": "Ekspor",
+        "body": "Unduh jejak sesuai saringan."
+      },
+      "5": {
+        "title": "Rinciannya",
+        "body": "Satu baris satu kejadian, yang terbaru di atas."
+      }
+    },
+    "users": {
+      "1": {
+        "title": "Cari pengguna",
+        "body": "Cari dengan nama atau email."
+      },
+      "2": {
+        "title": "Tambah pengguna",
+        "body": "Buat akun baru beserta perannya. Tersimpan setelah Anda menekan Simpan di formulir."
+      },
+      "3": {
+        "title": "Cara verifikasi",
+        "body": "Menunjukkan apakah wajah atau aplikasi authenticator sudah aktif untuk akun itu."
+      },
+      "4": {
+        "title": "Ubah",
+        "body": "Ganti peran, reset password, buka kunci, atau nonaktifkan."
+      },
+      "5": {
+        "title": "Menu lainnya",
+        "body": "Daftarkan wajah, kelola authenticator, atau lihat perangkat yang sedang masuk."
+      }
+    },
+    "admin": {
+      "1": {
+        "title": "Tulis pengumuman",
+        "body": "Pesan singkat yang tampil di atas semua halaman."
+      },
+      "2": {
+        "title": "Jenis & penerima",
+        "body": "Info bisa ditutup pembaca; Peringatan tetap tampil. Centang peran tertentu, atau kosongkan untuk semua."
+      },
+      "3": {
+        "title": "Jadwal",
+        "body": "Atur kapan mulai dan berakhir (WITA), atau kosongkan."
+      },
+      "4": {
+        "title": "Terbitkan",
+        "body": "Pengumuman langsung tampil untuk penerimanya."
+      },
+      "5": {
+        "title": "Backup",
+        "body": "Unduh semua data dalam satu file Excel, tanpa password atau rahasia."
+      }
+    },
+    "account": {
+      "1": {
+        "title": "Akun Anda",
+        "body": "Klik nama Anda untuk mengganti bahasa, tampilan terang/gelap, password, membuka Panduan, atau keluar."
+      },
+      "2": {
+        "title": "Menu utama",
+        "body": "Hanya menu yang boleh dibuka peran Anda yang tampil di sini."
+      }
+    }
+  },
+  "history": {
+    "title": "Riwayat update hasil uji",
+    "subtitle": "Siapa mengubah hasil apa, kapan, dari berapa ke berapa, dan alasannya — terbaru di atas.",
+    "back": "Kembali",
+    "search": "Cari",
+    "searchPlaceholder": "Sample ID, Lab Code, atau barcode",
+    "from": "Dari",
+    "to": "Sampai",
+    "which": "Jenis perubahan",
+    "resultsOnly": "Hasil uji saja",
+    "allChanges": "Semua perubahan",
+    "empty": "Belum ada perubahan.",
+    "emptyAll": "Tidak ada perubahan yang cocok dengan filter ini.",
+    "pageOf": "Halaman {page} dari {pages} · {total} perubahan",
+    "previous": "Sebelumnya",
+    "next": "Berikutnya",
+    "reason": "Alasan:",
+    "subCreated": "Sub sampel dibuat",
+    "subRemoved": "Sub sampel dihapus",
+    "subLabel": "Sub sampel ({code})",
+    "dialogTitle": "Riwayat · {code}"
+  },
+  "exportDialog": {
+    "title": "Pilih kolom export",
+    "description": "Centang yang ingin dimasukkan ke file. Untuk tiap tahap Anda bisa menambahkan kapan sampel masuk, berapa jam di tahap itu, dan siapa yang men-scan. Pilihan Anda diingat untuk export berikutnya.",
+    "groups": {
+      "sample": "Sampel",
+      "identity": "Identitas",
+      "results": "Hasil uji",
+      "instrument": "Instrumen",
+      "other": "Lainnya"
+    },
+    "all": "Semua",
+    "none": "Tidak ada",
+    "stages": "Waktu per tahap",
+    "stage": "Tahap",
+    "entered": "Masuk",
+    "hours": "Lama (jam)",
+    "operator": "Operator",
+    "allOf": "Semua {part}",
+    "noStages": "Tidak ada tahap.",
+    "chosen": "{count} kolom dipilih",
+    "reset": "Kembalikan default",
+    "excel": "Excel (.xlsx)",
+    "csv": "CSV"
+  }
+}

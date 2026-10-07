@@ -1,0 +1,1666 @@
+{
+  "session": {
+    "replacedTitle": "Signed in on another device",
+    "replacedBody": "Your account was opened on another device at {time}, so you have been signed out here.",
+    "replacedBodyNoTime": "Your account was opened on another device, so you have been signed out here.",
+    "detailDevice": "Device",
+    "detailSystem": "System",
+    "detailBrowser": "Browser",
+    "detailApp": "App",
+    "detailModel": "Model",
+    "detailTime": "Time",
+    "kindDesktop": "Computer",
+    "kindPhone": "Phone",
+    "kindTablet": "Tablet",
+    "appName": "Atara mobile app",
+    "signInAgain": "Sign in again",
+    "endedByAdminTitle": "Signed out by an administrator",
+    "endedByAdminBody": "An administrator ended this session at {time}. Sign in again to continue.",
+    "endedByAdminBodyNoTime": "An administrator ended this session. Sign in again to continue.",
+    "passwordChangedTitle": "Your password was changed",
+    "passwordChangedBody": "This account's password was changed at {time}, so you have been signed out here.",
+    "passwordChangedBodyNoTime": "This account's password was changed, so you have been signed out here."
+  },
+  "tab": {
+    "title": "Atara is open in another tab",
+    "body": "Only one tab can be used at a time. Use Atara in this tab instead? The other tab will be locked.",
+    "useHere": "Use in this tab"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "close": "Close",
+    "search": "Search",
+    "loading": "Loading…",
+    "actions": "Actions",
+    "status": "Status",
+    "active": "Active",
+    "archived": "Archived",
+    "notes": "Notes",
+    "name": "Name",
+    "empty": "—",
+    "export": "Export",
+    "exportExcel": "Excel (.xlsx)",
+    "exportCsv": "CSV",
+    "columns": "Columns",
+    "perPage": "per page",
+    "showing": "Showing {shown} of {total} {noun}",
+    "pageOf": "Page {page} of {total}",
+    "networkError": "Failed to reach the server. Please check your network connection.",
+    "loadError": "Failed to load data. Please check your network connection.",
+    "errorTitle": "Something went wrong",
+    "errorBody": "The page could not be loaded. The server may be busy for a moment; trying again usually works.",
+    "retry": "Try again",
+    "viewDetail": "Open the sample",
+    "previousPage": "Previous page",
+    "nextPage": "Next page"
+  },
+  "nav": {
+    "account": "Account",
+    "appearance": "Appearance",
+    "assayEntry": "Enter Results",
+    "brandSubtitle": "Sample Monitoring",
+    "dashboard": "Dashboard",
+    "generateSamples": "Generate Barcode",
+    "language": "Language",
+    "logOut": "Log Out",
+    "logOutBody": "You will be returned to the sign-in page. Anything unsaved will be lost.",
+    "logOutTitle": "Sign out?",
+    "masterData": "Master Data",
+    "menu": "Menu",
+    "openNavigation": "Open navigation",
+    "reprintLabels": "Reprint Labels",
+    "sampleDatabase": "Sample Database",
+    "activity": "Activity",
+    "themeDark": "Dark",
+    "themeLight": "Light",
+    "users": "Users",
+    "changePassword": "Change password",
+    "gradeControl": "Conclusion",
+    "dataQuality": "Data Quality",
+    "admin": "Administration",
+    "help": "Guide"
+  },
+  "auth": {
+    "title": "Sample Tracking System",
+    "subtitle": "Sign in to access the monitoring dashboard",
+    "email": "Email",
+    "password": "Password",
+    "signIn": "Sign In",
+    "signInFailed": "Sign in failed. Please check your email and password.",
+    "replacedNotice": "Your account was opened on another device, so you were signed out here. Sign in again to continue on this device.",
+    "emailPlaceholder": "name@atara.local",
+    "passwordPlaceholder": "Your password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "endedByAdminNotice": "An administrator signed you out. Sign in again to continue.",
+    "passwordChangedNotice": "Your password was changed, so you were signed out here. Sign in with the new password."
+  },
+  "samples": {
+    "status": {
+      "PENDING": "Pending",
+      "IN_PROGRESS": "In Progress",
+      "COMPLETED": "Completed"
+    },
+    "barcodeCode": "Barcode Code",
+    "labCode": "Lab Code",
+    "currentStage": "Current Stage",
+    "lastUpdated": "Last Updated",
+    "notStarted": "Not Started",
+    "searchPlaceholder": "Search barcode code…",
+    "allStatuses": "All Statuses",
+    "allStages": "All Stages",
+    "empty": "No samples found.",
+    "noun": "samples",
+    "generate": {
+      "title": "Generate & Print Labels",
+      "subtitle": "Create new sample codes and print QR labels to attach to sample containers.",
+      "formTitle": "Create new barcodes",
+      "submit": "Generate {count, plural, one {# barcode} other {# barcodes}}",
+      "sessionTitle": "Barcodes Just Created ({count})",
+      "sessionDescription": "Select the samples whose labels you want to print, then click \"Print Label Grid\".",
+      "selectAll": "Select All",
+      "print": "Print Label Grid",
+      "previewTitle": "Print Layout Preview (A4)",
+      "previewDescription": "{count} label(s) selected for printing.",
+      "backToForm": "Create more barcodes",
+      "viewBatch": "View the {count} barcode(s) just created",
+      "formDescription": "Barcodes are made first; the identity (and with it the Sample ID) is filled in afterwards in the Sample Database.",
+      "quantity": "How many barcodes",
+      "quantityHint": "A whole number from 1 to {max}.",
+      "identityLater": "The new barcodes have no Sample ID yet. Fill in their identity — one record or many at a time — in the Sample Database.",
+      "openDatabase": "Fill in identities in the Database"
+    },
+    "printOptions": {
+      "copies": "Copies",
+      "perRow": "Labels per Row",
+      "perRowValue": "{count} per row",
+      "sheetHint": "{total} label(s) ≈ {sheets} A4 sheet(s)."
+    },
+    "labels": {
+      "title": "Reprint Labels",
+      "subtitle": "Print labels for samples created at any time, not just the ones from this session.",
+      "findTitle": "Find Samples",
+      "findDescription": "A reprinted label scans exactly like the original.",
+      "showingMatching": "Showing {shown} of {total} matching sample(s)",
+      "noMatch": "No samples match this filter.",
+      "clearAll": "Clear all",
+      "nothingSelected": "Tick samples in the list to print their labels. The selection is kept when the filters change.",
+      "printOne": "Print label",
+      "selectShown": "Select all shown ({count})",
+      "loadMore": "Load more ({remaining} left)",
+      "shiftHint": "Tip: hold Shift and click to select a whole range at once.",
+      "printPanelTitle": "Selected ({count})",
+      "removeFromSelection": "Remove {code} from the selection",
+      "printCount": "Print {count} labels",
+      "preview": "Preview",
+      "previewTitle": "Preview ({count} labels)",
+      "identLabel": "Sample ID",
+      "identAll": "All Sample IDs",
+      "identHas": "Has a Sample ID",
+      "identMissing": "No Sample ID yet",
+      "noIdent": "No Sample ID yet",
+      "columnBarcode": "Barcode",
+      "columnSampleId": "Sample ID",
+      "columnStatus": "Status"
+    },
+    "detail": {
+      "back": "Back",
+      "createdBy": "Created By",
+      "createdAt": "Created At",
+      "timelineTitle": "Sample Movement Timeline",
+      "timelineEmpty": "No movement history yet for this sample.",
+      "correction": "Correction",
+      "reason": "Reason:"
+    },
+    "labRecord": {
+      "title": "Lab Record",
+      "labCode": "Lab Code",
+      "shiftDay": "Shift Day (07:00–06:59 WITA)",
+      "sequence": "Sequence",
+      "noResults": "No assay results recorded yet for this sample.",
+      "remarks": "Remarks",
+      "lastEditedBy": "Last edited by {name} on {date}",
+      "historyTitle": "Assay Change History"
+    },
+    "correct": {
+      "button": "Correct stage",
+      "title": "Correct the stage of {code}",
+      "description": "Put the sample on the stage it is really at. It is recorded as a correction, with your reason, on the timeline and in the activity trail.",
+      "stage": "Move to stage",
+      "stagePlaceholder": "Choose a stage",
+      "reason": "Reason",
+      "reasonPlaceholder": "e.g. scanned into Dry Prep by mistake; it is still in Wet Prep",
+      "reasonHint": "At least {min} characters. Shown on the sample's timeline.",
+      "confirmHint": "{code} will be moved to {stage}. This is recorded under your name.",
+      "submit": "Correct stage",
+      "confirm": "Yes, move it",
+      "done": "Stage corrected to {stage}."
+    },
+    "sub": {
+      "title": "Sub-sample ({code})",
+      "parent": "Parent sample",
+      "stageFollows": "Follows the parent sample",
+      "created": "Created",
+      "others": "Other sub-samples",
+      "listTitle": "Sub-samples",
+      "backTo": "Up to {code}",
+      "none": "No other sub-samples yet."
+    }
+  },
+  "dashboard": {
+    "title": "Monitoring Dashboard",
+    "subtitle": "Throughput, turnaround time and bottlenecks, plus the full sample list.",
+    "rangeFrom": "From shift day",
+    "rangeTo": "To shift day",
+    "rangeReset": "Last {days} days",
+    "rangeLabel": "Last {days} days",
+    "kpi": {
+      "samples": "Samples",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "completedHint": "{percent}% of range",
+      "cycleTime": "Cycle Time",
+      "cycleTimeHint": "First scan to Reporting",
+      "awaitingAssay": "Awaiting Assay",
+      "awaitingAssayHint": "Analysed, no results yet",
+      "needsAttention": "Needs Attention",
+      "needsAttentionHint": "Past stage SLA"
+    },
+    "throughput": {
+      "title": "Daily throughput",
+      "description": "Samples registered against samples reaching Reporting, by shift day.",
+      "registered": "Registered",
+      "completed": "Completed"
+    },
+    "stageHours": {
+      "title": "Average hours per stage",
+      "description": "How long a sample sits in each stage before its next scan."
+    },
+    "waiting": {
+      "title": "Where samples are waiting",
+      "description": "Open samples currently sitting in each stage."
+    },
+    "niDistribution": {
+      "title": "Ni grade distribution",
+      "description": "Recorded nickel content, in 0.25% bands.",
+      "empty": "No assay results recorded in this range yet."
+    },
+    "codeSplit": {
+      "title": "Samples by Place",
+      "description": "Where the samples in this range came from.",
+      "unplaced": "No place yet"
+    },
+    "chartEmpty": "No data in this range.",
+    "needsAttention": {
+      "title": "Needs attention ({count})",
+      "empty": "Every open sample is within its stage SLA.",
+      "showTable": "Show chart data",
+      "hideTable": "Hide chart data",
+      "stuckIn": "Stuck in",
+      "hours": "Hours",
+      "sla": "SLA"
+    },
+    "chartData": {
+      "title": "Chart data",
+      "shiftDay": "Shift day"
+    },
+    "allSamples": {
+      "title": "All samples",
+      "subtitle": "Every sample on record — this table has its own filters and is not limited to the range above."
+    },
+    "myScans": {
+      "title": "My scans this shift",
+      "description": "Shift day {shiftDate}, recorded with the mobile app.",
+      "scans": "scans",
+      "corrections": "{count, plural, one {# of them a correction} other {# of them corrections}}",
+      "empty": "Nothing recorded yet this shift."
+    },
+    "filters": "Filters",
+    "removeFilter": "Remove the {name} filter",
+    "lastUpdated": "Updated {time}",
+    "refresh": "Refresh now",
+    "downloadReport": "Download summary",
+    "tvMode": "TV mode"
+  },
+  "database": {
+    "title": "Sample Database",
+    "subtitle": "Find a sample by barcode code, lab code or Sample ID, then click its row to see every result.",
+    "searchPlaceholder": "Search lab code, Sample ID or barcode code…",
+    "shiftDate": "Shift date",
+    "empty": "No sample records found.",
+    "noun": "records",
+    "dialog": {
+      "title": "Edit Sample Parameters",
+      "remarks": "Remarks",
+      "remarksPlaceholder": "Optional notes about this sample.",
+      "save": "Save Parameters"
+    },
+    "identity": {
+      "title": "Sample Identity",
+      "choose": "Choose…",
+      "none": "— none —",
+      "bargingNo": "Barging Run",
+      "sequenceNo": "Running No.",
+      "sampleNo": "Sample No.",
+      "sackCount": "Sacks",
+      "preview": "Sample ID that will be stored",
+      "incomplete": "Fill in Place to compose a Sample ID.",
+      "followsParent": "A sub-sample has its sample's identity. Change it on the sample."
+    },
+    "sampleIdent": "Sample ID",
+    "selectShown": "Select the rows on this page",
+    "selectedCount": "{count} row(s) selected",
+    "clearSelection": "Clear",
+    "measurementMethod": "Measurement Method",
+    "solutionId": "Solution ID",
+    "measurementFinished": "Measurement Finished",
+    "instrumentColumns": "Instrument Columns",
+    "remove": "Delete",
+    "restore": "Restore",
+    "deletedView": "Deleted",
+    "sampleColumn": "Sample",
+    "viewLabel": "View",
+    "activeView": "Active",
+    "emptyFiltered": "No samples match these filters.",
+    "removeConfirmTitle": "Delete {count} sample(s)?",
+    "removeConfirmBody": "They leave this list and the scanning app. You can restore them from the Deleted view.",
+    "restoreConfirmTitle": "Restore {count} sample(s)?",
+    "restoreConfirmBody": "They come back to this list and can be scanned again.",
+    "filters": {
+      "dateLabel": "Shift date",
+      "dateAll": "All dates",
+      "dateToday": "Today",
+      "date7": "Last 7 days",
+      "date30": "Last 30 days",
+      "dateCustom": "Pick a range…",
+      "dateFrom": "From date",
+      "dateTo": "To date",
+      "resultsLabel": "Assay results",
+      "resultsAll": "All",
+      "resultsMissing": "No result yet",
+      "resultsPresent": "Has result",
+      "reset": "Reset filters",
+      "identLabel": "Sample ID",
+      "identAll": "All",
+      "identHas": "Has one",
+      "identMissing": "Not yet"
+    },
+    "sheet": {
+      "identity": "Identity",
+      "results": "Assay results (%)",
+      "openSample": "Open sample page",
+      "open": "Open details",
+      "openFor": "Open details for {code}"
+    },
+    "caption": "{count} sample(s)",
+    "noResultsYet": "No results yet",
+    "paste": {
+      "open": "Paste from Excel",
+      "title": "Paste Results from Excel",
+      "description": "Copy the rows from your spreadsheet and paste them here. They will be applied to the {count} row(s) you selected, and nothing is saved until you have read the preview.",
+      "boxLabel": "Pasted rows",
+      "placeholder": "Paste here (Ctrl+V)…",
+      "auditReason": "Pasted from a spreadsheet",
+      "rowsRead": "{count} row(s) pasted",
+      "toUpdate": "{count} to update",
+      "unchanged": "{count} unchanged",
+      "unknown": "{count} unmatched",
+      "invalid": "{count} invalid",
+      "matchedBy": {
+        "ident": "Matched by Sample ID",
+        "labCode": "Matched by Sample ID (the Lab Code column is read as the Sample ID)",
+        "order": "Matched by row order"
+      },
+      "countMismatch": "{pasted} row(s) pasted onto {selected} selected row(s). Without a Sample ID column the rows are paired in order, so the counts have to match.",
+      "noColumns": "None of the pasted columns is a result this database stores.",
+      "tooMany": "{count} rows would be saved at once; the limit is {max}. Paste them in smaller blocks.",
+      "fixRows": "Fix the rows marked in red before this paste can be applied.",
+      "line": "Row",
+      "row": "Goes to",
+      "result": "Result",
+      "changes": "Changes",
+      "status": {
+        "update": "Will update",
+        "unchanged": "No change",
+        "unknown": "No matching row",
+        "invalid": "Invalid value",
+        "create": "New sub-sample"
+      },
+      "reason": {
+        "noMatch": "This id is not among the selected rows.",
+        "noRow": "There is no selected row in this position.",
+        "duplicate": "This row already took a value from an earlier pasted row.",
+        "futureDate": "This reads as a date in the future, so it cannot be when a measurement finished. Check whether the sheet writes the month or the day first.",
+        "notFound": "There is no sample with this Sample ID.",
+        "ambiguous": "This Sample ID fits more than one sample once the sack count is left out. Add the sack count."
+      },
+      "apply": "Apply to {count} row(s)",
+      "previewTruncated": "Showing {shown} of {total} rows.",
+      "fill": "Fill in {count} row(s)",
+      "fillHint": "The rows are filled in below — nothing is saved until you press Save.",
+      "applied": "Results from Excel saved.",
+      "downloadTemplate": "Download a blank template",
+      "descriptionAll": "Paste rows with a Sample ID column — no need to tick samples first. The sack count at the end may be left out. A Sample ID ending in a code in brackets, such as \"(-20)\", fills that sub-sample, or creates it under its sample. Nothing is saved until you have read the preview.",
+      "placeholderAll": "Paste here (Ctrl+V)…\n\nSample ID\tNi\tFe\nLAM SAP S4/B24/3475.3\t1.86\t42.25\nLAM SAP S4/B24/3475.3 (-20)\t1.92\t41.80",
+      "needKey": "Include a Sample ID column, so each row can find its sample.",
+      "tooManyKeys": "This paste names more than {max} samples. Paste it in smaller blocks.",
+      "resolving": "Looking up the samples…",
+      "toCreate": "{count, plural, one {# new sub-sample} other {# new sub-samples}}",
+      "toOverwrite": "{count, plural, one {# row replaces} other {# rows replace}} earlier results",
+      "fixUnknown": "Some Sample IDs were not found. Correct them, or remove those rows: nothing is saved until every row has its sample.",
+      "subOf": "Sub-sample ({code})",
+      "overwrites": "{count, plural, one {replaces # earlier result} other {replaces # earlier results}}",
+      "overwriteTitle": "{count, plural, one {# earlier result} other {# earlier results}} on {records, plural, one {# sample} other {# samples}} would be replaced",
+      "overwriteBody": "These results already have a value. Replace them only if this sheet is a re-run or a correction.",
+      "backToPreview": "Back to the preview",
+      "saveWithoutOverwrite": "Save without replacing",
+      "overwriteAndSave": "Replace and save",
+      "nothingLeft": "Without replacing earlier results there is nothing left to save.",
+      "openAll": "Paste by Sample ID",
+      "matchNote": "The sack count does not have to match."
+    },
+    "enterResults": "Enter results",
+    "importFile": "Import file",
+    "enterManually": "Type manually",
+    "layout": {
+      "selectAll": "Select all",
+      "reset": "Reset layout",
+      "resize": "Resize the {column} column",
+      "move": "Drag to move this column (or Alt+←/→)"
+    },
+    "bulkIdentity": {
+      "open": "Fill in / change identity ({count})",
+      "title": "Fill in or change the identity of {count, plural, one {# record} other {# records}}",
+      "description": "Each field holds what the records have now. Change it to set it, empty it to clear it; what is left alone stays.",
+      "incomplete": "Correct the fields marked in red.",
+      "changedSummary": "{changed, plural, one {# record} other {# records}} will change, {unchanged} unchanged.",
+      "noIdent": "(none)",
+      "more": "…and {count} more",
+      "clash": "These Sample IDs would be used twice: {ids}. Change the values, or number the samples.",
+      "save": "Save {count, plural, one {# record} other {# records}}",
+      "done": "Identity updated for {count, plural, one {# record} other {# records}}.",
+      "mixedPlaceholder": "Mixed — leave empty to keep",
+      "mixedOption": "(Mixed — keep as is)",
+      "emptyOption": "— Empty —",
+      "changed": "Changed",
+      "revert": "Undo",
+      "numberSequentially": "Number them in order from this number, following the rows in the table",
+      "invalidNumber": "Whole number",
+      "groupNoIdent": "No Sample ID yet",
+      "groupCount": "{count, plural, one {# record} other {# records}}",
+      "modeTogether": "One form for all ({count})",
+      "modeEach": "Per Sample ID ({count})",
+      "search": "Search Sample ID or sample code",
+      "onlyChanged": "Only changed",
+      "changedCount": "{count} changed",
+      "noMatch": "Nothing matches.",
+      "minimize": "Minimize",
+      "restore": "Open again",
+      "minimizedTitle": "Fill in / change identity",
+      "minimizedSummary": "{count, plural, one {# record} other {# records}} · {changed, plural, =0 {no changes yet} one {# change} other {# changes}}",
+      "discard": "Close and discard changes",
+      "listLabel": "Sample IDs",
+      "previous": "Previous",
+      "next": "Next",
+      "position": "{at} / {count}",
+      "statusNone": "No changes yet",
+      "statusChecking": "Checking…",
+      "statusChanged": "{count, plural, one {# record} other {# records}} will change",
+      "statusClash": "{count, plural, one {# Sample ID} other {# Sample IDs}} would be used twice",
+      "showPreview": "Preview",
+      "otherModeChanges": "Changes in the other mode are not saved.",
+      "cleared": "Cleared"
+    },
+    "selection": {
+      "allOnPage": "All {count} on this page are selected.",
+      "selectAllMatching": "Select all {count} that match",
+      "selectFirstMatching": "Select the first {count} of {total} that match",
+      "allMatchingSelected": "All {count} records that match are selected.",
+      "firstMatchingSelected": "The first {count} of {total} records that match are selected.",
+      "clear": "Clear selection"
+    },
+    "identCta": {
+      "title": "{count, plural, one {# barcode has} other {# barcodes have}} no Sample ID yet.",
+      "hint": "Fill in their place, pit and the rest in one go.",
+      "action": "Fill in all {count}",
+      "actionFirst": "Fill in the first {count}"
+    },
+    "subs": {
+      "label": "Sub-sample ({code})",
+      "remove": "Remove {count, plural, one {sub-sample} other {# sub-samples}}",
+      "removeShort": "Remove",
+      "removeConfirmTitle": "Remove {count, plural, one {this sub-sample} other {these # sub-samples}}?",
+      "removeConfirmBody": "A sub-sample and its results are deleted for good. Its sample stays, and keeps a note of the removal in its history.",
+      "exportOption": "Include sub-samples",
+      "filter": {
+        "label": "Samples",
+        "parents": "Samples only",
+        "all": "Including sub-samples",
+        "subs": "Sub-samples only"
+      },
+      "toggle": "Show or hide {count, plural, one {# sub-sample} other {# sub-samples}}",
+      "count": "{count} sub"
+    },
+    "history": {
+      "open": "Update history",
+      "rowLabel": "History of {code}"
+    }
+  },
+  "users": {
+    "title": "Users",
+    "subtitle": "Manage who can sign in, and what they are allowed to do.",
+    "add": "Add User",
+    "searchPlaceholder": "Search name or email…",
+    "user": "User",
+    "email": "Email",
+    "role": "Role",
+    "created": "Created",
+    "you": "(you)",
+    "empty": "No users found.",
+    "noun": "users",
+    "statusActive": "Active",
+    "statusDeactivated": "Deactivated",
+    "statusLocked": "Locked",
+    "dialog": {
+      "addTitle": "Add User",
+      "editTitle": "Edit User",
+      "addDescription": "Each role sees only the pages its work needs.",
+      "roleAdmin": "Admin",
+      "roleAdminHint": "Dashboard, users, master data and activity. Reads the sample database without changing it.",
+      "roleDatabase": "Database",
+      "roleDatabaseHint": "Generates barcodes, reprints labels and keeps the sample database.",
+      "roleAnalisis": "Analyst",
+      "roleAnalisisHint": "Enters assay results.",
+      "roleOperator": "Operator",
+      "roleOperatorHint": "Updates sample stages with the mobile app. Sees only the dashboard on the web.",
+      "selfNote": "You cannot change your own role or status.",
+      "activeLabel": "Active",
+      "activeDescription": "Deactivated users cannot sign in, and existing sessions stop working immediately.",
+      "lockedNotice": "Locked out after too many failed sign-ins.",
+      "unlock": "Unlock now",
+      "emailPlaceholder": "name@atara.local",
+      "create": "Create User",
+      "save": "Save Changes",
+      "defaultPasswordNote": "The account starts on the {role} default password. The user has to replace it on their first sign-in.",
+      "noRoleDefault": "The {role} role has no default password yet.",
+      "noRoleDefaultLink": "Set it under Administration"
+    },
+    "verification": "Verification",
+    "moreActions": "More actions for {name}",
+    "sessions": {
+      "menuLabel": "Sessions",
+      "menuItem": "Signed-in devices",
+      "title": "Signed-in devices — {name}",
+      "description": "Where this account is signed in now, and the last few sessions that ended.",
+      "activeHeading": "Signed in now",
+      "recentHeading": "Recently ended",
+      "noneActive": "Not signed in anywhere.",
+      "web": "Web",
+      "mobile": "Mobile app",
+      "thisDevice": "You, here",
+      "unknownDevice": "Unknown device",
+      "since": "Since {time}",
+      "endedAt": "ended {time} ({reason})",
+      "end": "Sign out",
+      "endAll": "Sign out everywhere",
+      "confirmEndAll": "Yes, sign out everywhere",
+      "endAllHint": "{name} will be signed out on every device and has to sign in again.",
+      "ended": "{count, plural, =0 {Nothing to sign out} one {Signed out # session of {name}} other {Signed out # sessions of {name}}}.",
+      "reason": {
+        "REPLACED": "signed in elsewhere",
+        "LOGOUT": "signed out",
+        "ADMIN_ENDED": "by an administrator",
+        "PASSWORD_CHANGED": "password changed"
+      }
+    },
+    "mustChange": "Must change password",
+    "mustChangeHint": "This account is still on a password from an administrator (the role default) and will be asked to replace it at the next sign-in.",
+    "resetDefault": {
+      "menuLabel": "Password",
+      "menuItem": "Reset to default password",
+      "title": "Reset to default password",
+      "confirm": "{name}'s password goes back to the {role} default. Every device they are signed in on is signed out, and they must replace the password on their next sign-in.",
+      "action": "Reset password",
+      "done": "{name}'s password was reset to the default."
+    }
+  },
+  "masterData": {
+    "title": "Master Data",
+    "subtitle": "The lists that make up a Sample ID. Retiring a code removes it from the pickers without touching existing records.",
+    "kind": {
+      "PLACE": "Place",
+      "ROCK_TYPE": "Ore Class",
+      "NON_PROD": "Non-Production Code",
+      "PIT": "Pit Location",
+      "SIR": "Sir (Field Stockpile)"
+    },
+    "code": "Code",
+    "label": "Description",
+    "addCode": "New code",
+    "addLabel": "Description (optional)",
+    "add": "Add",
+    "empty": "No options yet.",
+    "codeHint": "Letters, digits and hyphens only — this code goes inside every Sample ID.",
+    "inUse": "Active",
+    "retired": "Retired",
+    "retire": "Retire",
+    "restore": "Restore",
+    "allOf": "All {kind}",
+    "usedBy": "in {count} Sample ID(s)",
+    "codeLocked": "This code is inside {count} Sample ID(s), so it cannot be renamed — those ids would stop matching. Edit the description, or retire it and add the new code.",
+    "delete": {
+      "button": "Delete",
+      "title": "Delete {code}?",
+      "unusedBody": "No Sample ID uses this code, so it can simply be removed.",
+      "usedBody": "{code} is inside {count} Sample ID(s). Those records will be moved to the code you choose, and their Sample IDs rewritten.",
+      "chooseReplacement": "Choose a replacement code",
+      "noReplacement": "There is no other active code in this list to move these records to. Add one first.",
+      "preview": "{count} lab record(s) move from {code} to {replacement}:",
+      "clashTitle": "Moving to {replacement} would give {count} sample(s) a Sample ID that already exists:",
+      "clashHint": "Choose another code, or correct those samples first. Nothing has been changed.",
+      "cannotUndo": "This cannot be undone.",
+      "replaceAndDelete": "Replace and delete",
+      "confirm": "Yes, delete {code}",
+      "confirmUsed": "Yes, move {count} and delete {code}",
+      "done": "{code} deleted.",
+      "doneMoved": "{code} deleted; {count} record(s) moved to {replacement}."
+    }
+  },
+  "assay": {
+    "title": "Enter Assay Results",
+    "subtitle": "Tick the samples to fill in, then paste their results from Excel or type them.",
+    "discard": "Discard",
+    "saveRows": "Save {count} row(s)",
+    "saved": "Saved {count} record(s).",
+    "noMatch": "No records match this filter.",
+    "sampleColumn": "Sample",
+    "allDone": "Every sample in this filter already has a result.",
+    "dirtyRows": "{count} row(s) changed",
+    "invalidCells": "{count} cell(s) not valid",
+    "saveHint": "Ctrl+S to save · Enter moves down · Esc undoes a cell",
+    "cell": {
+      "notNumber": "Enter a number, e.g. 1.86",
+      "outOfRange": "Must be between 0 and {max}",
+      "tooManyDecimals": "At most 3 decimal places"
+    },
+    "unsaved": {
+      "title": "{count} row(s) not saved",
+      "body": "Save the changes on this page first, or discard them to continue.",
+      "discard": "Discard changes",
+      "save": "Save and continue"
+    },
+    "paste": {
+      "step1": "In Excel, select the result rows together with their header row, then press Ctrl+C.",
+      "step2": "Press Ctrl+V on this page — or drop a CSV file onto the box below.",
+      "step3": "Check the preview, then press Save.",
+      "boxLabel": "Results from Excel",
+      "placeholder": "Paste here (Ctrl+V)…\n\nSample ID\tNi\tFe\tCo\tSiO2\tMgO\nLAM/SAM/S2/PA4/B10/3778.1\t1.86\t42.25\t0.14\t9.96\t2.37",
+      "chooseFile": "Choose a CSV or Excel file",
+      "copyHeader": "Copy an example header row",
+      "headerHint": "The first row must be headings: Sample ID (the sack count may be left out), then any of the elements, Measurement Finished, Measurement Method or Solution ID.",
+      "headerCopied": "Header row copied. Paste it into the first row of your Excel sheet.",
+      "headerCopyFailed": "Could not copy automatically. The headings are: {header}",
+      "checking": "Checking…",
+      "rowsRead": "{count} row(s) read",
+      "toUpdate": "{count} to update",
+      "unchanged": "{count} unchanged",
+      "unknown": "{count} not found",
+      "invalid": "{count} not valid",
+      "problemsOnly": "Problems only",
+      "line": "Row",
+      "sample": "Sample",
+      "result": "Result",
+      "changes": "Changes",
+      "status": {
+        "update": "Will update",
+        "unchanged": "Unchanged",
+        "unknown": "Not found — skipped",
+        "invalid": "Not valid",
+        "create": "New sub-sample"
+      },
+      "previewTruncated": "Showing {shown} of {total} rows.",
+      "ready": "{count} row(s) ready to save",
+      "skipped": "{count} not found will be skipped",
+      "fixInvalid": "{count} row(s) not valid. Fix them in Excel, then paste again.",
+      "nothingToSave": "Nothing has changed — every value matches what is stored.",
+      "clear": "Clear",
+      "save": "Save {count} row(s)",
+      "auditReason": "Pasted from Excel",
+      "doneTitle": "{count} sample(s) updated",
+      "doneBody": "The results are saved and recorded in each sample's change history.",
+      "pasteAnother": "Paste more",
+      "openDatabase": "View in Sample Database",
+      "errors": {
+        "empty": "Nothing to read yet. Copy the header row and at least one row of results.",
+        "noKey": "The first row has no Sample ID column, so the rows cannot be matched to samples. Make sure the heading row was copied too.",
+        "noFields": "No result columns were recognised (Ni, Fe, Co, SiO2, MgO, …). Check the headings."
+      },
+      "downloadTemplate": "Download a blank template",
+      "toCreate": "{count, plural, one {# new sub-sample} other {# new sub-samples}}",
+      "toOverwrite": "{count, plural, one {# row replaces} other {# rows replace}} earlier results",
+      "subOf": "Sub-sample ({code})",
+      "overwrites": "{count, plural, one {replaces # earlier result} other {replaces # earlier results}}",
+      "overwriteConfirm": "{count, plural, one {# row replaces} other {# rows replace}} results that already have a value. Replace them?",
+      "overwriteAndSave": "Replace and save"
+    },
+    "selection": {
+      "back": "Back to the list",
+      "editing": "Entering results for {count} selected sample(s)"
+    },
+    "importTitle": "Import a results file",
+    "importDescription": "For a large sheet: each row is matched against every sample by Lab Code or Sample ID, with nothing to tick first.",
+    "overwrite": {
+      "title": "Replace {count, plural, one {# earlier result} other {# earlier results}}?",
+      "body": "These boxes already held a result. Replace them only if this is a re-run or a correction.",
+      "keepOld": "Keep the earlier values",
+      "confirm": "Replace and save"
+    }
+  },
+  "stages": {
+    "RECEIVED": "RECEIVED",
+    "WET_PREP": "WET PREP",
+    "DRY_PREP": "DRY PREP",
+    "ANALYSIS": "ANALYSIS",
+    "REPORT": "REPORT"
+  },
+  "stageActivity": {
+    "allOperators": "Everyone",
+    "allStages": "All stages",
+    "by": "By",
+    "corrections": "Corrections",
+    "correctionsAll": "Including corrections",
+    "correctionsExclude": "Excluding corrections",
+    "correctionsOnly": "Corrections only",
+    "empty": "No stage changes match yet.",
+    "isCorrection": "Correction",
+    "notes": "Notes",
+    "noun": "changes",
+    "recordedAt": "Recorded",
+    "sample": "Sample",
+    "searchPlaceholder": "Search barcode code…",
+    "shiftDate": "Shift day",
+    "stage": "Stage",
+    "subtitle": "Who moved which sample, to which stage, and when.",
+    "summaryEmpty": "No stage changes match these filters.",
+    "summaryHint": "Counted across every matching row, not just this page. Picking a person filters the list below; this row still shows everyone.",
+    "summaryTitle": "Per person",
+    "title": "Stage Activity"
+  },
+  "activity": {
+    "title": "Activity"
+  },
+  "signInAudit": {
+    "title": "Sign-in Audit",
+    "subtitle": "Who signed in, and what they proved besides a password.",
+    "noun": "attempts",
+    "empty": "No sign-in attempts match yet.",
+    "when": "When",
+    "who": "Who",
+    "result": "Result",
+    "verified": "Verified",
+    "verifiedFace": "Face",
+    "verifiedTotp": "Authenticator",
+    "verifiedNone": "—",
+    "address": "Address",
+    "addressUnknown": "—",
+    "from": "From",
+    "to": "To",
+    "allPeople": "Everyone",
+    "allOutcomes": "Every result",
+    "summaryTitle": "Per result",
+    "summaryHint": "Counted across every matching row, not just this page. Picking a result filters the list below; this row still shows all of them.",
+    "summaryEmpty": "No sign-in attempts match these filters.",
+    "outcomes": {
+      "FACE_VERIFIED": "Signed in with face",
+      "TOTP_VERIFIED": "Signed in with a code",
+      "TOTP_ENROLLED": "Authenticator set up",
+      "PASSWORD_ONLY": "Password only",
+      "FACE_MISMATCH": "Face did not match",
+      "TOTP_MISMATCH": "Wrong code",
+      "FACE_UNREADABLE": "Face not readable",
+      "FACE_SERVICE_DOWN": "Face service unavailable",
+      "PASSWORD_FAILED": "Wrong password",
+      "ACCOUNT_LOCKED": "Account locked",
+      "ACCOUNT_INACTIVE": "Account deactivated",
+      "SESSION_REPLACED": "Signed out by another device",
+      "PASSWORD_CHANGED": "Password changed",
+      "SESSION_ENDED_BY_ADMIN": "Signed out by an administrator"
+    }
+  },
+  "face": {
+    "backToPassword": "Back to password",
+    "blinkNow": "Blink now",
+    "cameraBlank": "The camera is on but sending no picture. The lens may be covered, or another application may be using it.",
+    "cameraDenied": "Camera access was refused. Allow the camera in your browser and try again.",
+    "cameraInsecure": "The camera only works over HTTPS or on localhost. This page was opened over a plain connection, so the browser will not offer the camera prompt at all.",
+    "cameraMissing": "No usable camera on this device.",
+    "checking": "Checking…",
+    "consentBody": "Face data is specific personal data under UU PDP No. 27/2022. The person being enrolled must agree knowingly and may withdraw at any time.",
+    "consentCheck": "This person has been told and agrees to their face being enrolled",
+    "consentRequired": "Consent must be ticked before enrolling.",
+    "consentTitle": "Consent",
+    "enroll": "Enrol face",
+    "enrollDifferentPerson": "This reading looks like somebody else. Make sure only one person is in front of the camera.",
+    "enrollDone": "{count} face readings saved for {name}.",
+    "enrollSaving": "Saving…",
+    "enrollSubtitle": "Take {count} readings for {name}. Ask them to face the camera, turn slightly, and blink.",
+    "enrollTitle": "Enrol a face",
+    "enrollTooSimilar": "Too close to the previous reading. Change the angle of your head a little.",
+    "greeting": "Hello, {name}",
+    "noFace": "No face detected. Check the lighting and try again.",
+    "notAlive": "No blink seen. Look at the camera and blink once.",
+    "poseDown": "Tilt your head down a little",
+    "poseFront": "Look straight at the camera",
+    "poseFrontAgain": "Look straight ahead again",
+    "poseLeft": "Turn your head slightly left",
+    "poseRight": "Turn your head slightly right",
+    "qualityOffCentre": "Centre your face inside the outline.",
+    "qualityTooClose": "Too close. Move back a little.",
+    "qualityTooDark": "Too dark. Add light or turn towards it.",
+    "qualityTooFar": "Too far away. Move closer to the camera.",
+    "qualityUnsure": "The face is not clear yet. Look straight at the camera.",
+    "reEnroll": "Re-enrol",
+    "removeConfirm": "Remove {name}'s face data? They will sign in with a password alone, and their readings are deleted for good.",
+    "removeFace": "Remove face data",
+    "removed": "{name}'s face data was removed.",
+    "start": "Turn on camera",
+    "stepOf": "Step {current} of {total}",
+    "subtitle": "Look at the camera and blink once.",
+    "title": "Face check",
+    "verified": "Face matched. Signing in…",
+    "serviceDown": "Face recognition is temporarily unavailable. Please ask an administrator.",
+    "serviceBusy": "Face recognition is busy right now. It will try again in a moment.",
+    "previewExpired": "Your sign-in attempt has expired. Go back and enter your password again.",
+    "positioning": "Position your face inside the oval",
+    "autoIn": "Capturing in {count}…",
+    "autoHold": "Hold still",
+    "autoVerify": "The camera checks on its own once you are in the oval",
+    "consentGiven": "Consent recorded. Tap to change.",
+    "enrollProgress": "Reading {current} of {total}",
+    "tryAgain": "Try again"
+  },
+  "mfa": {
+    "stepOf": "Step {current} of {total}",
+    "chooseTitle": "Verify it's you",
+    "chooseSubtitle": "Choose how to verify to finish signing in.",
+    "methodFace": "Face verification",
+    "methodFaceHint": "Face the camera and blink once",
+    "methodTotp": "Authenticator code",
+    "methodTotpHint": "6-digit code from Microsoft Authenticator",
+    "methodSetup": "Set up Authenticator",
+    "methodSetupHint": "Connect Microsoft Authenticator on your phone",
+    "useAnotherMethod": "Use another method",
+    "backToPassword": "Back to password",
+    "totpTitle": "Authenticator code",
+    "totpSubtitle": "Open Microsoft Authenticator and enter the 6-digit code for your ATARA account.",
+    "codeLabel": "6-digit code",
+    "verify": "Verify",
+    "verified": "Code accepted. Signing in…",
+    "mismatch": "That code is wrong or was already used. Wait for the next code and try again.",
+    "setupTitle": "Set up Authenticator",
+    "setupScanTitle": "Scan the QR code",
+    "setupScanHint": "In Microsoft Authenticator, tap ＋ → Other account → Scan a QR code. Don't have it? Install it from the Play Store or App Store.",
+    "next": "Continue",
+    "setupCodeTitle": "Enter the code",
+    "setupCodeHint": "Type the 6-digit code Microsoft Authenticator shows for your ATARA account.",
+    "showQrAgain": "Show the QR code again",
+    "progressScan": "Scan",
+    "progressCode": "Code",
+    "setupLoading": "Preparing the QR code…",
+    "manualKey": "Can't scan? Show the key",
+    "showQrCode": "Show the QR code",
+    "qrLabel": "QR code for Microsoft Authenticator",
+    "enrolled": "Authenticator connected. Signing in…",
+    "admin": {
+      "badgeFace": "Face",
+      "badgeTotp": "Authenticator",
+      "badgePending": "Authenticator (pending)",
+      "none": "Password only",
+      "manage": "Manage Authenticator…",
+      "title": "Microsoft Authenticator",
+      "statusOff": "Not enabled. {name} signs in without an Authenticator code.",
+      "statusPending": "Waiting for setup since {date}. {name} will be asked to scan a QR code at their next sign-in.",
+      "statusActive": "Active since {date}.",
+      "require": "Require Authenticator",
+      "requireHint": "At their next sign-in, after the password, {name} scans a QR code with their own phone. You will not see the code.",
+      "cancelRequest": "Cancel request",
+      "reset": "Reset & set up again",
+      "resetHint": "Use this when a phone is lost or replaced. Codes from the old phone stop working at once, and {name} sets it up again at their next sign-in.",
+      "disable": "Turn off",
+      "disableHint": "{name} will no longer be asked for an Authenticator code when signing in.",
+      "confirm": "Yes, continue",
+      "requested": "Authenticator required for {name}.",
+      "resetDone": "Authenticator for {name} was reset.",
+      "disabled": "Authenticator for {name} was turned off.",
+      "pendingHint": "Waiting to be set up at the next sign-in"
+    }
+  },
+  "account": {
+    "password": {
+      "title": "Change password",
+      "description": "You stay signed in here. Any other device signed in to your account will be signed out.",
+      "current": "Current password",
+      "new": "New password",
+      "confirm": "Confirm new password",
+      "hint": "At least {min} characters.",
+      "submit": "Change password",
+      "tooShort": "The new password must be at least {min} characters.",
+      "mismatch": "The new passwords do not match.",
+      "sameAsCurrent": "The new password must be different from the current one.",
+      "wrongCurrent": "That is not your current password.",
+      "done": "Password changed.",
+      "doneWithSignOut": "Password changed. {count, plural, one {# other device was} other {# other devices were}} signed out.",
+      "roleDefault": "That is the role's default password. Choose one of your own."
+    },
+    "forceChange": {
+      "title": "Change your password",
+      "description": "For your security, replace the password an administrator gave you before you continue. You will only need to do this once.",
+      "submit": "Save and continue",
+      "signOut": "Sign out"
+    }
+  },
+  "search": {
+    "open": "Search samples…",
+    "shortcut": "Ctrl K",
+    "placeholder": "Barcode, Lab Code or Sample ID…",
+    "minChars": "Type at least 2 characters, or scan a barcode.",
+    "noResults": "No sample matches.",
+    "error": "Search failed. Check the connection and try again.",
+    "hint": "↑↓ choose · Enter open · Esc close"
+  },
+  "tv": {
+    "title": "Sample Monitoring",
+    "updated": "Updated {time}",
+    "fullscreen": "Full screen",
+    "inProgress": "In progress",
+    "overdue": "Over {hours} h",
+    "done": "Finished (24 h)",
+    "byStage": "By stage",
+    "last24h": "last 24 hours",
+    "overdueShort": "{count} late",
+    "longest": "Waiting longest",
+    "allClear": "No sample is past its SLA.",
+    "expired": "This screen's session has ended.",
+    "signInAgain": "Sign in again",
+    "hours": "{hours} h",
+    "days": "{days} d {hours} h"
+  },
+  "grade": {
+    "title": "Conclusion",
+    "subtitle": "Average grades per pit, SIR, place, ore class, non-prod code or barging run — or a combination of them — for samples created in the window.",
+    "from": "From",
+    "to": "To",
+    "groupBy": "Group by (one or more)",
+    "groups": {
+      "pit": "Pit",
+      "sir": "SIR",
+      "place": "Place",
+      "rockType": "Ore class",
+      "nonProd": "Non-prod",
+      "barging": "Barging run"
+    },
+    "download": "Download xlsx",
+    "range": "{from} → {to}",
+    "defaultRange": "Last {days} days",
+    "averagesNote": "Averages are over samples that have a Ni result.",
+    "none": "(none)",
+    "chartTitle": "Average Ni per {group}",
+    "chartDescription": "Highest first, up to 30 bars. Rows without any Ni result are left out of the chart; the table lists every one.",
+    "empty": "No samples in this window.",
+    "samples": "Samples",
+    "assayed": "Assayed",
+    "niRange": "Ni min – max",
+    "avgOf": "{field} avg"
+  },
+  "dataQuality": {
+    "title": "Data Quality",
+    "subtitle": "Samples whose records need attention: gaps in the identity, or no result long after the sample was made.",
+    "identityCard": "Identity incomplete",
+    "resultsCard": "No Ni result after {days} days",
+    "anyExpected": "Any required",
+    "optional": "optional",
+    "gaps": {
+      "place": "Place",
+      "rockType": "Ore class",
+      "pit": "Pit",
+      "bargingNo": "Barging",
+      "sampleIdent": "Sample ID",
+      "nonProd": "Non-prod",
+      "sir": "SIR"
+    },
+    "olderThan": "Created more than",
+    "daysOption": "{days} d ago",
+    "columns": {
+      "sample": "Barcode",
+      "labCode": "Lab Code",
+      "sampleIdent": "Sample ID",
+      "stage": "Stage",
+      "age": "Age",
+      "missing": "Missing"
+    },
+    "allGood": "Nothing to fix here.",
+    "ageValue": "{days} d",
+    "pageOf": "Page {page} of {pages} · {total} records",
+    "previous": "Previous page",
+    "next": "Next page"
+  },
+  "admin": {
+    "title": "Administration",
+    "subtitle": "Announcements shown above every page, and a full backup of the data.",
+    "rolePasswords": {
+      "title": "Default password per role",
+      "description": "Every new account starts on its role's default, and a forgotten password is reset to it. The person then has to replace it on their next sign-in.",
+      "set": "Set",
+      "notSet": "Not set",
+      "notSetHint": "Accounts of this role cannot be created or reset yet.",
+      "setAt": "Updated {when} by {by}",
+      "setAction": "Set",
+      "change": "Change",
+      "editFor": "Set the default password for {role}",
+      "note": "Stored encrypted and never shown again. A change applies to new accounts and later resets only; accounts already on the old default keep it.",
+      "dialogTitle": "Default password for {role}",
+      "dialogDescription": "Write it down somewhere safe to pass on to new users: it cannot be shown again after saving.",
+      "password": "Default password",
+      "confirm": "Confirm default password",
+      "hint": "At least 8 characters.",
+      "show": "Show password",
+      "hide": "Hide password",
+      "tooShort": "The password must be at least 8 characters.",
+      "mismatch": "The passwords do not match.",
+      "save": "Save",
+      "saved": "Default password for {role} saved."
+    }
+  },
+  "announcements": {
+    "title": "Announcements",
+    "description": "A banner above every page, for everybody or for some roles. Info can be closed by each reader; a warning stays up until it ends.",
+    "message": "Message",
+    "messagePlaceholder": "e.g. XRF maintenance tomorrow 08:00–10:00. Hold analysis samples until then.",
+    "tone": "Type",
+    "tones": {
+      "INFO": "Info",
+      "WARNING": "Warning"
+    },
+    "roles": "Shown to",
+    "rolesHint": "Tick none to show it to everybody.",
+    "startsAt": "Starts (WITA)",
+    "endsAt": "Ends (WITA)",
+    "timesHint": "Leave the start empty to show it now, and the end empty to keep it until you end it.",
+    "publish": "Publish",
+    "save": "Save changes",
+    "created": "Announcement published.",
+    "saved": "Announcement saved.",
+    "ended": "Announcement ended.",
+    "deleted": "Announcement deleted.",
+    "empty": "No announcements yet.",
+    "everyone": "Everybody",
+    "untilEnded": "until ended",
+    "window": "{start} → {end}",
+    "status": {
+      "active": "Showing",
+      "scheduled": "Scheduled",
+      "ended": "Ended"
+    },
+    "endNow": "End now",
+    "delete": "Delete",
+    "dismiss": "Close this announcement"
+  },
+  "backup": {
+    "title": "Backup",
+    "description": "Everything in one Excel workbook: every sample with its results (deleted ones included and marked), the stage log, result changes, master data, stages and users.",
+    "samples": "Samples",
+    "logs": "Stage log",
+    "changes": "Result changes",
+    "masterOptions": "Master codes",
+    "users": "Users",
+    "excluded": "Not included: passwords, authenticator secrets, face readings and sign-in sessions. Keep the file somewhere safe; it holds every result.",
+    "download": "Download backup",
+    "preparing": "Preparing…",
+    "done": "Backup downloaded."
+  },
+  "help": {
+    "title": "Guide",
+    "subtitle": "How each part of Atara works, for the pages your role can open.",
+    "contents": "Contents",
+    "sections": {
+      "dashboard": {
+        "title": "Dashboard",
+        "intro": "The lab's figures for a date window: samples, progress, cycle time and what is late.",
+        "steps": {
+          "1": "Pick From/To to change the window; leave them empty for the last 14 days.",
+          "2": "Use Filters to narrow by place, ore class, non-prod code, SIR or pit. The chips show what is applied; click a chip to remove it.",
+          "3": "Figures refresh by themselves every minute. \"Updated\" says when they were calculated; the refresh button asks again now.",
+          "4": "Needs attention lists samples that have been in one stage for more than 24 hours.",
+          "5": "TV mode opens a full-screen view for a monitor in the lab. Admin and Database can download the summary as Excel."
+        },
+        "tip": "Figures refresh by themselves every minute. Open TV mode on the lab's monitor so everyone can see what is late."
+      },
+      "quickSearch": {
+        "title": "Quick search",
+        "intro": "Open any sample from any page.",
+        "steps": {
+          "1": "Press Ctrl+K (or /), or click \"Search samples\" at the top.",
+          "2": "Type a barcode, a lab code or part of a Sample ID; choose with ↑↓ and press Enter.",
+          "3": "A USB barcode scanner works in the same box: an exact match opens straight away."
+        },
+        "tip": "Plug in a USB barcode scanner and scan into the search box: an exact match opens without pressing anything else."
+      },
+      "sampleDetail": {
+        "title": "A sample's page",
+        "intro": "Everything about one sample: where it is, its results and what happened to it.",
+        "steps": {
+          "1": "The timeline lists every stage scan, with corrections marked and their reason.",
+          "2": "The lab record shows the identity and assay results; Admin and Database also see its change history.",
+          "3": "Database can print a replacement label here. Admin can correct the stage, with a reason."
+        }
+      },
+      "generate": {
+        "title": "Generate Barcode",
+        "intro": "Make new barcodes and print their QR labels. Their identity is filled in later.",
+        "steps": {
+          "1": "Enter how many barcodes you need, then generate. Each gets a barcode and a Lab Code, without a Sample ID yet.",
+          "2": "Print the labels from the preview and stick them on the bags.",
+          "3": "In the Sample Database, filter on \"No Sample ID yet\", tick the rows and use Fill in identity."
+        }
+      },
+      "labels": {
+        "title": "Reprint Labels",
+        "intro": "Print labels again for samples that already exist.",
+        "steps": {
+          "1": "Search or filter the samples, then tick the ones you need.",
+          "2": "Choose the number of copies and columns, then print."
+        }
+      },
+      "database": {
+        "title": "Sample Database",
+        "intro": "Every lab record, with filters, export and history.",
+        "steps": {
+          "1": "Search by barcode, lab code or Sample ID, and filter by place, date or whether results are in.",
+          "2": "Database edits a record from its row; changing the identity rewrites the Sample ID automatically.",
+          "3": "Removed samples are kept and can be restored from the deleted view.",
+          "4": "Export the filtered list as Excel or CSV.",
+          "5": "Barcodes without a Sample ID: filter Sample ID → Not yet and press Fill in all. To correct many records at once, tick them (or select all that match) and use Fill in / change identity: the fields hold the current values — change one to set it on all of them, empty it to clear it. Drag a column heading to move it, drag its edge to resize it."
+        },
+        "tip": "Changing a sample's place, pit or other identity rewrites its Sample ID automatically; there is no need to edit the ID by hand."
+      },
+      "dataQuality": {
+        "title": "Data Quality",
+        "intro": "Records that need someone: gaps in the identity, or no result long after the sample was made.",
+        "steps": {
+          "1": "\"Identity incomplete\" counts records missing a required column; click a column to list only those.",
+          "2": "\"No Ni result\" lists samples older than the chosen number of days without a result.",
+          "3": "Open a sample from the list to fix it, or export the list."
+        }
+      },
+      "assay": {
+        "title": "Enter Results",
+        "intro": "Put assay results in, by hand or from the instrument's spreadsheet.",
+        "steps": {
+          "1": "Type into the grid, or paste a block copied from Excel.",
+          "2": "Or upload the workbook; download the template first if you need the columns.",
+          "3": "Check the preview: rows are matched by Sample ID (spaces or slashes, the sack count may be left out, no ticking needed) before anything is saved.",
+          "4": "Sub-samples and replaced results: a Sample ID ending in a code in brackets, such as \"(-20)\", fills that sub-sample or creates it under its sample. A result that already has a value is only replaced after you confirm it."
+        },
+        "tip": "Copy the whole block from the instrument's Excel and paste it at once; rows are matched by Lab Code or Sample ID."
+      },
+      "grade": {
+        "title": "Conclusion",
+        "intro": "Average grades per pit, SIR, place, ore class, non-prod code or barging run, or any combination of them.",
+        "steps": {
+          "1": "Choose the window, then one or more groups: Pit alone, or Pit + Ore class for every combination.",
+          "2": "The chart shows average Ni per row; the table adds a column per group, Fe, Co, MgO, SiO₂ and the Ni range.",
+          "3": "Averages count only samples that have a Ni result. Download the table as Excel."
+        }
+      },
+      "masterData": {
+        "title": "Master Data",
+        "intro": "The codes a Sample ID is built from: place, ore class, non-prod, pit and SIR.",
+        "steps": {
+          "1": "Add a code with its optional description.",
+          "2": "A code already inside Sample IDs cannot be renamed; edit its description instead.",
+          "3": "Retire a code to take it out of the pickers. Delete moves its samples to a replacement code first and rewrites their Sample IDs."
+        },
+        "tip": "If a code is still inside Sample IDs, Retire is the safer choice: old samples keep reading correctly."
+      },
+      "activity": {
+        "title": "Activity",
+        "intro": "Who did what: every stage scan, and every sign-in attempt.",
+        "steps": {
+          "1": "Stage activity lists scans and corrections; filter by person, stage or day.",
+          "2": "Sign-in audit shows each sign-in and how it was verified (face, code, password only), plus password changes and sessions ended.",
+          "3": "Both can be exported."
+        }
+      },
+      "users": {
+        "title": "Users",
+        "intro": "Who can sign in, and what they may do.",
+        "steps": {
+          "1": "Add a user with a role; Edit changes the role, resets the password, unlocks or deactivates.",
+          "2": "From the ⋯ menu: enrol a face, require an authenticator app, or see the devices signed in.",
+          "3": "Resetting a password signs that person out everywhere."
+        },
+        "tip": "Resetting a password signs that person out on every device, so use it when a password may be known to someone else."
+      },
+      "admin": {
+        "title": "Administration",
+        "intro": "Announcements above every page, and the full backup.",
+        "steps": {
+          "1": "Write an announcement, choose Info or Warning and who sees it; set start and end, or leave them empty.",
+          "2": "End now takes it down but keeps it in the list; Delete removes it.",
+          "3": "Download backup gives one Excel file with all the data, without passwords or secrets."
+        }
+      },
+      "mobile": {
+        "title": "Mobile app (scanning)",
+        "intro": "Moving samples through the stages with the phone.",
+        "steps": {
+          "1": "Sign in with your password and face or authenticator code.",
+          "2": "Choose the stage, then scan each bag's QR code; the sample moves to that stage.",
+          "3": "Wrong stage? Use the correction with a reason. Scans made offline are sent when the connection returns."
+        },
+        "tip": "No signal? Keep scanning: scans are saved on the phone and sent as soon as the connection returns."
+      },
+      "account": {
+        "title": "Your account",
+        "intro": "Settings in the menu under your name, top right.",
+        "steps": {
+          "1": "Change your password there; other devices signed in to your account are signed out.",
+          "2": "Switch language and light or dark appearance.",
+          "3": "One account is signed in on one browser and one phone at a time: signing in elsewhere signs the old one out."
+        },
+        "tip": "Signing in on another browser signs the old one out. If you are signed out unexpectedly, someone may be using your account."
+      }
+    },
+    "welcome": {
+      "hello": "Welcome, {name}",
+      "counter": "{step} of {total}",
+      "next": "Next",
+      "back": "Back",
+      "done": "Done",
+      "openGuide": "Open the full guide",
+      "ADMIN": {
+        "steps": {
+          "1": {
+            "title": "You look after the whole system",
+            "body": "The dashboard, TV mode and Conclusion show how the lab is doing. Activity shows who did what."
+          },
+          "2": {
+            "title": "People and codes",
+            "body": "Users is where accounts, roles and sign-in methods are managed. Master Data holds the codes every Sample ID is built from."
+          },
+          "3": {
+            "title": "Announcements and backup",
+            "body": "Administration puts a banner above every page and downloads a full backup of the data."
+          },
+          "4": {
+            "title": "Help is always here",
+            "body": "Press ? at the top of any page for the part of the guide about it, or Ctrl+K to open any sample."
+          }
+        }
+      },
+      "DATABASE": {
+        "steps": {
+          "1": {
+            "title": "You keep the samples right",
+            "body": "Generate Barcode makes new barcodes and prints their labels; their identity is filled in later. Reprint Labels prints them again."
+          },
+          "2": {
+            "title": "The Sample Database",
+            "body": "Fill in identities — many records at once — remove or restore samples and export. Data Quality lists what still needs something."
+          },
+          "3": {
+            "title": "Help is always here",
+            "body": "Press ? at the top of any page for the part of the guide about it, or Ctrl+K to open any sample."
+          }
+        }
+      },
+      "ANALISIS": {
+        "steps": {
+          "1": {
+            "title": "You enter the results",
+            "body": "Enter Results takes a grid, a paste from Excel, or the instrument's workbook."
+          },
+          "2": {
+            "title": "See the grades",
+            "body": "Conclusion shows average grades per pit, SIR, place or a combination of them, for any window."
+          },
+          "3": {
+            "title": "Help is always here",
+            "body": "Press ? at the top of any page for the part of the guide about it, or Ctrl+K to open any sample."
+          }
+        }
+      },
+      "OPERATOR": {
+        "steps": {
+          "1": {
+            "title": "You move the samples",
+            "body": "Scanning is done in the mobile app: choose the stage, scan the QR code on each bag."
+          },
+          "2": {
+            "title": "See what is waiting",
+            "body": "On the Dashboard, Needs attention lists samples that have been in one stage for more than 24 hours; TV mode shows them on the lab monitor."
+          },
+          "3": {
+            "title": "Help is always here",
+            "body": "Press ? at the top of any page for the part of the guide about it, or Ctrl+K to open any sample."
+          }
+        }
+      }
+    },
+    "openPage": "Open page",
+    "tip": "Tip",
+    "forRole": "Guide for: {role}",
+    "sectionCount": "{count, plural, one {# section} other {# sections}}"
+  },
+  "tour": {
+    "start": "Try it",
+    "startTour": "Start the tour",
+    "next": "Next",
+    "back": "Back",
+    "done": "Done",
+    "close": "Close the tour",
+    "stepOf": "Step {step} of {total}",
+    "savesData": "Saves data — only try it if you mean to.",
+    "notShown": "This part is not on screen yet (there may be no data, or your role does not have it). Carry on to the next step.",
+    "finished": "Tour finished. Open the Guide to try another one.",
+    "noSample": "There is no sample to try this on yet."
+  },
+  "tours": {
+    "dashboard": {
+      "1": {
+        "title": "Pick a date range",
+        "body": "Try filling in From and To. Leave them empty for the last 14 days; every figure below follows."
+      },
+      "2": {
+        "title": "Open the filters",
+        "body": "Click Filters to narrow by place, ore class, non-prod, SIR or pit. The tour carries on once you click."
+      },
+      "3": {
+        "title": "Choose a filter",
+        "body": "Pick a code, for example a place. Active filters show as chips; click a chip to remove it."
+      },
+      "4": {
+        "title": "Always up to date",
+        "body": "Figures refresh by themselves every minute. This button asks again now; the label beside it says when they were calculated."
+      },
+      "5": {
+        "title": "The main figures",
+        "body": "A summary of the window. The Needs attention tile can be clicked to jump to the late samples."
+      },
+      "6": {
+        "title": "Late samples",
+        "body": "Samples more than 24 hours in one stage, longest-waiting first. Click a barcode to open the sample."
+      },
+      "7": {
+        "title": "TV mode",
+        "body": "Opens a full-screen view in a new tab, for a monitor in the lab."
+      },
+      "8": {
+        "title": "Download the summary",
+        "body": "One Excel file with the figures for the window and filters in use."
+      }
+    },
+    "quickSearch": {
+      "1": {
+        "title": "Find a sample from anywhere",
+        "body": "Click here or press Ctrl+K, then type a barcode, Lab Code or part of a Sample ID. A USB barcode scanner works in this box too."
+      },
+      "2": {
+        "title": "Help for this page",
+        "body": "The ? button opens the part of the guide for the page you are on, with its Try it button."
+      }
+    },
+    "sampleDetail": {
+      "1": {
+        "title": "The sample",
+        "body": "Its barcode, Sample ID and status."
+      },
+      "2": {
+        "title": "Where it is",
+        "body": "The current stage, who registered the sample, and when."
+      },
+      "3": {
+        "title": "Lab record and results",
+        "body": "The full identity and the assay results. Admin and Database also see the change history."
+      },
+      "4": {
+        "title": "Stage history",
+        "body": "Every stage scan is recorded here, corrections included with their reason."
+      },
+      "5": {
+        "title": "Reprint the label",
+        "body": "Choose the number of copies and print, when the label on the bag is damaged or lost."
+      },
+      "6": {
+        "title": "Correct the stage",
+        "body": "If the sample is on the wrong stage, move it to the right one with a reason. It is recorded under your name."
+      }
+    },
+    "generate": {
+      "1": {
+        "title": "How many",
+        "body": "Enter the number of barcodes to make, up to 500. Nothing is asked about the samples yet."
+      },
+      "2": {
+        "title": "Generate",
+        "body": "This creates real barcodes with their Lab Codes and shows the labels to print."
+      },
+      "3": {
+        "title": "Identity comes later",
+        "body": "The new barcodes have no Sample ID yet. This link opens the Sample Database on exactly those, to fill in their identity."
+      }
+    },
+    "labels": {
+      "1": {
+        "title": "Find samples",
+        "body": "Search by barcode, or filter by status and stage."
+      },
+      "2": {
+        "title": "Select samples",
+        "body": "Try ticking this box to select every sample shown. The tour carries on once you click."
+      },
+      "3": {
+        "title": "Print settings",
+        "body": "Copies per sample and the number of label columns on the A4 sheet."
+      },
+      "4": {
+        "title": "Print",
+        "body": "Opens the browser's print window. Preview shows the label layout first."
+      }
+    },
+    "database": {
+      "1": {
+        "title": "Search records",
+        "body": "Type a barcode, Lab Code or part of a Sample ID. Beside it are the place and date filters."
+      },
+      "2": {
+        "title": "Results in or not",
+        "body": "Show only records that do, or do not yet, have assay results."
+      },
+      "3": {
+        "title": "Sample ID or not yet",
+        "body": "Show only the records that still have no Sample ID. With it on, one button fills in the identity of all of them at once."
+      },
+      "4": {
+        "title": "Choose columns",
+        "body": "Show or hide table columns. Your choice is remembered in this browser."
+      },
+      "5": {
+        "title": "Active or deleted",
+        "body": "See removed samples and restore them if needed."
+      },
+      "6": {
+        "title": "Export",
+        "body": "Download the filtered list as Excel or CSV."
+      },
+      "7": {
+        "title": "Open the details",
+        "body": "Click a row to see the record. The Database role can edit the identity from there."
+      }
+    },
+    "dataQuality": {
+      "1": {
+        "title": "Two checks",
+        "body": "Incomplete identities, and samples still without a result. Click a card to switch."
+      },
+      "2": {
+        "title": "Narrow it down",
+        "body": "Pick the empty column, or the sample age in days."
+      },
+      "3": {
+        "title": "What needs fixing",
+        "body": "Oldest first. Click a barcode to open the sample and fix it."
+      },
+      "4": {
+        "title": "Export the list",
+        "body": "Download this list to share with the team."
+      }
+    },
+    "assay": {
+      "1": {
+        "title": "What still needs results",
+        "body": "Records without results are shown by default. Switch to All or Done when you need to."
+      },
+      "2": {
+        "title": "Select records",
+        "body": "Try ticking one row. The tour carries on once you click."
+      },
+      "3": {
+        "title": "Enter results",
+        "body": "This bar appears once something is selected: paste from Excel or enter by hand. Nothing is saved until you press Save on the next screen."
+      },
+      "4": {
+        "title": "Import a file",
+        "body": "Upload the instrument's workbook, or paste a block at once. A preview comes before anything is saved."
+      }
+    },
+    "grade": {
+      "1": {
+        "title": "Date range",
+        "body": "Same as the dashboard: leave it empty for the last 14 days."
+      },
+      "2": {
+        "title": "Group by",
+        "body": "Pick one or several at once, e.g. Pit and Ore class, to see each combination. The table and chart follow straight away."
+      },
+      "3": {
+        "title": "Average Ni",
+        "body": "The groups with the highest grade come first."
+      },
+      "4": {
+        "title": "Grade table",
+        "body": "Samples, how many are assayed, the Ni range and average Fe, Co, MgO and SiO₂."
+      },
+      "5": {
+        "title": "Download",
+        "body": "The same table as an Excel file."
+      }
+    },
+    "masterData": {
+      "1": {
+        "title": "One card per kind of code",
+        "body": "Place, ore class, non-prod, pit and SIR. \"In N Sample IDs\" shows how many samples use a code."
+      },
+      "2": {
+        "title": "Add a code",
+        "body": "Enter the code and an optional description, then Add. The code is offered on sample forms straight away."
+      },
+      "3": {
+        "title": "Edit",
+        "body": "The description can always change; the code itself is locked once samples use it."
+      },
+      "4": {
+        "title": "Retire",
+        "body": "Takes the code out of the pickers without touching old samples. Saved as soon as it is clicked."
+      },
+      "5": {
+        "title": "Delete",
+        "body": "A code in use is moved to a replacement first; a preview comes before you confirm."
+      }
+    },
+    "activity": {
+      "1": {
+        "title": "Two trails",
+        "body": "Stage activity (scans) and the sign-in audit. Try switching tabs."
+      },
+      "2": {
+        "title": "Per person",
+        "body": "Who made how many scans. Click a name to filter the table."
+      },
+      "3": {
+        "title": "Filter",
+        "body": "By person, stage, day, or corrections only."
+      },
+      "4": {
+        "title": "Export",
+        "body": "Download the trail as it is filtered."
+      },
+      "5": {
+        "title": "The details",
+        "body": "One row per event, newest first."
+      }
+    },
+    "users": {
+      "1": {
+        "title": "Find a user",
+        "body": "Search by name or email."
+      },
+      "2": {
+        "title": "Add a user",
+        "body": "Create an account with its role. Saved when you press Save in the form."
+      },
+      "3": {
+        "title": "Verification",
+        "body": "Shows whether a face or an authenticator app is active for the account."
+      },
+      "4": {
+        "title": "Edit",
+        "body": "Change the role, reset the password, unlock or deactivate."
+      },
+      "5": {
+        "title": "More",
+        "body": "Enrol a face, manage the authenticator, or see the devices signed in."
+      }
+    },
+    "admin": {
+      "1": {
+        "title": "Write an announcement",
+        "body": "A short message shown above every page."
+      },
+      "2": {
+        "title": "Type and audience",
+        "body": "Info can be closed by readers; a Warning stays up. Tick roles, or none for everybody."
+      },
+      "3": {
+        "title": "Schedule",
+        "body": "Set when it starts and ends (WITA), or leave them empty."
+      },
+      "4": {
+        "title": "Publish",
+        "body": "The announcement shows to its audience straight away."
+      },
+      "5": {
+        "title": "Backup",
+        "body": "Download all the data as one Excel file, without passwords or secrets."
+      }
+    },
+    "account": {
+      "1": {
+        "title": "Your account",
+        "body": "Click your name to change language, light or dark appearance, your password, open the Guide, or sign out."
+      },
+      "2": {
+        "title": "Main menu",
+        "body": "Only the menus your role may open are shown here."
+      }
+    }
+  },
+  "history": {
+    "title": "Result update history",
+    "subtitle": "Who changed which result, when, from what to what, and why — newest first.",
+    "back": "Back",
+    "search": "Search",
+    "searchPlaceholder": "Sample ID, Lab Code or barcode",
+    "from": "From",
+    "to": "To",
+    "which": "Which changes",
+    "resultsOnly": "Results only",
+    "allChanges": "All changes",
+    "empty": "No changes yet.",
+    "emptyAll": "No changes match these filters.",
+    "pageOf": "Page {page} of {pages} · {total, plural, one {# change} other {# changes}}",
+    "previous": "Previous",
+    "next": "Next",
+    "reason": "Reason:",
+    "subCreated": "Sub-sample created",
+    "subRemoved": "Sub-sample removed",
+    "subLabel": "Sub-sample ({code})",
+    "dialogTitle": "History · {code}"
+  },
+  "exportDialog": {
+    "title": "Choose the columns to export",
+    "description": "Tick what goes into the file. For each stage you can add when the sample entered it, how many hours it stayed, and who scanned it. Your choice is remembered for next time.",
+    "groups": {
+      "sample": "Sample",
+      "identity": "Identity",
+      "results": "Assay results",
+      "instrument": "Instrument",
+      "other": "Other"
+    },
+    "all": "All",
+    "none": "None",
+    "stages": "Time per stage",
+    "stage": "Stage",
+    "entered": "Entered",
+    "hours": "Hours",
+    "operator": "Operator",
+    "allOf": "All {part}",
+    "noStages": "No stages to offer.",
+    "chosen": "{count, plural, one {# column} other {# columns}} chosen",
+    "reset": "Back to default",
+    "excel": "Excel (.xlsx)",
+    "csv": "CSV"
+  }
+}

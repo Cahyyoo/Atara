@@ -1,0 +1,20 @@
+# The dlib weights are ~123MB and are fetched by scripts/fetch_models.py.
+# They are inputs, not source, and they do not belong in the repository.
+models/*.dat
+models/*.bz2
+
+.venv/
+venv/
+
+# Built by scripts/build_dlib_blas.ps1. ~15MB with libopenblas.dll inside,
+# and specific to one Python version: an output, rebuilt per machine setup.
+wheels/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Sample photographs for the tests, fetched from dlib's own examples (see
+# README). They are somebody's face, and the repository is not the place for
+# that; the tests skip when they are absent.
+tests/fixtures/*.jpg
+tests/fixtures/*.png

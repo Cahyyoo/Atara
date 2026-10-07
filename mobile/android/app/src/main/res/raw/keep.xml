@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Referenced only from values-v31/styles.xml, which the resource shrinker
+     does not always follow. Without this the release splash can come up
+     empty. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/launch_background,@color/splash_background,@mipmap/ic_launcher_foreground" />
