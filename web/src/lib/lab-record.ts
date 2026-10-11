@@ -1,5 +1,6 @@
 import { Prisma, type LabRecord } from "@prisma/client";
 import { parseShiftDateInput, toShiftDateInputValue } from "@/lib/shift-date";
+import { searchIdentForms } from "@/lib/sample-ident";
 import type { LabRecordDTO } from "@/types";
 import type { IdentFilter, LabResultFilter } from "@/lib/validation";
 
@@ -38,6 +39,10 @@ export function toLabRecordDTO(record: LabRecord): LabRecordDTO {
     measurementMethod: record.measurementMethod,
     solutionId: record.solutionId,
     measurementFinished: record.measurementFinished?.toISOString() ?? null,
+    xrayInstrument: record.xrayInstrument,
+    wp: toNumber(record.wp),
+    w0: toNumber(record.w0),
+    wd: toNumber(record.wd),
     placeId: record.placeId,
     rockTypeId: record.rockTypeId,
     nonProdId: record.nonProdId,
@@ -90,7 +95,14 @@ export function buildLabRecordWhere(query: {
   if (query.search) {
     // `sample` is already spoken for by the deleted filter above, so the
     // code search goes through `is` rather than replacing that key.
-    const own = [{ labCode: { contains: query.search } }, { sampleIdent: { contains: query.search } }];
+    // The Sample ID is asked for in every hand it could have been written in:
+    // the stored id separates its leading group with spaces, and an operator
+    // reading one off an older sheet types slashes throughout. A Lab Code has
+    // only ever had one form, so it is matched as typed.
+    const own = [
+      { labCode: { contains: query.search } },
+      ...searchIdentForms(query.search).map((form) => ({ sampleIdent: { contains: form } })),
+    ];
     and.push({
       OR: [
         ...own,
@@ -204,6 +216,10 @@ export const labRecordValueSelect = {
   measurementMethod: true,
   solutionId: true,
   measurementFinished: true,
+  xrayInstrument: true,
+  wp: true,
+  w0: true,
+  wd: true,
   // The identity columns come along so an update that moves one of them can be
   // diffed against what is there, and so the Sample ID can be recomposed from
   // the merged result rather than from the update alone.

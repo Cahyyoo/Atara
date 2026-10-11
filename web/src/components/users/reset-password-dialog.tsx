@@ -16,6 +16,7 @@ import { toast } from "@/components/ui/toast";
 import { ROLE_LABEL_KEYS } from "@/lib/role-labels";
 import type { ApiResult, UserDTO } from "@/types";
 import { IoReloadOutline } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 /**
  * A forgotten password: the account goes back to its role's default, every
@@ -43,7 +44,7 @@ export function ResetPasswordDialog({
     setIsResetting(true);
 
     try {
-      const response = await fetch(`/api/users/${target.id}/reset-password`, { method: "POST" });
+      const response = await fetch(withBasePath(`/api/users/${target.id}/reset-password`), { method: "POST" });
       const result: ApiResult<UserDTO> = await response.json();
 
       if (!result.success) {

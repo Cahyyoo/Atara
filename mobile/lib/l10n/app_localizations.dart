@@ -1387,6 +1387,132 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Tablet'**
   String get deviceKindTablet;
+
+  /// No description provided for @changePasswordTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Ganti Password'**
+  String get changePasswordTitle;
+
+  /// No description provided for @changePasswordBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih password baru untuk akun Anda. Perangkat lain yang sedang masuk akan dikeluarkan.'**
+  String get changePasswordBody;
+
+  /// No description provided for @changePasswordForcedBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Password Anda dibuat oleh admin dan dipakai bersama. Ganti dulu sebelum memakai aplikasi.'**
+  String get changePasswordForcedBody;
+
+  /// No description provided for @changePasswordSubmit.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan Password'**
+  String get changePasswordSubmit;
+
+  /// No description provided for @passwordCurrent.
+  ///
+  /// In id, this message translates to:
+  /// **'Password saat ini'**
+  String get passwordCurrent;
+
+  /// No description provided for @passwordNew.
+  ///
+  /// In id, this message translates to:
+  /// **'Password baru'**
+  String get passwordNew;
+
+  /// No description provided for @passwordConfirm.
+  ///
+  /// In id, this message translates to:
+  /// **'Ulangi password baru'**
+  String get passwordConfirm;
+
+  /// No description provided for @passwordRuleHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Minimal {min} karakter, dan tidak boleh sama dengan password default.'**
+  String passwordRuleHint(int min);
+
+  /// No description provided for @passwordCurrentRequired.
+  ///
+  /// In id, this message translates to:
+  /// **'Masukkan password Anda saat ini.'**
+  String get passwordCurrentRequired;
+
+  /// No description provided for @passwordTooShort.
+  ///
+  /// In id, this message translates to:
+  /// **'Password baru minimal {min} karakter.'**
+  String passwordTooShort(int min);
+
+  /// No description provided for @passwordMismatch.
+  ///
+  /// In id, this message translates to:
+  /// **'Dua password baru tidak sama.'**
+  String get passwordMismatch;
+
+  /// No description provided for @passwordSameAsCurrent.
+  ///
+  /// In id, this message translates to:
+  /// **'Password baru harus berbeda dari yang sekarang.'**
+  String get passwordSameAsCurrent;
+
+  /// No description provided for @passwordCurrentWrong.
+  ///
+  /// In id, this message translates to:
+  /// **'Itu bukan password Anda saat ini.'**
+  String get passwordCurrentWrong;
+
+  /// No description provided for @passwordIsRoleDefault.
+  ///
+  /// In id, this message translates to:
+  /// **'Itu password default peran Anda. Pilih password Anda sendiri.'**
+  String get passwordIsRoleDefault;
+
+  /// No description provided for @passwordTooManyAttempts.
+  ///
+  /// In id, this message translates to:
+  /// **'Terlalu banyak percobaan. Tunggu beberapa menit.'**
+  String get passwordTooManyAttempts;
+
+  /// No description provided for @passwordChanged.
+  ///
+  /// In id, this message translates to:
+  /// **'Password berhasil diganti.'**
+  String get passwordChanged;
+
+  /// No description provided for @sessionEndedByAdmin.
+  ///
+  /// In id, this message translates to:
+  /// **'Sesi Anda diakhiri oleh admin, jadi Anda dikeluarkan dari HP ini.'**
+  String get sessionEndedByAdmin;
+
+  /// No description provided for @sessionEndedByAdminAt.
+  ///
+  /// In id, this message translates to:
+  /// **'Sesi Anda diakhiri oleh admin pukul {time}, jadi Anda dikeluarkan dari HP ini.'**
+  String sessionEndedByAdminAt(String time);
+
+  /// No description provided for @sessionEndedPasswordChanged.
+  ///
+  /// In id, this message translates to:
+  /// **'Password akun ini diganti, jadi Anda dikeluarkan dari HP ini.'**
+  String get sessionEndedPasswordChanged;
+
+  /// No description provided for @sessionEndedPasswordChangedAt.
+  ///
+  /// In id, this message translates to:
+  /// **'Password akun ini diganti pukul {time}, jadi Anda dikeluarkan dari HP ini.'**
+  String sessionEndedPasswordChangedAt(String time);
+
+  /// No description provided for @announcementDismiss.
+  ///
+  /// In id, this message translates to:
+  /// **'Tutup pengumuman'**
+  String get announcementDismiss;
 }
 
 class _AppLocalizationsDelegate

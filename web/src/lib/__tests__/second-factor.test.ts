@@ -107,9 +107,9 @@ describe("the authenticator routes", () => {
     }
     expect(FACE).toContain("signFaceChallenge(user.id, { faceVerified: true })");
     // The face route hands over instead of signing in when a setup is waiting.
-    expect(FACE.indexOf("return issueSessionResponse(user,")).toBeGreaterThan(-1);
+    expect(FACE.indexOf("return await issueSessionResponse(user,")).toBeGreaterThan(-1);
     expect(FACE.indexOf("totpSetupPending(user)")).toBeLessThan(
-      FACE.indexOf("return issueSessionResponse(user,")
+      FACE.indexOf("return await issueSessionResponse(user,")
     );
   });
 

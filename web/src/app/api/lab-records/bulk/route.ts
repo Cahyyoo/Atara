@@ -11,6 +11,7 @@ import { ACTIVE_LAB_RECORD, ACTIVE_SAMPLE_RELATION } from "@/lib/soft-delete";
 import { readJsonBody, BODY_LIMIT } from "@/lib/api-request";
 import { ensureSub, normalizeSubCode, syncSubs } from "@/lib/sub-records";
 import { findOverwrites, type Overwrite } from "@/lib/overwrite";
+import { lockLabRecords } from "@/lib/record-lock";
 
 type UpdateValues = Record<string, unknown>;
 
@@ -102,23 +103,28 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Replacing a result that is already there is a decision, not a side
-    // effect of a paste: it needs the request to say so.
-    const overwrites = planned.flatMap((entry) => {
-      if (!entry.record) return [];
-      const fields = findOverwrites(entry.record as unknown as Record<string, unknown>, entry.values);
-      return fields.length
-        ? [{ id: entry.record.id, labCode: entry.record.labCode, sampleIdent: entry.record.sampleIdent, fields }]
-        : [];
-    });
-    if (overwrites.length > 0 && !body.overwrite) {
-      throw new ApiError(
-        `${overwrites.length} record(s) already have results that this save would replace.`,
-        409,
-        "overwrite",
-        { overwrites } satisfies { overwrites: { id: string; fields: Overwrite[] }[] }
-      );
-    }
-    const replacing = new Set(overwrites.map((entry) => entry.id));
+    // effect of a paste: it needs the request to say so. Asked twice: here, so
+    // the screen hears at once, and again inside the write under a row lock,
+    // because another save may land in between (see record-lock.ts).
+    const refuseOverwrites = (entries: Planned[]) => {
+      const overwrites = entries.flatMap((entry) => {
+        if (!entry.record) return [];
+        const fields = findOverwrites(entry.record as unknown as Record<string, unknown>, entry.values);
+        return fields.length
+          ? [{ id: entry.record.id, labCode: entry.record.labCode, sampleIdent: entry.record.sampleIdent, fields }]
+          : [];
+      });
+      if (overwrites.length > 0 && !body.overwrite) {
+        throw new ApiError(
+          `${overwrites.length} record(s) already have results that this save would replace.`,
+          409,
+          "overwrite",
+          { overwrites } satisfies { overwrites: { id: string; fields: Overwrite[] }[] }
+        );
+      }
+      return new Set(overwrites.map((entry) => entry.id));
+    };
+    let replacing = refuseOverwrites(planned);
     const reasonFor = (id: string) =>
       body.reason ?? (replacing.has(id) ? "Overwrote earlier results" : null);
 
@@ -132,25 +138,40 @@ export async function PATCH(request: NextRequest) {
       if (sampleIdent !== undefined) entry.values = { ...entry.values, sampleIdent };
     }
 
-    // The diff decides what is worth writing, so it is computed once, up front.
-    const changed = planned.flatMap((entry) => {
-      if (!entry.record) return [];
-      const changes = diffLabRecord(entry.record, entry.values as Parameters<typeof diffLabRecord>[1]);
-      return Object.keys(changes).length === 0 ? [] : [{ id: entry.record.id, values: entry.values, changes }];
-    });
+    // The diff decides what is worth writing.
+    const changesOf = (entries: Planned[]) =>
+      entries.flatMap((entry) => {
+        if (!entry.record) return [];
+        const changes = diffLabRecord(entry.record, entry.values as Parameters<typeof diffLabRecord>[1]);
+        return Object.keys(changes).length === 0 ? [] : [{ id: entry.record.id, values: entry.values, changes }];
+      });
+    let changed = changesOf(planned);
     const toCreate = planned.filter((entry) => entry.sub !== null);
-    const identityMoved = changed.filter((entry) => entry.values.sampleIdent !== undefined).map((entry) => entry.id);
 
     let created = 0;
     if (changed.length > 0 || toCreate.length > 0) {
       // Everything lands together: one bad row cancels the whole save.
       await prisma.$transaction(
         async (tx) => {
+          // The rows as they are now, held until this save commits.
+          const fresh = await lockLabRecords(
+            tx,
+            planned.flatMap((entry) => (entry.record ? [entry.record.id] : [])),
+            valueSelect
+          );
+          const current = planned.map((entry) =>
+            entry.record ? { ...entry, record: (fresh.get(entry.record.id) as Existing | undefined) ?? entry.record } : entry
+          );
+          replacing = refuseOverwrites(current);
+          changed = changesOf(current);
+
           for (const entry of toCreate) {
             const sub = await ensureSub(tx, entry.sub!.parentId, entry.sub!.code, session.userId);
             if (sub.created) created += 1;
-            const fresh = await tx.labRecord.findUniqueOrThrow({ where: { id: sub.id }, select: labRecordValueSelect });
-            const changes = diffLabRecord(fresh, entry.values as Parameters<typeof diffLabRecord>[1]);
+            // Another save may have created and filled this sub a moment ago.
+            const subNow = (await lockLabRecords(tx, [sub.id], valueSelect)).get(sub.id)!;
+            if (!sub.created) refuseOverwrites([{ record: subNow as Existing, sub: null, values: entry.values }]);
+            const changes = diffLabRecord(subNow, entry.values as Parameters<typeof diffLabRecord>[1]);
             if (Object.keys(changes).length === 0) continue;
             await tx.labRecord.update({
               where: { id: sub.id },
@@ -184,7 +205,10 @@ export async function PATCH(request: NextRequest) {
           }
 
           // A parent whose identity moved takes its subs with it.
-          await syncSubs(tx, identityMoved);
+          await syncSubs(
+            tx,
+            changed.filter((entry) => entry.values.sampleIdent !== undefined).map((entry) => entry.id)
+          );
         },
         { timeout: 30_000 }
       );

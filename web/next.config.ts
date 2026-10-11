@@ -1,9 +1,24 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
+import { version } from "./package.json";
 
 const withNextIntl = createNextIntlPlugin();
 
 const isProduction = process.env.NODE_ENV === "production";
+
+/**
+ * Whether the site is served over HTTPS -- the same rule as isHttpsDeployment
+ * in src/lib/https.ts, repeated because this file cannot import from `@/`.
+ * Headers are fixed at `next build`, so APP_HTTPS must be set before building.
+ */
+const appHttps = process.env.APP_HTTPS?.trim();
+const useHttps = appHttps ? appHttps === "1" : isProduction;
+
+/**
+ * The sub-path behind a proxy, e.g. "/atara" -- the same value BASE_PATH in
+ * src/lib/base-path.ts reads for the fetches basePath does not cover.
+ */
+const basePath = (process.env.NEXT_PUBLIC_BASE_PATH ?? "").trim().replace(/\/+$/, "");
 
 /**
  * `script-src` deliberately allows inline script: Next.js injects its bootstrap
@@ -25,7 +40,8 @@ const CONTENT_SECURITY_POLICY = [
   "base-uri 'self'",
   "form-action 'self'",
   "frame-ancestors 'none'",
-  ...(isProduction ? ["upgrade-insecure-requests"] : []),
+  // Over plain HTTP this would rewrite every asset URL to https:// and break the page.
+  ...(useHttps ? ["upgrade-insecure-requests"] : []),
 ].join("; ");
 
 const SECURITY_HEADERS = [
@@ -67,8 +83,15 @@ const SECURITY_HEADERS = [
 ];
 
 const nextConfig: NextConfig = {
+  basePath: basePath || undefined,
+
   // The default bottom-left overlay covers the sidebar's Log Out button.
   devIndicators: { position: "bottom-right" },
+
+  // The release the footer prints, read from package.json at build time so
+  // the number on screen is the one that was built, never a second copy
+  // somebody has to remember to bump.
+  env: { NEXT_PUBLIC_APP_VERSION: version },
 
   // Announcing the framework and its version only helps someone matching
   // a known advisory against this deployment.
@@ -84,10 +107,10 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/:path*",
-        headers: isProduction
+        headers: useHttps
           ? [
               ...SECURITY_HEADERS,
-              // Only meaningful over HTTPS, and harmful to send in local dev.
+              // Only meaningful over HTTPS, and harmful to send over plain HTTP.
               {
                 key: "Strict-Transport-Security",
                 value: "max-age=63072000; includeSubDomains; preload",

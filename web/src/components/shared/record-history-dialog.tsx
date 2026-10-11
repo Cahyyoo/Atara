@@ -13,6 +13,7 @@ import { InlineNotice } from "@/components/ui/inline-notice";
 import { HistoryEntries } from "@/components/shared/history-entries";
 import type { ApiResult, LabRecordListItemDTO, RecordHistoryEntry } from "@/types";
 import { IoReloadOutline } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 /**
  * One sample's result history, from its row in the table: every change,
@@ -40,7 +41,7 @@ export function RecordHistoryDialog({
     const id = record.id;
     (async () => {
       try {
-        const response = await fetch(`/api/lab-records/${encodeURIComponent(id)}/history`, {
+        const response = await fetch(withBasePath(`/api/lab-records/${encodeURIComponent(id)}/history`), {
           signal: controller.signal,
         });
         const body: ApiResult<{ entries: RecordHistoryEntry[] }> = await response.json();

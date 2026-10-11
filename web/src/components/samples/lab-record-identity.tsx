@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { formatWitaDateTime } from "@/lib/shift-date";
+import { moistureContent } from "@/lib/mc";
 import type { LabRecordDTO, MasterKind } from "@/types";
 
 /** The five identity columns, in the order the Sample ID composes them. */
@@ -47,6 +48,7 @@ export function LabRecordIdentity({
   const t = useTranslations("database");
   const tIdentity = useTranslations("database.identity");
   const tMaster = useTranslations("masterData");
+  const mc = moistureContent(record.wp, record.w0, record.wd);
 
   return (
     <div className="flex flex-col gap-2 rounded-lg border p-3">
@@ -76,6 +78,12 @@ export function LabRecordIdentity({
             ? (formatWitaDateTime(record.measurementFinished) ?? DASH)
             : DASH}
         </Field>
+        <Field label={t("xrayInstrument")}>{record.xrayInstrument ?? DASH}</Field>
+        {/* The moisture-content weighing, and what it comes to. */}
+        <Field label={t("wp")}>{record.wp ?? DASH}</Field>
+        <Field label={t("w0")}>{record.w0 ?? DASH}</Field>
+        <Field label={t("wd")}>{record.wd ?? DASH}</Field>
+        <Field label={t("mc")}>{mc === null ? DASH : mc.toFixed(2)}</Field>
       </div>
     </div>
   );

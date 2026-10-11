@@ -3,6 +3,8 @@ import { Readable, PassThrough } from "node:stream";
 import ExcelJS from "exceljs";
 import { CSV_BOM, csvLine } from "@/lib/csv";
 import { XLSX_CONTENT_TYPE, type SheetColumn, type SheetRow } from "@/lib/xlsx";
+import { readBrandLogo, writeBrandedHeader } from "@/lib/xlsx-brand";
+import { xlsxExportGate } from "@/lib/heavy-gate";
 
 /**
  * An export is capped so a request cannot ask for the entire database. The
@@ -20,6 +22,12 @@ interface ExportOptions {
   baseFilename: string;
   columns: SheetColumn[];
   rows: RowSource;
+  /**
+   * No logo or title: headers on row 1, streamed. For a sheet that is meant
+   * to come back in -- the import template -- where the banner rows would
+   * be in the importer's way.
+   */
+  plain?: boolean;
 }
 
 function contentDisposition(baseFilename: string, extension: string): string {
@@ -114,6 +122,45 @@ function xlsxStream(
   return Readable.toWeb(output) as ReadableStream<Uint8Array>;
 }
 
+/**
+ * The xlsx export with the logo and a title above the table (see
+ * writeBrandedHeader). Built in memory, because the streaming writer cannot
+ * place an image; `release` frees the xlsxExportGate slot once it is sent,
+ * failed, or abandoned.
+ */
+function brandedXlsxStream(
+  sheetName: string,
+  columns: SheetColumn[],
+  rows: RowSource,
+  release: () => void
+): ReadableStream<Uint8Array> {
+  let cancelled = false;
+  return new ReadableStream({
+    async start(controller) {
+      try {
+        const workbook = new ExcelJS.Workbook();
+        const sheet = workbook.addWorksheet(sheetName);
+        writeBrandedHeader(workbook, sheet, { title: sheetName, columns, logo: await readBrandLogo() });
+        for await (const row of rows()) {
+          if (cancelled) return;
+          sheet.addRow(row);
+        }
+        const buffer = await workbook.xlsx.writeBuffer();
+        if (cancelled) return;
+        controller.enqueue(new Uint8Array(buffer as ArrayBuffer));
+        controller.close();
+      } catch (error) {
+        if (!cancelled) controller.error(error);
+      } finally {
+        release();
+      }
+    },
+    cancel() {
+      cancelled = true;
+    },
+  });
+}
+
 export interface StreamedSheet {
   name: string;
   columns: SheetColumn[];
@@ -167,10 +214,17 @@ export function workbookStreamResponse({
   });
 }
 
-/** Streams an export as CSV or a real .xlsx workbook from one column/row definition. */
+/**
+ * An export as CSV (streamed) or a real .xlsx workbook from one column/row
+ * definition. The xlsx carries the logo unless `plain`; that one is built in
+ * memory and may be refused with a 429 when two are already being built.
+ */
 export function exportResponse(options: ExportOptions): Response {
   if (options.format === "xlsx") {
-    return new Response(xlsxStream(options.sheetName, options.columns, options.rows), {
+    const body = options.plain
+      ? xlsxStream(options.sheetName, options.columns, options.rows)
+      : brandedXlsxStream(options.sheetName, options.columns, options.rows, xlsxExportGate.acquire());
+    return new Response(body, {
       status: 200,
       headers: {
         "Content-Type": XLSX_CONTENT_TYPE,

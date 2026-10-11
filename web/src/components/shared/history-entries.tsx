@@ -17,7 +17,15 @@ const OPTION_KINDS: Record<string, string> = {
   sirId: "SIR",
 };
 const IDENTITY_TEXT = new Set(["bargingNo", "sequenceNo", "sampleNo", "sackCount"]);
-const INSTRUMENT = new Set(["measurementMethod", "solutionId", "measurementFinished"]);
+const INSTRUMENT = new Set([
+  "measurementMethod",
+  "solutionId",
+  "measurementFinished",
+  "xrayInstrument",
+  "wp",
+  "w0",
+  "wd",
+]);
 
 function isAssay(key: string): boolean {
   return ASSAY_FIELDS.some((field) => field.key === key);

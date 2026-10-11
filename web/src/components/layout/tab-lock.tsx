@@ -33,7 +33,10 @@ export function TabLock() {
 
   useEffect(() => {
     if (typeof BroadcastChannel === "undefined") return;
-    tabId.current = crypto.randomUUID();
+    // randomUUID only exists in a secure context, and a plain-HTTP server
+    // reached by IP is not one. The id only tells tabs apart.
+    tabId.current =
+      crypto.randomUUID?.() ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
     const opened = new BroadcastChannel(TAB_CHANNEL);
     channel.current = opened;
 

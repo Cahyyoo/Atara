@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!decision.ok) {
-      throw new ApiError(decision.message, decision.httpStatus);
+      throw new ApiError(decision.message, decision.httpStatus, decision.code);
     }
 
     const updatedSample = await applyStageMove({

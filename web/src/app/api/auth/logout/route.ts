@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { jsonSuccess } from "@/lib/api-response";
-import { getSessionFromRequest, SESSION_COOKIE_NAME } from "@/lib/auth";
+import { getSessionFromRequest, sessionCookieOptions, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { endSession } from "@/lib/user-session";
 
 /**
@@ -21,12 +21,6 @@ export async function POST(request: NextRequest) {
   }
 
   const response = jsonSuccess({ loggedOut: true });
-  response.cookies.set(SESSION_COOKIE_NAME, "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 0,
-  });
+  response.cookies.set(SESSION_COOKIE_NAME, "", sessionCookieOptions(0));
   return response;
 }

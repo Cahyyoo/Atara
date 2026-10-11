@@ -12,6 +12,7 @@ import 'providers/pending_scans_provider.dart';
 import 'providers/session_provider.dart';
 import 'providers/settings_provider.dart';
 import 'providers/theme_provider.dart';
+import 'screens/change_password_screen.dart';
 import 'screens/home_shell.dart';
 import 'screens/login_screen.dart';
 import 'screens/onboarding_screen.dart';
@@ -327,6 +328,16 @@ class AuthGate extends ConsumerWidget {
     // covers both "signed out" and "the restore threw", and both belong on the
     // sign-in screen, which is what the old `error:` branch said in its own
     // line.
-    return session.valueOrNull == null ? const LoginScreen() : const HomeShell();
+    final user = session.valueOrNull;
+    if (user == null) return const LoginScreen();
+
+    // Signed in, but on a password an administrator chose -- the one every
+    // Operator is handed. The server refuses this session everything until it
+    // is replaced, so Home would only be a screen full of refusals.
+    if (user.mustChangePassword) {
+      return const ChangePasswordScreen(forced: true);
+    }
+
+    return const HomeShell();
   }
 }

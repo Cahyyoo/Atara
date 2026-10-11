@@ -62,7 +62,7 @@ import { downloadFromApi } from "@/lib/download";
 import type { ApiResult, LabRecordDTO, LabRecordListItemDTO, PaginationDTO } from "@/types";
 import { stageLabel } from "@/lib/stages";
 import { cn } from "@/lib/utils";
-import { subSamplePath } from "@/lib/sample-ident";
+import { searchIdentForms, subSamplePath } from "@/lib/sample-ident";
 import {
   IoArrowUndoOutline,
   IoChevronForward,
@@ -78,6 +78,7 @@ import {
   IoTrashOutline,
 } from "react-icons/io5";
 import { InlineNotice } from "@/components/ui/inline-notice";
+import { withBasePath } from "@/lib/base-path";
 
 /**
  * Loaded when first needed: the edit form with its identity pickers, and the
@@ -95,6 +96,12 @@ const LabRecordSheet = dynamic(
 /** A row's result history, read when it is first asked for. */
 const RecordHistoryDialog = dynamic(
   () => import("@/components/shared/record-history-dialog").then((m) => m.RecordHistoryDialog),
+  { ssr: false }
+);
+
+/** Wp/W0/Wd pasted from a sheet: the Database role's optional shortcut. */
+const PasteWeightsDialog = dynamic(
+  () => import("@/components/database/paste-weights").then((m) => m.PasteWeightsDialog),
   { ssr: false }
 );
 
@@ -247,6 +254,12 @@ export function LabRecordsTable({
   const [confirming, setConfirming] = useState<false | "samples" | "subs">(false);
   /** Export: each sample's sub-samples as rows of their own, right after it. */
   const [exportSubs, setExportSubs] = useState(false);
+  /**
+   * Which place the export covers. It opens on whatever the table is
+   * filtered to, so the file matches what is on screen, and can then be
+   * widened to every place or narrowed to one for this download alone.
+   */
+  const [exportPlace, setExportPlace] = useState<string | null>(null);
   const [isRemoving, setIsRemoving] = useState(false);
   /** Bumped after a delete, to re-read rows this table did not itself change. */
   const [reloadToken, setReloadToken] = useState(0);
@@ -281,6 +294,8 @@ export function LabRecordsTable({
    */
   const [bulkRecords, setBulkRecords] = useState<LabRecordListItemDTO[]>([]);
   const [bulkMinimized, setBulkMinimized] = useState(false);
+  const [weightsOpen, setWeightsOpen] = useState(false);
+  const [weightsMounted, setWeightsMounted] = useState(false);
 
   const widthOf = (key: string) =>
     draftWidth?.key === key ? draftWidth.width : (layout.widths[key] ?? DEFAULT_WIDTHS[key] ?? 120);
@@ -362,13 +377,18 @@ export function LabRecordsTable({
    */
   const [folds, setFolds] = useState<ReadonlyMap<string, boolean>>(() => new Map());
   const searchOpens = useMemo(() => {
-    const needle = filters.search.trim().toLowerCase();
-    if (!needle) return new Set<string>();
+    // The same hands the server matched the Sample ID in, so a search typed
+    // with slashes throughout still unfolds the sub that answered it.
+    const needles = searchIdentForms(filters.search).map((form) => form.toLowerCase());
+    if (needles.length === 0) return new Set<string>();
     return new Set(
       records
         .filter((record) =>
           record.subs?.some((sub) =>
-            [sub.labCode, sub.sampleIdent].some((code) => code?.toLowerCase().includes(needle))
+            [sub.labCode, sub.sampleIdent].some((code) => {
+              const text = code?.toLowerCase();
+              return text !== undefined && needles.some((needle) => text.includes(needle));
+            })
           )
         )
         .map((record) => record.id)
@@ -422,7 +442,7 @@ export function LabRecordsTable({
 
     (async () => {
       try {
-        const response = await fetch(`/api/lab-records?${queryKey}`, { signal: controller.signal });
+        const response = await fetch(withBasePath(`/api/lab-records?${queryKey}`), { signal: controller.signal });
         const body: ApiResult<{
           records: LabRecordListItemDTO[];
           pagination: PaginationDTO;
@@ -468,6 +488,10 @@ export function LabRecordsTable({
     params.set("format", kind);
     params.set("columns", columns.join(","));
     if (exportSubs) params.set("subs", "include");
+    // The dialog's own choice wins over the table's filter for this file.
+    const place = exportPlace ?? filters.placeId;
+    if (place === "ALL") params.delete("placeId");
+    else params.set("placeId", place);
 
     const message = await downloadFromApi(
       `/api/lab-records/export?${params.toString()}`,
@@ -564,7 +588,7 @@ export function LabRecordsTable({
       const params = buildParams();
       params.set("page", "1");
       params.set("pageSize", String(MATCH_LIMIT));
-      const response = await fetch(`/api/lab-records?${params.toString()}`);
+      const response = await fetch(withBasePath(`/api/lab-records?${params.toString()}`));
       const body: ApiResult<{ records: LabRecordListItemDTO[] }> = await response.json();
       if (!body.success) {
         setError(body.error);
@@ -622,7 +646,7 @@ export function LabRecordsTable({
     setError(null);
 
     try {
-      const response = await fetch("/api/samples/delete", {
+      const response = await fetch(withBasePath("/api/samples/delete"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -655,7 +679,7 @@ export function LabRecordsTable({
     setIsRemoving(true);
     setError(null);
     try {
-      const response = await fetch("/api/lab-records/subs", {
+      const response = await fetch(withBasePath("/api/lab-records/subs"), {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ids: selectedSubs.map((record) => record.id) }),
@@ -729,6 +753,15 @@ export function LabRecordsTable({
       );
     }
     if (key === "status") {
+      // A sub-sample is a fraction of its sample, with no barcode or scans of
+      // its own: it has no status to show, and borrowing its sample's misleads.
+      if (record.parentId) {
+        return (
+          <TableCell key={key} className="text-muted-foreground/60">
+            —
+          </TableCell>
+        );
+      }
       return (
         <TableCell key={key} className="overflow-hidden">
           <div className="flex min-w-0 flex-col items-start gap-0.5">
@@ -893,12 +926,26 @@ export function LabRecordsTable({
                 {t("importFile")}
               </Button>
             ) : null}
+            {!isAssay && access.canEdit && !showDeleted ? (
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={() => {
+                  setWeightsMounted(true);
+                  setWeightsOpen(true);
+                }}
+              >
+                <IoClipboardOutline className="size-4" />
+                {t("weights.open")}
+              </Button>
+            ) : null}
             {!isAssay && access.canExport ? (
               <ExportDialog
                 kind="labRecords"
                 tourId="records-export"
                 onExport={handleExport}
                 option={{ label: t("subs.exportOption"), checked: exportSubs, onChange: setExportSubs }}
+                place={{ value: exportPlace ?? filters.placeId, onChange: (id) => setExportPlace(id ?? "ALL") }}
               />
             ) : null}
           </>
@@ -1404,6 +1451,14 @@ export function LabRecordsTable({
 
       {dialogMounted ? (
         <LabRecordDialog record={editing} onClose={() => setEditing(null)} onSaved={handleSaved} />
+      ) : null}
+
+      {weightsMounted ? (
+        <PasteWeightsDialog
+          open={weightsOpen}
+          onClose={() => setWeightsOpen(false)}
+          onSaved={() => setReloadToken((token) => token + 1)}
+        />
       ) : null}
 
       {bulkMounted ? (

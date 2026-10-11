@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import type { ApiResult, SampleListItemDTO } from "@/types";
 import { IoAddCircleOutline, IoInformationCircleOutline, IoReloadOutline } from "react-icons/io5";
 import { InlineNotice } from "@/components/ui/inline-notice";
+import { withBasePath } from "@/lib/base-path";
 
 interface GenerateFormProps {
   onGenerated: (samples: SampleListItemDTO[]) => void;
@@ -50,7 +51,7 @@ export function GenerateForm({ onGenerated }: GenerateFormProps) {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/samples/generate", {
+      const response = await fetch(withBasePath("/api/samples/generate"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         // One empty identity per barcode: each is created without a Sample ID.

@@ -33,6 +33,7 @@ import {
 } from "@/lib/data-quality-checks";
 import type { ApiResult } from "@/types";
 import { IoChevronBack, IoChevronForward, IoReloadOutline } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 function isGap(value: string): value is IdentityGap {
   return (IDENTITY_GAPS as readonly string[]).includes(value);
@@ -79,7 +80,7 @@ export function DataQualityView({ canExport }: { canExport: boolean }) {
     const controller = new AbortController();
     (async () => {
       try {
-        const response = await fetch(`/api/data-quality?${query}`, { signal: controller.signal });
+        const response = await fetch(withBasePath(`/api/data-quality?${query}`), { signal: controller.signal });
         const body: ApiResult<QualityList> = await response.json();
         setLoaded(
           body.success

@@ -10,6 +10,7 @@ import { formatDiagnostics } from "@/lib/face-diagnostics";
 import { captureBurst, interpretRefusal } from "@/lib/face-client";
 import type { CaptureOutcome } from "@/components/face/face-camera";
 import { IoArrowBack } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 /**
  * The second half of signing in.
@@ -77,7 +78,7 @@ export function FaceStep({
 
     setIsSending(true);
     try {
-      const response = await fetch("/api/auth/face", {
+      const response = await fetch(withBasePath("/api/auth/face"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

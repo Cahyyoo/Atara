@@ -13,3 +13,5 @@ Thumbs.db
 # Agent scratch dirs
 .agents/
 .windsurf/
+
+load-tests/*

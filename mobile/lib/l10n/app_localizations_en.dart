@@ -743,4 +743,82 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deviceKindTablet => 'Tablet';
+
+  @override
+  String get changePasswordTitle => 'Change Password';
+
+  @override
+  String get changePasswordBody =>
+      'Choose a new password for your account. Every other device signed in will be signed out.';
+
+  @override
+  String get changePasswordForcedBody =>
+      'Your password was set by an administrator and is shared. Replace it before using the app.';
+
+  @override
+  String get changePasswordSubmit => 'Save Password';
+
+  @override
+  String get passwordCurrent => 'Current password';
+
+  @override
+  String get passwordNew => 'New password';
+
+  @override
+  String get passwordConfirm => 'Confirm new password';
+
+  @override
+  String passwordRuleHint(int min) {
+    return 'At least $min characters, and not the role\'s default.';
+  }
+
+  @override
+  String get passwordCurrentRequired => 'Enter your current password.';
+
+  @override
+  String passwordTooShort(int min) {
+    return 'The new password must be at least $min characters.';
+  }
+
+  @override
+  String get passwordMismatch => 'The two new passwords do not match.';
+
+  @override
+  String get passwordSameAsCurrent =>
+      'The new password must be different from the current one.';
+
+  @override
+  String get passwordCurrentWrong => 'That is not your current password.';
+
+  @override
+  String get passwordIsRoleDefault =>
+      'That is your role\'s default password. Choose one of your own.';
+
+  @override
+  String get passwordTooManyAttempts =>
+      'Too many attempts. Please wait a few minutes.';
+
+  @override
+  String get passwordChanged => 'Password changed.';
+
+  @override
+  String get sessionEndedByAdmin =>
+      'An administrator ended your session, so you were signed out on this phone.';
+
+  @override
+  String sessionEndedByAdminAt(String time) {
+    return 'An administrator ended your session at $time, so you were signed out on this phone.';
+  }
+
+  @override
+  String get sessionEndedPasswordChanged =>
+      'This account\'s password was changed, so you were signed out on this phone.';
+
+  @override
+  String sessionEndedPasswordChangedAt(String time) {
+    return 'This account\'s password was changed at $time, so you were signed out on this phone.';
+  }
+
+  @override
+  String get announcementDismiss => 'Dismiss announcement';
 }

@@ -16,6 +16,7 @@ import { InlineNotice } from "@/components/ui/inline-notice";
 import { toast } from "@/components/ui/toast";
 import type { ApiResult, MasterOptionDTO } from "@/types";
 import { IoReloadOutline } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 interface Preview {
   affected: number;
@@ -73,7 +74,7 @@ export function DeleteOptionDialog({
   }
 
   async function send(body: { replacementId?: string; dryRun?: boolean }) {
-    const response = await fetch(`/api/master-options/${target!.id}`, {
+    const response = await fetch(withBasePath(`/api/master-options/${target!.id}`), {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),

@@ -14,6 +14,7 @@ import {
 import { InlineNotice } from "@/components/ui/inline-notice";
 import { toast } from "@/components/ui/toast";
 import { IoReloadOutline } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 /**
  * Removing somebody's face data.
@@ -47,7 +48,7 @@ export function FaceRemoveDialog({
     setIsRemoving(true);
 
     try {
-      const response = await fetch(`/api/users/${target.id}/face`, { method: "DELETE" });
+      const response = await fetch(withBasePath(`/api/users/${target.id}/face`), { method: "DELETE" });
       const result = await response.json();
 
       if (!response.ok || !result.success) {

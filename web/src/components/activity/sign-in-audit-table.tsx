@@ -32,6 +32,7 @@ import { downloadFromApi } from "@/lib/download";
 import { SIGN_IN_OUTCOMES, type SignInOutcomeName } from "@/lib/sign-in-audit-query";
 import type { ApiResult, PaginationDTO } from "@/types";
 import { IoPhonePortraitOutline, IoScanOutline } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 interface AuditEntry {
   id: string;
@@ -140,7 +141,7 @@ export function SignInAuditTable() {
 
     (async () => {
       try {
-        const response = await fetch(`/api/sign-in-audit?${queryKey}`, {
+        const response = await fetch(withBasePath(`/api/sign-in-audit?${queryKey}`), {
           signal: controller.signal,
         });
         const body: ApiResult<AuditResponse> = await response.json();

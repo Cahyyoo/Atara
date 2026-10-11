@@ -47,6 +47,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _handleLogin() async {
+    // Two taps inside one frame both got here before the button greyed out:
+    // two sign-ins, the second ending the session the first had just opened.
+    if (_isSubmitting) return;
     // Resolved before the await: reading localisations off the context after
     // one is only safe while the widget is still mounted.
     final l10n = AppLocalizations.of(context)!;
@@ -78,7 +81,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
     // Read, and acted on: trying again is the answer to "you were signed out",
     // so it should not still be standing over whatever happens next.
-    ref.read(sessionReplacedProvider.notifier).state = null;
+    ref.read(signedOutNoticeProvider.notifier).state = null;
 
     final session = ref.read(sessionProvider.notifier);
     try {
@@ -141,7 +144,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final palette = context.palette;
-    final replaced = ref.watch(sessionReplacedProvider);
+    final notice = ref.watch(signedOutNoticeProvider);
 
     return CupertinoPageScaffold(
       backgroundColor: palette.groupedBackground,
@@ -171,9 +174,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     color: palette.secondaryLabel,
                   ),
                 ),
-                if (replaced != null) ...[
+                if (notice != null) ...[
                   const SizedBox(height: AppSpacing.xl),
-                  _ReplacedNotice(replaced: replaced),
+                  // Sealed, so a third reason added server-side becomes a
+                  // compile error here rather than a silent blank.
+                  switch (notice) {
+                    SessionReplaced() => _ReplacedNotice(replaced: notice),
+                    SessionEnded() => _EndedNotice(ended: notice),
+                  },
                 ],
                 const SizedBox(height: AppSpacing.xxl),
                 // One section holding both fields, divided by a hairline. Two
@@ -281,6 +289,69 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 /// When the server described the other device field by field, the sentence is
 /// followed by one row per thing it knew — so "was that me, at my desk?" can be
 /// answered at a glance. Otherwise it falls back to the server's one-line label.
+/// Somebody on the website ended this session: an administrator, or this
+/// account's password being changed somewhere else.
+///
+/// Shaped like [_ReplacedNotice] on purpose -- same box, same tone. The only
+/// difference is the sentence, because the cause is different and the
+/// operator's next step is too: there is no other phone to go and close.
+class _EndedNotice extends StatelessWidget {
+  const _EndedNotice({required this.ended});
+
+  final SessionEnded ended;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final palette = context.palette;
+    final at = ended.at;
+    final time = at == null
+        ? null
+        : momentText(
+            at,
+            localeName: Localizations.localeOf(context).toString(),
+          );
+
+    final String text;
+    if (ended.wasPasswordChange) {
+      text = time == null
+          ? l10n.sessionEndedPasswordChanged
+          : l10n.sessionEndedPasswordChangedAt(time);
+    } else {
+      text = time == null
+          ? l10n.sessionEndedByAdmin
+          : l10n.sessionEndedByAdminAt(time);
+    }
+
+    final color = palette.warning.onBackground;
+
+    return Semantics(
+      liveRegion: true,
+      container: true,
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: BoxDecoration(
+          color: palette.warning.background,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(CupertinoIcons.lock_shield, size: 20, color: color),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Text(
+                text,
+                style: AppText.footnote.copyWith(color: color),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _ReplacedNotice extends StatelessWidget {
   const _ReplacedNotice({required this.replaced});
 

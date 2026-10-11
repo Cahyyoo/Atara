@@ -2,6 +2,14 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { jsonSuccess, handleApiError } from "@/lib/api-response";
 import { requireCapability } from "@/lib/api-auth";
+import { TtlCache } from "@/lib/ttl-cache";
+
+const SUMMARY_TTL_MS = 15_000;
+const activityTotals = new TtlCache<number>(SUMMARY_TTL_MS, 64);
+const activitySummaries = new TtlCache<{ operatorId: string; stageId: string; _count: { _all: number } }[]>(
+  SUMMARY_TTL_MS,
+  64
+);
 
 import {
   listStageActivityQuerySchema,
@@ -47,8 +55,12 @@ export async function GET(request: NextRequest) {
      */
     const summaryWhere = stageActivityWhere({ ...query, operatorId: undefined });
 
+    // The count and the per-person summary each read every matching scan
+    // through its sample: with no day chosen that is the whole history, tens
+    // of seconds at a million scans, again on every page turn. Shared for a
+    // few seconds per filter; the rows below are always read fresh.
     const [total, logs, byOperator, operators] = await Promise.all([
-      prisma.sampleLog.count({ where }),
+      activityTotals.get(JSON.stringify(where), () => prisma.sampleLog.count({ where })),
       prisma.sampleLog.findMany({
         where,
         select: stageActivitySelect,
@@ -58,10 +70,13 @@ export async function GET(request: NextRequest) {
       }),
       // Counted in the database, so the totals stay right however the list is
       // paged. Grouped by both so one pass answers "who" and "who, per stage".
-      prisma.sampleLog.groupBy({
-        by: ["operatorId", "stageId"],
-        where: summaryWhere,
-        _count: { _all: true },
+      activitySummaries.get(JSON.stringify(summaryWhere), async () => {
+        const rows = await prisma.sampleLog.groupBy({
+          by: ["operatorId", "stageId"],
+          where: summaryWhere,
+          _count: { _all: true },
+        });
+        return rows.map((row) => ({ operatorId: row.operatorId, stageId: row.stageId, _count: { _all: row._count._all } }));
       }),
       // Names for the ids the grouping returns, and for the filter's own list.
       prisma.user.findMany({

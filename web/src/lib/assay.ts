@@ -94,6 +94,9 @@ export const INSTRUMENT_FIELDS = [
   { key: "measurementMethod", kind: "text", csvLabel: "Measurement Method" },
   { key: "solutionId", kind: "text", csvLabel: "Solution ID" },
   { key: "measurementFinished", kind: "datetime", csvLabel: "Measurement Finished" },
+  // Typed in by the analyst: the instrument's own export does not carry it,
+  // which is why it is not in INSTRUMENT_EXPORT_ORDER below.
+  { key: "xrayInstrument", kind: "text", csvLabel: "Xray Instrument" },
 ] as const satisfies readonly { key: string; kind: "text" | "datetime"; csvLabel: string }[];
 
 export type InstrumentField = (typeof INSTRUMENT_FIELDS)[number]["key"];

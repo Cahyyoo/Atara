@@ -24,6 +24,7 @@ import { toast } from "@/components/ui/toast";
 import { useVisibleInterval } from "@/hooks/use-visible-interval";
 import { downloadFromApi } from "@/lib/download";
 import { formatSessionTime } from "@/lib/session-client";
+import { withBasePath } from "@/lib/base-path";
 
 /**
  * Charts arrive in their own chunk. ssr: false because a ResponsiveContainer
@@ -162,7 +163,7 @@ export function DashboardOverview({
 
     (async () => {
       try {
-        const response = await fetch("/api/master-options", { signal: controller.signal });
+        const response = await fetch(withBasePath("/api/master-options"), { signal: controller.signal });
         const body: ApiResult<{ options: { id: string; code: string }[] }> = await response.json();
         if (body.success) {
           setCodeById(new Map(body.data.options.map((option) => [option.id, option.code])));
@@ -189,7 +190,7 @@ export function DashboardOverview({
     const controller = new AbortController();
     (async () => {
       try {
-        const response = await fetch(`/api/analytics?${queryKey}`, { signal: controller.signal });
+        const response = await fetch(withBasePath(`/api/analytics?${queryKey}`), { signal: controller.signal });
         const body: ApiResult<AnalyticsResult> = await response.json();
         setLoaded(
           body.success
@@ -221,7 +222,7 @@ export function DashboardOverview({
     background.current = controller;
     setIsPolling(true);
     try {
-      const response = await fetch(`/api/analytics?${key}`, {
+      const response = await fetch(withBasePath(`/api/analytics?${key}`), {
         signal: controller.signal,
         cache: "no-store",
       });

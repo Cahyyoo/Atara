@@ -50,6 +50,7 @@ describe.skipIf(!reachable)("sub-samples against the database", () => {
   let place = "";
   let pit = "";
   let otherPit = "";
+  let rockType = "";
   let seq = 0;
 
   /** A sample with a record, the identity composed the way the app stores it. */
@@ -82,7 +83,7 @@ describe.skipIf(!reachable)("sub-samples against the database", () => {
     created.user = user.id;
     session.userId = user.id;
     session.email = user.email;
-    const option = async (kind: "PLACE" | "PIT", code: string) => {
+    const option = async (kind: "PLACE" | "PIT" | "ROCK_TYPE", code: string) => {
       const row = await prisma.masterOption.create({ data: { kind, code } });
       created.options.push(row.id);
       return row.id;
@@ -90,6 +91,7 @@ describe.skipIf(!reachable)("sub-samples against the database", () => {
     place = await option("PLACE", `${tag}P`);
     pit = await option("PIT", `${tag}T`);
     otherPit = await option("PIT", `${tag}U`);
+    rockType = await option("ROCK_TYPE", `${tag}R`);
   });
 
   afterAll(async () => {
@@ -108,6 +110,51 @@ describe.skipIf(!reachable)("sub-samples against the database", () => {
     expect(body.data.results.map((entry: { status: string }) => entry.status)).toEqual(["found", "newSub", "unknown"]);
     expect(body.data.results[0].record.id).toBe(parent.id);
     expect(body.data.results[1]).toMatchObject({ code: "-20", parent: { id: parent.id } });
+  });
+
+  /**
+   * The identity above is a place and a pit, so its id holds no space at all.
+   * This one has a rock type, which puts the id's leading group in the hand it
+   * is really stored in -- and it still has to be found by someone typing
+   * slashes throughout, which is how it was written before the change and how
+   * it still comes back off an older sheet.
+   */
+  it("finds a sample whose id holds a space, in whichever hand the key is written", async () => {
+    seq += 1;
+    const row = await prisma.sample.create({
+      data: { sampleCode: `${tag}-R${seq}`, status: "PENDING", createdById: created.user },
+    });
+    created.samples.push(row.id);
+    const parent = await prisma.labRecord.create({
+      data: {
+        sampleId: row.id,
+        labCode: `${tag}.R${seq}`,
+        shiftDate: new Date("2000-01-04T00:00:00Z"),
+        sequence: (Date.now() % 100_000) * 100 + seq,
+        placeId: place,
+        rockTypeId: rockType,
+        pitId: pit,
+        sampleNo: seq,
+        sampleIdent: `${tag}P ${tag}R/P${tag}T/${seq}`,
+      },
+    });
+    expect(parent.sampleIdent).toContain(" ");
+
+    const keys = [
+      parent.sampleIdent!,
+      parent.sampleIdent!.replaceAll(" ", "/"),
+      parent.sampleIdent!.replaceAll("/", " "),
+    ];
+    const { body } = await call(resolve, "/api/lab-records/resolve", "POST", { keys });
+
+    expect(body.data.results.map((entry: { status: string }) => entry.status)).toEqual([
+      "found",
+      "found",
+      "found",
+    ]);
+    for (const entry of body.data.results) {
+      expect(entry.record.id).toBe(parent.id);
+    }
   });
 
   it("creates a sub-sample on save, under its parent, and fills it the second time", async () => {

@@ -8,24 +8,31 @@ import '../services/work_summary_cache_service.dart';
 
 class SessionNotifier extends StateNotifier<AsyncValue<UserModel?>> {
   SessionNotifier({
-    this.onReplaced,
+    this.onSignedOut,
     this.logoutWait = const Duration(seconds: 3),
   }) : super(const AsyncValue.loading()) {
     // A token the server no longer accepts should drop the operator back to the
     // sign-in screen rather than leaving them stuck on a screen that only errors.
-    ApiService.instance.onUnauthorized = (replaced) {
+    ApiService.instance.onUnauthorized = (notice) {
       if (!mounted) return;
       // The reason goes out before the state flips, so the sign-in screen that
       // flip puts up is built with its notice already there.
-      if (replaced != null) onReplaced?.call(replaced);
+      if (notice != null) onSignedOut?.call(notice);
       state = const AsyncValue.data(null);
+    };
+    // The session is good, but the server will not serve it until the
+    // password is replaced. Re-read the stored user so the gate sees it.
+    ApiService.instance.onPasswordChangeRequired = () async {
+      if (!mounted) return;
+      final user = await SessionService.getUser();
+      if (mounted && user != null) state = AsyncValue.data(user);
     };
     _restore();
   }
 
-  /// Hands on why the session ended when another phone took it over. The
-  /// provider wires it to [sessionReplacedProvider]; this class has no `ref`.
-  final void Function(SessionReplaced replaced)? onReplaced;
+  /// Hands on why the session ended, when the operator did not end it. The
+  /// provider wires it to [signedOutNoticeProvider]; this class has no `ref`.
+  final void Function(SignedOutNotice notice)? onSignedOut;
 
   /// How long signing out waits for the server before carrying on regardless.
   final Duration logoutWait;
@@ -48,6 +55,17 @@ class SessionNotifier extends StateNotifier<AsyncValue<UserModel?>> {
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
     }
+  }
+
+  /// The password is the operator's own now, so the gate may let them past.
+  ///
+  /// Stored before the state flips: [AuthGate] reads the user it is handed,
+  /// and a flip over a user still carrying the duty would bounce straight
+  /// back to the change screen.
+  Future<void> markPasswordChanged() async {
+    await SessionService.setMustChangePassword(false);
+    final user = await SessionService.getUser();
+    if (mounted && user != null) state = AsyncValue.data(user);
   }
 
   /// Offers a password and hands back what the server decided.
@@ -146,17 +164,18 @@ class SessionNotifier extends StateNotifier<AsyncValue<UserModel?>> {
 final sessionProvider =
     StateNotifierProvider<SessionNotifier, AsyncValue<UserModel?>>(
       (ref) => SessionNotifier(
-        onReplaced: (replaced) =>
-            ref.read(sessionReplacedProvider.notifier).state = replaced,
+        onSignedOut: (notice) =>
+            ref.read(signedOutNoticeProvider.notifier).state = notice,
       ),
     );
 
-/// Why the last session ended, when it was another phone that ended it.
+/// Why the last session ended, when the operator did not end it themselves:
+/// another phone took the account, or somebody on the website ended it.
 ///
 /// Set on the way out by [SessionNotifier] and read by the sign-in screen,
 /// which clears it once the operator tries again. Null for every other
 /// sign-out, which the operator either did themselves or needs no story for.
-final sessionReplacedProvider = StateProvider<SessionReplaced?>((ref) => null);
+final signedOutNoticeProvider = StateProvider<SignedOutNotice?>((ref) => null);
 
 /// The question the heartbeat asks. A provider only so a test can answer it
 /// without a server; the app never overrides it.

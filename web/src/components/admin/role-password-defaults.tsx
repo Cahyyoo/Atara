@@ -22,6 +22,7 @@ import type { Role } from "@/lib/permissions";
 import type { RolePasswordStatus } from "@/lib/role-password-status";
 import type { ApiResult } from "@/types";
 import { IoEyeOffOutline, IoEyeOutline, IoReloadOutline } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 /**
  * The password each role's new accounts start on, and that a forgotten one is
@@ -41,7 +42,7 @@ export function RolePasswordDefaults() {
     const controller = new AbortController();
     (async () => {
       try {
-        const response = await fetch("/api/admin/role-passwords", { signal: controller.signal });
+        const response = await fetch(withBasePath("/api/admin/role-passwords"), { signal: controller.signal });
         const body: ApiResult<RolePasswordStatus[]> = await response.json();
         if (body.success) setStatuses(body.data);
         else setError(body.error);
@@ -163,7 +164,7 @@ function RolePasswordForm({
     setError(null);
     setSaving(true);
     try {
-      const response = await fetch("/api/admin/role-passwords", {
+      const response = await fetch(withBasePath("/api/admin/role-passwords"), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ role, password }),

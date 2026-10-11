@@ -5,6 +5,7 @@
  * Pure, so the ordering is tested without a database. The database is asked
  * for a loose set of candidates; this decides which come first.
  */
+import { normalizeSampleKey } from "@/lib/sample-ident";
 
 export const LOOKUP_MIN_CHARS = 2;
 export const LOOKUP_MAX_CHARS = 64;
@@ -27,18 +28,29 @@ export interface LookupCandidate {
  * types the whole thing), then an exact lab code, then an exact Sample ID,
  * then anything that starts with the query, then anything that contains it.
  * Case is ignored, as the database's collation ignores it.
+ *
+ * The Sample ID is compared as a key rather than as text: the stored id
+ * separates its leading group with spaces where an operator typing it off an
+ * older sheet writes slashes throughout, and a full id typed in either hand
+ * has to score as the exact hit that sends the box straight to the sample.
  */
 function score(query: string, row: LookupCandidate): number {
   const q = query.toLowerCase();
-  const fields = [row.sampleCode, row.labCode, row.sampleIdent].map(
-    (value) => value?.toLowerCase() ?? null
-  );
+  const identKey = (value: string) => normalizeSampleKey(value).full.toLowerCase();
 
-  for (const [index, value] of fields.entries()) {
-    if (value === q) return index;
+  // Each field with the form of the query it is compared against: the barcode
+  // and the lab code as typed, the Sample ID as a key.
+  const fields: [string | null, string][] = [
+    [row.sampleCode?.toLowerCase() ?? null, q],
+    [row.labCode?.toLowerCase() ?? null, q],
+    [row.sampleIdent === null ? null : identKey(row.sampleIdent), identKey(query)],
+  ];
+
+  for (const [index, [value, needle]] of fields.entries()) {
+    if (value === needle) return index;
   }
-  if (fields.some((value) => value?.startsWith(q))) return 10;
-  if (fields.some((value) => value?.includes(q))) return 20;
+  if (fields.some(([value, needle]) => value?.startsWith(needle))) return 10;
+  if (fields.some(([value, needle]) => value?.includes(needle))) return 20;
   return 30;
 }
 

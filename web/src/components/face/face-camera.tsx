@@ -15,6 +15,7 @@ import {
 import { FaceGuide } from "@/components/face/face-guide";
 import type { QualityReason } from "@/lib/face-quality";
 import { IoCameraOutline, IoRefreshOutline, IoReloadOutline } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 /**
  * The camera, shared by signing in and by enrolling.
@@ -274,7 +275,7 @@ export function FaceCamera({
 
       inFlight = true;
       try {
-        const response = await fetch("/api/face/preview", {
+        const response = await fetch(withBasePath("/api/face/preview"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ frame, challenge }),

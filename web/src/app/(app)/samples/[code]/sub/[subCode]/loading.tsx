@@ -1,23 +1,20 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-/** A sub-sample's page has the same shape as its sample's: heading, three cards, then results. */
+/** A sub-sample's page: heading, its sample and when it was made, then results. */
 export default function SubSampleDetailLoading() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
         <Skeleton className="h-4 w-28" />
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-col gap-1.5">
-            <Skeleton className="h-7 w-52" />
-            <Skeleton className="h-4 w-64 max-w-full" />
-          </div>
-          <Skeleton className="h-7 w-24 rounded-4xl" />
+        <div className="flex flex-col gap-1.5">
+          <Skeleton className="h-7 w-52" />
+          <Skeleton className="h-4 w-64 max-w-full" />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {Array.from({ length: 3 }, (_, card) => (
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {Array.from({ length: 2 }, (_, card) => (
           <Card key={card}>
             <CardHeader>
               <Skeleton className="h-4 w-24" />

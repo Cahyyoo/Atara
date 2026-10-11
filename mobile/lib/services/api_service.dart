@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart'
         kIsWeb,
         visibleForTesting;
 
+import '../models/announcement.dart';
 import '../models/login_result.dart';
 import '../models/sample_model.dart';
 import '../models/stage_model.dart';
@@ -111,18 +112,46 @@ class ApiService {
             // means the server had let go first. Treating it as a replacement
             // would greet a deliberate sign-out with "someone else took over".
             final isSignOut = path.contains('/auth/logout');
+            // A refusal of a token this phone no longer holds says nothing
+            // about the session it holds now. A request that left before the
+            // operator signed in again, and came back 401 after, used to wipe
+            // the fresh session and send them straight back to sign-in.
+            final sentWith = error.requestOptions.headers['Authorization'];
+            final current = await SessionService.getToken();
+            final isStaleToken = current != null && sentWith != 'Bearer $current';
             if (error.response?.statusCode == 401 &&
                 !isSignInAttempt &&
-                !isSignOut) {
-              // A 401 that says WHY: another device signed this account in.
-              // Any other 401 — an expired token, a deactivated account, a token
-              // from before one-phone-per-account — stays the silent kind.
+                !isSignOut &&
+                !isStaleToken) {
+              // A 401 that says WHY. Two of them do: another phone took the
+              // account, or somebody on the website ended this session --
+              // an administrator, or a password change. Any other 401 (an
+              // expired token, a deactivated account) stays the silent kind.
               final body = error.response?.data;
-              final replaced = body is Map && body['code'] == 'session-replaced'
-                  ? SessionReplaced.fromDetails(body['details'])
-                  : null;
+              final code = body is Map ? body['code'] : null;
+              final notice = switch (code) {
+                'session-replaced' => SessionReplaced.fromDetails(
+                  (body as Map)['details'],
+                ),
+                'session-ended' => SessionEnded.fromDetails(
+                  (body as Map)['details'],
+                ),
+                _ => null,
+              };
               await SessionService.clearSession();
-              onUnauthorized?.call(replaced);
+              onUnauthorized?.call(notice);
+            }
+
+            // Not a dead session: a live one the server will not serve until
+            // its password is replaced. The stored flag should already say
+            // so, but it is set at sign-in and an administrator can reset a
+            // password long after -- so the refusal itself is believed.
+            if (error.response?.statusCode == 403) {
+              final body = error.response?.data;
+              if (body is Map && body['code'] == 'password-change-required') {
+                await SessionService.setMustChangePassword(true);
+                onPasswordChangeRequired?.call();
+              }
             }
           } catch (_) {
             // Housekeeping. Failing at it must not swallow the server's own
@@ -161,7 +190,10 @@ class ApiService {
   /// The argument is non-null only when another phone took the account over,
   /// which is the one sign-out the operator did not cause and needs telling
   /// about.
-  void Function(SessionReplaced? replaced)? onUnauthorized;
+  void Function(SignedOutNotice? notice)? onUnauthorized;
+
+  /// The server refused a live session until its password is replaced.
+  void Function()? onPasswordChangeRequired;
 
   /// `X-Atara-Device`: which kind of phone, so the OTHER phone can be told
   /// what took its place. Null anywhere else, and the header is then omitted.
@@ -417,6 +449,46 @@ class ApiService {
         if (cached.isNotEmpty) return cached;
       }
       throw mapped;
+    }
+  }
+
+  /// Replaces the signed-in account's own password.
+  ///
+  /// The current one is asked for even though the session is good: an
+  /// unlocked phone left on a bench should not be enough to take an account
+  /// over. The server ends every OTHER session on success and keeps this one,
+  /// so the operator carries on working here.
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      await _dio.post(
+        '/auth/password',
+        data: {'currentPassword': currentPassword, 'newPassword': newPassword},
+      );
+    } on DioException catch (error) {
+      throw _mapError(error);
+    }
+  }
+
+  /// The banner for this account's role, or an empty list.
+  ///
+  /// Never throws. An announcement is something extra on top of Home; a
+  /// server that will not answer must cost the operator nothing, least of
+  /// all the screen they scan from.
+  Future<List<Announcement>> fetchAnnouncements() async {
+    try {
+      final response = await _dio.get('/announcements/active');
+      final data = response.data['data'];
+      final list = data is Map ? data['announcements'] : null;
+      if (list is! List) return const [];
+      return list
+          .map(Announcement.tryFromJson)
+          .whereType<Announcement>()
+          .toList(growable: false);
+    } catch (_) {
+      return const [];
     }
   }
 

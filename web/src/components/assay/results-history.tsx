@@ -12,6 +12,7 @@ import { useTableParams } from "@/hooks/use-table-params";
 import { cn } from "@/lib/utils";
 import type { ApiResult, PaginationDTO, RecordHistoryEntry } from "@/types";
 import { IoArrowBack, IoChevronBack, IoChevronForward, IoReloadOutline } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 /** Typing a search walks through several values; only the last one is asked for. */
 const SEARCH_DEBOUNCE_MS = 300;
@@ -59,7 +60,7 @@ export function ResultsHistory() {
     const controller = new AbortController();
     (async () => {
       try {
-        const response = await fetch(`/api/lab-records/history?${query}`, { signal: controller.signal });
+        const response = await fetch(withBasePath(`/api/lab-records/history?${query}`), { signal: controller.signal });
         const body: ApiResult<{ entries: RecordHistoryEntry[]; pagination: PaginationDTO }> = await response.json();
         setLoaded(
           body.success

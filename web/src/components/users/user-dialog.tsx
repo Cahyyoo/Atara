@@ -28,6 +28,7 @@ import { ROLE_LABEL_KEYS } from "@/lib/role-labels";
 import type { RolePasswordStatus } from "@/lib/role-password-status";
 import { IoKeyOutline, IoLockOpenOutline, IoReloadOutline, IoWarningOutline } from "react-icons/io5";
 import { InlineNotice } from "@/components/ui/inline-notice";
+import { withBasePath } from "@/lib/base-path";
 
 /** `null` closes the dialog; "new" opens it in create mode. */
 export type UserDialogTarget = UserDTO | "new" | null;
@@ -95,7 +96,7 @@ function UserForm({ target, currentUserId, onClose, onSaved }: UserFormProps) {
   useEffect(() => {
     if (!isNew) return;
     let cancelled = false;
-    fetch("/api/admin/role-passwords")
+    fetch(withBasePath("/api/admin/role-passwords"))
       .then((response) => response.json() as Promise<ApiResult<RolePasswordStatus[]>>)
       .then((result) => {
         if (!cancelled && result.success) setDefaults(result.data);
@@ -115,7 +116,7 @@ function UserForm({ target, currentUserId, onClose, onSaved }: UserFormProps) {
     setError(null);
     setIsSubmitting(true);
     try {
-      const response = await fetch(`/api/users/${user!.id}`, {
+      const response = await fetch(withBasePath(`/api/users/${user!.id}`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ unlock: true }),
@@ -141,7 +142,7 @@ function UserForm({ target, currentUserId, onClose, onSaved }: UserFormProps) {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(isNew ? "/api/users" : `/api/users/${user!.id}`, {
+      const response = await fetch(withBasePath(isNew ? "/api/users" : `/api/users/${user!.id}`), {
         method: isNew ? "POST" : "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(

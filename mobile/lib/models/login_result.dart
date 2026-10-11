@@ -78,7 +78,14 @@ sealed class LoginResult {
         }
         throw _unreadable();
       }
-      return LoginSession(token: token, user: user);
+      return LoginSession(
+        token: token,
+        // The server sends the flag next to the user object, not inside it,
+        // so it is folded in here and everything downstream reads one object.
+        user: user.copyWith(
+          mustChangePassword: data['mustChangePassword'] == true,
+        ),
+      );
     }
 
     final challenge = data['challenge'];
@@ -138,6 +145,43 @@ class OperatorOnlyException implements Exception {
   String toString() => 'This app is for Operators.';
 }
 
+/// Why this phone was signed out, when the operator did not ask for it.
+///
+/// Two things end a session from the outside and they need different words:
+/// another phone took the account ([SessionReplaced]), or somebody on the
+/// website ended it ([SessionEnded]) -- an administrator, or this account's
+/// password being changed elsewhere. Sealed, so the sign-in screen cannot
+/// quietly forget one of them.
+sealed class SignedOutNotice {
+  const SignedOutNotice();
+}
+
+/// An administrator ended the session, or the account's password changed.
+///
+/// Before this existed the server's `session-ended` was simply an unexplained
+/// 401: the operator was dropped on the sign-in screen mid-shift with no idea
+/// why -- which reads as a crash. An administrator resetting a password now
+/// ends every session, so this is no longer a rare case.
+final class SessionEnded extends SignedOutNotice {
+  const SessionEnded({this.at, this.reason});
+
+  final DateTime? at;
+
+  /// The server's own word: ADMIN_ENDED or PASSWORD_CHANGED. Anything else
+  /// falls back to the general line.
+  final String? reason;
+
+  bool get wasPasswordChange => reason == 'PASSWORD_CHANGED';
+
+  static SessionEnded fromDetails(Object? details) {
+    final map = details is Map ? details : const {};
+    return SessionEnded(
+      at: _instant(map['at']),
+      reason: map['reason'] is String ? map['reason'] as String : null,
+    );
+  }
+}
+
 /// Why this phone was signed out: the account was signed in somewhere else.
 ///
 /// An account holds one phone at a time, and the latest sign-in simply wins —
@@ -145,7 +189,7 @@ class OperatorOnlyException implements Exception {
 /// as a 401 `session-replaced` carrying when, and on what. Without it the
 /// operator is simply dropped on the sign-in screen mid-shift, which reads as a
 /// crash rather than as someone else signing in.
-class SessionReplaced {
+final class SessionReplaced extends SignedOutNotice {
   const SessionReplaced({this.device, this.at, this.deviceInfo});
 
   /// The server's own one-line summary of the other device. Kept for the

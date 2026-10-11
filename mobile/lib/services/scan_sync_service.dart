@@ -69,6 +69,14 @@ class ScanSyncService {
             stoppedOffline = true;
             break;
           }
+          if (error.isAlreadyRecorded) {
+            // A timeout counts as offline, so a scan the server had already
+            // saved was queued and sent again -- and then shown to the operator
+            // as refused. The sample is where the scan meant to put it.
+            await PendingScanService.remove(scan.id);
+            synced++;
+            continue;
+          }
           if (error.isRetryableConflict) {
             // A lost race: this scan arrived while another one was landing on
             // the same sample. The scan itself is sound, so it is left queued

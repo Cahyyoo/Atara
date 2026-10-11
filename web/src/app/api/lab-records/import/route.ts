@@ -5,15 +5,18 @@ import { prisma } from "@/lib/prisma";
 import { jsonSuccess, handleApiError, ApiError } from "@/lib/api-response";
 import { requireCapability } from "@/lib/api-auth";
 import { importLabRecordsSchema, updateLabRecordSchema } from "@/lib/validation";
-import { diffLabRecord, type LabRecordChange } from "@/lib/lab-record";
+import { diffLabRecord, labRecordValueSelect, type LabRecordChange } from "@/lib/lab-record";
 import { MAX_IMPORT_ROWS, readImportCell, readImportSheet } from "@/lib/lab-record-import";
 import type { ImportPreviewRow } from "@/types";
 import { readJsonBody } from "@/lib/api-request";
 import { ensureSub, resolvePastedKeys } from "@/lib/sub-records";
 import { findOverwrites } from "@/lib/overwrite";
+import { lockLabRecords } from "@/lib/record-lock";
 
 type Values = Record<string, number | string | Date | null>;
 type DiffInput = Parameters<typeof diffLabRecord>[0];
+
+const freshSelect = { ...labRecordValueSelect, id: true, labCode: true } satisfies Prisma.LabRecordSelect;
 
 export async function POST(request: NextRequest) {
   try {
@@ -186,18 +189,47 @@ export async function POST(request: NextRequest) {
     if (toApply.length > 0) {
       await prisma.$transaction(
         async (tx) => {
+          // The preview was read before this transaction; another save may
+          // have filled some of these rows since. Read them again under a lock
+          // and hold the overwrite rule against what is there now.
+          const fresh = await lockLabRecords(
+            tx,
+            toApply.flatMap((entry) => (entry.recordId ? [entry.recordId] : [])),
+            freshSelect
+          );
+          const raced: string[] = [];
           const audits: Prisma.LabRecordAuditCreateManyInput[] = [];
           for (const entry of toApply) {
             const id = entry.sub
               ? (await ensureSub(tx, entry.sub.parentId, entry.sub.code, session.userId)).id
               : entry.recordId!;
+            const now = entry.sub ? (await lockLabRecords(tx, [id], freshSelect)).get(id) : fresh.get(id);
+            let { changes, overwrites } = entry;
+            if (now) {
+              const record = now as unknown as DiffInput & Record<string, unknown>;
+              overwrites = findOverwrites(record, entry.values).length > 0;
+              if (overwrites && !body.overwrite) {
+                raced.push(now.labCode);
+                continue;
+              }
+              changes = diffLabRecord(record, entry.values);
+              if (Object.keys(changes).length === 0) continue;
+            }
             await tx.labRecord.update({ where: { id }, data: { ...entry.values, updatedById: session.userId } });
             audits.push({
               labRecordId: id,
               changedById: session.userId,
-              changes: entry.changes as unknown as Prisma.InputJsonObject,
-              reason: body.reason ?? (entry.overwrites ? "CSV import, overwrote earlier results" : "CSV import"),
+              changes: changes as unknown as Prisma.InputJsonObject,
+              reason: body.reason ?? (overwrites ? "CSV import, overwrote earlier results" : "CSV import"),
             });
+          }
+          if (raced.length > 0) {
+            throw new ApiError(
+              `${raced.length} row(s) were given results by someone else while this import was open. Preview it again.`,
+              409,
+              "overwrite",
+              { overwrites: raced.map((labCode) => ({ labCode })) }
+            );
           }
           await tx.labRecordAudit.createMany({ data: audits });
         },

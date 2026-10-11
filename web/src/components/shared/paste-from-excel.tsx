@@ -40,6 +40,7 @@ import {
   IoWarningOutline,
 } from "react-icons/io5";
 import { InlineNotice } from "@/components/ui/inline-notice";
+import { withBasePath } from "@/lib/base-path";
 
 /** The counters carry the totals; the table is there to spot-check. */
 const PREVIEW_ROW_LIMIT = 200;
@@ -170,7 +171,7 @@ export function PasteFromExcel({
     const key = lookupKey;
     const timer = setTimeout(async () => {
       try {
-        const response = await fetch("/api/lab-records/resolve", {
+        const response = await fetch(withBasePath("/api/lab-records/resolve"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ keys: keys.keys }),
@@ -259,7 +260,7 @@ export function PasteFromExcel({
     }
 
     try {
-      const response = await fetch("/api/lab-records/bulk", {
+      const response = await fetch(withBasePath("/api/lab-records/bulk"), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ records, reason: t("auditReason"), overwrite: mode === "overwrite" }),
@@ -571,9 +572,9 @@ export function PasteFromExcel({
                 variant="ghost"
                 className="gap-2 sm:mr-auto"
                 onClick={() => {
-                  window.location.href = free
+                  window.location.href = withBasePath(free
                     ? "/api/lab-records/template?shape=keyed"
-                    : "/api/lab-records/template?shape=instrument";
+                    : "/api/lab-records/template?shape=instrument");
                 }}
               >
                 <IoDownloadOutline className="size-4" />

@@ -9,8 +9,8 @@ import { PASSWORD_CHANGE_REQUIRED_CODE } from "@/lib/session-codes";
 
 /**
  * A password an administrator chose is replaced by its owner before anything
- * else -- on the web; the phone has no screen for it yet. Against the real
- * database; skipped when there is none.
+ * else, on the web and on the phone alike. Against the real database;
+ * skipped when there is none.
  */
 
 const reachable = await prisma.user
@@ -58,26 +58,25 @@ describe.skipIf(!reachable)("the password an administrator chose", () => {
     if (user.id) await prisma.user.delete({ where: { id: user.id } });
   });
 
-  it("holds a web session, and only a web session", async () => {
+  it("holds every session, the phone's included", async () => {
     const web = await requestFor("WEB");
     const phone = await requestFor("MOBILE");
     expect(await loadSession(web.sessionId, user.id)).toMatchObject({ status: "active", mustChangePassword: true });
-    expect(await loadSession(phone.sessionId, user.id)).toMatchObject({ status: "active", mustChangePassword: false });
+    expect(await loadSession(phone.sessionId, user.id)).toMatchObject({ status: "active", mustChangePassword: true });
   });
 
-  it("refuses everything on the web but what changing it takes", async () => {
-    const web = await requestFor("WEB");
-    await expect(requireSession(web.request)).rejects.toMatchObject({
-      status: 403,
-      code: PASSWORD_CHANGE_REQUIRED_CODE,
-    });
-    await expect(requireSession(web.request, { allowPasswordChange: true })).resolves.toMatchObject({
-      userId: user.id,
-    });
-
-    // The phone carries on, for now.
-    const phone = await requestFor("MOBILE");
-    await expect(requireSession(phone.request)).resolves.toMatchObject({ userId: user.id });
+  it("refuses everything but what changing it takes, on the web and the phone alike", async () => {
+    for (const client of ["WEB", "MOBILE"] as const) {
+      const session = await requestFor(client);
+      await expect(requireSession(session.request), client).rejects.toMatchObject({
+        status: 403,
+        code: PASSWORD_CHANGE_REQUIRED_CODE,
+      });
+      await expect(
+        requireSession(session.request, { allowPasswordChange: true }),
+        client
+      ).resolves.toMatchObject({ userId: user.id });
+    }
   });
 
   it("lets everything through once the password is the person's own", async () => {

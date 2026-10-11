@@ -16,6 +16,7 @@ import { ROLE_LABEL_KEYS } from "@/lib/role-labels";
 import { SHIFT_TIMEZONE_OFFSET_MINUTES, formatWitaDateTime } from "@/lib/shift-date";
 import type { AnnouncementDTO, ApiResult } from "@/types";
 import { IoInformationCircleOutline, IoReloadOutline, IoWarningOutline } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 const OFFSET_MS = SHIFT_TIMEZONE_OFFSET_MINUTES * 60_000;
 
@@ -72,7 +73,7 @@ export function AnnouncementsManager() {
     const controller = new AbortController();
     (async () => {
       try {
-        const response = await fetch("/api/announcements", { signal: controller.signal });
+        const response = await fetch(withBasePath("/api/announcements"), { signal: controller.signal });
         const body: ApiResult<{ announcements: AnnouncementDTO[] }> = await response.json();
         if (body.success) {
           setList(body.data.announcements);
@@ -91,7 +92,7 @@ export function AnnouncementsManager() {
     setBusy(true);
     setError(null);
     try {
-      const response = await fetch(url, {
+      const response = await fetch(withBasePath(url), {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body ?? {}),

@@ -6,6 +6,9 @@ import { clientAddressFromHeaders } from "@/lib/rate-limit";
 import { recordSignIn, SignInOutcome } from "@/lib/sign-in-audit";
 import { clientFrom, deviceInfoFrom, summarizeDevice } from "@/lib/session-client";
 
+/** Tries at opening a session when the database picks it as a deadlock victim. */
+const SESSION_START_ATTEMPTS = 6;
+
 /**
  * Opens a session for a sign-in that has just succeeded, ending whatever held
  * the same slot.
@@ -25,23 +28,48 @@ export async function startSession(userId: string, headers: Headers) {
   const info = deviceInfoFrom(headers, client);
   const address = clientAddressFromHeaders(headers);
 
-  const { session, replaced } = await prisma.$transaction(async (tx) => {
-    const session = await tx.userSession.create({
-      data: {
-        userId,
-        client,
-        device: summarizeDevice(info),
-        deviceInfo: info ? (info as unknown as Prisma.InputJsonObject) : Prisma.DbNull,
-        address,
+  const open = () =>
+    prisma.$transaction(
+      async (tx) => {
+        const session = await tx.userSession.create({
+          data: {
+            userId,
+            client,
+            device: summarizeDevice(info),
+            deviceInfo: info ? (info as unknown as Prisma.InputJsonObject) : Prisma.DbNull,
+            address,
+          },
+          select: { id: true },
+        });
+        const replaced = await tx.userSession.updateMany({
+          where: { userId, client, endedAt: null, id: { not: session.id } },
+          data: { endedAt: new Date(), endedReason: "REPLACED", replacedById: session.id },
+        });
+        return { session, replaced: replaced.count };
       },
-      select: { id: true },
-    });
-    const replaced = await tx.userSession.updateMany({
-      where: { userId, client, endedAt: null, id: { not: session.id } },
-      data: { endedAt: new Date(), endedReason: "REPLACED", replacedById: session.id },
-    });
-    return { session, replaced: replaced.count };
-  });
+      // Read committed, so the update takes no gap locks. Under MySQL's
+      // default (repeatable read) the range it scans on (user, client,
+      // ended_at) was gap-locked, and sign-ins of *different* accounts whose
+      // ids sit next to each other in that index deadlocked: at a shift
+      // change, most of a crew got a 500 instead of a session. A row the other
+      // sign-in has inserted but not committed is still waited for, so the
+      // slot never ends up with two live sessions.
+      { isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted }
+    );
+
+  // The same account signing in twice at once can still deadlock on the two
+  // new rows; the database picks one as the victim, and it is simply run again.
+  let result: Awaited<ReturnType<typeof open>> | undefined;
+  for (let attempt = 1; !result; attempt++) {
+    try {
+      result = await open();
+    } catch (error) {
+      const deadlock = error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2034";
+      if (!deadlock || attempt >= SESSION_START_ATTEMPTS) throw error;
+      await new Promise((resolve) => setTimeout(resolve, 20 + Math.random() * 80 * attempt));
+    }
+  }
+  const { session, replaced } = result;
 
   if (replaced > 0) {
     await recordSignIn({ userId, outcome: SignInOutcome.SESSION_REPLACED, headers });

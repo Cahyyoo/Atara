@@ -113,3 +113,56 @@ describe("ExportDialog", () => {
     expect((dialog.getByRole("checkbox", { name: "Created By" }) as HTMLInputElement).checked).toBe(true);
   });
 });
+
+describe("choosing which place the file covers", () => {
+  const PLACES = [
+    { id: "p-mol", kind: "PLACE", code: "MOL", label: null, sortOrder: 0, isActive: true },
+    { id: "p-lam", kind: "PLACE", code: "LAM", label: null, sortOrder: 1, isActive: true },
+  ];
+
+  beforeEach(() => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) =>
+        String(url).startsWith("/api/master-options")
+          ? { ok: true, json: async () => ({ success: true, data: { options: PLACES } }) }
+          : { ok: true, json: async () => ({ success: true, data: STAGES }) }
+      )
+    );
+  });
+
+  function showWithPlace(onChange = vi.fn(), value = "ALL") {
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <ExportDialog kind="labRecords" onExport={vi.fn()} place={{ value, onChange }} />
+      </NextIntlClientProvider>
+    );
+    return onChange;
+  }
+
+  it("offers every place, starting on all of them", async () => {
+    const user = userEvent.setup();
+    showWithPlace();
+    const dialog = await open(user);
+    const allPlaces = en.masterData.allOf.replace("{kind}", en.masterData.kind.PLACE);
+    const chooser = dialog.getByRole("combobox", { name: allPlaces });
+    // The chooser sits behind its own label, not the "Place" column tick box.
+    expect(chooser.closest("div")?.textContent).toContain(en.exportDialog.place);
+    await user.click(chooser);
+    expect((await screen.findAllByRole("option")).map((option) => option.textContent)).toEqual([
+      allPlaces,
+      "MOL",
+      "LAM",
+    ]);
+  });
+
+  it("reports the place that was picked", async () => {
+    const user = userEvent.setup();
+    const onChange = showWithPlace();
+    const dialog = await open(user);
+    const allPlaces = en.masterData.allOf.replace("{kind}", en.masterData.kind.PLACE);
+    await user.click(dialog.getByRole("combobox", { name: allPlaces }));
+    await user.click(await screen.findByRole("option", { name: "MOL" }));
+    expect(onChange).toHaveBeenCalledWith("p-mol");
+  });
+});

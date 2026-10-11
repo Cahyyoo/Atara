@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { handleApiError, ApiError, jsonSuccess } from "@/lib/api-response";
 import { requireCapability } from "@/lib/api-auth";
 import { workbookStreamResponse } from "@/lib/export-response";
+import { backupGate } from "@/lib/heavy-gate";
 import { backupCounts, backupSheets, EXCEL_MAX_ROWS } from "@/lib/backup";
 import { formatWitaDateTime } from "@/lib/shift-date";
 
@@ -33,10 +34,13 @@ export async function GET(request: NextRequest) {
     const at = new Date();
     const stamp = (formatWitaDateTime(at) ?? "").replace(/[-:]/g, "").replace(" ", "-").slice(0, 13);
 
-    return workbookStreamResponse({
-      baseFilename: `atara-backup-${stamp}`,
-      sheets: backupSheets(counts, user?.name ?? session.email, at),
-    });
+    // One at a time: it reads every table, for minutes. See heavy-gate.ts.
+    return await backupGate.run(async () =>
+      workbookStreamResponse({
+        baseFilename: `atara-backup-${stamp}`,
+        sheets: backupSheets(counts, user?.name ?? session.email, at),
+      })
+    );
   } catch (error) {
     return handleApiError(error);
   }

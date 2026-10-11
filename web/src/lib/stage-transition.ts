@@ -9,7 +9,7 @@ export interface StageLike {
 
 export type StageTransition =
   | { ok: true; stage: StageLike; isCorrection: boolean; status: SampleStatus }
-  | { ok: false; httpStatus: number; message: string };
+  | { ok: false; httpStatus: number; message: string; code?: string };
 
 export interface StageTransitionInput {
   /** All stages, ordered by sequenceOrder ascending. */
@@ -28,6 +28,9 @@ export interface StageTransitionInput {
    */
   canOverride?: boolean;
 }
+
+/** The sample is already on the stage asked for: nothing is left to do. */
+export const STAGE_ALREADY_RECORDED = "STAGE_ALREADY_RECORDED";
 
 /**
  * Decides whether a scan may move a sample to a stage.
@@ -64,6 +67,10 @@ export function evaluateStageTransition(input: StageTransitionInput): StageTrans
         ok: false,
         httpStatus: 409,
         message: `Stage ${stage.name} has already been recorded for this sample.`,
+        // Tagged: a queued scan the server saved before its answer timed out
+        // comes back as exactly this when the phone sends it again, and the
+        // phone must be able to tell "already done" from a real refusal.
+        code: STAGE_ALREADY_RECORDED,
       };
     }
     if (stage.sequenceOrder < currentOrder) {

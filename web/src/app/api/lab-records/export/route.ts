@@ -1,25 +1,29 @@
 import { NextRequest } from "next/server";
-import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { listLabRecordsQuerySchema } from "@/lib/validation";
 import { handleApiError, ApiError } from "@/lib/api-response";
 import { requireCapability } from "@/lib/api-auth";
+import { labRecordExportGate } from "@/lib/heavy-gate";
 import { exportResponse, EXPORT_ROW_LIMIT } from "@/lib/export-response";
 import { ASSAY_FIELDS } from "@/lib/assay";
 import { buildLabRecordWhere, labRecordInclude, toLabRecordDTO } from "@/lib/lab-record";
 import { formatWitaDateTime } from "@/lib/shift-date";
 import { loadStages } from "@/lib/stages-cache";
 import {
+  EXPORT_STAGE_LAYOUT,
   LAB_RECORD_EXPORT_COLUMNS,
   parseExportColumns,
   parseStageColumnKey,
   sheetColumnsFor,
-  stageCells,
 } from "@/lib/export-columns";
-import { stageTimeline } from "@/lib/stage-timeline";
-import type { SheetRow } from "@/lib/xlsx";
+import { stageTimeline, type StageVisit } from "@/lib/stage-timeline";
+import { leadTimeDays, moistureContent, smRatio } from "@/lib/mc";
+import { arrangeReport, batchKey, type ReportRecord, type ReportValue } from "@/lib/analysis-report";
+import { readBrandLogo } from "@/lib/xlsx-brand";
+import { buildAnalysisReport, type ReportBand, type ReportColumn } from "@/lib/analysis-report-xlsx";
+import { XLSX_CONTENT_TYPE, type SheetRow } from "@/lib/xlsx";
 
-/** Read a page at a time so neither the query nor the response holds everything. */
+/** Read a page at a time so the query never holds everything at once. */
 const PAGE_SIZE = 2_000;
 
 /** The identity columns, by the option kind each names. */
@@ -31,15 +35,41 @@ const OPTION_COLUMNS = {
   pit: "pitId",
 } as const;
 
-export async function GET(request: NextRequest) {
+/** A moment as the lab's wall clock, for a spreadsheet cell: Excel has no timezones. */
+function witaCell(at: Date): Date {
+  return new Date(at.getTime() + 8 * 60 * 60 * 1000);
+}
+
+/** Who entered each record's results: the latest change by an analyst's account. */
+async function analystsOf(ids: readonly string[]): Promise<Map<string, string>> {
+  const names = new Map<string, string>();
+  for (let start = 0; start < ids.length; start += 1_000) {
+    const audits = await prisma.labRecordAudit.findMany({
+      where: { labRecordId: { in: ids.slice(start, start + 1_000) }, changedBy: { role: "ANALISIS" } },
+      orderBy: { changedAt: "desc" },
+      select: { labRecordId: true, changedBy: { select: { name: true } } },
+    });
+    for (const audit of audits) {
+      if (!names.has(audit.labRecordId)) names.set(audit.labRecordId, audit.changedBy.name);
+    }
+  }
+  return names;
+}
+
+/**
+ * The Sample Database export, as the lab's FORMULIR ANALYSIS RESULT: see
+ * `analysis-report.ts` for the arrangement and `analysis-report-xlsx.ts` for
+ * the form. The columns are still the reader's choice. CSV carries the same
+ * columns as plain rows, in the same order, without the form around them.
+ */
+async function exportLabRecords(request: NextRequest) {
   try {
-    await requireCapability(request, "exportDatabase");
+    // Permission is checked by GET, before a slot is taken.
 
     const { searchParams } = new URL(request.url);
 
-    // Read through the list's own schema, so the export filters and orders
-    // exactly like the table it was asked from -- including the deleted view,
-    // which it used to ignore and export the live rows instead.
+    // Read through the list's own schema, so the export filters exactly like
+    // the table it was asked from, the deleted view included.
     const query = listLabRecordsQuerySchema.parse({
       deleted: searchParams.get("deleted") ?? undefined,
       search: searchParams.get("search") ?? undefined,
@@ -54,10 +84,6 @@ export async function GET(request: NextRequest) {
       order: searchParams.get("order") ?? undefined,
     });
     const where = buildLabRecordWhere(query);
-    const orderBy: Prisma.LabRecordOrderByWithRelationInput[] =
-      query.sort === "shiftDate"
-        ? [{ shiftDate: query.order }, { sequence: query.order }]
-        : [{ [query.sort]: query.order }, { shiftDate: "desc" }, { sequence: "desc" }];
 
     // The limit is on rows, and with subs a parent can bring several.
     const total =
@@ -70,125 +96,195 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // The columns asked for; none asked for is the sheet this always gave.
     const stages = await loadStages();
     const keys = parseExportColumns(
       searchParams.get("columns"),
       LAB_RECORD_EXPORT_COLUMNS,
-      stages.map((stage) => stage.id)
+      stages.map((stage) => stage.id),
+      EXPORT_STAGE_LAYOUT.labRecords
     );
     if (keys.length === 0) throw new ApiError("Choose at least one column to export.", 422);
-    const columns = sheetColumnsFor(keys, LAB_RECORD_EXPORT_COLUMNS, stages);
-    if (query.subs) {
-      // Which sample a sub-sample row was taken from; empty on the samples.
-      const at = columns.findIndex((column) => column.key === "sampleCode");
-      columns.splice(at === -1 ? 0 : at + 1, 0, { header: "Sub Of", key: "subOf", width: 30 });
-    }
 
-    const wantsStages = keys.some((key) => parseStageColumnKey(key) !== null);
-    const wantsIdentity = keys.some((key) => key in OPTION_COLUMNS);
-    // The codes, once, for every place, pit and the rest a row names.
+    const stageName = new Map(stages.map((stage) => [stage.id, stage.name]));
+    const wetPrep = stages.find((stage) => stage.key === "WET_PREP")?.id;
+    const report = stages.find((stage) => stage.key === "REPORT")?.id;
+    const wantsOperator = keys.includes("operator");
     const codeOf = new Map(
-      wantsIdentity
-        ? (await prisma.masterOption.findMany({ select: { id: true, code: true } })).map((option) => [
-            option.id,
-            option.code,
-          ])
-        : []
+      (await prisma.masterOption.findMany({ select: { id: true, code: true } })).map((option) => [option.id, option.code])
     );
     const now = new Date();
+    const xlsx = searchParams.get("format") !== "csv";
 
-    async function* rows(): AsyncIterable<SheetRow> {
-      let cursor: string | undefined;
-
-      for (;;) {
-        const page = await prisma.labRecord.findMany({
-          where,
-          include: {
-            ...labRecordInclude,
-            sample: {
-              select: {
-                ...labRecordInclude.sample.select,
-                logs: {
-                  select: { stageId: true, scannedAt: true, operator: { select: { name: true } } },
-                  orderBy: { scannedAt: "asc" as const },
-                  // Only read when a stage column was asked for.
-                  ...(wantsStages ? {} : { take: 0 }),
-                },
+    // Every row first: the form groups samples by batch, whatever order they
+    // were listed in, and averages each batch.
+    const records: (ReportRecord & { visits: Map<string, StageVisit> })[] = [];
+    let cursor: string | undefined;
+    for (;;) {
+      const page = await prisma.labRecord.findMany({
+        where,
+        include: {
+          ...labRecordInclude,
+          sample: {
+            select: {
+              ...labRecordInclude.sample.select,
+              logs: {
+                select: { stageId: true, scannedAt: true, operator: { select: { name: true } } },
+                orderBy: { scannedAt: "asc" as const },
               },
             },
           },
-          // id breaks ties, so paging cannot skip or repeat a row when several
-          // share a shift date and sequence.
-          // Same direction as the last sort key, so the index serves the page.
-          orderBy: [...orderBy, { id: query.sort === "shiftDate" ? query.order : "desc" }],
-          take: PAGE_SIZE,
-          ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
-        });
+        },
+        orderBy: [{ shiftDate: "asc" }, { id: "asc" }],
+        take: PAGE_SIZE,
+        ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+      });
 
-        if (page.length === 0) return;
-
-        for (const row of page) {
-          const sample = row.sample!;
-          // One container, one timeline: its sub-samples share it.
-          const visits = stageTimeline(
-            sample.logs.map((log) => ({ stageId: log.stageId, scannedAt: log.scannedAt, operator: log.operator.name })),
-            { now, completed: sample.status === "COMPLETED" }
-          );
-          const stageValues = stageCells(keys, visits, formatWitaDateTime);
-
-          // A sub-sample comes straight after the sample it was taken from.
-          const entries = [
-            { record: toLabRecordDTO(row), subOf: null as string | null },
-            ...(query.subs
-              ? row.subs.map((sub) => ({ record: toLabRecordDTO(sub), subOf: row.sampleIdent ?? row.labCode }))
-              : []),
-          ];
-          for (const { record, subOf } of entries) {
-            const cells: SheetRow = {
-              labCode: record.labCode,
-              sampleIdent: record.sampleIdent,
-              sampleCode: sample.sampleCode,
-              ...(query.subs ? { subOf } : {}),
-              shiftDate: record.shiftDate,
-              currentStage: sample.currentStage?.name ?? "Not Started",
-              status: sample.status,
-              ...Object.fromEntries(
-                Object.entries(OPTION_COLUMNS).map(([key, field]) => {
-                  const id = record[field];
-                  return [key, id ? (codeOf.get(id) ?? id) : null];
-                })
-              ),
-              bargingNo: record.bargingNo,
-              sequenceNo: record.sequenceNo,
-              sampleNo: record.sampleNo,
-              sackCount: record.sackCount,
-              ...stageValues,
-              ...Object.fromEntries(ASSAY_FIELDS.map((field) => [field.key, record[field.key]])),
-              measurementMethod: record.measurementMethod,
-              solutionId: record.solutionId,
-              // The lab's own clock rather than an ISO instant: a spreadsheet
-              // shows it as a date, and it is the one form the paste reads back.
-              measurementFinished: formatWitaDateTime(record.measurementFinished),
-              remarks: record.remarks,
-              updatedAt: record.updatedAt,
-            };
-            yield cells;
+      for (const row of page) {
+        const sample = row.sample!;
+        // One container, one timeline: its sub-samples share it.
+        const visits = stageTimeline(
+          sample.logs.map((log) => ({ stageId: log.stageId, scannedAt: log.scannedAt, operator: log.operator.name })),
+          { now, completed: sample.status === "COMPLETED" }
+        );
+        for (const record of [toLabRecordDTO(row), ...(query.subs ? row.subs.map(toLabRecordDTO) : [])]) {
+          const wetAt = wetPrep ? visits.get(wetPrep)?.at : undefined;
+          const cells: Record<string, ReportValue> = {
+            sampleIdent: record.sampleIdent ?? record.labCode,
+            labCode: record.labCode,
+            sampleCode: sample.sampleCode,
+            shiftDate: record.shiftDate,
+            leadTime: leadTimeDays(wetAt, report ? visits.get(report)?.at : undefined),
+            ...Object.fromEntries(ASSAY_FIELDS.map((field) => [field.key, record[field.key]])),
+            smRatio: smRatio(record.sio2, record.mgo),
+            mc: moistureContent(record.wp, record.w0, record.wd),
+            measurementMethod: record.measurementMethod,
+            xrayInstrument: record.xrayInstrument,
+            solutionId: record.solutionId,
+            measurementFinished: formatWitaDateTime(record.measurementFinished),
+            mcDate: wetAt ? (xlsx ? witaCell(wetAt) : formatWitaDateTime(wetAt)) : null,
+            wp: record.wp,
+            w0: record.w0,
+            wd: record.wd,
+            ...Object.fromEntries(
+              Object.entries(OPTION_COLUMNS).map(([key, field]) => {
+                const id = record[field];
+                return [key, id ? (codeOf.get(id) ?? id) : null];
+              })
+            ),
+            bargingNo: record.bargingNo,
+            sequenceNo: record.sequenceNo,
+            sampleNo: record.sampleNo,
+            sackCount: record.sackCount,
+            // A sub-sample has no stage or status of its own.
+            currentStage: record.parentId ? null : (sample.currentStage?.name ?? "Not Started"),
+            status: record.parentId ? null : sample.status,
+            remarks: record.remarks,
+            updatedAt: formatWitaDateTime(record.updatedAt),
+          };
+          for (const key of keys) {
+            const stage = parseStageColumnKey(key);
+            if (!stage) continue;
+            const visit = visits.get(stage.stageId);
+            cells[key] = !visit
+              ? null
+              : stage.part === "at"
+                ? xlsx
+                  ? witaCell(visit.at)
+                  : formatWitaDateTime(visit.at)
+                : stage.part === "duration"
+                  ? visit.hours
+                  : visit.by;
           }
+          records.push({
+            id: record.id,
+            parentId: record.parentId,
+            site: record.placeId ? (codeOf.get(record.placeId) ?? null) : null,
+            // Decides which sheet it lands on: production, or its own code.
+            nonProd: record.nonProdId ? (codeOf.get(record.nonProdId) ?? null) : null,
+            group: batchKey(record),
+            shiftDate: record.shiftDate,
+            sampleNo: record.sampleNo,
+            label: record.sampleIdent ?? record.labCode,
+            cells,
+            visits,
+          });
         }
-
-        if (page.length < PAGE_SIZE) return;
-        cursor = page[page.length - 1].id;
       }
+
+      if (page.length < PAGE_SIZE) break;
+      cursor = page[page.length - 1].id;
     }
 
-    return exportResponse({
-      format: searchParams.get("format"),
-      sheetName: "Sample Database",
-      baseFilename: "sample-database",
-      columns,
-      rows,
+    if (wantsOperator) {
+      const analysts = await analystsOf(records.map((record) => record.id));
+      for (const record of records) record.cells.operator = analysts.get(record.id) ?? null;
+    }
+
+    const sheets = arrangeReport(records);
+    const sheetColumns = sheetColumnsFor(keys, LAB_RECORD_EXPORT_COLUMNS, stages);
+    const filename = `formulir-analysis-result-${Date.now()}`;
+
+    if (!xlsx) {
+      const ordered = sheets.flatMap((sheet) => sheet.batches.flat());
+      return exportResponse({
+        format: "csv",
+        sheetName: "Formulir Analysis Result",
+        baseFilename: "formulir-analysis-result",
+        columns: sheetColumns,
+        rows: async function* (): AsyncIterable<SheetRow> {
+          let number = 0;
+          for (const record of ordered) {
+            const isSub = Boolean(record.parentId);
+            if (!isSub) number += 1;
+            yield { ...(record.cells as SheetRow), rowNo: isSub ? null : number };
+          }
+        },
+      });
+    }
+
+    const groupOf = new Map(LAB_RECORD_EXPORT_COLUMNS.map((column) => [column.key, column.group]));
+    const columns: ReportColumn[] = sheetColumns.map((column) => {
+      const stage = parseStageColumnKey(column.key);
+      if (stage) {
+        const name = stageName.get(stage.stageId) ?? "";
+        return {
+          key: column.key,
+          header: stage.part === "at" ? "Date / Time" : stage.part === "duration" ? "Hours" : "Operator",
+          band: stage.part === "at" ? "stageAt" : "stageDetail",
+          stageName: name,
+          width: stage.part === "by" ? 14 : stage.part === "at" ? 15 : 11,
+        };
+      }
+      const group = groupOf.get(column.key);
+      const band: ReportBand =
+        column.key === "leadTime"
+          ? "lead"
+          : group === "sample" || group === "results" || group === "instrument" || group === "mc"
+            ? group
+            : "other";
+      return { key: column.key, header: column.key === "leadTime" ? "Days" : column.header, band, width: column.width };
     });
+
+    const logo = await readBrandLogo();
+    const body = await buildAnalysisReport({ sheets, columns, logo });
+
+    return new Response(new Uint8Array(body), {
+      headers: {
+        "Content-Type": XLSX_CONTENT_TYPE,
+        "Content-Disposition": `attachment; filename="${filename}.xlsx"`,
+        "Cache-Control": "no-store",
+      },
+    });
+  } catch (error) {
+    return handleApiError(error);
+  }
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    await requireCapability(request, "exportDatabase");
+    // At most two at a time: see heavy-gate.ts.
+    return await labRecordExportGate.run(() => exportLabRecords(request));
   } catch (error) {
     return handleApiError(error);
   }

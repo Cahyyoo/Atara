@@ -19,6 +19,7 @@ export const RESULT_KEYS: readonly string[] = [
   "measurementMethod",
   "solutionId",
   "measurementFinished",
+  "xrayInstrument",
 ];
 
 export interface Overwrite {

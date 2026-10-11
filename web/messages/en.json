@@ -201,7 +201,6 @@
     "sub": {
       "title": "Sub-sample ({code})",
       "parent": "Parent sample",
-      "stageFollows": "Follows the parent sample",
       "created": "Created",
       "others": "Other sub-samples",
       "listTitle": "Sub-samples",
@@ -506,6 +505,40 @@
     "history": {
       "open": "Update history",
       "rowLabel": "History of {code}"
+    },
+    "xrayInstrument": "Xray Instrument",
+    "wp": "Wp (pan)",
+    "w0": "W0 (wet)",
+    "wd": "Wd (dry)",
+    "mc": "MC (%)",
+    "mcSection": "MC table",
+    "mcHint": "Weights in grams. MC = (W0 − Wd) × 100 / (W0 − Wp).",
+    "mcInvalid": "W0 must be heavier than Wp, and Wd must lie between Wp and W0.",
+    "weights": {
+      "open": "Paste Wp/W0/Wd",
+      "title": "Paste Wp, W0 and Wd",
+      "description": "Copy the columns Sample ID, Wp, W0 and Wd from Excel and paste them here. The header row is optional; the sack count in the Sample ID may be left out. A blank weight keeps the one already stored.",
+      "label": "Data from Excel",
+      "hint": "Without a header row the columns are read as Sample ID, Wp, W0, Wd.",
+      "check": "Check",
+      "back": "Back",
+      "save": "Save {count, plural, one {# row} other {# rows}}",
+      "saved": "{count, plural, one {# weighing} other {# weighings}} saved.",
+      "empty": "Paste at least one row.",
+      "unreadable": "Row {line}: {reason}",
+      "tooMany": "At most 500 rows at a time.",
+      "summary": "{update} to save · {unchanged} unchanged · {unknown} not found · {invalid} invalid",
+      "line": "Row",
+      "status": "Status",
+      "statuses": {
+        "update": "Will be saved",
+        "unchanged": "No change",
+        "unknown": "Not found",
+        "ambiguous": "Matches more than one sample",
+        "invalid": "Invalid"
+      },
+      "notFoundHint": "No sample has this Sample ID. It must match the Sample ID in the database; the sack count may be left out.",
+      "ambiguousHint": "Without the sack count this fits more than one sample. Add the sack count."
     }
   },
   "users": {
@@ -656,7 +689,7 @@
       "step2": "Press Ctrl+V on this page — or drop a CSV file onto the box below.",
       "step3": "Check the preview, then press Save.",
       "boxLabel": "Results from Excel",
-      "placeholder": "Paste here (Ctrl+V)…\n\nSample ID\tNi\tFe\tCo\tSiO2\tMgO\nLAM/SAM/S2/PA4/B10/3778.1\t1.86\t42.25\t0.14\t9.96\t2.37",
+      "placeholder": "Paste here (Ctrl+V)…\n\nSample ID\tNi\tFe\tCo\tSiO2\tMgO\nLAM SAM S2/PA4/B10/3778.1\t1.86\t42.25\t0.14\t9.96\t2.37",
       "chooseFile": "Choose a CSV or Excel file",
       "copyHeader": "Copy an example header row",
       "headerHint": "The first row must be headings: Sample ID (the sack count may be left out), then any of the elements, Measurement Finished, Measurement Method or Solution ID.",
@@ -1641,13 +1674,14 @@
   },
   "exportDialog": {
     "title": "Choose the columns to export",
-    "description": "Tick what goes into the file. For each stage you can add when the sample entered it, how many hours it stayed, and who scanned it. Your choice is remembered for next time.",
+    "description": "Exported as the Formulir Analysis Result: one sheet per site, samples grouped by batch with each batch's average. Tick what goes in; for each stage you can add when the sample entered it, how long it stayed and who scanned it. Your choice is remembered for next time.",
     "groups": {
       "sample": "Sample",
       "identity": "Identity",
       "results": "Assay results",
       "instrument": "Instrument",
-      "other": "Other"
+      "other": "Other",
+      "mc": "MC table"
     },
     "all": "All",
     "none": "None",
@@ -1661,6 +1695,7 @@
     "chosen": "{count, plural, one {# column} other {# columns}} chosen",
     "reset": "Back to default",
     "excel": "Excel (.xlsx)",
-    "csv": "CSV"
+    "csv": "CSV",
+    "place": "Place"
   }
 }

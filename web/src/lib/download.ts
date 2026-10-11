@@ -1,3 +1,5 @@
+import { withBasePath } from "@/lib/base-path";
+
 /**
  * Downloads a file from an API route via fetch, so an auth failure surfaces as
  * a readable message instead of a raw JSON tab (which is what window.open gives).
@@ -5,7 +7,7 @@
  */
 export async function downloadFromApi(url: string, fallbackName: string): Promise<string | null> {
   try {
-    const response = await fetch(url);
+    const response = await fetch(withBasePath(url));
 
     if (!response.ok) {
       const result = await response.json().catch(() => null);

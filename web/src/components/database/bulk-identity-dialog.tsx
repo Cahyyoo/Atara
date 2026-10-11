@@ -30,6 +30,7 @@ import {
   IoReloadOutline,
   IoRemoveOutline,
 } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 /** A pause in typing long enough to ask what the Sample IDs would become. */
 const PREVIEW_DEBOUNCE_MS = 400;
@@ -385,7 +386,7 @@ function BulkIdentityForm({
     const controller = new AbortController();
     const timer = setTimeout(async () => {
       try {
-        const response = await fetch("/api/lab-records/identity", {
+        const response = await fetch(withBasePath("/api/lab-records/identity"), {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ...JSON.parse(key), dryRun: true }),
@@ -424,7 +425,7 @@ function BulkIdentityForm({
     onBusy(true);
     setError(null);
     try {
-      const response = await fetch("/api/lab-records/identity", {
+      const response = await fetch(withBasePath("/api/lab-records/identity"), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: key,

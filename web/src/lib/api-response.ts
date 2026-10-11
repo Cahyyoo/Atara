@@ -49,13 +49,14 @@ export const BUSY_CODE = "BUSY";
  *   P1001  the server did not answer
  *   P1008  a query timed out
  *   P1017  the server closed the connection
+ *   P2034  the transaction was a deadlock victim or hit a write conflict
  *
  * None of these is the caller's fault and none is a bug here; they are what
  * saturation looks like. They used to fall through to the 500 below, which
  * told the mobile queue "do not retry" and told an operator "something broke"
  * about a scan that would have succeeded two seconds later.
  */
-const TRANSIENT_DB_CODES = new Set(["P2024", "P2028", "P1001", "P1008", "P1017"]);
+const TRANSIENT_DB_CODES = new Set(["P2024", "P2028", "P1001", "P1008", "P1017", "P2034"]);
 
 function busy() {
   return jsonError("The server is busy. Please retry in a moment.", 503, undefined, BUSY_CODE, {

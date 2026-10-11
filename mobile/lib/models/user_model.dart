@@ -32,12 +32,29 @@ class UserModel {
   final String email;
   final UserRole role;
 
+  /// An administrator chose this password -- a new account, or a reset -- so
+  /// it has to be replaced before the app can be used. Kept on the stored
+  /// user so closing the app cannot shake the duty off; the server refuses
+  /// everything but the change itself regardless.
+  final bool mustChangePassword;
+
   const UserModel({
     required this.id,
     required this.name,
     required this.email,
     required this.role,
+    this.mustChangePassword = false,
   });
+
+  UserModel copyWith({bool? mustChangePassword}) {
+    return UserModel(
+      id: id,
+      name: name,
+      email: email,
+      role: role,
+      mustChangePassword: mustChangePassword ?? this.mustChangePassword,
+    );
+  }
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
@@ -45,6 +62,7 @@ class UserModel {
       name: json['name'] as String,
       email: json['email'] as String,
       role: _roleFrom(json['role']),
+      mustChangePassword: json['mustChangePassword'] == true,
     );
   }
 
@@ -77,6 +95,12 @@ class UserModel {
   }
 
   Map<String, dynamic> toJson() {
-    return {'id': id, 'name': name, 'email': email, 'role': role.wire};
+    return {
+      'id': id,
+      'name': name,
+      'email': email,
+      'role': role.wire,
+      'mustChangePassword': mustChangePassword,
+    };
   }
 }

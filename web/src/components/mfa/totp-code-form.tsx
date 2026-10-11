@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/toast";
 import { TOTP_MISMATCH_CODE } from "@/lib/second-factor";
 import { IoReloadOutline } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 const CODE_LENGTH = 6;
 
@@ -54,7 +55,7 @@ export function TotpCodeForm({
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/auth/totp", {
+      const response = await fetch(withBasePath("/api/auth/totp"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ challenge, code: value }),

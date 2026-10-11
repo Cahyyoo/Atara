@@ -46,6 +46,7 @@ import { TotpManageDialog } from "@/components/users/totp-manage-dialog";
 import { SessionsDialog } from "@/components/users/sessions-dialog";
 import { ResetPasswordDialog } from "@/components/users/reset-password-dialog";
 import { InlineNotice } from "@/components/ui/inline-notice";
+import { withBasePath } from "@/lib/base-path";
 
 export function isLockedOut(user: UserDTO): boolean {
   return user.lockedUntil !== null && new Date(user.lockedUntil) > new Date();
@@ -102,7 +103,7 @@ export function UsersTable({ currentUserId }: { currentUserId: string }) {
         if (search) params.set("search", search);
         params.set("pageSize", "50");
 
-        const response = await fetch(`/api/users?${params.toString()}`, { signal });
+        const response = await fetch(withBasePath(`/api/users?${params.toString()}`), { signal });
         const result: ApiResult<{ users: UserDTO[]; pagination: PaginationDTO }> =
           await response.json();
 

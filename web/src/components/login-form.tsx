@@ -11,6 +11,7 @@ import { SIGN_IN_REASON } from "@/lib/session-codes";
 import { SecondFactorStep } from "@/components/mfa/second-factor-step";
 import { isSecondFactorMethod, type SecondFactorMethod } from "@/lib/second-factor";
 import { IoEyeOffOutline, IoEyeOutline, IoReloadOutline } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 export function LoginForm() {
   const t = useTranslations("auth");
@@ -66,7 +67,7 @@ export function LoginForm() {
     try {
       // No "continue here?": the latest sign-in wins, and whichever browser it
       // replaces is told so by its SessionWatch.
-      const response = await fetch("/api/auth/login", {
+      const response = await fetch(withBasePath("/api/auth/login"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

@@ -308,5 +308,54 @@
   "sessionReplacedModel": "Model",
   "deviceKindPhone": "Phone",
   "deviceKindComputer": "Computer",
-  "deviceKindTablet": "Tablet"
+  "deviceKindTablet": "Tablet",
+  "changePasswordTitle": "Change Password",
+  "changePasswordBody": "Choose a new password for your account. Every other device signed in will be signed out.",
+  "changePasswordForcedBody": "Your password was set by an administrator and is shared. Replace it before using the app.",
+  "changePasswordSubmit": "Save Password",
+  "passwordCurrent": "Current password",
+  "passwordNew": "New password",
+  "passwordConfirm": "Confirm new password",
+  "passwordRuleHint": "At least {min} characters, and not the role's default.",
+  "@passwordRuleHint": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "passwordCurrentRequired": "Enter your current password.",
+  "passwordTooShort": "The new password must be at least {min} characters.",
+  "@passwordTooShort": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "passwordMismatch": "The two new passwords do not match.",
+  "passwordSameAsCurrent": "The new password must be different from the current one.",
+  "passwordCurrentWrong": "That is not your current password.",
+  "passwordIsRoleDefault": "That is your role's default password. Choose one of your own.",
+  "passwordTooManyAttempts": "Too many attempts. Please wait a few minutes.",
+  "passwordChanged": "Password changed.",
+  "sessionEndedByAdmin": "An administrator ended your session, so you were signed out on this phone.",
+  "sessionEndedByAdminAt": "An administrator ended your session at {time}, so you were signed out on this phone.",
+  "@sessionEndedByAdminAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionEndedPasswordChanged": "This account's password was changed, so you were signed out on this phone.",
+  "sessionEndedPasswordChangedAt": "This account's password was changed at {time}, so you were signed out on this phone.",
+  "@sessionEndedPasswordChangedAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "announcementDismiss": "Dismiss announcement"
 }

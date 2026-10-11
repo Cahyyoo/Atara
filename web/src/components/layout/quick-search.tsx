@@ -11,6 +11,7 @@ import { stageLabel } from "@/lib/stages";
 import { isExactMatch, normalizeLookupQuery } from "@/lib/sample-lookup";
 import type { ApiResult, SampleLookupDTO } from "@/types";
 import { IoReloadOutline, IoSearchOutline } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 /** A pause in typing long enough to be worth a request. */
 export const LOOKUP_DEBOUNCE_MS = 200;
@@ -33,7 +34,7 @@ function isTyping(target: EventTarget | null): boolean {
 }
 
 async function lookup(query: string, signal?: AbortSignal): Promise<SampleLookupDTO[]> {
-  const response = await fetch(`/api/samples/lookup?q=${encodeURIComponent(query)}`, { signal });
+  const response = await fetch(withBasePath(`/api/samples/lookup?q=${encodeURIComponent(query)}`), { signal });
   const body: ApiResult<{ results: SampleLookupDTO[] }> = await response.json();
   if (!body.success) throw new Error(body.error);
   return body.data.results;

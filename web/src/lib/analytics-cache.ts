@@ -42,16 +42,67 @@ export function analyticsKey(from: Date, to: Date, filter: AnalyticsFilter = {})
   return `${from.toISOString()}|${Math.floor(to.getTime() / 60_000)}|${active}`;
 }
 
+/**
+ * How long a viewer waits for a fresh computation before being shown the last
+ * one for the same view instead, and how old that last one may be.
+ *
+ * The key above changes every minute, so every minute somebody's request
+ * started a full computation and everyone arriving meanwhile waited on it:
+ * 7.6 s on an idle database, and under load the dashboard took about two
+ * minutes to fill. Now a slow recomputation still runs and lands in the cache,
+ * but nobody waits more than a moment for it while a recent answer exists.
+ */
+export const STALE_WAIT_MS = 1_500;
+export const STALE_MAX_MS = 5 * 60_000;
+
+const lastByView = new Map<string, { value: AnalyticsResult; at: number }>();
+
+/**
+ * The same view a minute later: same span, same filters, and "live" when the
+ * window ends now (the default dashboard) or its fixed end otherwise.
+ */
+export function analyticsViewKey(from: Date, to: Date, filter: AnalyticsFilter = {}, now: number = Date.now()): string {
+  const live = Math.abs(now - to.getTime()) < 2 * 60_000;
+  const span = Math.round((to.getTime() - from.getTime()) / 60_000);
+  return `${span}|${live ? "live" : to.toISOString()}|${analyticsKey(from, to, filter).split("|")[2]}`;
+}
+
 export function cachedAnalytics(
   from: Date,
   to: Date,
   filter: AnalyticsFilter = {},
-  now: number = Date.now()
+  now: number = Date.now(),
+  /** False when the numbers are kept, as in the downloaded report. */
+  { allowStale = true }: { allowStale?: boolean } = {}
 ): Promise<AnalyticsResult> {
-  return cache.get(analyticsKey(from, to, filter), () => buildAnalytics(from, to, filter), now);
+  const view = analyticsViewKey(from, to, filter, now);
+  const fresh = cache.get(analyticsKey(from, to, filter), () => buildAnalytics(from, to, filter), now).then((value) => {
+    lastByView.delete(view);
+    lastByView.set(view, { value, at: Date.now() });
+    while (lastByView.size > 64) lastByView.delete(lastByView.keys().next().value!);
+    return value;
+  });
+
+  const previous = lastByView.get(view);
+  if (!allowStale || !previous || now - previous.at > STALE_MAX_MS) return fresh;
+
+  // Whoever is still waiting when the fresh one lands gets it; nobody waits
+  // longer than STALE_WAIT_MS while a recent answer exists.
+  fresh.catch(() => {});
+  return Promise.race([
+    fresh,
+    new Promise<AnalyticsResult>((resolve) => setTimeout(() => resolve(previous.value), STALE_WAIT_MS)),
+  ]);
 }
 
-/** After a change whose author is looking at the dashboard for its effect. */
+/**
+ * After a change whose author is looking at the dashboard for its effect.
+ *
+ * The next view recomputes; if that takes longer than STALE_WAIT_MS, the
+ * previous numbers are shown once more while it finishes. Without that, an
+ * analyst saving results every few seconds sent every dashboard viewer back
+ * to a full wait each time.
+ */
 export function invalidateAnalytics(): void {
   cache.invalidate();
 }

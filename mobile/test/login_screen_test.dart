@@ -63,7 +63,7 @@ Future<void> pumpLogin(
     ProviderScope(
       overrides: [
         if (replaced != null)
-          sessionReplacedProvider.overrideWith((ref) => replaced),
+          signedOutNoticeProvider.overrideWith((ref) => replaced),
         if (session != null)
           sessionProvider.overrideWith((ref) => session)
         else if (loginError != null)

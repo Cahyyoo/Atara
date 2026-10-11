@@ -201,7 +201,6 @@
     "sub": {
       "title": "Sub sampel ({code})",
       "parent": "Sampel induk",
-      "stageFollows": "Mengikuti sampel induk",
       "created": "Dibuat",
       "others": "Sub sampel lain",
       "listTitle": "Sub sampel",
@@ -506,6 +505,40 @@
     "history": {
       "open": "Riwayat update",
       "rowLabel": "Riwayat {code}"
+    },
+    "xrayInstrument": "Instrumen X-ray",
+    "wp": "Wp (cawan)",
+    "w0": "W0 (basah)",
+    "wd": "Wd (kering)",
+    "mc": "MC (%)",
+    "mcSection": "Tabel MC",
+    "mcHint": "Bobot dalam gram. MC = (W0 − Wd) × 100 / (W0 − Wp).",
+    "mcInvalid": "W0 harus lebih berat dari Wp, dan Wd harus di antara Wp dan W0.",
+    "weights": {
+      "open": "Tempel Wp/W0/Wd",
+      "title": "Tempel Wp, W0 dan Wd",
+      "description": "Salin kolom Sample ID, Wp, W0 dan Wd dari Excel lalu tempel di sini. Baris judul boleh ada atau tidak; jumlah karung di Sample ID boleh tidak ditulis. Bobot yang kosong tidak mengubah nilai yang sudah ada.",
+      "label": "Data dari Excel",
+      "hint": "Tanpa baris judul, kolom dibaca berurutan: Sample ID, Wp, W0, Wd.",
+      "check": "Periksa",
+      "back": "Kembali",
+      "save": "Simpan {count} baris",
+      "saved": "{count} data timbangan disimpan.",
+      "empty": "Tempel minimal satu baris.",
+      "unreadable": "Baris {line}: {reason}",
+      "tooMany": "Maksimal 500 baris sekaligus.",
+      "summary": "{update} akan disimpan · {unchanged} tidak berubah · {unknown} tidak ditemukan · {invalid} tidak valid",
+      "line": "Baris",
+      "status": "Status",
+      "statuses": {
+        "update": "Akan disimpan",
+        "unchanged": "Tidak berubah",
+        "unknown": "Tidak ditemukan",
+        "ambiguous": "Cocok dengan lebih dari satu sampel",
+        "invalid": "Tidak valid"
+      },
+      "notFoundHint": "Tidak ada sampel dengan Sample ID ini. Harus sama dengan Sample ID di database; jumlah karung boleh tidak ditulis.",
+      "ambiguousHint": "Tanpa jumlah karung, ini cocok dengan lebih dari satu sampel. Tambahkan jumlah karungnya."
     }
   },
   "users": {
@@ -656,7 +689,7 @@
       "step2": "Tekan Ctrl+V di halaman ini — atau jatuhkan berkas CSV ke kotak di bawah.",
       "step3": "Periksa pratinjaunya, lalu tekan Simpan.",
       "boxLabel": "Data hasil dari Excel",
-      "placeholder": "Tempel di sini (Ctrl+V)…\n\nSample ID\tNi\tFe\tCo\tSiO2\tMgO\nLAM/SAM/S2/PA4/B10/3778.1\t1,86\t42,25\t0,14\t9,96\t2,37",
+      "placeholder": "Tempel di sini (Ctrl+V)…\n\nSample ID\tNi\tFe\tCo\tSiO2\tMgO\nLAM SAM S2/PA4/B10/3778.1\t1,86\t42,25\t0,14\t9,96\t2,37",
       "chooseFile": "Pilih berkas CSV atau Excel",
       "copyHeader": "Salin judul kolom contoh",
       "headerHint": "Baris pertama harus berisi judul kolom: Sample ID (jumlah karung boleh tidak ditulis), lalu unsur mana pun, Measurement Finished, Measurement Method, atau Solution ID.",
@@ -1641,13 +1674,14 @@
   },
   "exportDialog": {
     "title": "Pilih kolom export",
-    "description": "Centang yang ingin dimasukkan ke file. Untuk tiap tahap Anda bisa menambahkan kapan sampel masuk, berapa jam di tahap itu, dan siapa yang men-scan. Pilihan Anda diingat untuk export berikutnya.",
+    "description": "Diekspor sebagai Formulir Analysis Result: satu sheet per site, sampel dikelompokkan per batch beserta rata-rata tiap batch. Centang yang ingin dimasukkan; untuk tiap tahap Anda bisa menambahkan kapan sampel masuk, berapa jam di tahap itu, dan siapa yang men-scan. Pilihan Anda diingat untuk export berikutnya.",
     "groups": {
       "sample": "Sampel",
       "identity": "Identitas",
       "results": "Hasil uji",
       "instrument": "Instrumen",
-      "other": "Lainnya"
+      "other": "Lainnya",
+      "mc": "Tabel MC"
     },
     "all": "Semua",
     "none": "Tidak ada",
@@ -1661,6 +1695,7 @@
     "chosen": "{count} kolom dipilih",
     "reset": "Kembalikan default",
     "excel": "Excel (.xlsx)",
-    "csv": "CSV"
+    "csv": "CSV",
+    "place": "Tempat"
   }
 }

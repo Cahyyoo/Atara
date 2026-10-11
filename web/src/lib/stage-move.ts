@@ -30,8 +30,11 @@ export async function applyStageMove({
       // The ordering rule was decided from the stage read before this. Writing
       // only if the sample is still on that stage closes the window where two
       // concurrent moves of the same sample both go through.
+      //
+      // Still present, too: a sample deleted between that read and this write
+      // used to take the scan anyway, leaving a log dated after its deletion.
       const claimed = await tx.sample.updateMany({
-        where: { id: sample.id, currentStageId: sample.currentStageId },
+        where: { id: sample.id, currentStageId: sample.currentStageId, deletedAt: null },
         data: {
           currentStageId: stage.id,
           status,
@@ -39,6 +42,10 @@ export async function applyStageMove({
         },
       });
       if (claimed.count === 0) {
+        const now = await tx.sample.findUnique({ where: { id: sample.id }, select: { deletedAt: true } });
+        if (!now || now.deletedAt !== null) {
+          throw new ApiError("This sample was removed from the database.", 410);
+        }
         throw new ApiError(
           "This sample was moved by another scan a moment ago. Scan it again to see where it is now.",
           409,

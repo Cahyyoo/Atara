@@ -29,7 +29,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const { from, to, ...identity } = analyticsQuerySchema.parse(Object.fromEntries(searchParams));
     const range = resolveAnalyticsRange(from, to);
-    const data = await cachedAnalytics(range.from, range.to, identity);
+    // A file people keep: always the numbers as they are now, never the last ones.
+    const data = await cachedAnalytics(range.from, range.to, identity, Date.now(), { allowStale: false });
 
     // Filters by their codes: an id in a report means nothing to its reader.
     const filterEntries = Object.entries(identity).filter(
@@ -68,7 +69,7 @@ export async function GET(request: NextRequest) {
     }
 
     const day = (iso: string) => iso.slice(0, 10);
-    return workbookResponse(`lab-summary-${day(data.range.from)}-to-${day(data.range.to)}`, [
+    return await workbookResponse(`lab-summary-${day(data.range.from)}-to-${day(data.range.to)}`, [
       {
         name: "Summary",
         columns: [

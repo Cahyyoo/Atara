@@ -11,6 +11,7 @@ import { ROLE_DEFAULT_PASSWORD_CODE, WRONG_PASSWORD_CODE } from "@/lib/session-c
 import { safeRedirectPath } from "@/lib/safe-redirect";
 import type { ApiResult } from "@/types";
 import { IoReloadOutline } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 const MIN_LENGTH = 8;
 
@@ -43,7 +44,7 @@ export function ForcePasswordForm({ next }: { next: string | null }) {
 
     setBusy(true);
     try {
-      const response = await fetch("/api/auth/password", {
+      const response = await fetch(withBasePath("/api/auth/password"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ currentPassword: current, newPassword: password }),
@@ -69,7 +70,7 @@ export function ForcePasswordForm({ next }: { next: string | null }) {
   }
 
   async function signOut() {
-    await fetch("/api/auth/logout", { method: "POST" });
+    await fetch(withBasePath("/api/auth/logout"), { method: "POST" });
     router.push("/login");
     router.refresh();
   }

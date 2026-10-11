@@ -35,6 +35,36 @@ describe("normalizeSampleKey", () => {
   });
 });
 
+/**
+ * The hand the id was written in, both ways round. A stored Sample ID writes
+ * its leading group with spaces; an operator reading one off an older sheet,
+ * or a sheet exported before the change, writes slashes throughout. Either
+ * finds the record.
+ */
+describe("pasting a Sample ID written in the other hand", () => {
+  const stored = target({ id: "1", sampleIdent: "LAM SAP S4/B24/3475.3" });
+
+  it("finds a record stored with spaces from an all-slash key", () => {
+    const result = mapPastedRows([["Sample ID", "Fe"], ["LAM/SAP/S4/B24/3475.3", "20"]], [stored]);
+    expect(result.rows[0]).toMatchObject({ status: "update", targetId: "1", values: { fe: 20 } });
+  });
+
+  it("finds its sub-sample too", () => {
+    const sub = target({ id: "2", sampleIdent: "LAM SAP S4/B24/3475.3 (-20)" });
+    const result = mapPastedRows(
+      [["Sample ID", "Fe"], ["LAM/SAP/S4/B24/3475.3 (-20)", "20"]],
+      [stored, sub]
+    );
+    expect(result.rows[0]).toMatchObject({ status: "update", targetId: "2" });
+  });
+
+  it("reads a stored id as the same key whichever hand it is in", () => {
+    expect(sampleIdentKeys("LAM SAP S4/B24/3475.3", null)).toEqual(
+      sampleIdentKeys("LAM/SAP/S4/B24/3475.3", null)
+    );
+  });
+});
+
 describe("pasting by Sample ID", () => {
   const parent = target({ id: "1", sampleIdent: "LAM/SAP/S4/B24/3475.3", values: { ni: 1.2 } });
 

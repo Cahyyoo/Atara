@@ -56,18 +56,18 @@ describe("nextIdentity", () => {
 
 describe("composeIdentity", () => {
   it("resolves the option ids to codes and composes the id", () => {
-    expect(composeIdentity(FULL, OPTIONS)).toBe("MOL/LIM/S3/PA4/B42/919.1/25");
+    expect(composeIdentity(FULL, OPTIONS)).toBe("MOL LIM S3/PA4/B42/919.1/25");
   });
 
   it("includes the non-production code when one is chosen", () => {
     expect(composeIdentity({ ...FULL, nonProdId: "n1" }, OPTIONS)).toBe(
-      "MOL/LIM/TP/S3/PA4/B42/919.1/25"
+      "MOL LIM TP S3/PA4/B42/919.1/25"
     );
   });
 
   it("leaves out a part the operator has not filled in", () => {
     expect(composeIdentity({ ...FULL, sackCount: "" }, OPTIONS)).toBe(
-      "MOL/LIM/S3/PA4/B42/919.1"
+      "MOL LIM S3/PA4/B42/919.1"
     );
   });
 

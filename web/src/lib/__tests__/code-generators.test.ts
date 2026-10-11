@@ -13,23 +13,27 @@ function fakeLabDb(last: { sequence: number } | null) {
 }
 
 /**
- * Stands in for the samples table, honouring the `startsWith` filter.
+ * Stands in for the samples table, answering the generator's MAX query the way
+ * MySQL would: the codes under the asked-for prefix, their number part read as
+ * an unsigned integer (text that is not a number reads as 0).
  *
- * It has to: the generator asks once per prefix now, and a fake that answered
- * the same row to every question would report the same test as passing whether
- * or not the two prefixes were kept apart.
+ * It honours the prefix on purpose: the generator asks once per prefix, and a
+ * fake that answered the same row to every question would report the same test
+ * as passing whether or not the two prefixes were kept apart.
  */
 function fakeSampleDb(stored: { sampleCode: string } | { sampleCode: string }[] | null) {
   const rows = stored === null ? [] : Array.isArray(stored) ? stored : [stored];
 
   return {
-    sample: {
-      findFirst: async ({ where }: { where: { sampleCode: { startsWith: string } } }) => {
-        const matching = rows
-          .filter((row) => row.sampleCode.startsWith(where.sampleCode.startsWith))
-          .sort((a, b) => b.sampleCode.localeCompare(a.sampleCode));
-        return matching[0] ?? null;
-      },
+    $queryRaw: async (_sql: TemplateStringsArray, from: number, like: string) => {
+      const head = like.replace(/%$/, "");
+      const numbers = rows
+        .filter((row) => row.sampleCode.startsWith(head))
+        .map((row) => {
+          const digits = /^\d+/.exec(row.sampleCode.slice(from - 1));
+          return digits ? Number(digits[0]) : 0;
+        });
+      return [{ last: numbers.length ? Math.max(...numbers) : null }];
     },
   } as unknown as Prisma.TransactionClient;
 }
@@ -132,6 +136,17 @@ describe("generateSampleCodes", () => {
   it("keeps five-digit padding past ten thousand", async () => {
     const codes = await generateSampleCodes(1, 2026, fakeSampleDb({ sampleCode: "SMPL-2026-09999" }));
     expect(codes[0]).toBe("SMPL-2026-10000");
+  });
+
+  it("keeps counting past 99,999 in a year", async () => {
+    // As text, "SMPL-2026-100000" sorts below "SMPL-2026-99999": a generator
+    // that took the last code by text order offered 100000 again for ever.
+    const codes = await generateSampleCodes(
+      2,
+      2026,
+      fakeSampleDb([{ sampleCode: "SMPL-2026-99999" }, { sampleCode: "SMPL-2026-100000" }])
+    );
+    expect(codes).toEqual(["SMPL-2026-100001", "SMPL-2026-100002"]);
   });
 });
 

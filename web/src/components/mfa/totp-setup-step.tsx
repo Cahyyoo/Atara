@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { TotpCodeForm } from "@/components/mfa/totp-code-form";
 import { cn } from "@/lib/utils";
 import { IoArrowBack, IoArrowForward, IoReloadOutline } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 interface Setup {
   otpauthUri: string;
@@ -68,7 +69,7 @@ export function TotpSetupStep({
       setError(null);
       setIsLoading(true);
       try {
-        const response = await fetch("/api/auth/totp/setup", {
+        const response = await fetch(withBasePath("/api/auth/totp/setup"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ challenge: withChallenge }),

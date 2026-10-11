@@ -206,7 +206,10 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    return issueSessionResponse(user, request.headers);
+    // Awaited, so a failure opening the session reaches the catch below and is
+    // answered properly; returned bare, its rejection skipped the catch and the
+    // client got an empty 500.
+    return await issueSessionResponse(user, request.headers);
   } catch (error) {
     /**
      * A face service that is down does not quietly become a sign-in that skips

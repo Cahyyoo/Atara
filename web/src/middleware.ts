@@ -30,7 +30,11 @@ export async function middleware(request: NextRequest) {
   const session = token ? await verifySessionToken(token) : null;
 
   if (!session) {
-    const loginUrl = new URL("/login", request.url);
+    // Cloned from nextUrl, not built with new URL("/login", request.url):
+    // nextUrl carries the basePath (e.g. /atara) and the latter drops it.
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/login";
+    loginUrl.search = "";
     loginUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(loginUrl);
   }

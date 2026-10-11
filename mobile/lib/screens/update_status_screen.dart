@@ -217,6 +217,10 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
   }
 
   Future<void> _handleSubmit() async {
+    // The button greys out when _isSubmitting is set, but only from the next
+    // frame: two taps inside one frame both reached here and posted the scan
+    // twice, the second answered "already recorded" over a scan that worked.
+    if (_isSubmitting || _isSubmitted) return;
     final stage = _selectedStage;
     if (stage == null) return;
 

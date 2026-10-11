@@ -7,3 +7,9 @@
  * than every surface that happens to display it.
  */
 export const APP_NAME = "Atara";
+
+/**
+ * The company logo, for the exported spreadsheets only -- the app itself keeps
+ * its own mark. A path under public/, read from disk by xlsx-brand.ts.
+ */
+export const BRAND_LOGO_SRC = "/img/logo_aspire.png";

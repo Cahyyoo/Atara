@@ -44,6 +44,18 @@ describe("rejections", () => {
     expect(result.httpStatus).toBe(409);
     expect(result.message).toContain("already been recorded");
     expect(result.message).toContain("Drying");
+    // The phone's offline queue reads this to tell "already done" (a resend
+    // after a timeout) from a real refusal.
+    expect(result.code).toBe("STAGE_ALREADY_RECORDED");
+  });
+
+  it("tags only the repeat: other refusals carry no code", () => {
+    for (const [currentOrder, targetStageId] of [[3, "s1"], [1, "s5"]] as const) {
+      const result = evaluate({ currentOrder, targetStageId });
+      expect(result.ok).toBe(false);
+      if (result.ok) return;
+      expect(result.code).toBeUndefined();
+    }
   });
 
   it("refuses moving backwards without a correction, and says one is needed", () => {

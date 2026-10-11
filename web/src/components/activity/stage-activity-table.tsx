@@ -32,6 +32,7 @@ import { downloadFromApi } from "@/lib/download";
 import { stageLabel } from "@/lib/stages";
 import type { ApiResult, PaginationDTO, StageDTO } from "@/types";
 import { IoSearchOutline } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 interface ActivityLog {
   id: string;
@@ -129,7 +130,7 @@ export function StageActivityTable({ stages }: { stages: StageOption[] }) {
 
     (async () => {
       try {
-        const response = await fetch(`/api/stage-activity?${queryKey}`, {
+        const response = await fetch(withBasePath(`/api/stage-activity?${queryKey}`), {
           signal: controller.signal,
         });
         const body: ApiResult<ActivityResponse> = await response.json();

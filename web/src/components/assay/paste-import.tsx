@@ -29,6 +29,7 @@ import {
   IoSaveOutline,
   IoWarningOutline,
 } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 /** The counters carry the totals; the table is there to spot-check. */
 const PREVIEW_ROW_LIMIT = 200;
@@ -122,7 +123,7 @@ export function PasteImport() {
   const send = useCallback(
     async (csv: string, apply: boolean, overwrite = false) => {
       const id = ++requestId.current;
-      const response = await fetch("/api/lab-records/import", {
+      const response = await fetch(withBasePath("/api/lab-records/import"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ csv, apply, overwrite, reason: t("auditReason") }),
@@ -210,7 +211,7 @@ export function PasteImport() {
     try {
       const body = new FormData();
       body.append("file", file);
-      const response = await fetch("/api/lab-records/import/sheet", { method: "POST", body });
+      const response = await fetch(withBasePath("/api/lab-records/import/sheet"), { method: "POST", body });
       const result = await response.json();
 
       if (!response.ok || !result.success) {
@@ -227,7 +228,7 @@ export function PasteImport() {
 
   /** The empty sheet, in the shape this screen reads back. */
   function downloadTemplate() {
-    window.location.href = "/api/lab-records/template?shape=keyed";
+    window.location.href = withBasePath("/api/lab-records/template?shape=keyed");
   }
 
   function handleDrop(event: DragEvent<HTMLDivElement>) {

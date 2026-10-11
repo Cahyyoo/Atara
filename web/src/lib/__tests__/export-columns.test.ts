@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  EXPORT_STAGE_LAYOUT,
   LAB_RECORD_EXPORT_COLUMNS,
   SAMPLE_EXPORT_COLUMNS,
   defaultExportSelection,
@@ -62,19 +63,52 @@ describe("parseExportColumns", () => {
       "createdAt",
       "updatedAt",
     ]);
-    const labRecords = parseExportColumns(null, LAB_RECORD_EXPORT_COLUMNS, ids);
-    expect(labRecords).not.toContain("pit");
-    expect(labRecords.slice(0, 3)).toEqual(["labCode", "sampleIdent", "sampleCode"]);
   });
 
-  it("keeps the sheet's order, puts the stages after the sample, and drops what it does not know", () => {
-    const raw = ["ni", stageColumnKey("s2", "by"), "pit", "labCode", "nonsense", stageColumnKey("gone", "at"), stageColumnKey("s1", "at")].join(",");
-    expect(parseExportColumns(raw, LAB_RECORD_EXPORT_COLUMNS, ids)).toEqual([
-      "labCode",
-      stageColumnKey("s1", "at"),
+  it("lays the Sample Database export out as the Formulir Analysis Result", () => {
+    const labRecords = parseExportColumns(null, LAB_RECORD_EXPORT_COLUMNS, ids);
+    expect(labRecords.slice(0, 3)).toEqual(["rowNo", "sampleIdent", "leadTime"]);
+    expect(labRecords).toEqual(
+      expect.arrayContaining(["ni", "cr", "smRatio", "mc", "measurementMethod", "operator", "xrayInstrument", "mcDate", "wp", "w0", "wd"])
+    );
+    expect(labRecords).not.toContain("pit");
+    expect(labRecords).not.toContain("fe2o3");
+    expect(labRecords).not.toContain("labCode");
+    // The elements, then what is worked out from them.
+    expect(labRecords.indexOf("cr")).toBeLessThan(labRecords.indexOf("smRatio"));
+    expect(labRecords.indexOf("smRatio")).toBeLessThan(labRecords.indexOf("mc"));
+  });
+
+  it("puts every stage's date side by side, then the lead time, and drops what it does not know", () => {
+    const raw = [
+      "ni",
       stageColumnKey("s2", "by"),
       "pit",
+      "labCode",
+      "nonsense",
+      stageColumnKey("gone", "at"),
+      stageColumnKey("s1", "at"),
+      "leadTime",
+      stageColumnKey("s2", "at"),
+    ].join(",");
+    expect(parseExportColumns(raw, LAB_RECORD_EXPORT_COLUMNS, ids, EXPORT_STAGE_LAYOUT.labRecords)).toEqual([
+      "labCode",
+      stageColumnKey("s1", "at"),
+      stageColumnKey("s2", "at"),
+      stageColumnKey("s2", "by"),
+      "leadTime",
       "ni",
+      "pit",
+    ]);
+  });
+
+  it("keeps each stage's columns together on the sample list", () => {
+    const raw = [stageColumnKey("s2", "at"), stageColumnKey("s1", "by"), stageColumnKey("s1", "at"), "sampleCode"].join(",");
+    expect(parseExportColumns(raw, SAMPLE_EXPORT_COLUMNS, ids, EXPORT_STAGE_LAYOUT.samples)).toEqual([
+      "sampleCode",
+      stageColumnKey("s1", "at"),
+      stageColumnKey("s1", "by"),
+      stageColumnKey("s2", "at"),
     ]);
   });
 

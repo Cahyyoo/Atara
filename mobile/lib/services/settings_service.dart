@@ -12,6 +12,23 @@ class SettingsService {
   static const _localeKey = 'atara_locale';
   static const _onboardingKey = 'atara_onboarding_seen';
   static const _themeKey = 'atara_theme_mode';
+  static const _dismissedAnnouncementsKey = 'atara_dismissed_announcements';
+
+  /// The notices this reader has closed, so they stay closed.
+  ///
+  /// Only INFO can be closed; a warning is not the reader's to dismiss. Ids
+  /// of announcements that have since ended are harmless here -- the server
+  /// stops sending them, and the list is trimmed to what it still sees.
+  static Future<Set<String>> getDismissedAnnouncements() async {
+    final prefs = await SharedPreferences.getInstance();
+    return (prefs.getStringList(_dismissedAnnouncementsKey) ?? const [])
+        .toSet();
+  }
+
+  static Future<void> setDismissedAnnouncements(Set<String> ids) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_dismissedAnnouncementsKey, ids.toList());
+  }
 
   static const supportedLocales = ['id', 'en'];
 

@@ -20,6 +20,7 @@ import { toast } from "@/components/ui/toast";
 import { stageLabel } from "@/lib/stages";
 import type { ApiResult } from "@/types";
 import { IoGitCompareOutline, IoReloadOutline } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 const MIN_REASON = 5;
 
@@ -69,7 +70,7 @@ export function CorrectStageButton({
     setBusy(true);
     setError(null);
     try {
-      const response = await fetch(`/api/samples/${encodeURIComponent(sampleCode)}/stage`, {
+      const response = await fetch(withBasePath(`/api/samples/${encodeURIComponent(sampleCode)}/stage`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ stageId, reason: reason.trim() }),

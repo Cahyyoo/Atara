@@ -53,7 +53,7 @@ export async function POST(
       reason: body.reason,
     });
     if (!decision.ok) {
-      throw new ApiError(decision.message, decision.httpStatus);
+      throw new ApiError(decision.message, decision.httpStatus, decision.code);
     }
 
     const updated = await applyStageMove({

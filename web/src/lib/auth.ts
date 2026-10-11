@@ -2,6 +2,7 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
 import { assertJwtSecret } from "@/lib/env-guard";
+import { isHttpsDeployment } from "@/lib/https";
 import { isRole, type Role } from "@/lib/permissions";
 
 export const SESSION_COOKIE_NAME = "atara_session";
@@ -124,3 +125,14 @@ export async function getSessionFromRequest(request: NextRequest): Promise<Sessi
 }
 
 export const SESSION_COOKIE_MAX_AGE = SESSION_MAX_AGE_SECONDS;
+
+/** The session cookie's flags, shared by sign-in and sign-out so they cannot drift. */
+export function sessionCookieOptions(maxAge: number) {
+  return {
+    httpOnly: true,
+    secure: isHttpsDeployment(),
+    sameSite: "lax" as const,
+    path: "/",
+    maxAge,
+  };
+}

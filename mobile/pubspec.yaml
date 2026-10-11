@@ -47,6 +47,7 @@ dependencies:
   camera: ^0.12.1
   image: ^4.10.1
   device_info_plus: ^13.2.0
+  package_info_plus: ^10.2.2
 
 dev_dependencies:
   flutter_test:

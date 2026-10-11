@@ -11,6 +11,7 @@ import type { StageBoard } from "@/lib/stage-board";
 import type { ApiResult } from "@/types";
 import { APP_NAME } from "@/lib/brand";
 import { IoExpandOutline } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 /** A wall monitor is always visible, so this is simply once a minute. */
 export const TV_REFRESH_MS = 60_000;
@@ -47,7 +48,7 @@ export function TvDashboard({ initialBoard }: { initialBoard: StageBoard }) {
   useVisibleInterval(() => {
     void (async () => {
       try {
-        const response = await fetch("/api/samples/board", { cache: "no-store" });
+        const response = await fetch(withBasePath("/api/samples/board"), { cache: "no-store" });
         if (response.status === 401) {
           setExpired(true);
           return;
@@ -181,7 +182,7 @@ export function TvDashboard({ initialBoard }: { initialBoard: StageBoard }) {
         >
           <p className="text-3xl font-semibold">{t("expired")}</p>
           <a
-            href="/login?next=/tv"
+            href={withBasePath("/login?next=/tv")}
             className="rounded-xl bg-white px-6 py-3 text-xl font-medium text-neutral-950"
           >
             {t("signInAgain")}

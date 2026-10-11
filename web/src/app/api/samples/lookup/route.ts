@@ -5,6 +5,7 @@ import { requireSession } from "@/lib/api-auth";
 import { consumeAttempt } from "@/lib/rate-limit";
 import { ACTIVE_SAMPLE } from "@/lib/soft-delete";
 import { normalizeLookupQuery, rankLookupMatches } from "@/lib/sample-lookup";
+import { searchIdentForms } from "@/lib/sample-ident";
 import type { SampleLookupDTO } from "@/types";
 
 /** Typing fires a request per pause; this is far above any person's pace. */
@@ -38,6 +39,11 @@ export async function GET(request: NextRequest) {
       labRecord: { select: { labCode: true, sampleIdent: true } },
     } as const;
 
+    // The Sample ID is asked for in every hand it could have been written in:
+    // the stored id separates its leading group with spaces, and someone
+    // reading one off an older sheet types slashes throughout.
+    const forms = searchIdentForms(query);
+
     // Exact hits are asked for on their own: a short query can match more
     // loose candidates than are fetched, and the one the scanner typed in
     // full must never be the one left out.
@@ -48,7 +54,7 @@ export async function GET(request: NextRequest) {
           OR: [
             { sampleCode: query },
             { labRecord: { is: { labCode: query } } },
-            { labRecord: { is: { sampleIdent: query } } },
+            { labRecord: { is: { sampleIdent: { in: forms } } } },
           ],
         },
         select,
@@ -60,7 +66,7 @@ export async function GET(request: NextRequest) {
           OR: [
             { sampleCode: { startsWith: query } },
             { labRecord: { is: { labCode: { startsWith: query } } } },
-            { labRecord: { is: { sampleIdent: { contains: query } } } },
+            ...forms.map((form) => ({ labRecord: { is: { sampleIdent: { contains: form } } } })),
           ],
         },
         select,

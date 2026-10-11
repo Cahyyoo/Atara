@@ -1,6 +1,11 @@
 import type { UserRole } from "@prisma/client";
 import { jsonSuccess } from "@/lib/api-response";
-import { signSessionToken, SESSION_COOKIE_NAME, SESSION_COOKIE_MAX_AGE } from "@/lib/auth";
+import {
+  signSessionToken,
+  sessionCookieOptions,
+  SESSION_COOKIE_NAME,
+  SESSION_COOKIE_MAX_AGE,
+} from "@/lib/auth";
 import { startSession } from "@/lib/user-session";
 import { prisma } from "@/lib/prisma";
 
@@ -38,13 +43,7 @@ export async function issueSessionResponse(
     user: { id: user.id, name: user.name, email: user.email, role: user.role },
   });
 
-  response.cookies.set(SESSION_COOKIE_NAME, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: SESSION_COOKIE_MAX_AGE,
-  });
+  response.cookies.set(SESSION_COOKIE_NAME, token, sessionCookieOptions(SESSION_COOKIE_MAX_AGE));
 
   return response;
 }

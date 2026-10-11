@@ -4,6 +4,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { RESULT_KEYS } from "@/lib/overwrite";
 import { parseShiftDateInput } from "@/lib/shift-date";
+import { TtlCache } from "@/lib/ttl-cache";
 import type { RecordHistoryEntry } from "@/types";
 
 /**
@@ -110,6 +111,9 @@ export interface HistoryQuery {
   page: number;
 }
 
+/** History totals by filter, for the page count under the list. */
+const historyTotals = new TtlCache<{ total: bigint }[]>(15_000, 64);
+
 /** The lab's day starts at 00:00 WITA, eight hours ahead of UTC. */
 const WITA_OFFSET_MS = 8 * 60 * 60 * 1000;
 
@@ -145,8 +149,15 @@ export async function listHistory(query: HistoryQuery): Promise<{ entries: Recor
     LEFT JOIN samples ps ON ps.id = p.sample_id
   `;
 
+  // The joins only matter to the search; every audit has its record, so
+  // without one the count is the audit table's alone. Counting is still a
+  // pass over every audit, so the total is shared for a few seconds across
+  // everyone paging the same view rather than recounted per page.
+  const countFrom = query.search ? from_ : Prisma.sql`FROM lab_record_audits a`;
   const [counted, page] = await Promise.all([
-    prisma.$queryRaw<{ total: bigint }[]>`SELECT COUNT(*) AS total ${from_} ${where}`,
+    historyTotals.get(JSON.stringify([where.sql, where.values, query.search ?? null]), () =>
+      prisma.$queryRaw<{ total: bigint }[]>`SELECT COUNT(*) AS total ${countFrom} ${where}`
+    ),
     prisma.$queryRaw<{ id: string }[]>`
       SELECT a.id ${from_} ${where}
       ORDER BY a.changed_at DESC, a.id DESC

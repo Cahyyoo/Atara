@@ -4,11 +4,11 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { ApiError } from "@/lib/api-response";
 import { labRecordInclude, toLabRecordDTO, toLabRecordSampleSummary } from "@/lib/lab-record";
-import { normalizeSampleKey, subKey, withoutSacks } from "@/lib/sample-ident";
+import { normalizeSampleKey, sampleIdentForms, sampleIdentKeys, subKey } from "@/lib/sample-ident";
 import { ACTIVE_SAMPLE_RELATION } from "@/lib/soft-delete";
 
 /**
- * Sub-samples: a fraction of a sample -- "LAM/SAP/S4/B24/3475.3 (-20)" --
+ * Sub-samples: a fraction of a sample -- "LAM SAP S4/B24/3475.3 (-20)" --
  * assayed on its own.
  *
  * A sub is a lab record of its own that points at the record it was taken
@@ -121,6 +121,9 @@ export async function syncSubs(db: Prisma.TransactionClient, parentIds: readonly
 /** A parent record with its sample and its sub-samples, as a look-up needs it. */
 const PARENT_INCLUDE = labRecordInclude;
 
+/** How many `sampleIdent` conditions one look-up query is given at a time. */
+const KEY_TERMS_PER_QUERY = 1000;
+
 type Parent = Prisma.LabRecordGetPayload<{ include: typeof PARENT_INCLUDE }>;
 type Sub = Parent["subs"][number];
 
@@ -142,7 +145,7 @@ export type KeyResolution =
  *
  * A key is read the way `normalizeSampleKey` reads it, so a space and a slash
  * are the same separator, and the sack count at the end may be left out:
- * "LAM SAM S2/PA4/B10/3778.1" finds "LAM/SAM/S2/PA4/B10/3778.1/25". A bracketed
+ * "LAM/SAM/S2/PA4/B10/3778.1" finds "LAM SAM S2/PA4/B10/3778.1/25". A bracketed
  * code after it names a sub-sample of that sample -- the one already there,
  * or a new one. Where leaving the sacks out fits two samples, nothing is
  * guessed. Lab Codes are not matched on.
@@ -152,23 +155,37 @@ export async function resolvePastedKeys(keys: readonly string[]): Promise<KeyRes
   const bases = [...new Set(read.map((entry) => entry.base).filter(Boolean))];
 
   // Narrowed in the database by prefix, decided here exactly: the stored id
-  // is either the base itself, or the base followed by the record's own sack
-  // count -- never merely something that starts the same way.
-  const candidates = bases.length
-    ? await prisma.labRecord.findMany({
+  // is either one of the base's forms itself, or that form followed by the
+  // record's own sack count -- never merely something that starts the same way.
+  // The forms are asked for because a key is all-slash and the stored id is
+  // not; `sampleIdentForms` says which few shapes the column could hold.
+  const terms = [...new Set(bases.flatMap(sampleIdentForms))].flatMap((form) => [
+    { sampleIdent: form },
+    { sampleIdent: { startsWith: `${form}/` } },
+  ]);
+
+  // In chunks, because 500 keys is allowed and each brings up to four forms:
+  // past a few thousand range conditions MySQL gives up on the unique index
+  // and scans the table instead. A chunk is the size this OR has always been.
+  const candidates: Parent[] = [];
+  for (let at = 0; at < terms.length; at += KEY_TERMS_PER_QUERY) {
+    candidates.push(
+      ...(await prisma.labRecord.findMany({
         where: {
           parentId: null,
           ...ACTIVE_SAMPLE_RELATION,
-          OR: bases.flatMap((base) => [{ sampleIdent: base }, { sampleIdent: { startsWith: `${base}/` } }]),
+          OR: terms.slice(at, at + KEY_TERMS_PER_QUERY),
         },
         include: PARENT_INCLUDE,
-      })
-    : [];
+      }))
+    );
+  }
+
   const byBase = new Map<string, Parent[]>();
   for (const candidate of candidates) {
-    if (!candidate.sampleIdent) continue;
-    const stored = candidate.sampleIdent.toUpperCase();
-    for (const base of new Set([stored, withoutSacks(stored, candidate.sackCount)])) {
+    // Read as keys rather than compared raw: the stored id writes its leading
+    // group with spaces, and what is being matched is all-slash.
+    for (const base of sampleIdentKeys(candidate.sampleIdent, candidate.sackCount)) {
       if (!bases.includes(base)) continue;
       const held = byBase.get(base) ?? [];
       if (!held.some((record) => record.id === candidate.id)) held.push(candidate);

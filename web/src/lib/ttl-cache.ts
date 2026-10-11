@@ -41,10 +41,16 @@ export class TtlCache<T> {
       return running;
     }
 
+    // The lifetime runs from when the value was computed, not from when it was
+    // asked for. Counted from the ask, anything slower than the TTL was stored
+    // already expired: under load the slowest computations -- the very ones
+    // this cache is for (a 50-second activity summary, a dashboard past 30 s)
+    // -- were never cached at all, and every caller recomputed them.
+    const startedAt = Date.now();
     const started = compute().then(
       (value) => {
         this.entries.delete(key);
-        this.entries.set(key, { value, expiresAt: now + this.ttlMs });
+        this.entries.set(key, { value, expiresAt: now + (Date.now() - startedAt) + this.ttlMs });
         this.prune();
         return value;
       },

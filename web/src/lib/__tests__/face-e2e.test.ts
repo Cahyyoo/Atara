@@ -1,5 +1,6 @@
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
+import { parse } from "dotenv";
 import { describe, expect, it, beforeAll, afterAll } from "vitest";
 import { euclideanDistance, MATCH_THRESHOLD, DESCRIPTOR_LENGTH } from "@/lib/face-match";
 
@@ -30,7 +31,22 @@ import { euclideanDistance, MATCH_THRESHOLD, DESCRIPTOR_LENGTH } from "@/lib/fac
  * not a test that passed, so the skip reasons are specific.
  */
 
-const WEB = process.env.FACE_E2E_WEB ?? "http://127.0.0.1:3000";
+/**
+ * The running app's sub-path, read from .env the way `next dev` reads it:
+ * vitest does not load .env, and a dev server under /atara answers /api/... with
+ * its HTML 404 -- "up", then unparseable.
+ */
+function basePathFromEnv(): string {
+  if (process.env.NEXT_PUBLIC_BASE_PATH !== undefined) return process.env.NEXT_PUBLIC_BASE_PATH;
+  try {
+    return parse(readFileSync(join(process.cwd(), ".env"))).NEXT_PUBLIC_BASE_PATH ?? "";
+  } catch {
+    return "";
+  }
+}
+
+const WEB =
+  process.env.FACE_E2E_WEB ?? `http://127.0.0.1:3000${basePathFromEnv().trim().replace(/\/+$/, "")}`;
 const SERVICE = process.env.FACE_E2E_SERVICE ?? "http://127.0.0.1:8001";
 
 /**

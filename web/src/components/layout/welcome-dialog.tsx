@@ -16,6 +16,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { Role } from "@/lib/permissions";
 import { tourFor, tourHref } from "@/lib/tours";
+import { withBasePath } from "@/lib/base-path";
 
 interface WelcomeStep {
   title: string;
@@ -40,7 +41,7 @@ export function WelcomeDialog({ role, name }: { role: Role; name: string }) {
   function finish() {
     setOpen(false);
     // Fire and forget: if it fails, the worst case is the greeting once more.
-    void fetch("/api/auth/guide-seen", { method: "POST" }).catch(() => undefined);
+    void fetch(withBasePath("/api/auth/guide-seen"), { method: "POST" }).catch(() => undefined);
   }
 
   return (

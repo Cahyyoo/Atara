@@ -4,7 +4,8 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { jsonSuccess, handleApiError, ApiError } from "@/lib/api-response";
 import { requireCapability } from "@/lib/api-auth";
-import { updateLabRecordSchema } from "@/lib/validation";
+import { updateDatabaseRecordSchema } from "@/lib/validation";
+import { weighingProblem } from "@/lib/mc";
 import { diffLabRecord, toLabRecordDTO } from "@/lib/lab-record";
 import { IDENTITY_FIELDS, resolveSampleIdent } from "@/lib/sample-ident-server";
 import { ACTIVE_LAB_RECORD } from "@/lib/soft-delete";
@@ -19,7 +20,7 @@ export async function PATCH(
     const session = await requireCapability(request, "editDatabase");
 
     const { id } = await params;
-    const data = updateLabRecordSchema.parse(await readJsonBody(request));
+    const data = updateDatabaseRecordSchema.parse(await readJsonBody(request));
 
     // A deleted sample's record is not editable; it reads as missing,
     // which is what it is until someone restores it.
@@ -29,6 +30,13 @@ export async function PATCH(
     if (!existing) {
       throw new ApiError("Sample record not found.", 404);
     }
+    // The weighing as it will stand, checked whole: a partial update can
+    // still leave Wd heavier than W0.
+    const weight = (key: "wp" | "w0" | "wd") =>
+      data[key] !== undefined ? data[key] : existing[key] === null ? null : Number(existing[key]);
+    const problem = weighingProblem(weight("wp"), weight("w0"), weight("wd"));
+    if (problem) throw new ApiError(problem, 422);
+
     // A sub-sample's identity is its parent's, kept in step from there.
     if (existing.parentId && IDENTITY_FIELDS.some((field) => data[field] !== undefined)) {
       throw new ApiError("A sub-sample's identity follows its parent; change it on the parent sample.", 422);

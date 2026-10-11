@@ -17,6 +17,7 @@ import { toast } from "@/components/ui/toast";
 import { formatSessionTime } from "@/lib/session-client";
 import type { ApiResult, UserSessionDTO } from "@/types";
 import { IoDesktopOutline, IoPhonePortraitOutline, IoReloadOutline } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 type Sessions = { active: UserSessionDTO[]; recent: UserSessionDTO[] };
 
@@ -50,7 +51,7 @@ export function SessionsDialog({
     const controller = new AbortController();
     (async () => {
       try {
-        const response = await fetch(`/api/users/${target.id}/sessions`, {
+        const response = await fetch(withBasePath(`/api/users/${target.id}/sessions`), {
           signal: controller.signal,
         });
         const result: ApiResult<Sessions> = await response.json();
@@ -84,7 +85,7 @@ export function SessionsDialog({
         sessionId === "all"
           ? `/api/users/${target.id}/sessions`
           : `/api/users/${target.id}/sessions/${sessionId}`;
-      const response = await fetch(url, { method: "DELETE" });
+      const response = await fetch(withBasePath(url), { method: "DELETE" });
       const result: ApiResult<{ ended: number }> = await response.json();
       if (!result.success) {
         setError(result.error || tCommon("networkError"));

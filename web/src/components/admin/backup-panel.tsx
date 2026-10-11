@@ -8,6 +8,7 @@ import { toast } from "@/components/ui/toast";
 import { downloadFromApi } from "@/lib/download";
 import type { ApiResult } from "@/types";
 import { IoCloudDownloadOutline, IoReloadOutline } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 type Counts = Record<"samples" | "logs" | "changes" | "masterOptions" | "stages" | "users", number>;
 
@@ -21,7 +22,7 @@ export function BackupPanel() {
     const controller = new AbortController();
     (async () => {
       try {
-        const response = await fetch("/api/admin/backup?counts=1", { signal: controller.signal });
+        const response = await fetch(withBasePath("/api/admin/backup?counts=1"), { signal: controller.signal });
         const body: ApiResult<Counts> = await response.json();
         if (body.success) setCounts(body.data);
       } catch {

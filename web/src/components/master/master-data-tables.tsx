@@ -11,6 +11,7 @@ import type { ApiResult, MasterKind, MasterOptionDTO } from "@/types";
 import { IoAdd, IoCheckmark, IoClose, IoPencilOutline, IoReloadOutline, IoTrashOutline } from "react-icons/io5";
 import { InlineNotice } from "@/components/ui/inline-notice";
 import { DeleteOptionDialog } from "@/components/master/delete-option-dialog";
+import { withBasePath } from "@/lib/base-path";
 
 const KINDS: MasterKind[] = ["PLACE", "ROCK_TYPE", "NON_PROD", "PIT", "SIR"];
 
@@ -33,7 +34,7 @@ export function MasterDataTables() {
     (async () => {
       try {
         // The only screen that needs the usage counts: a code in use is locked.
-        const response = await fetch("/api/master-options?withUsage=1", {
+        const response = await fetch(withBasePath("/api/master-options?withUsage=1"), {
           signal: controller.signal,
         });
         const body: ApiResult<{ options: MasterOptionDTO[] }> = await response.json();
@@ -112,7 +113,7 @@ function OptionEditor({
     onError(null);
 
     try {
-      const response = await fetch(`/api/master-options/${option.id}`, {
+      const response = await fetch(withBasePath(`/api/master-options/${option.id}`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -195,7 +196,7 @@ function KindCard({
     setError(null);
 
     try {
-      const response = await fetch("/api/master-options", {
+      const response = await fetch(withBasePath("/api/master-options"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -223,7 +224,7 @@ function KindCard({
   async function toggle(option: MasterOptionDTO) {
     setError(null);
     try {
-      const response = await fetch(`/api/master-options/${option.id}`, {
+      const response = await fetch(withBasePath(`/api/master-options/${option.id}`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isActive: !option.isActive }),

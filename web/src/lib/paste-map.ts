@@ -17,7 +17,7 @@ import { witaWallClock } from "@/lib/shift-date";
 import { normalizeSampleKey, sampleIdentKeys } from "@/lib/sample-ident";
 import { findOverwrites, type Overwrite } from "@/lib/overwrite";
 
-export type PasteField = AssayField | "measurementMethod" | "solutionId" | "remarks";
+export type PasteField = AssayField | "measurementMethod" | "solutionId" | "xrayInstrument" | "remarks";
 
 /** Columns that identify a row rather than carry a value to write. */
 export type MatchField = "sampleIdent" | "labCode" | "measurementFinished";
@@ -90,6 +90,8 @@ export interface PasteResult {
 const MATCH_HEADERS: Record<string, MatchField> = {
   sampleid: "sampleIdent",
   sampleident: "sampleIdent",
+  // How the Formulir Analysis Result heads it.
+  sample: "sampleIdent",
   idsampel: "sampleIdent",
   labcode: "labCode",
   kodelab: "labCode",
@@ -102,6 +104,11 @@ const META_HEADERS: Record<string, PasteField> = {
   metodepengukuran: "measurementMethod",
   solutionid: "solutionId",
   idlarutan: "solutionId",
+  xrayinstrument: "xrayInstrument",
+  instrumentxray: "xrayInstrument",
+  xray: "xrayInstrument",
+  instrument: "xrayInstrument",
+  instrumen: "xrayInstrument",
   remarks: "remarks",
   catatan: "remarks",
   keterangan: "remarks",

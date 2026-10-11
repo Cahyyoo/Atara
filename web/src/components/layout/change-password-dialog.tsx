@@ -18,6 +18,7 @@ import { toast } from "@/components/ui/toast";
 import { ROLE_DEFAULT_PASSWORD_CODE, WRONG_PASSWORD_CODE } from "@/lib/session-codes";
 import type { ApiResult } from "@/types";
 import { IoReloadOutline } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 const MIN_LENGTH = 8;
 
@@ -62,7 +63,7 @@ export function ChangePasswordDialog({
 
     setBusy(true);
     try {
-      const response = await fetch("/api/auth/password", {
+      const response = await fetch(withBasePath("/api/auth/password"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ currentPassword: current, newPassword: next }),

@@ -3,11 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/user_model.dart';
+import '../providers/announcements_provider.dart';
 import '../providers/pending_scans_provider.dart';
 import '../providers/my_work_provider.dart';
 import '../providers/session_provider.dart';
 import '../services/sample_status_text.dart';
 import '../theme/app_theme.dart';
+import '../widgets/announcement_banner.dart';
 import '../widgets/app_primitives.dart';
 import '../widgets/ios/app_page.dart';
 import '../widgets/ios/inset_section.dart';
@@ -56,6 +58,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       await Future.wait([
         ref.read(myWorkProvider.notifier).refresh(),
         ref.read(pendingScansProvider.notifier).sync(),
+        // Along with the rest: a notice posted mid-shift should arrive on the
+        // same pull that fetches the tally, not at the next sign-in.
+        ref.read(announcementsProvider.notifier).refresh(),
       ]);
     } finally {
       _isBusy = false;
@@ -95,6 +100,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
+              // Above everything: it is the one thing on this screen that
+              // might change what the operator is about to do.
+              const AnnouncementBanner(),
               if (user != null) _ProfileSection(user: user),
               AppButton(
                 label: l10n.scanButton,

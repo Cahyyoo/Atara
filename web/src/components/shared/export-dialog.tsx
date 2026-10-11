@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import {
   EXPORT_CATALOGUES,
+  EXPORT_STAGE_LAYOUT,
   STAGE_PARTS,
   defaultExportSelection,
   exportKeyOrder,
@@ -21,15 +22,21 @@ import {
   type ExportKind,
   type StagePart,
 } from "@/lib/export-columns";
+import { MasterFilter } from "@/components/shared/master-filter";
 import { stageLabel } from "@/lib/stages";
 import type { ApiResult, StageDTO } from "@/types";
 import { IoDocumentTextOutline, IoDownloadOutline, IoGridOutline, IoReloadOutline } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
-const GROUPS: ExportColumnGroup[] = ["sample", "identity", "results", "instrument", "other"];
+const GROUPS: ExportColumnGroup[] = ["sample", "results", "instrument", "mc", "identity", "other"];
 
-/** The last choice, per export, so the next one starts where this one left off. */
+/**
+ * The last choice, per export, so the next one starts where this one left
+ * off. Versioned: the Sample Database export became the analysis form, and a
+ * choice saved for the old sheet would hide most of it.
+ */
 function storageKey(kind: ExportKind) {
-  return `atara.export-columns.${kind}`;
+  return `atara.export-columns.v2.${kind}`;
 }
 function readStored(kind: ExportKind): string[] | null {
   try {
@@ -57,18 +64,27 @@ export function ExportDialog({
   kind,
   onExport,
   option,
+  place,
   tourId,
 }: {
   kind: ExportKind;
   onExport: (format: "xlsx" | "csv", columns: string[]) => void | Promise<void>;
   /** A choice about which rows go in, such as the sub-samples. */
   option?: { label: string; checked: boolean; onChange: (checked: boolean) => void };
+  /**
+   * Which place the file covers -- one, or all of them. The analysis form
+   * reports a place per sheet, so this is the choice that decides the sheets.
+   */
+  place?: { value: string; onChange: (optionId: string | null) => void };
   tourId?: string;
 }) {
   const t = useTranslations("exportDialog");
   const tCommon = useTranslations("common");
   const tStages = useTranslations("stages");
   const catalogue = EXPORT_CATALOGUES[kind];
+  const layout = EXPORT_STAGE_LAYOUT[kind];
+  /** Columns that go with the stage dates, such as the lead time. */
+  const stageExtras = catalogue.filter((column) => column.group === "stages");
 
   const [open, setOpen] = useState(false);
   const [stages, setStages] = useState<StageDTO[] | null>(null);
@@ -76,14 +92,14 @@ export function ExportDialog({
   const [busy, setBusy] = useState(false);
 
   const stageIds = (stages ?? []).map((stage) => stage.id);
-  const order = exportKeyOrder(catalogue, stageIds);
+  const order = exportKeyOrder(catalogue, stageIds, layout);
   const known = new Set(order);
   const count = [...chosen].filter((key) => known.has(key)).length;
 
   /** Opens on the last choice, or on the default the first time. */
   function start(loaded: StageDTO[]) {
     const ids = loaded.map((stage) => stage.id);
-    setChosen(new Set(readStored(kind) ?? defaultExportSelection(catalogue, ids)));
+    setChosen(new Set(readStored(kind) ?? defaultExportSelection(catalogue, ids, layout.defaultParts)));
   }
 
   async function openDialog() {
@@ -94,7 +110,7 @@ export function ExportDialog({
     }
     let loaded: StageDTO[] = [];
     try {
-      const response = await fetch("/api/stages");
+      const response = await fetch(withBasePath("/api/stages"));
       const body: ApiResult<StageDTO[]> = await response.json();
       if (body.success) loaded = body.data;
     } catch {
@@ -144,16 +160,31 @@ export function ExportDialog({
           </DialogHeader>
 
           <div className="-mx-1 flex min-h-0 flex-col gap-4 overflow-y-auto px-1">
-            {option ? (
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  className="size-4 accent-primary"
-                  checked={option.checked}
-                  onChange={(event) => option.onChange(event.target.checked)}
-                />
-                {option.label}
-              </label>
+            {place || option ? (
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                {place ? (
+                  <div className="flex items-center gap-2 text-sm">
+                    <span>{t("place")}</span>
+                    <MasterFilter
+                      kind="PLACE"
+                      value={place.value}
+                      onChange={place.onChange}
+                      className="w-44"
+                    />
+                  </div>
+                ) : null}
+                {option ? (
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      className="size-4 accent-primary"
+                      checked={option.checked}
+                      onChange={(event) => option.onChange(event.target.checked)}
+                    />
+                    {option.label}
+                  </label>
+                ) : null}
+              </div>
             ) : null}
 
             {GROUPS.map((group) => {
@@ -251,6 +282,21 @@ export function ExportDialog({
                   </tbody>
                 </table>
               )}
+              {stageExtras.length > 0 ? (
+                <div className="flex flex-wrap gap-x-4 gap-y-1.5 border-t pt-2">
+                  {stageExtras.map((column) => (
+                    <label key={column.key} className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        className="size-4 accent-primary"
+                        checked={chosen.has(column.key)}
+                        onChange={(event) => toggle([column.key], event.target.checked)}
+                      />
+                      {column.header}
+                    </label>
+                  ))}
+                </div>
+              ) : null}
             </fieldset>
           </div>
 
@@ -260,7 +306,7 @@ export function ExportDialog({
               type="button"
               variant="ghost"
               disabled={busy || stages === null}
-              onClick={() => setChosen(new Set(defaultExportSelection(catalogue, stageIds)))}
+              onClick={() => setChosen(new Set(defaultExportSelection(catalogue, stageIds, layout.defaultParts)))}
             >
               {t("reset")}
             </Button>

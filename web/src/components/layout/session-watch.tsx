@@ -25,6 +25,7 @@ import {
   parseDeviceInfo,
   type DeviceInfo,
 } from "@/lib/session-client";
+import { withBasePath } from "@/lib/base-path";
 
 /**
  * How often an open tab asks whether it is still the signed-in device.
@@ -61,7 +62,7 @@ export function SessionWatch() {
     if (inFlight.current || document.hidden) return;
     inFlight.current = true;
     try {
-      const response = await fetch("/api/auth/session", { cache: "no-store" });
+      const response = await fetch(withBasePath("/api/auth/session"), { cache: "no-store" });
       if (response.status !== 401) return;
       const result = await response.json().catch(() => null);
       if (result?.code === SESSION_REPLACED_CODE) {
@@ -102,7 +103,7 @@ export function SessionWatch() {
   async function signInAgain() {
     // Clears the cookie of a session that is already over; the server has
     // nothing left to end.
-    await fetch("/api/auth/logout", { method: "POST" }).catch(() => undefined);
+    await fetch(withBasePath("/api/auth/logout"), { method: "POST" }).catch(() => undefined);
     const reason = ended ? SIGN_IN_REASON[ended.reason] : SIGN_IN_REASON.replaced;
     router.replace(`/login?reason=${reason}`);
     router.refresh();

@@ -15,6 +15,7 @@ import { InlineNotice } from "@/components/ui/inline-notice";
 import { toast } from "@/components/ui/toast";
 import type { UserDTO } from "@/types";
 import { IoReloadOutline } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 type Action = "require" | "cancelRequest" | "reset" | "disable";
 
@@ -63,7 +64,7 @@ export function TotpManageDialog({
 
     try {
       const method = action === "require" || action === "reset" ? "POST" : "DELETE";
-      const response = await fetch(`/api/users/${target.id}/totp`, { method });
+      const response = await fetch(withBasePath(`/api/users/${target.id}/totp`), { method });
       const result = await response.json();
 
       if (!response.ok || !result.success) {

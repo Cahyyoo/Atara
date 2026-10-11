@@ -66,6 +66,11 @@ class ApiException implements Exception {
   /// Nothing is wrong with the scan itself, so it is worth sending again.
   bool get isRetryableConflict => code == 'STAGE_MOVED';
 
+  /// The sample is already on the stage this scan asked for. For a queued scan
+  /// that usually means the server saved it the first time and only the answer
+  /// was lost to a timeout: done, not refused.
+  bool get isAlreadyRecorded => code == 'STAGE_ALREADY_RECORDED';
+
   /// True when the server was never reached, so nothing was decided about the
   /// request and it is safe to queue and retry.
   bool get isOffline => statusCode == null;

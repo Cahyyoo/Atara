@@ -1,5 +1,6 @@
 import ExcelJS from "exceljs";
 import { XLSX_CONTENT_TYPE, type SheetColumn, type SheetRow } from "@/lib/xlsx";
+import { readBrandLogo, writeBrandedHeader } from "@/lib/xlsx-brand";
 
 export interface WorkbookSheet {
   name: string;
@@ -13,20 +14,16 @@ export interface WorkbookSheet {
  * export-response.ts streams one sheet because an export can run to 50,000
  * rows. A summary is a few hundred rows at most, spread over several sheets,
  * which the streaming writer does not make easy; holding it whole is fine.
- * Styled the same way: bold, frozen header row with a filter on it.
+ * Each sheet opens with the logo and its name, then the bold, frozen,
+ * filtered header row (see writeBrandedHeader).
  */
 export async function buildWorkbook(sheets: WorkbookSheet[]): Promise<ArrayBuffer> {
   const workbook = new ExcelJS.Workbook();
+  const logo = await readBrandLogo();
 
   for (const { name, columns, rows } of sheets) {
-    const sheet = workbook.addWorksheet(name, { views: [{ state: "frozen", ySplit: 1 }] });
-    sheet.columns = columns.map((column) => ({
-      header: column.header,
-      key: column.key,
-      width: column.width ?? Math.max(12, column.header.length + 2),
-    }));
-    sheet.getRow(1).font = { bold: true };
-    sheet.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: columns.length } };
+    const sheet = workbook.addWorksheet(name);
+    writeBrandedHeader(workbook, sheet, { title: name, columns, logo });
     for (const row of rows) sheet.addRow(row);
   }
 

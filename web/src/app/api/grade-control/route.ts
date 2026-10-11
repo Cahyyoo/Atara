@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
 
     const day = (iso: string) => iso.slice(0, 10);
     const groupNames = result.groupBy.map((group) => GROUP_LABELS[group] ?? group);
-    return workbookResponse(
+    return await workbookResponse(
       `conclusion-${result.groupBy.join("-")}-${day(result.range.from)}-to-${day(result.range.to)}`,
       [
         {

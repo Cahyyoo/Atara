@@ -745,4 +745,82 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get deviceKindTablet => 'Tablet';
+
+  @override
+  String get changePasswordTitle => 'Ganti Password';
+
+  @override
+  String get changePasswordBody =>
+      'Pilih password baru untuk akun Anda. Perangkat lain yang sedang masuk akan dikeluarkan.';
+
+  @override
+  String get changePasswordForcedBody =>
+      'Password Anda dibuat oleh admin dan dipakai bersama. Ganti dulu sebelum memakai aplikasi.';
+
+  @override
+  String get changePasswordSubmit => 'Simpan Password';
+
+  @override
+  String get passwordCurrent => 'Password saat ini';
+
+  @override
+  String get passwordNew => 'Password baru';
+
+  @override
+  String get passwordConfirm => 'Ulangi password baru';
+
+  @override
+  String passwordRuleHint(int min) {
+    return 'Minimal $min karakter, dan tidak boleh sama dengan password default.';
+  }
+
+  @override
+  String get passwordCurrentRequired => 'Masukkan password Anda saat ini.';
+
+  @override
+  String passwordTooShort(int min) {
+    return 'Password baru minimal $min karakter.';
+  }
+
+  @override
+  String get passwordMismatch => 'Dua password baru tidak sama.';
+
+  @override
+  String get passwordSameAsCurrent =>
+      'Password baru harus berbeda dari yang sekarang.';
+
+  @override
+  String get passwordCurrentWrong => 'Itu bukan password Anda saat ini.';
+
+  @override
+  String get passwordIsRoleDefault =>
+      'Itu password default peran Anda. Pilih password Anda sendiri.';
+
+  @override
+  String get passwordTooManyAttempts =>
+      'Terlalu banyak percobaan. Tunggu beberapa menit.';
+
+  @override
+  String get passwordChanged => 'Password berhasil diganti.';
+
+  @override
+  String get sessionEndedByAdmin =>
+      'Sesi Anda diakhiri oleh admin, jadi Anda dikeluarkan dari HP ini.';
+
+  @override
+  String sessionEndedByAdminAt(String time) {
+    return 'Sesi Anda diakhiri oleh admin pukul $time, jadi Anda dikeluarkan dari HP ini.';
+  }
+
+  @override
+  String get sessionEndedPasswordChanged =>
+      'Password akun ini diganti, jadi Anda dikeluarkan dari HP ini.';
+
+  @override
+  String sessionEndedPasswordChangedAt(String time) {
+    return 'Password akun ini diganti pukul $time, jadi Anda dikeluarkan dari HP ini.';
+  }
+
+  @override
+  String get announcementDismiss => 'Tutup pengumuman';
 }

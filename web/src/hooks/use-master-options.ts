@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { ApiResult, MasterOptionDTO } from "@/types";
+import { withBasePath } from "@/lib/base-path";
 
 /** The last answer, shown at once by the next form that asks. */
 let cached: MasterOptionDTO[] | null = null;
@@ -23,7 +24,7 @@ export function prefetchMasterOptions(): Promise<MasterOptionDTO[] | null> {
     // below is registered before it is cleared.
     await Promise.resolve();
     try {
-      const response = await fetch("/api/master-options?activeOnly=true");
+      const response = await fetch(withBasePath("/api/master-options?activeOnly=true"));
       const body: ApiResult<{ options: MasterOptionDTO[] }> = await response.json();
       if (!body.success) return null;
       cached = body.data.options;

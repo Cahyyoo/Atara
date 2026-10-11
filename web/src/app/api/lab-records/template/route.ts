@@ -35,6 +35,7 @@ const ASSAY_COLUMNS: SheetColumn[] = ASSAY_FIELDS.map((field) => ({
 const TRAILING: SheetColumn[] = [
   { header: "Measurement Method", key: "measurementMethod", width: 22 },
   { header: "Solution ID", key: "solutionId", width: 14 },
+  { header: "Xray Instrument", key: "xrayInstrument", width: 16 },
 ];
 
 const SHAPES: Record<Shape, { columns: SheetColumn[]; filename: string }> = {
@@ -83,6 +84,8 @@ export async function GET(request: NextRequest) {
       baseFilename: shape.filename,
       columns: shape.columns,
       rows,
+      // It comes back in through the importer: no banner rows above the headers.
+      plain: true,
     });
   } catch (error) {
     return handleApiError(error);

@@ -98,7 +98,7 @@ export async function LabRecordPanel({
     if (COUNT_FIELDS.has(key) || key === "bargingNo") return tIdentity(key);
     if (key === "sampleIdent") return tDatabase("sampleIdent");
     if (key === "remarks") return tDatabase("dialog.remarks");
-    if (key === "measurementMethod" || key === "solutionId" || key === "measurementFinished") {
+    if (["measurementMethod", "solutionId", "measurementFinished", "xrayInstrument", "wp", "w0", "wd"].includes(key)) {
       return tDatabase(key);
     }
     return key;

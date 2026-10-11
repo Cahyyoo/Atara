@@ -334,5 +334,54 @@
   "sessionReplacedModel": "Model",
   "deviceKindPhone": "HP",
   "deviceKindComputer": "Komputer",
-  "deviceKindTablet": "Tablet"
+  "deviceKindTablet": "Tablet",
+  "changePasswordTitle": "Ganti Password",
+  "changePasswordBody": "Pilih password baru untuk akun Anda. Perangkat lain yang sedang masuk akan dikeluarkan.",
+  "changePasswordForcedBody": "Password Anda dibuat oleh admin dan dipakai bersama. Ganti dulu sebelum memakai aplikasi.",
+  "changePasswordSubmit": "Simpan Password",
+  "passwordCurrent": "Password saat ini",
+  "passwordNew": "Password baru",
+  "passwordConfirm": "Ulangi password baru",
+  "passwordRuleHint": "Minimal {min} karakter, dan tidak boleh sama dengan password default.",
+  "@passwordRuleHint": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "passwordCurrentRequired": "Masukkan password Anda saat ini.",
+  "passwordTooShort": "Password baru minimal {min} karakter.",
+  "@passwordTooShort": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "passwordMismatch": "Dua password baru tidak sama.",
+  "passwordSameAsCurrent": "Password baru harus berbeda dari yang sekarang.",
+  "passwordCurrentWrong": "Itu bukan password Anda saat ini.",
+  "passwordIsRoleDefault": "Itu password default peran Anda. Pilih password Anda sendiri.",
+  "passwordTooManyAttempts": "Terlalu banyak percobaan. Tunggu beberapa menit.",
+  "passwordChanged": "Password berhasil diganti.",
+  "sessionEndedByAdmin": "Sesi Anda diakhiri oleh admin, jadi Anda dikeluarkan dari HP ini.",
+  "sessionEndedByAdminAt": "Sesi Anda diakhiri oleh admin pukul {time}, jadi Anda dikeluarkan dari HP ini.",
+  "@sessionEndedByAdminAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionEndedPasswordChanged": "Password akun ini diganti, jadi Anda dikeluarkan dari HP ini.",
+  "sessionEndedPasswordChangedAt": "Password akun ini diganti pukul {time}, jadi Anda dikeluarkan dari HP ini.",
+  "@sessionEndedPasswordChangedAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "announcementDismiss": "Tutup pengumuman"
 }

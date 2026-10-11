@@ -29,17 +29,17 @@ export async function generateSampleCode(
 async function lastSequenceFor(prefix: string, year: number, db: Db): Promise<number> {
   const head = `${prefix}-${year}-`;
 
-  // Ordered by the code itself: the sequence is zero-padded to a fixed width,
-  // so lexical order is numeric order.
-  const last = await db.sample.findFirst({
-    where: { sampleCode: { startsWith: head } },
-    orderBy: { sampleCode: "desc" },
-    select: { sampleCode: true },
-  });
-  if (!last) return 0;
-
-  const sequence = parseInt(last.sampleCode.slice(head.length), 10);
-  return Number.isNaN(sequence) ? 0 : sequence;
+  // Compared as numbers, not as text. The padding is five digits, and the
+  // 100,000th code of a year is six: as text "SMPL-2026-100000" sorts below
+  // "SMPL-2026-99999", so ordering by the code kept answering 99999, every
+  // later generation tried to issue 100000 again, and barcode generation was
+  // stuck for the rest of the year.
+  const rows = await db.$queryRaw<{ last: bigint | number | null }[]>`
+    SELECT MAX(CAST(SUBSTRING(sample_code, ${head.length + 1}) AS UNSIGNED)) AS last
+      FROM samples
+     WHERE sample_code LIKE ${`${head}%`}`;
+  const last = Number(rows[0]?.last ?? 0);
+  return Number.isFinite(last) ? last : 0;
 }
 
 export async function generateSampleCodes(

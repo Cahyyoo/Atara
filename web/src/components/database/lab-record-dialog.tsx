@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { ASSAY_FIELDS, INSTRUMENT_FIELDS, type AssayField, type InstrumentField } from "@/lib/assay";
 import { parseWitaInput, toWitaInputValue } from "@/lib/shift-date";
+import { moistureContent, weighingProblem } from "@/lib/mc";
 import { useMasterOptions } from "@/hooks/use-master-options";
 import {
   SampleIdentityFields,
@@ -26,8 +27,21 @@ import {
 import type { ApiResult, LabRecordDTO, LabRecordListItemDTO } from "@/types";
 import { IoReloadOutline } from "react-icons/io5";
 import { InlineNotice } from "@/components/ui/inline-notice";
+import { withBasePath } from "@/lib/base-path";
 
 type AssayInputs = Record<AssayField, string>;
+
+/** The moisture-content weighing: pan, pan with the wet sample, pan with the dried one. */
+const WEIGHTS = ["wp", "w0", "wd"] as const;
+type Weight = (typeof WEIGHTS)[number];
+
+/** A typed weight as a number, or null while it is blank or unreadable. */
+function weightOf(raw: string): number | null {
+  const text = raw.trim();
+  if (text === "") return null;
+  const value = Number(text);
+  return Number.isFinite(value) ? value : null;
+}
 
 function toInputs(record: LabRecordListItemDTO): AssayInputs {
   return ASSAY_FIELDS.reduce((accumulator, field) => {
@@ -100,6 +114,13 @@ function LabRecordForm({ record, onClose, onSaved }: LabRecordFormProps) {
     }
     return values;
   });
+  const [weights, setWeights] = useState<Record<Weight, string>>(() => ({
+    wp: record.wp?.toString() ?? "",
+    w0: record.w0?.toString() ?? "",
+    wd: record.wd?.toString() ?? "",
+  }));
+  const mc = moistureContent(weightOf(weights.wp), weightOf(weights.w0), weightOf(weights.wd));
+  const weighingIssue = weighingProblem(weightOf(weights.wp), weightOf(weights.w0), weightOf(weights.wd));
   const [remarks, setRemarks] = useState(record.remarks ?? "");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -131,8 +152,11 @@ function LabRecordForm({ record, onClose, onSaved }: LabRecordFormProps) {
         const raw = values[field.key].trim();
         payload[field.key] = raw === "" ? null : Number(raw);
       }
+      for (const key of WEIGHTS) {
+        payload[key] = weightOf(weights[key]);
+      }
 
-      const response = await fetch(`/api/lab-records/${record.id}`, {
+      const response = await fetch(withBasePath(`/api/lab-records/${record.id}`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -221,6 +245,40 @@ function LabRecordForm({ record, onClose, onSaved }: LabRecordFormProps) {
                 />
               </div>
             ))}
+
+            {/* The moisture-content weighing, as the Formulir Analysis
+                Result's TABEL MC reports it. MC itself is worked out. */}
+            <div className="flex flex-col gap-3 rounded-lg border p-3">
+              <div className="flex items-baseline justify-between gap-2">
+                <p className="text-sm font-medium">{tDatabase("mcSection")}</p>
+                <p className="text-sm tabular-nums" aria-live="polite">
+                  <span className="text-muted-foreground">{tDatabase("mc")}: </span>
+                  <span className="font-semibold">{mc === null ? "—" : mc.toFixed(2)}</span>
+                </p>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                {WEIGHTS.map((key) => (
+                  <div key={key} className="flex flex-col gap-1.5">
+                    <Label htmlFor={`mc-${key}`}>{tDatabase(key)}</Label>
+                    <Input
+                      id={`mc-${key}`}
+                      type="number"
+                      step="0.01"
+                      min={0}
+                      inputMode="decimal"
+                      placeholder="—"
+                      value={weights[key]}
+                      onChange={(event) =>
+                        setWeights((previous) => ({ ...previous, [key]: event.target.value }))
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
+              <p className={weighingIssue ? "text-xs text-destructive" : "text-xs text-muted-foreground"}>
+                {weighingIssue ? tDatabase("mcInvalid") : tDatabase("mcHint")}
+              </p>
+            </div>
           </div>
 
           <div className="grid h-fit grid-cols-2 gap-3">
@@ -252,7 +310,7 @@ function LabRecordForm({ record, onClose, onSaved }: LabRecordFormProps) {
           <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
             {tCommon("cancel")}
           </Button>
-          <Button type="submit" className="gap-2" disabled={isSubmitting}>
+          <Button type="submit" className="gap-2" disabled={isSubmitting || weighingIssue !== null}>
             {isSubmitting ? <IoReloadOutline className="size-4 animate-spin" /> : null}
             {t("save")}
           </Button>

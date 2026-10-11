@@ -17,6 +17,7 @@ import { captureBurst, interpretRefusal } from "@/lib/face-client";
 import { assessReading } from "@/lib/face-enrollment";
 import { poseHintKey } from "@/lib/face-poses";
 import { IoCheckmarkCircle } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 /** Matches REQUIRED_FRAMES on the route; the server refuses any other count. */
 const REQUIRED_FRAMES = 5;
@@ -73,7 +74,7 @@ export function FaceEnrollDialog({
 
     let descriptor: number[];
     try {
-      const response = await fetch("/api/face/reading", {
+      const response = await fetch(withBasePath("/api/face/reading"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -141,7 +142,7 @@ export function FaceEnrollDialog({
 
     setIsSaving(true);
     try {
-      const response = await fetch(`/api/users/${target.id}/face`, {
+      const response = await fetch(withBasePath(`/api/users/${target.id}/face`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ consent: true, descriptors: next }),

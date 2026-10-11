@@ -35,6 +35,21 @@ class SessionService {
     }
   }
 
+  /// Raises or clears the duty to replace an administrator's password.
+  ///
+  /// Written on the stored user rather than on a key of its own, so the one
+  /// thing the app reads on launch answers "who is signed in" and "may they
+  /// work yet" together -- two keys could disagree.
+  static Future<void> setMustChangePassword(bool value) async {
+    final user = await getUser();
+    if (user == null || user.mustChangePassword == value) return;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      _userKey,
+      jsonEncode(user.copyWith(mustChangePassword: value).toJson()),
+    );
+  }
+
   static Future<void> clearSession() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_tokenKey);

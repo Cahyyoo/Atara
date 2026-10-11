@@ -8,7 +8,7 @@ import en from "../../../../messages/en.json";
 import { LabRecordsTable, type LabRecordsAccess } from "@/components/shared/lab-records-table";
 import { resetPersistedColumns } from "@/hooks/use-persisted-columns";
 import { resetTableLayouts } from "@/hooks/use-table-layout";
-import { ASSAY_FIELDS } from "@/lib/assay";
+import { ASSAY_FIELDS, INSTRUMENT_FIELDS } from "@/lib/assay";
 
 let query = new URLSearchParams();
 
@@ -498,6 +498,22 @@ describe("picking samples to enter results for (assay mode)", () => {
     ).toBe(false);
   });
 
+  it("shows no status on a sub-sample, which has none of its own", async () => {
+    firstSubs = [{ ...RECORDS[0], id: "r1-sub", parentId: "r1", subCode: "-20", labCode: "SPR.QLAB.20260918.001 (-20)" }];
+    vi.stubGlobal("fetch", stubFetch());
+    const user = userEvent.setup({ delay: null });
+    showAssay();
+    const parent = await row();
+    await user.click(screen.getByRole("button", { name: "Show or hide 1 sub-sample" }));
+
+    const sub = screen.getByRole("link", { name: "Sub-sample (-20)" }).closest("tr") as HTMLElement;
+    const pending = en.samples.status.PENDING;
+    expect(within(parent).getByText(pending)).toBeTruthy();
+    expect(within(parent).getByText(en.samples.notStarted)).toBeTruthy();
+    expect(within(sub).queryByText(pending)).toBeNull();
+    expect(within(sub).queryByText(en.samples.notStarted)).toBeNull();
+  });
+
   it("folds the sub-samples away again with the same arrow", async () => {
     firstSubs = [{ ...RECORDS[0], id: "r1-sub", parentId: "r1", subCode: "-20", labCode: "SPR.QLAB.20260918.001 (-20)" }];
     vi.stubGlobal("fetch", stubFetch());
@@ -673,7 +689,7 @@ describe("arranging the columns", () => {
 
     await openPicker(user);
     await user.click(await screen.findByRole("menuitemcheckbox", { name: en.database.layout.selectAll }));
-    await waitFor(() => expect(headingOrder()).toHaveLength(2 + ASSAY_FIELDS.length + 3));
+    await waitFor(() => expect(headingOrder()).toHaveLength(2 + ASSAY_FIELDS.length + INSTRUMENT_FIELDS.length));
     expect(
       screen.getByRole("menuitemcheckbox", { name: en.database.layout.selectAll }).getAttribute("aria-checked")
     ).toBe("true");

@@ -21,7 +21,7 @@ describe("the live guide", () => {
     // What lets the oval turn green before Verify is pressed, rather than
     // the app only explaining itself afterwards. The weights this used to
     // preload are gone; the preview is what took their place.
-    expect(CAMERA).toContain('fetch("/api/face/preview"');
+    expect(CAMERA).toContain('fetch(withBasePath("/api/face/preview")');
     expect(CAMERA).toContain("grabPreviewFrame(videoRef.current)");
   });
 

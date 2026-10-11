@@ -8,6 +8,7 @@ import { toast } from "@/components/ui/toast";
 import { tourFor, tourHref } from "@/lib/tours";
 import type { ApiResult, SampleListItemDTO } from "@/types";
 import { IoPlayOutline, IoReloadOutline } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 /**
  * "Try it": opens the page a section explains with its guided tour running.
@@ -28,7 +29,7 @@ export function TryTourButton({ tourKey, className }: { tourKey: string; classNa
     }
     setBusy(true);
     try {
-      const response = await fetch("/api/samples?pageSize=1&sort=createdAt&order=desc");
+      const response = await fetch(withBasePath("/api/samples?pageSize=1&sort=createdAt&order=desc"));
       const body: ApiResult<{ samples: SampleListItemDTO[] }> = await response.json();
       const newest = body.success ? body.data.samples[0] : undefined;
       if (!newest) {

@@ -28,14 +28,21 @@ class MyWorkNotifier extends StateNotifier<WorkSummary?> {
     }
   }
 
+  /// Which refresh is the latest. Every save fires one without waiting, so
+  /// scanning a rack quickly has several in flight, and a slow early answer
+  /// used to land last and put an older, smaller tally back on screen.
+  int _latest = 0;
+
   Future<void> refresh() async {
+    final mine = ++_latest;
     try {
-      state = await ApiService.instance.getMyWork();
+      final summary = await ApiService.instance.getMyWork();
+      if (mine == _latest && mounted) state = summary;
     } catch (_) {
       // Keep the last good tally rather than blanking it. A failed refresh
       // says nothing about the work already recorded, and showing zero after a
       // successful shift reads as lost work.
-      state ??= WorkSummary.empty;
+      if (mounted) state ??= WorkSummary.empty;
     }
   }
 }

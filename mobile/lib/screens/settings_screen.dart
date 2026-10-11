@@ -13,6 +13,8 @@ import '../widgets/ios/app_toast.dart';
 import '../widgets/ios/inset_section.dart';
 import '../widgets/loading_swap.dart';
 import '../widgets/skeletons.dart';
+import '../widgets/version_footer.dart';
+import 'change_password_screen.dart';
 import 'onboarding_screen.dart';
 
 /// Server address, language, and the way out of the account.
@@ -123,6 +125,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     await ref.read(sessionProvider.notifier).logout();
   }
 
+  void _openChangePassword() {
+    Navigator.of(context).push(
+      CupertinoPageRoute<void>(
+        builder: (_) => const ChangePasswordScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -150,6 +160,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             children: _sections(l10n, palette, effective, themeMode),
           ),
         ),
+        // Outside the swap: which build this is stays readable even while the
+        // settings themselves are still being read.
+        const VersionFooter(),
       ],
     );
   }
@@ -254,6 +267,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         InsetSection(
           header: l10n.signOutSection,
           children: [
+            InsetRow(
+              title: l10n.changePasswordTitle,
+              showChevron: true,
+              onTap: _openChangePassword,
+            ),
             InsetRow(
               title: l10n.signOut,
               isDestructive: true,

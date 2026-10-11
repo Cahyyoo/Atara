@@ -33,6 +33,7 @@ import type { ApiResult, PaginationDTO, SampleListItemDTO, StageDTO } from "@/ty
 import { stageLabel } from "@/lib/stages";
 import { IoSearchOutline } from "react-icons/io5";
 import { InlineNotice } from "@/components/ui/inline-notice";
+import { withBasePath } from "@/lib/base-path";
 
 const STATUS_VALUES = ["ALL", "PENDING", "IN_PROGRESS", "COMPLETED"] as const;
 
@@ -90,7 +91,7 @@ export function SamplesTable({ canExport }: SamplesTableProps) {
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch("/api/stages", { signal: controller.signal })
+    fetch(withBasePath("/api/stages"), { signal: controller.signal })
       .then((response) => response.json())
       .then((result: ApiResult<StageDTO[]>) => {
         if (result.success) setStages(result.data);
@@ -132,7 +133,7 @@ export function SamplesTable({ canExport }: SamplesTableProps) {
 
     (async () => {
       try {
-        const response = await fetch(`/api/samples?${queryKey}`, { signal: controller.signal });
+        const response = await fetch(withBasePath(`/api/samples?${queryKey}`), { signal: controller.signal });
         const body: ApiResult<{ samples: SampleListItemDTO[]; pagination: PaginationDTO }> =
           await response.json();
 

@@ -242,9 +242,44 @@ export const updateLabRecordSchema = z.object({
   measurementMethod: z.string().trim().max(191).nullable().optional(),
   solutionId: z.string().trim().max(191).nullable().optional(),
   measurementFinished: z.coerce.date().nullable().optional(),
+  xrayInstrument: z.string().trim().max(191).nullable().optional(),
 
   ...identityFieldsShape,
   remarks: z.string().trim().max(1000).nullable().optional(),
+});
+
+/** A weighing in grams, for the moisture content. */
+const weightSchema = z.coerce
+  .number()
+  .min(0, "A weight cannot be negative.")
+  .max(100_000, "A weight cannot exceed 100,000 g.")
+  .nullable()
+  .optional();
+
+/** Wp, W0 and Wd: written by the Database role only, never by a results paste. */
+export const mcWeightsShape = { wp: weightSchema, w0: weightSchema, wd: weightSchema };
+
+/** The record dialog in the Sample Database: everything, the weighing included. */
+export const updateDatabaseRecordSchema = updateLabRecordSchema.extend(mcWeightsShape);
+
+/**
+ * The Wp/W0/Wd paste: rows named by Sample ID, found on the server. A weight
+ * left out keeps the stored one. `dryRun` only says what would change.
+ */
+export const updateWeightsSchema = z.object({
+  rows: z
+    .array(
+      z.object({
+        line: z.number().int().min(1),
+        key: z.string().trim().min(1).max(191),
+        wp: z.number().min(0).max(100_000).optional(),
+        w0: z.number().min(0).max(100_000).optional(),
+        wd: z.number().min(0).max(100_000).optional(),
+      })
+    )
+    .min(1, "Nothing to save.")
+    .max(500, "Maximum 500 rows at a time."),
+  dryRun: z.boolean().default(false),
 });
 
 export const LAB_RECORD_SORT_FIELDS = [
@@ -275,6 +310,7 @@ export const LAB_RECORD_SORT_FIELDS = [
   "measurementMethod",
   "solutionId",
   "measurementFinished",
+  "xrayInstrument",
 ] as const;
 
 /**

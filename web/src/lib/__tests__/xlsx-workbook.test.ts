@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import ExcelJS from "exceljs";
 import { buildWorkbook } from "@/lib/xlsx-workbook";
+import { BRANDED_HEADER_ROW } from "@/lib/xlsx-brand";
 
 describe("buildWorkbook", () => {
   it("writes one sheet per section, each with its header row and rows", async () => {
@@ -31,8 +32,12 @@ describe("buildWorkbook", () => {
 
     expect(book.worksheets.map((sheet) => sheet.name)).toEqual(["Summary", "Daily throughput"]);
     const daily = book.getWorksheet("Daily throughput")!;
-    expect(daily.getRow(1).values).toEqual([undefined, "Shift date", "Created"]);
-    expect(daily.getRow(3).values).toEqual([undefined, "2026-10-01", 8]);
-    expect(daily.getRow(1).font?.bold).toBe(true);
+    // The logo and the sheet's name above the table; the table from row 5.
+    expect(daily.getImages()).toHaveLength(1);
+    expect(daily.getCell(1, 3).value).toBe("Daily throughput");
+    expect(daily.getRow(BRANDED_HEADER_ROW).values).toEqual([undefined, "Shift date", "Created"]);
+    expect(daily.getRow(BRANDED_HEADER_ROW + 2).values).toEqual([undefined, "2026-10-01", 8]);
+    expect(daily.getRow(BRANDED_HEADER_ROW).font?.bold).toBe(true);
+    expect(daily.views[0]).toMatchObject({ state: "frozen", ySplit: BRANDED_HEADER_ROW });
   });
 });

@@ -47,6 +47,7 @@ import type { PasteRow } from "@/lib/paste-map";
 import { findOverwrites, type Overwrite } from "@/lib/overwrite";
 import type { ApiResult, LabRecordListItemDTO } from "@/types";
 import { IoArrowBack, IoClipboardOutline, IoOptionsOutline, IoReloadOutline, IoSaveOutline } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 /** Loaded the first time it is opened; most rows are typed or pasted from the list. */
 const PasteFromExcel = dynamic(
@@ -230,7 +231,7 @@ export function ResultsEntry({
     setIsSaving(true);
     setError(null);
     try {
-      const response = await fetch("/api/lab-records/bulk", {
+      const response = await fetch(withBasePath("/api/lab-records/bulk"), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ records: payload, overwrite }),

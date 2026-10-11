@@ -44,6 +44,7 @@ import {
   IoSearchOutline,
 } from "react-icons/io5";
 import { InlineNotice } from "@/components/ui/inline-notice";
+import { withBasePath } from "@/lib/base-path";
 
 const STATUS_VALUES = ["ALL", "PENDING", "IN_PROGRESS", "COMPLETED"] as const;
 
@@ -125,7 +126,7 @@ export function LabelReprint() {
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch("/api/stages", { signal: controller.signal })
+    fetch(withBasePath("/api/stages"), { signal: controller.signal })
       .then((response) => response.json())
       .then((body: ApiResult<StageDTO[]>) => {
         if (body.success) setStages(body.data);
@@ -154,7 +155,7 @@ export function LabelReprint() {
     const timeout = setTimeout(() => {
       (async () => {
         try {
-          const response = await fetch(`/api/samples?${queryKey}`, { signal: controller.signal });
+          const response = await fetch(withBasePath(`/api/samples?${queryKey}`), { signal: controller.signal });
           const body: ApiResult<SamplesPage> = await response.json();
 
           // A new list means a new order: a range anchored in the old one
@@ -196,7 +197,7 @@ export function LabelReprint() {
 
     setIsLoadingMore(true);
     try {
-      const response = await fetch(`/api/samples?${next.toString()}`);
+      const response = await fetch(withBasePath(`/api/samples?${next.toString()}`));
       const body: ApiResult<SamplesPage> = await response.json();
       if (!body.success) {
         setError(body.error);

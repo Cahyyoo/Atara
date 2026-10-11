@@ -52,6 +52,30 @@ describe("rankLookupMatches", () => {
     expect(isExactMatch("at0001", row("AT0001"))).toBe(true);
     expect(isExactMatch("AT000", row("AT0001"))).toBe(false);
   });
+
+  /**
+   * A stored Sample ID writes its leading group with spaces; someone reading
+   * one off an older sheet types slashes throughout. A whole id in either hand
+   * is the exact hit that sends the box straight to the sample, so the ident
+   * is scored as a key rather than as text.
+   */
+  it("reads a whole Sample ID as exact in either hand", () => {
+    const sample = row("AT0001", "SPR.QLAB.20260917.001", "LAM SAP S4/B24/3475.3");
+    expect(isExactMatch("LAM SAP S4/B24/3475.3", sample)).toBe(true);
+    expect(isExactMatch("LAM/SAP/S4/B24/3475.3", sample)).toBe(true);
+    expect(isExactMatch("lam sap s4 b24 3475.3", sample)).toBe(true);
+    expect(isExactMatch("LAM SAP S4/B24/3475", sample)).toBe(false);
+  });
+
+  it("ranks a piece of one ahead of an unrelated sample, in either hand", () => {
+    const sample = row("AT0001", null, "LAM SAP S4/B24/3475.3");
+    // Sorted before it on the tie-break, so only the score can lift AT0001.
+    const other = row("AT0000", null, "MOL LIM S3/PA4/B42/919.3");
+    for (const typed of ["SAP/S4", "SAP S4", "s4/b24", "3475.3"]) {
+      expect(rankLookupMatches(typed, [other, sample])[0].sampleCode, typed).toBe("AT0001");
+      expect(isExactMatch(typed, sample), typed).toBe(false);
+    }
+  });
 });
 
 describe("where it is enforced", () => {

@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { ApiResult, MasterKind, MasterOptionDTO } from "@/types";
+import { withBasePath } from "@/lib/base-path";
 
 /**
  * Picker for one master vocabulary, used by the dashboard and the two record
@@ -38,7 +39,7 @@ export function MasterFilter({
 
     (async () => {
       try {
-        const response = await fetch(`/api/master-options?kind=${kind}&activeOnly=true`, {
+        const response = await fetch(withBasePath(`/api/master-options?kind=${kind}&activeOnly=true`), {
           signal: controller.signal,
         });
         const result: ApiResult<{ options: MasterOptionDTO[] }> = await response.json();

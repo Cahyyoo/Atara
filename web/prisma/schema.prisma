@@ -458,6 +458,15 @@ model LabRecord {
   measurementMethod   String?   @map("measurement_method")
   solutionId          String?   @map("solution_id")
   measurementFinished DateTime? @map("measurement_finished")
+  /// Which X-ray instrument read it ("S2 PUMA"). Entered with the results.
+  xrayInstrument      String?   @map("xray_instrument")
+
+  /// The moisture-content weighing, entered by the Database role: the pan
+  /// (Wp), pan with the wet sample (W0) and pan with the dried sample (Wd), in
+  /// grams. MC = (W0 - Wd) * 100 / (W0 - Wp), computed rather than stored.
+  wp Decimal? @map("mc_wp") @db.Decimal(10, 2)
+  w0 Decimal? @map("mc_w0") @db.Decimal(10, 2)
+  wd Decimal? @map("mc_wd") @db.Decimal(10, 2)
 
   remarks String? @db.Text
 
@@ -488,6 +497,9 @@ model LabRecordAudit {
   changedAt   DateTime  @default(now()) @map("changed_at")
 
   @@index([labRecordId])
+  /// The change history, newest first, across every record: without it each page
+  /// sorted the whole audit table (43 s at half a million rows).
+  @@index([changedAt, id])
   @@map("lab_record_audits")
 }
 
@@ -537,4 +549,13 @@ model SpentChallenge {
 
   @@index([expiresAt])
   @@map("spent_challenges")
+}
+
+/// One row per code sequence allocated "read the highest, add one" (see
+/// sample-creation.ts). Nothing is stored here: a generation locks its row
+/// until it commits, so two generations never read the same highest code.
+model AllocationLock {
+  name String @id @db.VarChar(64)
+
+  @@map("allocation_locks")
 }

@@ -271,9 +271,10 @@ void main() {
 
       expect(container.read(sessionProvider).value, isNull);
       expect(await SessionService.getToken(), isNull);
-      final replaced = container.read(sessionReplacedProvider);
-      expect(replaced, isNotNull);
-      expect(replaced!.device, 'Aplikasi · iOS');
+      final notice = container.read(signedOutNoticeProvider);
+      expect(notice, isA<SessionReplaced>());
+      final replaced = notice! as SessionReplaced;
+      expect(replaced.device, 'Aplikasi · iOS');
       expect(replaced.at, DateTime.utc(2026, 9, 30, 6, 30));
       expect(replaced.deviceInfo, isNull);
     });
@@ -288,7 +289,8 @@ void main() {
 
       await expectLater(ApiService.instance.checkSession(), throwsA(anything));
 
-      final info = container.read(sessionReplacedProvider)?.deviceInfo;
+      final notice = container.read(signedOutNoticeProvider);
+      final info = (notice as SessionReplaced?)?.deviceInfo;
       expect(info, isNotNull);
       expect(info!.kind, DeviceKind.desktop);
       expect(info.os, 'Windows');
@@ -310,7 +312,7 @@ void main() {
       await expectLater(ApiService.instance.checkSession(), throwsA(anything));
 
       expect(container.read(sessionProvider).value, isNull);
-      expect(container.read(sessionReplacedProvider), isNull);
+      expect(container.read(signedOutNoticeProvider), isNull);
     });
 
     test('a current session is left alone', () async {
@@ -381,7 +383,7 @@ void main() {
         expect(container.read(sessionProvider).value, isNull);
         expect(await SessionService.getToken(), isNull);
         // A deliberate sign-out is not "another phone took over".
-        expect(container.read(sessionReplacedProvider), isNull);
+        expect(container.read(signedOutNoticeProvider), isNull);
       });
     }
 

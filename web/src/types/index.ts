@@ -64,6 +64,12 @@ export interface LabRecordDTO {
   measurementMethod: string | null;
   solutionId: string | null;
   measurementFinished: string | null;
+  /** The X-ray instrument it was read on: "S2 PUMA". */
+  xrayInstrument: string | null;
+  /** Moisture-content weighing, grams: pan, pan + wet sample, pan + dried sample. */
+  wp: number | null;
+  w0: number | null;
+  wd: number | null;
   placeId: string | null;
   rockTypeId: string | null;
   nonProdId: string | null;
@@ -78,6 +84,25 @@ export interface LabRecordDTO {
   remarks: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+/** One row of a pasted Wp/W0/Wd block, as the server found and checked it. */
+export interface WeightsPreviewRow {
+  line: number;
+  key: string;
+  status: "update" | "unchanged" | "unknown" | "ambiguous" | "invalid";
+  message?: string;
+  record?: { id: string; labCode: string; sampleIdent: string | null; sampleCode: string };
+  from?: { wp: number | null; w0: number | null; wd: number | null };
+  to?: { wp: number | null; w0: number | null; wd: number | null };
+  /** The moisture content the weighing comes to, once applied. */
+  mc?: number | null;
+}
+
+export interface WeightsPasteResult {
+  rows: WeightsPreviewRow[];
+  summary: { total: number; update: number; unchanged: number; unknown: number; invalid: number };
+  saved: number;
 }
 
 export interface LabRecordAuditDTO {

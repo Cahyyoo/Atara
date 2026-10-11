@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Brand, SidebarNav } from "@/components/layout/sidebar-nav";
+import { VersionFooter } from "@/components/layout/version-footer";
 import { UserMenu } from "@/components/layout/user-menu";
 import { QuickSearch } from "@/components/layout/quick-search";
 import { MotionProvider, PageTransition } from "@/components/layout/motion-provider";
@@ -91,6 +92,8 @@ export function AppShell({
         <main className="flex-1 overflow-x-clip">
           <div className="mx-auto max-w-7xl px-4 pb-8 pt-2 sm:px-6">
             <PageTransition>{children}</PageTransition>
+            {/* Outside the transition, so it does not animate on every move. */}
+            <VersionFooter />
           </div>
         </main>
       </div>

@@ -40,6 +40,7 @@ import type { GradeControlResult, GradeRow } from "@/lib/grade-control";
 import { cn } from "@/lib/utils";
 import type { ApiResult } from "@/types";
 import { IoDownloadOutline, IoReloadOutline } from "react-icons/io5";
+import { withBasePath } from "@/lib/base-path";
 
 const FIELD_LABELS: Record<(typeof GRADE_FIELDS)[number], string> = {
   ni: "Ni",
@@ -100,7 +101,7 @@ export function GradeControlView() {
     const controller = new AbortController();
     (async () => {
       try {
-        const response = await fetch(`/api/grade-control?${query}`, { signal: controller.signal });
+        const response = await fetch(withBasePath(`/api/grade-control?${query}`), { signal: controller.signal });
         const body: ApiResult<GradeControlResult> = await response.json();
         setLoaded(
           body.success

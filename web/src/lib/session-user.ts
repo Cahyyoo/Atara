@@ -17,8 +17,10 @@ export type SessionState =
       status: "active";
       role: Role;
       /**
-       * The password an administrator chose has to be replaced first. Web
-       * sessions only for now: the phone has no screen for it yet.
+       * The password an administrator chose has to be replaced first, on the
+       * web and on the phone alike. It matters most on the phone: operators
+       * are handed their role's shared default, and they are the people who
+       * work from a phone all day.
        */
       mustChangePassword: boolean;
     }
@@ -58,7 +60,7 @@ export const loadSession = cache(
       return {
         status: "active",
         role: session.user.role,
-        mustChangePassword: session.user.mustChangePassword && session.client === "WEB",
+        mustChangePassword: session.user.mustChangePassword,
       };
     }
 
