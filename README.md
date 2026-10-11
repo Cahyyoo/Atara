@@ -1,6 +1,16 @@
-# Atara — Sistem Tracking & Monitoring Sampel
+# Atara — Super App
 
-Sistem end-to-end untuk melacak pergerakan sampel dari penerimaan hingga laporan: generate & cetak label barcode/QR di web, pindai & update tahapan via aplikasi mobile operator, input hasil uji laboratorium, dan pantau seluruh pergerakan secara real-time di dashboard.
+Satu aplikasi dengan beberapa modul, satu modul untuk setiap departemen:
+
+- **Lab · Monitoring Sampel** (departemen LAB). Lacak sampel dari penerimaan hingga laporan:
+  - generate & cetak label barcode/QR di web;
+  - pindai & update tahapan via aplikasi mobile operator;
+  - input hasil uji laboratorium;
+  - pantau seluruh pergerakan secara real-time di dashboard.
+- **Eksplorasi** (departemen EKSPLORASI). Manage Data Drilling: daftar lubang bor beserta koordinat, orientasi, kedalaman, dan statusnya.
+- **Sistem**. Satu **Super Admin** mengelola akun admin setiap departemen, pengumuman, audit login, dan backup. Setiap admin departemen hanya mengelola fitur dan staf di modulnya sendiri.
+
+Setelah masuk, pengguna mendarat di portal `/home` yang hanya menampilkan modul miliknya. Detail arsitekturnya ada di [`web/README.md`](web/README.md#konsep-super-app).
 
 ## Struktur Repo
 
@@ -13,9 +23,9 @@ Atara/
 
 Setiap folder punya README sendiri dengan detail setup: [`web/README.md`](web/README.md), [`mobile/README.md`](mobile/README.md), [`face/README.md`](face/README.md).
 
-## Alur Kerja
+## Alur Kerja Modul Lab
 
-1. **Generate & Print** — Pengguna peran DATABASE membuat sampel di `/samples/generate` (satu atau massal). Sistem menghasilkan kode sampel unik (`SMPL-YYYY-NNNNN`) beserta QR code dan kode lab per hari shift (`SPR.QLAB.YYYYMMDD.NNN`), lalu label dicetak dan ditempel ke wadah fisik sampel.
+1. **Generate & Print** — Pengguna peran DATABASE membuat sampel di `/lab/samples/generate` (satu atau massal). Sistem menghasilkan kode sampel unik (`SMPL-YYYY-NNNNN`) beserta QR code dan kode lab per hari shift (`SPR.QLAB.YYYYMMDD.NNN`), lalu label dicetak dan ditempel ke wadah fisik sampel.
 2. **Scan** — Operator membuka aplikasi mobile dan memindai barcode pada sampel.
 3. **Update Tahapan** — Operator memilih tahapan berikutnya (Diterima → Prep Basah → Prep Kering → Analisa → Report), menambahkan catatan opsional, lalu submit. Koreksi (mundur/lompat tahap) diperbolehkan dengan alasan. Scan yang dilakukan saat offline diantrekan dan dikirim begitu koneksi kembali.
 4. **Input Hasil Uji** — Pengguna peran ANALISIS memasukkan hasil analisa per sampel, termasuk sub-sampel (mis. fraksi `(-20)`).
@@ -23,14 +33,18 @@ Setiap folder punya README sendiri dengan detail setup: [`web/README.md`](web/RE
 
 ## Peran
 
-| Peran    | Website                                                                                 | Aplikasi Mobile               |
-| -------- | --------------------------------------------------------------------------------------- | ----------------------------- |
-| ADMIN    | Dashboard, Database Sampel (lihat & export), Aktivitas, Pengguna, Master Data           | —                             |
-| DATABASE | Dashboard, Buat Barcode, Cetak Ulang Label, Database Sampel (edit, hapus/pulihkan, export) | —                          |
-| ANALISIS | Dashboard, Input Hasil Uji                                                              | —                             |
-| OPERATOR | Dashboard                                                                               | Scan & perbarui tahapan       |
+Setiap akun adalah sebuah **peran di dalam departemen**.
 
-Aturan lengkapnya ada di satu tempat, `web/src/lib/permissions.ts`.
+| Peran       | Departemen | Website                                                                                 | Aplikasi Mobile               |
+| ----------- | ---------- | --------------------------------------------------------------------------------------- | ----------------------------- |
+| SUPER_ADMIN | —          | Akun admin setiap departemen, pengumuman, audit login, backup                           | —                             |
+| ADMIN       | LAB        | Dashboard lab, Database Sampel (lihat & export), Aktivitas, Pengguna (staf lab), Master Data | —                        |
+| DATABASE    | LAB        | Dashboard, Buat Barcode, Cetak Ulang Label, Database Sampel (edit, hapus/pulihkan, export) | —                          |
+| ANALISIS    | LAB        | Dashboard, Input Hasil Uji                                                              | —                             |
+| OPERATOR    | LAB        | Dashboard                                                                               | Scan & perbarui tahapan       |
+| ADMIN       | EKSPLORASI | Data Drilling                                                                           | —                             |
+
+Aturan lengkapnya ada di `web/src/lib/permissions.ts` (siapa boleh apa) dan `web/src/lib/user-scope.ts` (siapa mengelola akun siapa).
 
 ## Autentikasi
 
@@ -50,18 +64,20 @@ Urutan startup: **database → layanan face → backend web → aplikasi mobile*
 
 ## Akun Default (dari seed database)
 
-| Peran    | Email                  | Password      | Digunakan di                |
-| -------- | ---------------------- | ------------- | --------------------------- |
-| ADMIN    | admin@atara.local      | lihat catatan | Web                         |
-| DATABASE | database@atara.local   | lihat catatan | Web                         |
-| ANALISIS | analisis@atara.local   | lihat catatan | Web                         |
-| OPERATOR | operator@atara.local   | lihat catatan | Web & Aplikasi Mobile       |
+| Peran       | Departemen | Email                    | Password      | Digunakan di                |
+| ----------- | ---------- | ------------------------ | ------------- | --------------------------- |
+| SUPER_ADMIN | —          | superadmin@atara.local   | lihat catatan | Web                         |
+| ADMIN       | LAB        | admin@atara.local        | lihat catatan | Web                         |
+| DATABASE    | LAB        | database@atara.local     | lihat catatan | Web                         |
+| ANALISIS    | LAB        | analisis@atara.local     | lihat catatan | Web                         |
+| OPERATOR    | LAB        | operator@atara.local     | lihat catatan | Web & Aplikasi Mobile       |
+| ADMIN       | EKSPLORASI | eksplorasi@atara.local   | lihat catatan | Web                         |
 
-> **Catatan kata sandi.** Akun ini dibuat oleh `npm run db:seed`. Di lingkungan pengembangan kata sandinya ada di `web/prisma/seed-policy.ts`. Di produksi seed **menolak** membuat akun kecuali `SEED_ADMIN_PASSWORD` (minimal 12 karakter) diberikan, dan hanya akun admin yang dibuat. Ganti kata sandi admin setelah masuk pertama kali.
+> **Catatan kata sandi.** Akun ini dibuat oleh `npm run db:seed`. Di lingkungan pengembangan kata sandinya ada di `web/prisma/seed-policy.ts`. Di produksi seed **menolak** membuat akun kecuali `SEED_ADMIN_PASSWORD` (minimal 12 karakter) diberikan, dan yang dibuat hanya akun super admin. Ganti kata sandi super admin setelah masuk pertama kali.
 
 ## Skema Data Inti
 
-- **User** — akun beserta perannya, dan pengaturan TOTP bila ada.
+- **User** — akun beserta peran dan departemennya (`LAB` / `EKSPLORASI`, kosong untuk super admin), dan pengaturan TOTP bila ada.
 - **Stage** — master data tahapan laboratorium beserta urutannya (`sequence_order`).
 - **Sample** — satu record per sampel fisik: kode unik, batch, tahapan & status saat ini. Dihapus secara *soft delete* sehingga dapat dipulihkan.
 - **SampleLog** — histori setiap perpindahan tahapan (sampel, tahapan, operator, catatan, waktu).
@@ -69,5 +85,6 @@ Urutan startup: **database → layanan face → backend web → aplikasi mobile*
 - **MasterOption** — kosakata penyusun Sample ID (tempat, jenis batuan, non-produksi, pit, SIR).
 - **FaceEnrollment** — descriptor wajah terdaftar per akun (128 float, bukan foto).
 - **UserSession** / **SignInAudit** — sesi aktif dan jejak setiap upaya masuk.
+- **DrillHole** — modul Eksplorasi: satu record per lubang bor (Hole ID unik, area, koordinat collar, azimuth/dip, kedalaman, status, tanggal).
 
 Lihat `web/prisma/schema.prisma` untuk definisi lengkap.

@@ -1,11 +1,11 @@
 import type { NextRequest } from "next/server";
 import { loadStages } from "@/lib/stages-cache";
 import { jsonSuccess, handleApiError } from "@/lib/api-response";
-import { requireSession } from "@/lib/api-auth";
+import { requireCapability } from "@/lib/api-auth";
 
 export async function GET(request: NextRequest) {
   try {
-    await requireSession(request);
+    await requireCapability(request, "viewDashboard");
 
     const stages = await loadStages();
 

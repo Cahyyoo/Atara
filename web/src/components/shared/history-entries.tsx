@@ -5,7 +5,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import { ASSAY_FIELDS } from "@/lib/assay";
 import { RESULT_KEYS } from "@/lib/overwrite";
 import { formatWitaDateTime } from "@/lib/shift-date";
-import { subSamplePath } from "@/lib/sample-ident";
+import { subSamplePath, samplePath } from "@/lib/sample-ident";
 import { cn } from "@/lib/utils";
 import type { RecordHistoryEntry } from "@/types";
 
@@ -81,7 +81,7 @@ export function HistoryEntries({
               <span className="font-medium">{entry.changedBy}</span>
               {showSample && entry.record.sampleCode ? (
                 <Link
-                  href={`/samples/${encodeURIComponent(entry.record.sampleCode)}`}
+                  href={samplePath(entry.record.sampleCode)}
                   className="font-mono text-xs text-primary hover:underline"
                 >
                   {entry.record.sampleCode}

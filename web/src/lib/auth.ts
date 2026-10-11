@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
 import { assertJwtSecret } from "@/lib/env-guard";
 import { isHttpsDeployment } from "@/lib/https";
-import { isRole, type Role } from "@/lib/permissions";
+import { isDepartment, isRole, type Department, type Role } from "@/lib/permissions";
 
 export const SESSION_COOKIE_NAME = "atara_session";
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
@@ -37,6 +37,12 @@ export interface SessionPayload {
   name: string;
   email: string;
   role: Role;
+  /**
+   * The module the account works in; null for the super admin. Re-read from
+   * the database with the role (loadSession), so a token signed before the
+   * account had one is corrected on its first request.
+   */
+  department: Department | null;
   /**
    * The UserSession row this token belongs to, carried as the `sid` claim.
    * The token is only good while that row has not ended -- see
@@ -92,6 +98,7 @@ export async function verifySessionToken(token: string): Promise<SessionPayload 
         name: payload.name,
         email: payload.email,
         role: payload.role,
+        department: isDepartment(payload.department) ? payload.department : null,
         sessionId: payload.sid,
       };
     }

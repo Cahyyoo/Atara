@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { InlineNotice } from "@/components/ui/inline-notice";
 import { toast } from "@/components/ui/toast";
-import { ROLE_LABEL_KEYS } from "@/lib/role-labels";
+import { personaLabelKeys } from "@/lib/role-labels";
 import type { ApiResult, UserDTO } from "@/types";
 import { IoReloadOutline } from "react-icons/io5";
 import { withBasePath } from "@/lib/base-path";
@@ -80,7 +80,7 @@ export function ResetPasswordDialog({
               <DialogDescription>
                 {t("confirm", {
                   name: target.name,
-                  role: tDialog(ROLE_LABEL_KEYS[target.role].name),
+                  role: tDialog(personaLabelKeys(target).name),
                 })}
               </DialogDescription>
             </DialogHeader>

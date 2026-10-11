@@ -32,7 +32,7 @@ describe.skipIf(!reachable)("the password an administrator chose", () => {
       userId: user.id,
       name: user.name,
       email: user.email,
-      role: "DATABASE",
+      role: "DATABASE", department: "LAB" as const,
       sessionId: session.id,
     });
     return {
@@ -47,7 +47,7 @@ describe.skipIf(!reachable)("the password an administrator chose", () => {
         name: user.name,
         email: user.email,
         password: await bcrypt.hash("Initial123!", 4),
-        role: "DATABASE",
+        role: "DATABASE", department: "LAB" as const,
         mustChangePassword: true,
       },
     });

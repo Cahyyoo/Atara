@@ -7,7 +7,8 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
-import { can, type Role } from "@/lib/permissions";
+import type { Access } from "@/lib/permissions";
+import { holdsSection } from "@/lib/help-sections";
 import {
   TOUR_PARAM,
   TOUR_STEP_PARAM,
@@ -61,10 +62,10 @@ function clearTourParams() {
  * Runs the tour named in `?tour=` on whatever page is open, for a role that
  * may use that page. Mounted once, in the app shell.
  */
-export function TourRunner({ role }: { role: Role }) {
+export function TourRunner({ access }: { access: Access }) {
   const params = useSearchParams();
   const tour = tourFor(params.get(TOUR_PARAM));
-  if (!tour || !can(role, tourCapability(tour.key))) return null;
+  if (!tour || !holdsSection(access, tourCapability(tour.key))) return null;
   const start = Math.max(0, Math.min(tour.steps.length - 1, Number(params.get(TOUR_STEP_PARAM)) || 0));
   return <ActiveTour key={tour.key} tour={tour} startAt={start} />;
 }

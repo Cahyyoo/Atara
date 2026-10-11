@@ -15,14 +15,15 @@ void main() {
     'role': role,
   };
 
-  test('all four roles survive a round trip spelled exactly as sent', () {
+  test('every role survives a round trip spelled exactly as sent', () {
     const expected = {
+      'SUPER_ADMIN': UserRole.superAdmin,
       'ADMIN': UserRole.admin,
       'DATABASE': UserRole.database,
       'ANALISIS': UserRole.analisis,
       'OPERATOR': UserRole.operator,
     };
-    expect(UserRole.values, hasLength(4));
+    expect(UserRole.values, hasLength(5));
 
     expected.forEach((wire, role) {
       final user = UserModel.fromJson(json(wire));

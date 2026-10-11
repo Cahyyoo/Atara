@@ -19,6 +19,7 @@ import { WelcomeDialog } from "@/components/layout/welcome-dialog";
 import { TourRunner } from "@/components/tour/tour-runner";
 import type { SessionPayload } from "@/lib/auth";
 import { helpSectionForPath } from "@/lib/help-sections";
+import { isLabPersona, personaOf } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
 import type { AnnouncementDTO } from "@/types";
 import { IoHelpCircleOutline, IoMenuOutline } from "react-icons/io5";
@@ -40,6 +41,9 @@ export function AppShell({
   const pathname = usePathname();
   const [isNavOpen, setIsNavOpen] = useState(false);
   const helpSection = helpSectionForPath(pathname);
+  const persona = personaOf(user);
+  // Sample lookup and the sample pages' "back" belong to the lab module.
+  const inLab = isLabPersona(persona);
 
   return (
     <MotionProvider>
@@ -82,7 +86,7 @@ export function AppShell({
             >
               <IoHelpCircleOutline className="size-5" />
             </Link>
-            <QuickSearch />
+            {inLab ? <QuickSearch /> : null}
             <UserMenu user={user} />
           </div>
         </header>
@@ -104,11 +108,11 @@ export function AppShell({
           After the tab lock, so its dialog sits on top when both apply. */}
       <SessionWatch />
       {/* Where the sample pages were opened from, for their "Kembali". */}
-      <SampleOriginTracker />
-      {showWelcome ? <WelcomeDialog role={user.role} name={user.name} /> : null}
+      {inLab ? <SampleOriginTracker /> : null}
+      {showWelcome && persona ? <WelcomeDialog persona={persona} name={user.name} /> : null}
       {/* A guided tour, when the address asks for one (?tour=...). */}
       <Suspense fallback={null}>
-        <TourRunner role={user.role} />
+        <TourRunner access={user} />
       </Suspense>
 
       <Dialog open={isNavOpen} onOpenChange={setIsNavOpen}>

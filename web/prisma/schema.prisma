@@ -1,4 +1,4 @@
-// Prisma schema for Atara - Sistem Tracking & Monitoring Sampel
+// Prisma schema for Atara - Super App (Lab / Sample Monitoring, Eksplorasi)
 
 generator client {
   provider = "prisma-client-js"
@@ -10,11 +10,22 @@ datasource db {
 }
 
 /// Who may do what is decided in src/lib/permissions.ts, not here.
+///
+/// A role means something only together with the department: ADMIN in LAB
+/// runs the lab module, ADMIN in EKSPLORASI runs the exploration module.
+/// SUPER_ADMIN belongs to no department and manages the department admins.
 enum UserRole {
+  SUPER_ADMIN
   ADMIN
   DATABASE
   ANALISIS
   OPERATOR
+}
+
+/// The sub-sections of the app. Each one is a module with its own pages.
+enum Department {
+  LAB
+  EKSPLORASI
 }
 
 enum SampleStatus {
@@ -58,13 +69,15 @@ model MasterOption {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String
-  role      UserRole @default(OPERATOR)
-  isActive  Boolean  @default(true) @map("is_active")
-  createdAt DateTime @default(now())
+  id         String      @id @default(cuid())
+  name       String
+  email      String      @unique
+  password   String
+  role       UserRole    @default(OPERATOR)
+  /// Null only for SUPER_ADMIN. See isValidAccess in src/lib/permissions.ts.
+  department Department?
+  isActive   Boolean     @default(true) @map("is_active")
+  createdAt  DateTime    @default(now())
 
   /// Consecutive failed sign-ins; reset on success.
   failedLoginAttempts Int       @default(0) @map("failed_login_attempts")
@@ -108,20 +121,23 @@ model User {
   /// before anything else. Cleared when they do.
   mustChangePassword Boolean @default(false) @map("must_change_password")
 
-  createdSamples  Sample[]         @relation("SampleCreatedBy")
-  deletedSamples  Sample[]         @relation("SampleDeletedBy")
-  sampleLogs      SampleLog[]      @relation("SampleLogOperator")
-  labRecordEdits  LabRecord[]      @relation("LabRecordUpdatedBy")
-  labRecordAudits LabRecordAudit[] @relation("LabRecordAuditUser")
-  faceEnrollments FaceEnrollment[] @relation("FaceEnrollmentUser")
-  faceEnrolled    FaceEnrollment[] @relation("FaceEnrollmentTakenBy")
-  faceConsentFor  User[]           @relation("FaceConsentTakenBy")
-  totpRequestedFor User[]          @relation("TotpRequestedBy")
-  signInAudits    SignInAudit[]    @relation("SignInAuditUser")
-  sessions        UserSession[]    @relation("UserSessionUser")
-  announcements   Announcement[]   @relation("AnnouncementAuthor")
-  rolePasswordsSet RolePasswordDefault[] @relation("RolePasswordDefaultSetBy")
+  createdSamples    Sample[]              @relation("SampleCreatedBy")
+  deletedSamples    Sample[]              @relation("SampleDeletedBy")
+  sampleLogs        SampleLog[]           @relation("SampleLogOperator")
+  labRecordEdits    LabRecord[]           @relation("LabRecordUpdatedBy")
+  labRecordAudits   LabRecordAudit[]      @relation("LabRecordAuditUser")
+  faceEnrollments   FaceEnrollment[]      @relation("FaceEnrollmentUser")
+  faceEnrolled      FaceEnrollment[]      @relation("FaceEnrollmentTakenBy")
+  faceConsentFor    User[]                @relation("FaceConsentTakenBy")
+  totpRequestedFor  User[]                @relation("TotpRequestedBy")
+  signInAudits      SignInAudit[]         @relation("SignInAuditUser")
+  sessions          UserSession[]         @relation("UserSessionUser")
+  announcements     Announcement[]        @relation("AnnouncementAuthor")
+  rolePasswordsSet  RolePasswordDefault[] @relation("RolePasswordDefaultSetBy")
+  drillHolesCreated DrillHole[]           @relation("DrillHoleCreatedBy")
+  drillHolesUpdated DrillHole[]           @relation("DrillHoleUpdatedBy")
 
+  @@index([department, role])
   @@map("users")
 }
 
@@ -205,13 +221,13 @@ model UserSession {
   /// device that is signed out can say it in its own language.
   deviceInfo Json?   @map("device_info")
   /// As on SignInAudit: null unless the deployment can vouch for it.
-  address String? @db.VarChar(64)
+  address    String? @db.VarChar(64)
 
-  createdAt   DateTime          @default(now()) @map("created_at")
-  endedAt     DateTime?         @map("ended_at")
-  endedReason SessionEndReason? @map("ended_reason")
+  createdAt    DateTime          @default(now()) @map("created_at")
+  endedAt      DateTime?         @map("ended_at")
+  endedReason  SessionEndReason? @map("ended_reason")
   /// The session that took this one's place, when endedReason is REPLACED.
-  replacedById String?          @map("replaced_by")
+  replacedById String?           @map("replaced_by")
 
   /// "Is anybody else signed in in this slot?": asked at every sign-in.
   @@index([userId, client, endedAt])
@@ -517,15 +533,15 @@ model LabRecordAudit {
 /// only because an admin doing it can already write descriptors into any
 /// account through the route below.
 model FaceEnrollment {
-  id         String   @id @default(cuid())
-  userId     String   @map("user_id")
-  user       User     @relation("FaceEnrollmentUser", fields: [userId], references: [id], onDelete: Cascade)
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  user        User     @relation("FaceEnrollmentUser", fields: [userId], references: [id], onDelete: Cascade)
   /// 128 float32 values: 512 bytes exactly.
-  descriptor Bytes
-  createdAt  DateTime @default(now()) @map("created_at")
+  descriptor  Bytes
+  createdAt   DateTime @default(now()) @map("created_at")
   /// The admin who ran the enrolment, for the same reason every other write here is attributed.
-  createdById String  @map("created_by")
-  createdBy   User    @relation("FaceEnrollmentTakenBy", fields: [createdById], references: [id])
+  createdById String   @map("created_by")
+  createdBy   User     @relation("FaceEnrollmentTakenBy", fields: [createdById], references: [id])
 
   @@index([userId])
   @@map("face_enrollments")
@@ -558,4 +574,45 @@ model AllocationLock {
   name String @id @db.VarChar(64)
 
   @@map("allocation_locks")
+}
+
+// ---------------------------------------------------------------------------
+// Eksplorasi module
+// ---------------------------------------------------------------------------
+
+enum DrillHoleStatus {
+  PLANNED
+  ONGOING
+  COMPLETED
+  ABANDONED
+}
+
+/// One drill hole: where it is, which way it points, how deep it went.
+/// Deliberately minimal for now; intervals, logs and assays come later.
+model DrillHole {
+  id         String          @id @default(cuid())
+  holeId     String          @unique @map("hole_id") @db.VarChar(50)
+  /// Prospect or block.
+  area       String?         @db.VarChar(100)
+  easting    Decimal?        @db.Decimal(12, 3)
+  northing   Decimal?        @db.Decimal(12, 3)
+  elevation  Decimal?        @db.Decimal(8, 2)
+  azimuth    Decimal?        @db.Decimal(5, 2)
+  dip        Decimal?        @db.Decimal(5, 2)
+  totalDepth Decimal?        @map("total_depth") @db.Decimal(8, 2)
+  status     DrillHoleStatus @default(PLANNED)
+  startDate  DateTime?       @map("start_date") @db.Date
+  endDate    DateTime?       @map("end_date") @db.Date
+  remarks    String?         @db.Text
+
+  createdById String   @map("created_by")
+  createdBy   User     @relation("DrillHoleCreatedBy", fields: [createdById], references: [id])
+  updatedById String?  @map("updated_by")
+  updatedBy   User?    @relation("DrillHoleUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([area])
+  @@map("drill_holes")
 }

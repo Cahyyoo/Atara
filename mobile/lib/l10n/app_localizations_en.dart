@@ -24,6 +24,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statusCompleted => 'Completed';
 
   @override
+  String get roleSuperAdmin => 'Super Admin';
+
+  @override
   String get roleAdmin => 'Administrator';
 
   @override

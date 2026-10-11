@@ -24,7 +24,7 @@ import {
  */
 export async function GET(request: NextRequest) {
   try {
-    await requireCapability(request, "viewActivity");
+    await requireCapability(request, "viewSignInAudit");
 
     const { searchParams } = new URL(request.url);
     const query = listSignInAuditQuerySchema.parse({

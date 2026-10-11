@@ -24,23 +24,31 @@ export async function issueSessionResponse(
   extra: Record<string, unknown> = {}
 ) {
   const sessionId = await startSession(user.id, headers);
+
+  // Read here rather than asked of every caller: the department, which the
+  // token carries beside the role, and whether the password an administrator
+  // chose has to be replaced first, so the browser can go straight there.
+  // The phone ignores the latter for now.
+  const account = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { mustChangePassword: true, department: true },
+  });
+  const department = account?.department ?? null;
+
   const token = await signSessionToken({
     userId: user.id,
     name: user.name,
     email: user.email,
     role: user.role,
+    department,
     sessionId,
   });
-
-  // Whether the password an administrator chose has to be replaced first, so
-  // the browser can go straight there. The phone ignores it for now.
-  const account = await prisma.user.findUnique({ where: { id: user.id }, select: { mustChangePassword: true } });
 
   const response = jsonSuccess({
     ...extra,
     mustChangePassword: account?.mustChangePassword ?? false,
     token,
-    user: { id: user.id, name: user.name, email: user.email, role: user.role },
+    user: { id: user.id, name: user.name, email: user.email, role: user.role, department },
   });
 
   response.cookies.set(SESSION_COOKIE_NAME, token, sessionCookieOptions(SESSION_COOKIE_MAX_AGE));

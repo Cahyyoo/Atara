@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,8 +22,9 @@ import {
 } from "@/components/ui/dialog";
 import { isLockedOut } from "@/components/users/users-table";
 import type { ApiResult, UserDTO, UserRole } from "@/types";
-import { ROLES } from "@/lib/permissions";
-import { ROLE_LABEL_KEYS } from "@/lib/role-labels";
+import type { Access, Department } from "@/lib/permissions";
+import { DEPARTMENT_LABEL_KEYS, personaLabelKeys } from "@/lib/role-labels";
+import { assignableDepartments, assignableRoles } from "@/lib/user-scope";
 import type { RolePasswordStatus } from "@/lib/role-password-status";
 import { IoKeyOutline, IoLockOpenOutline, IoReloadOutline, IoWarningOutline } from "react-icons/io5";
 import { InlineNotice } from "@/components/ui/inline-notice";
@@ -37,11 +37,13 @@ interface UserDialogProps {
   target: UserDialogTarget;
   /** The signed-in admin, who may not demote or deactivate themselves. */
   currentUserId: string;
+  /** The signed-in admin's role and department: what they may hand out. */
+  manager: Access;
   onClose: () => void;
   onSaved: (user: UserDTO, isNew: boolean) => void;
 }
 
-export function UserDialog({ target, currentUserId, onClose, onSaved }: UserDialogProps) {
+export function UserDialog({ target, currentUserId, manager, onClose, onSaved }: UserDialogProps) {
   return (
     <Dialog
       open={target !== null}
@@ -58,6 +60,7 @@ export function UserDialog({ target, currentUserId, onClose, onSaved }: UserDial
             key={target === "new" ? "new" : target.id}
             target={target}
             currentUserId={currentUserId}
+            manager={manager}
             onClose={onClose}
             onSaved={onSaved}
           />
@@ -70,11 +73,12 @@ export function UserDialog({ target, currentUserId, onClose, onSaved }: UserDial
 interface UserFormProps {
   target: UserDTO | "new";
   currentUserId: string;
+  manager: Access;
   onClose: () => void;
   onSaved: (user: UserDTO, isNew: boolean) => void;
 }
 
-function UserForm({ target, currentUserId, onClose, onSaved }: UserFormProps) {
+function UserForm({ target, currentUserId, manager, onClose, onSaved }: UserFormProps) {
   const t = useTranslations("users.dialog");
   const tUsers = useTranslations("users");
   const tCommon = useTranslations("common");
@@ -84,7 +88,18 @@ function UserForm({ target, currentUserId, onClose, onSaved }: UserFormProps) {
 
   const [name, setName] = useState(user?.name ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
-  const [role, setRole] = useState<UserRole>(user?.role ?? "OPERATOR");
+  // Only what this manager may hand out (user-scope.ts), which is also all
+  // the server accepts: the super admin makes department admins, the lab's
+  // admin makes lab staff.
+  const roles = assignableRoles(manager);
+  // Most new lab accounts are operators, so that is where the picker starts.
+  const [role, setRole] = useState<UserRole>(
+    user?.role ?? (roles.includes("OPERATOR") ? "OPERATOR" : roles[0] ?? "OPERATOR")
+  );
+  const departments = assignableDepartments(manager, role);
+  const [department, setDepartment] = useState<Department | null>(
+    user?.department ?? departments[0] ?? null
+  );
   const [isActive, setIsActive] = useState(user?.isActive ?? true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -147,8 +162,8 @@ function UserForm({ target, currentUserId, onClose, onSaved }: UserFormProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(
           isNew
-            ? { name, email, role }
-            : { name, role, isActive }
+            ? { name, email, role, department }
+            : { name, role, department, isActive }
         ),
       });
       const result: ApiResult<UserDTO> = await response.json();
@@ -205,17 +220,25 @@ function UserForm({ target, currentUserId, onClose, onSaved }: UserFormProps) {
           <Label htmlFor="user-role">{tUsers("role")}</Label>
           <Select
             value={role}
-            items={Object.fromEntries(ROLES.map((value) => [value, t(ROLE_LABEL_KEYS[value].name)]))}
-            onValueChange={(value) => setRole(value as UserRole)}
+            items={Object.fromEntries(
+              roles.map((value) => [value, t(personaLabelKeys({ role: value, department }).name)])
+            )}
+            onValueChange={(value) => {
+              const next = value as UserRole;
+              setRole(next);
+              // Keep the department when the new role may have it.
+              const allowed = assignableDepartments(manager, next);
+              if (!department || !allowed.includes(department)) setDepartment(allowed[0] ?? null);
+            }}
             disabled={isSelf}
           >
             <SelectTrigger id="user-role">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {ROLES.map((value) => (
+              {roles.map((value) => (
                 <SelectItem key={value} value={value}>
-                  {t(ROLE_LABEL_KEYS[value].name)}
+                  {t(personaLabelKeys({ role: value, department }).name)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -223,9 +246,36 @@ function UserForm({ target, currentUserId, onClose, onSaved }: UserFormProps) {
           {/* What the chosen role will see, said before it is saved rather than
               discovered by the person it was given to. */}
           <p className="text-xs text-muted-foreground">
-            {isSelf ? t("selfNote") : t(ROLE_LABEL_KEYS[role].hint)}
+            {isSelf ? t("selfNote") : t(personaLabelKeys({ role, department }).hint)}
           </p>
         </div>
+
+        {/* Only asked when there is a choice: the super admin puts an admin
+            in a department; a department's admin only has its own. */}
+        {departments.length > 1 ? (
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="user-department">{tUsers("department")}</Label>
+            <Select
+              value={department ?? ""}
+              items={Object.fromEntries(
+                departments.map((value) => [value, t(DEPARTMENT_LABEL_KEYS[value])])
+              )}
+              onValueChange={(value) => setDepartment(value as Department)}
+              disabled={isSelf}
+            >
+              <SelectTrigger id="user-department">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {departments.map((value) => (
+                  <SelectItem key={value} value={value}>
+                    {t(DEPARTMENT_LABEL_KEYS[value])}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ) : null}
 
         {/* No password to type: the account starts on the role's default
             and its owner replaces it on their first sign-in. */}
@@ -234,16 +284,21 @@ function UserForm({ target, currentUserId, onClose, onSaved }: UserFormProps) {
             <div className="flex items-start gap-2 rounded-lg bg-amber-500/10 px-3 py-2 text-sm text-amber-800 dark:text-amber-300">
               <IoWarningOutline className="mt-0.5 size-4 shrink-0" />
               <p>
-                {t("noRoleDefault", { role: t(ROLE_LABEL_KEYS[role].name) })}{" "}
-                <Link href="/admin" className="font-medium underline underline-offset-2">
+                {t("noRoleDefault", { role: t(personaLabelKeys({ role, department }).name) })}{" "}
+                {/* The defaults are on this same page, under the table. */}
+                <a
+                  href="#role-passwords"
+                  onClick={onClose}
+                  className="font-medium underline underline-offset-2"
+                >
                   {t("noRoleDefaultLink")}
-                </Link>
+                </a>
               </p>
             </div>
           ) : (
             <div className="flex items-start gap-2 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
               <IoKeyOutline className="mt-0.5 size-4 shrink-0" />
-              <p>{t("defaultPasswordNote", { role: t(ROLE_LABEL_KEYS[role].name) })}</p>
+              <p>{t("defaultPasswordNote", { role: t(personaLabelKeys({ role, department }).name) })}</p>
             </div>
           )
         ) : null}

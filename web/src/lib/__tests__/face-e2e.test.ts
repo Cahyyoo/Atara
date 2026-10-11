@@ -217,7 +217,7 @@ describe.skipIf(why !== null)("the face chain, browser to dlib and back", () => 
       userId,
       name: "Main Admin",
       email: ADMIN.email,
-      role: "ADMIN",
+      role: "ADMIN", department: "LAB" as const,
       sessionId,
     });
     cookie = `${SESSION_COOKIE_NAME}=${token}`;

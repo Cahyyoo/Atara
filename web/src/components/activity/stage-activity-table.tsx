@@ -33,6 +33,7 @@ import { stageLabel } from "@/lib/stages";
 import type { ApiResult, PaginationDTO, StageDTO } from "@/types";
 import { IoSearchOutline } from "react-icons/io5";
 import { withBasePath } from "@/lib/base-path";
+import { samplePath } from "@/lib/sample-ident";
 
 interface ActivityLog {
   id: string;
@@ -339,7 +340,7 @@ export function StageActivityTable({ stages }: { stages: StageOption[] }) {
                     </TableCell>
                     <TableCell>
                       <Link
-                        href={`/samples/${encodeURIComponent(log.sampleCode)}`}
+                        href={samplePath(log.sampleCode)}
                         className="font-mono text-sm font-medium text-primary hover:underline"
                       >
                         {log.sampleCode}

@@ -26,6 +26,7 @@ const USER: SessionPayload = {
   name: "Main Admin",
   email: "admin@atara.local",
   role: "ADMIN",
+  department: "LAB",
   sessionId: "s1",
 };
 
@@ -65,7 +66,7 @@ describe("UserMenu", () => {
 
     expect(await screen.findByText("admin@atara.local")).toBeDefined();
     // The role by its name, not the enum it is stored as.
-    expect(screen.getByText("Admin")).toBeDefined();
+    expect(screen.getByText("Admin Lab")).toBeDefined();
     expect(screen.queryByText("ADMIN")).toBeNull();
     expect(screen.getByText("Bahasa")).toBeDefined();
     expect(screen.getByText("Bahasa Indonesia")).toBeDefined();

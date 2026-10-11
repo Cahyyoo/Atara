@@ -1,6 +1,7 @@
 import type { IconType } from "react-icons";
 import {
   IoAppsOutline,
+  IoCompassOutline,
   IoCreateOutline,
   IoFlaskOutline,
   IoListOutline,
@@ -16,41 +17,48 @@ import {
   IoStatsChartOutline,
   IoTimeOutline,
 } from "react-icons/io5";
-import { can, type Capability, type Role } from "@/lib/permissions";
+import { can, type Capability, type Access } from "@/lib/permissions";
 
 /**
  * The guide's sections, each tied to the capability of the page it explains,
- * so a role is only taught what it can open. Each carries the same icon as
+ * so a role is only taught what it can open. A null capability is a section
+ * for everybody. Each carries the same icon as
  * its menu item. The words are in the message catalogues under
  * `help.sections.<key>`.
  */
 export const HELP_SECTIONS = [
-  { key: "dashboard", icon: IoAppsOutline, href: "/dashboard", capability: "viewDashboard" },
+  { key: "dashboard", icon: IoAppsOutline, href: "/lab/dashboard", capability: "viewDashboard" },
   { key: "quickSearch", icon: IoSearchOutline, capability: "viewDashboard" },
   { key: "sampleDetail", icon: IoFlaskOutline, capability: "viewDashboard" },
-  { key: "generate", icon: IoQrCodeOutline, href: "/samples/generate", capability: "generateSamples" },
-  { key: "labels", icon: IoPrintOutline, href: "/samples/labels", capability: "printLabels" },
-  { key: "database", icon: IoServerOutline, href: "/database", capability: "viewDatabase" },
-  { key: "dataQuality", icon: IoShieldCheckmarkOutline, href: "/data-quality", capability: "viewDatabase" },
-  { key: "assay", icon: IoCreateOutline, href: "/assay", capability: "enterResults" },
-  { key: "grade", icon: IoStatsChartOutline, href: "/grade", capability: "readLabRecords" },
-  { key: "masterData", icon: IoListOutline, href: "/master-data", capability: "manageMasterData" },
-  { key: "activity", icon: IoTimeOutline, href: "/activity", capability: "viewActivity" },
+  { key: "generate", icon: IoQrCodeOutline, href: "/lab/samples/generate", capability: "generateSamples" },
+  { key: "labels", icon: IoPrintOutline, href: "/lab/samples/labels", capability: "printLabels" },
+  { key: "database", icon: IoServerOutline, href: "/lab/database", capability: "viewDatabase" },
+  { key: "dataQuality", icon: IoShieldCheckmarkOutline, href: "/lab/data-quality", capability: "viewDatabase" },
+  { key: "assay", icon: IoCreateOutline, href: "/lab/assay", capability: "enterResults" },
+  { key: "grade", icon: IoStatsChartOutline, href: "/lab/grade", capability: "readLabRecords" },
+  { key: "masterData", icon: IoListOutline, href: "/lab/master-data", capability: "manageMasterData" },
+  { key: "activity", icon: IoTimeOutline, href: "/lab/activity", capability: "viewActivity" },
+  { key: "drilling", icon: IoCompassOutline, href: "/eksplorasi/drilling", capability: "manageDrilling" },
   { key: "users", icon: IoPeopleOutline, href: "/users", capability: "manageUsers" },
   { key: "admin", icon: IoSettingsOutline, href: "/admin", capability: "manageAnnouncements" },
   { key: "mobile", icon: IoPhonePortraitOutline, capability: "scanSamples" },
-  { key: "account", icon: IoPersonCircleOutline, capability: "viewDashboard" },
+  { key: "account", icon: IoPersonCircleOutline, capability: null },
 ] as const satisfies readonly {
   key: string;
   href?: string;
   icon: IconType;
-  capability: Capability;
+  capability: Capability | null;
 }[];
 
 export type HelpSectionKey = (typeof HELP_SECTIONS)[number]["key"];
 
-export function helpSectionsFor(role: Role) {
-  return HELP_SECTIONS.filter((section) => can(role, section.capability));
+/** Whether a section -- and the tour of the same name -- is for this person. */
+export function holdsSection(access: Access, capability: Capability | null): boolean {
+  return capability === null || can(access, capability);
+}
+
+export function helpSectionsFor(access: Access) {
+  return HELP_SECTIONS.filter((section) => holdsSection(access, section.capability));
 }
 
 /**
@@ -67,5 +75,5 @@ export function helpSectionForPath(pathname: string): HelpSectionKey | null {
     }
   }
   if (best) return best.key;
-  return pathname.startsWith("/samples/") ? "sampleDetail" : null;
+  return pathname.startsWith("/lab/samples/") ? "sampleDetail" : null;
 }

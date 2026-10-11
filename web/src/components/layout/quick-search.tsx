@@ -12,6 +12,7 @@ import { isExactMatch, normalizeLookupQuery } from "@/lib/sample-lookup";
 import type { ApiResult, SampleLookupDTO } from "@/types";
 import { IoReloadOutline, IoSearchOutline } from "react-icons/io5";
 import { withBasePath } from "@/lib/base-path";
+import { samplePath } from "@/lib/sample-ident";
 
 /** A pause in typing long enough to be worth a request. */
 export const LOOKUP_DEBOUNCE_MS = 200;
@@ -115,7 +116,7 @@ export function QuickSearch() {
 
   function go(sampleCode: string) {
     close();
-    router.push(`/samples/${encodeURIComponent(sampleCode)}`);
+    router.push(samplePath(sampleCode));
   }
 
   async function onKeyDown(event: KeyboardEvent<HTMLInputElement>) {

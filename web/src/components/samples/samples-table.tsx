@@ -34,6 +34,7 @@ import { stageLabel } from "@/lib/stages";
 import { IoSearchOutline } from "react-icons/io5";
 import { InlineNotice } from "@/components/ui/inline-notice";
 import { withBasePath } from "@/lib/base-path";
+import { samplePath } from "@/lib/sample-ident";
 
 const STATUS_VALUES = ["ALL", "PENDING", "IN_PROGRESS", "COMPLETED"] as const;
 
@@ -269,7 +270,7 @@ export function SamplesTable({ canExport }: SamplesTableProps) {
                 <AnimatedTableRow key={sample.id} index={rowIndex}>
                   <TableCell className="font-medium">
                     <Link
-                      href={`/samples/${encodeURIComponent(sample.sampleCode)}`}
+                      href={samplePath(sample.sampleCode)}
                       className="text-primary hover:underline"
                     >
                       {sample.sampleCode}

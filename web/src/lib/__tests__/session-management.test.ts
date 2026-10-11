@@ -22,7 +22,7 @@ describe("changePasswordSchema", () => {
     expect(
       changePasswordSchema.safeParse({ currentPassword: "old-pass", newPassword: "short" }).success
     ).toBe(false);
-    expect(rolePasswordSchema.safeParse({ role: "OPERATOR", password: "short" }).success).toBe(false);
+    expect(rolePasswordSchema.safeParse({ role: "OPERATOR", department: "LAB" as const, password: "short" }).success).toBe(false);
   });
 
   it("refuses a new password that is the current one", () => {
@@ -103,7 +103,7 @@ describe.skipIf(!reachable)("ending sessions (database)", () => {
 
   it("ends every other session, keeps the one asking, and says why", async () => {
     const user = await prisma.user.create({
-      data: { name: "Session test", email, password: "x", role: "OPERATOR" },
+      data: { name: "Session test", email, password: "x", role: "OPERATOR", department: "LAB" as const },
     });
     userId = user.id;
     const here = await openSession("WEB");
@@ -111,7 +111,7 @@ describe.skipIf(!reachable)("ending sessions (database)", () => {
 
     expect(await endUserSessions(userId, "PASSWORD_CHANGED", { exceptSessionId: here })).toBe(1);
 
-    expect(await loadSession(here, userId)).toEqual({ status: "active", role: "OPERATOR", mustChangePassword: false });
+    expect(await loadSession(here, userId)).toEqual({ status: "active", role: "OPERATOR", department: "LAB" as const, mustChangePassword: false });
     expect(await loadSession(phone, userId)).toMatchObject({
       status: "ended",
       reason: "PASSWORD_CHANGED",

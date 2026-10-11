@@ -5,6 +5,7 @@
   "statusPending": "Menunggu",
   "statusInProgress": "Berjalan",
   "statusCompleted": "Selesai",
+  "roleSuperAdmin": "Super Admin",
   "roleAdmin": "Administrator",
   "roleOperator": "Operator",
   "roleDatabase": "Database",

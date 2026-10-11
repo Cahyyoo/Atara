@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { jsonSuccess, handleApiError, ApiError } from "@/lib/api-response";
 import { requireCapability } from "@/lib/api-auth";
+import { requireManagedUser } from "@/lib/managed-user";
 import { USER_SELECT } from "@/lib/user";
 import { roleDefaultHash } from "@/lib/role-password";
 import { endUserSessions } from "@/lib/user-session";
@@ -28,10 +29,7 @@ export async function POST(
       throw new ApiError("Change your own password from your account menu instead.", 400);
     }
 
-    const target = await prisma.user.findUnique({ where: { id }, select: { role: true } });
-    if (!target) {
-      throw new ApiError("User not found.", 404);
-    }
+    const target = await requireManagedUser(session, id);
 
     const user = await prisma.user.update({
       where: { id },

@@ -24,6 +24,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get statusCompleted => 'Selesai';
 
   @override
+  String get roleSuperAdmin => 'Super Admin';
+
+  @override
   String get roleAdmin => 'Administrator';
 
   @override

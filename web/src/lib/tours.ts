@@ -1,5 +1,5 @@
-import { can, type Capability, type Role } from "@/lib/permissions";
-import { HELP_SECTIONS, type HelpSectionKey } from "@/lib/help-sections";
+import type { Capability, Access } from "@/lib/permissions";
+import { HELP_SECTIONS, holdsSection, type HelpSectionKey } from "@/lib/help-sections";
 
 /**
  * The guided tours: for each part of the guide that has a page, the elements
@@ -32,7 +32,7 @@ export interface Tour {
 export const TOURS: readonly Tour[] = [
   {
     key: "dashboard",
-    path: "/dashboard",
+    path: "/lab/dashboard",
     steps: [
       { target: "dashboard-range" },
       { target: "dashboard-filters", advanceOnClick: true },
@@ -46,7 +46,7 @@ export const TOURS: readonly Tour[] = [
   },
   {
     key: "quickSearch",
-    path: "/dashboard",
+    path: "/lab/dashboard",
     steps: [{ target: "quick-search" }, { target: "help-button" }],
   },
   {
@@ -63,7 +63,7 @@ export const TOURS: readonly Tour[] = [
   },
   {
     key: "generate",
-    path: "/samples/generate",
+    path: "/lab/samples/generate",
     steps: [
       { target: "generate-quantity" },
       { target: "generate-submit", savesData: true },
@@ -72,7 +72,7 @@ export const TOURS: readonly Tour[] = [
   },
   {
     key: "labels",
-    path: "/samples/labels",
+    path: "/lab/samples/labels",
     steps: [
       { target: "labels-search" },
       { target: "labels-select", advanceOnClick: true },
@@ -82,7 +82,7 @@ export const TOURS: readonly Tour[] = [
   },
   {
     key: "database",
-    path: "/database",
+    path: "/lab/database",
     steps: [
       { target: "records-search" },
       { target: "records-results", optional: true },
@@ -95,7 +95,7 @@ export const TOURS: readonly Tour[] = [
   },
   {
     key: "dataQuality",
-    path: "/data-quality",
+    path: "/lab/data-quality",
     steps: [
       { target: "quality-cards" },
       { target: "quality-filters" },
@@ -105,7 +105,7 @@ export const TOURS: readonly Tour[] = [
   },
   {
     key: "assay",
-    path: "/assay",
+    path: "/lab/assay",
     steps: [
       { target: "assay-results" },
       { target: "records-row-select", optional: true, advanceOnClick: true },
@@ -115,7 +115,7 @@ export const TOURS: readonly Tour[] = [
   },
   {
     key: "grade",
-    path: "/grade",
+    path: "/lab/grade",
     steps: [
       { target: "grade-range" },
       { target: "grade-group" },
@@ -126,7 +126,7 @@ export const TOURS: readonly Tour[] = [
   },
   {
     key: "masterData",
-    path: "/master-data",
+    path: "/lab/master-data",
     steps: [
       { target: "master-card" },
       { target: "master-add", savesData: true },
@@ -137,9 +137,8 @@ export const TOURS: readonly Tour[] = [
   },
   {
     key: "activity",
-    path: "/activity",
+    path: "/lab/activity",
     steps: [
-      { target: "activity-tabs" },
       { target: "activity-summary", optional: true },
       { target: "activity-filters" },
       { target: "activity-export" },
@@ -170,17 +169,17 @@ export const TOURS: readonly Tour[] = [
   },
   {
     key: "account",
-    path: "/dashboard",
+    path: "/home",
     steps: [{ target: "user-menu" }, { target: "sidebar-nav", optional: true }],
   },
 ];
 
 const CAPABILITY = Object.fromEntries(
   HELP_SECTIONS.map((section) => [section.key, section.capability])
-) as Record<HelpSectionKey, Capability>;
+) as Record<HelpSectionKey, Capability | null>;
 
 /** The capability a tour needs: the same as its section of the guide. */
-export function tourCapability(key: HelpSectionKey): Capability {
+export function tourCapability(key: HelpSectionKey): Capability | null {
   return CAPABILITY[key];
 }
 
@@ -188,8 +187,8 @@ export function tourFor(key: string | null | undefined): Tour | null {
   return TOURS.find((tour) => tour.key === key) ?? null;
 }
 
-export function toursFor(role: Role): Tour[] {
-  return TOURS.filter((tour) => can(role, tourCapability(tour.key)));
+export function toursFor(access: Access): Tour[] {
+  return TOURS.filter((tour) => holdsSection(access, tourCapability(tour.key)));
 }
 
 /** The URL parameters a running tour lives in. */

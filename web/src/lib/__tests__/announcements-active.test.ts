@@ -23,12 +23,13 @@ describe.skipIf(!reachable)("GET /api/announcements/active", () => {
   const ids: Record<string, string> = {};
 
   async function actor(role: Role) {
+    const department = role === "SUPER_ADMIN" ? null : ("LAB" as const);
     const user = await prisma.user.create({
-      data: { name: `${tag} ${role}`, email: `${tag.toLowerCase()}-${role.toLowerCase()}@test.invalid`, password: "x", role },
+      data: { name: `${tag} ${role}`, email: `${tag.toLowerCase()}-${role.toLowerCase()}@test.invalid`, password: "x", role, department },
     });
     created.users.push(user.id);
     const session = await prisma.userSession.create({ data: { userId: user.id, client: "MOBILE" } });
-    return signSessionToken({ userId: user.id, name: user.name, email: user.email, role, sessionId: session.id });
+    return signSessionToken({ userId: user.id, name: user.name, email: user.email, role, department, sessionId: session.id });
   }
 
   function request(token?: string) {
@@ -48,7 +49,7 @@ describe.skipIf(!reachable)("GET /api/announcements/active", () => {
 
   beforeAll(async () => {
     const author = await prisma.user.create({
-      data: { name: `${tag} Author`, email: `${tag.toLowerCase()}-author@test.invalid`, password: "x", role: "ADMIN" },
+      data: { name: `${tag} Author`, email: `${tag.toLowerCase()}-author@test.invalid`, password: "x", role: "ADMIN", department: "LAB" as const },
     });
     created.users.push(author.id);
 

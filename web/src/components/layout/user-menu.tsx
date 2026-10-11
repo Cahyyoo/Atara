@@ -29,7 +29,7 @@ import { LOCALES, LOCALE_LABELS } from "@/i18n/config";
 import { THEMES } from "@/lib/theme";
 import { useTheme } from "@/components/layout/theme-provider";
 import type { SessionPayload } from "@/lib/auth";
-import { ROLE_LABEL_KEYS } from "@/lib/role-labels";
+import { personaLabelKeys } from "@/lib/role-labels";
 import { ChangePasswordDialog } from "@/components/layout/change-password-dialog";
 import {
   IoChevronDown,
@@ -96,10 +96,10 @@ export function UserMenu({ user }: { user: SessionPayload }) {
             <p className="truncate text-sm font-medium">{user.name}</p>
             <p className="truncate text-xs text-muted-foreground">{user.email}</p>
             <Badge
-              variant={user.role === "ADMIN" ? "default" : "secondary"}
+              variant={user.role === "SUPER_ADMIN" || user.role === "ADMIN" ? "default" : "secondary"}
               className="mt-1.5 text-[10px]"
             >
-              {tRoles(ROLE_LABEL_KEYS[user.role].name)}
+              {tRoles(personaLabelKeys(user).name)}
             </Badge>
           </div>
 

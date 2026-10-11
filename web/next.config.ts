@@ -103,6 +103,32 @@ const nextConfig: NextConfig = {
   // attack surface with no upside.
   images: { unoptimized: true },
 
+  /**
+   * The lab's pages moved under /lab when Atara became a super app. The old
+   * addresses keep working for bookmarks and the wall monitors that were
+   * pointed at /tv. Temporary (307) rather than permanent, so browsers do not
+   * cache them for good while the old addresses are still being retired.
+   * Printed labels are unaffected: their QR codes hold the sample code only.
+   */
+  async redirects() {
+    const moved = [
+      "/dashboard",
+      "/samples",
+      "/database",
+      "/data-quality",
+      "/assay",
+      "/grade",
+      "/master-data",
+      "/activity",
+      "/analytics",
+      "/tv",
+    ];
+    return moved.flatMap((path) => [
+      { source: path, destination: `/lab${path}`, permanent: false },
+      { source: `${path}/:rest*`, destination: `/lab${path}/:rest*`, permanent: false },
+    ]);
+  },
+
   async headers() {
     return [
       {

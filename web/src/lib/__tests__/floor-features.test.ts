@@ -27,7 +27,7 @@ describe("where it is enforced", () => {
   it("has no stage board page any more; its data serves the TV view", () => {
     expect(existsSync(join(process.cwd(), "src", "app", "(app)", "board", "page.tsx"))).toBe(false);
     expect(read("components", "layout", "sidebar-nav.tsx")).not.toContain('"/board"');
-    expect(read("app", "(tv)", "tv", "page.tsx")).toContain("loadStageBoard()");
+    expect(read("app", "(tv)", "lab", "tv", "page.tsx")).toContain("loadStageBoard()");
   });
 
   it("guards each new route with its capability", () => {
@@ -98,7 +98,7 @@ describe.skipIf(!reachable)("against the database", () => {
 
   beforeAll(async () => {
     const user = await prisma.user.create({
-      data: { name: "Floor test", email: `${tag.toLowerCase()}@test.invalid`, password: "x", role: "ADMIN" },
+      data: { name: "Floor test", email: `${tag.toLowerCase()}@test.invalid`, password: "x", role: "ADMIN", department: "LAB" as const },
     });
     created.user = user.id;
     stages = await loadStages();

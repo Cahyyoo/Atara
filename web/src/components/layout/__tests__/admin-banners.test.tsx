@@ -64,7 +64,7 @@ describe("the welcome guide", () => {
     const fetchMock = vi.fn(async () => ({ ok: true, json: async () => ({ success: true }) }));
     vi.stubGlobal("fetch", fetchMock);
     const user = userEvent.setup();
-    wrap(<WelcomeDialog role="OPERATOR" name="Budi" />);
+    wrap(<WelcomeDialog persona="OPERATOR" name="Budi" />);
 
     expect(screen.getByText(/Welcome, Budi/)).toBeTruthy();
     expect(screen.getByText("You move the samples")).toBeTruthy();
@@ -82,13 +82,13 @@ describe("the welcome guide", () => {
     vi.stubGlobal("fetch", fetchMock);
     push.mockClear();
     const user = userEvent.setup();
-    wrap(<WelcomeDialog role="OPERATOR" name="Budi" />);
+    wrap(<WelcomeDialog persona="OPERATOR" name="Budi" />);
 
     await user.click(screen.getByRole("button", { name: "Next" }));
     await user.click(screen.getByRole("button", { name: "Next" }));
     await user.click(screen.getByRole("button", { name: "Start the tour" }));
 
-    expect(push).toHaveBeenCalledWith("/dashboard?tour=dashboard");
+    expect(push).toHaveBeenCalledWith("/lab/dashboard?tour=dashboard");
     await waitFor(() => expect(fetchMock).toHaveBeenCalledWith("/api/auth/guide-seen", { method: "POST" }));
   });
 });

@@ -40,7 +40,8 @@ export const STAGE_ALREADY_RECORDED = "STAGE_ALREADY_RECORDED";
  */
 export function evaluateStageTransition(input: StageTransitionInput): StageTransition {
   const { stages, currentOrder, targetStageId, role, force, reason } = input;
-  const canOverride = input.canOverride ?? can(role, "overrideStage");
+  // Stages exist only in the lab module, so the role is read as a lab role.
+  const canOverride = input.canOverride ?? can({ role, department: "LAB" }, "overrideStage");
 
   if (stages.length === 0) {
     return { ok: false, httpStatus: 500, message: "No stages are configured." };

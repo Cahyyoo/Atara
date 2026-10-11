@@ -128,6 +128,12 @@ abstract class AppLocalizations {
   /// **'Selesai'**
   String get statusCompleted;
 
+  /// No description provided for @roleSuperAdmin.
+  ///
+  /// In id, this message translates to:
+  /// **'Super Admin'**
+  String get roleSuperAdmin;
+
   /// No description provided for @roleAdmin.
   ///
   /// In id, this message translates to:

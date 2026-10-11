@@ -34,6 +34,7 @@ import {
 import type { ApiResult } from "@/types";
 import { IoChevronBack, IoChevronForward, IoReloadOutline } from "react-icons/io5";
 import { withBasePath } from "@/lib/base-path";
+import { samplePath } from "@/lib/sample-ident";
 
 function isGap(value: string): value is IdentityGap {
   return (IDENTITY_GAPS as readonly string[]).includes(value);
@@ -235,7 +236,7 @@ export function DataQualityView({ canExport }: { canExport: boolean }) {
                   <TableRow key={row.labCode}>
                     <TableCell>
                       <Link
-                        href={`/samples/${encodeURIComponent(row.sampleCode)}`}
+                        href={samplePath(row.sampleCode)}
                         className="font-mono font-medium text-primary hover:underline"
                       >
                         {row.sampleCode}

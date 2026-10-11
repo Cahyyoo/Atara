@@ -67,21 +67,22 @@ export async function requireSession(
     throw new ApiError("Change your password before continuing.", 403, PASSWORD_CHANGE_REQUIRED_CODE);
   }
 
-  return { ...session, role: state.role };
+  return { ...session, role: state.role, department: state.department };
 }
 
 /**
- * A signed-in caller whose role holds `capability` (see permissions.ts).
+ * A signed-in caller whose role and department hold `capability` (see
+ * permissions.ts).
  *
- * The role is the one just re-read from the database, not the one in the
- * token, so a changed role applies to the very next request.
+ * Both are the ones just re-read from the database, not the ones in the
+ * token, so a changed role or department applies to the very next request.
  */
 export async function requireCapability(
   request: NextRequest,
   capability: Capability
 ): Promise<SessionPayload> {
   const session = await requireSession(request);
-  if (!can(session.role, capability)) {
+  if (!can(session, capability)) {
     throw new ApiError("Your role does not allow this action.", 403);
   }
   return session;

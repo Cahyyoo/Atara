@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { loadStages } from "@/lib/stages-cache";
 import { jsonSuccess, handleApiError } from "@/lib/api-response";
-import { requireSession } from "@/lib/api-auth";
+import { requireCapability } from "@/lib/api-auth";
 import { toShiftDateInputValue } from "@/lib/shift-date";
 import {
   labelShiftDays,
@@ -15,8 +15,8 @@ import { myScanHistoryQuerySchema } from "@/lib/validation";
 /**
  * What the signed-in operator has recorded, across shift days.
  *
- * requireSession rather than requireAdmin: this exists so an operator can see
- * their own work, and it only ever reads their own rows.
+ * Open to everybody in the lab module rather than to an admin: this exists so
+ * an operator can see their own work, and it only ever reads their own rows.
  *
  * **Phones already in the field call this with no query string at all.** Every
  * parameter defaults to the behaviour this route had before it took any — one
@@ -33,7 +33,7 @@ import { myScanHistoryQuerySchema } from "@/lib/validation";
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await requireSession(request);
+    const session = await requireCapability(request, "viewDashboard");
 
     const { searchParams } = new URL(request.url);
     const query = myScanHistoryQuerySchema.parse({

@@ -1,4 +1,8 @@
-/// The four roles the server knows, each carrying its exact wire spelling.
+/// The roles the server knows, each carrying its exact wire spelling.
+///
+/// The server is a super app now: a role belongs to a department (LAB or
+/// EKSPLORASI), and SUPER_ADMIN to none. This app only needs the role -- the
+/// operator, who is always in the lab -- so the department is not read here.
 ///
 /// This used to be two values and a parser that read anything other than
 /// `ADMIN` as an operator. With four roles that default would have been a
@@ -7,6 +11,7 @@
 /// one allowed to override the stage order. So the parse is exact, and a string
 /// it does not know is refused rather than guessed at.
 enum UserRole {
+  superAdmin('SUPER_ADMIN'),
   admin('ADMIN'),
   database('DATABASE'),
   analisis('ANALISIS'),
@@ -17,7 +22,7 @@ enum UserRole {
   /// What the server sends and what is written back to storage.
   final String wire;
 
-  /// Null for anything that is not exactly one of the four.
+  /// Null for anything that is not exactly one of these.
   static UserRole? tryParse(Object? value) {
     for (final role in values) {
       if (role.wire == value) return role;

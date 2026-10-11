@@ -30,7 +30,7 @@ function outcomeParam(value: string | null): SignInOutcomeName | undefined {
 
 export async function GET(request: NextRequest) {
   try {
-    await requireCapability(request, "viewActivity");
+    await requireCapability(request, "viewSignInAudit");
 
     const { searchParams } = new URL(request.url);
     // The same filters the table applies, read the same way and handed to the

@@ -67,7 +67,7 @@ describe.skipIf(!reachable)("moving records onto a replacement (database)", () =
         name: "Delete test",
         email: `${tag.toLowerCase()}@test.invalid`,
         password: "x",
-        role: "ADMIN",
+        role: "ADMIN", department: "LAB" as const,
       },
     });
     created.user = user.id;

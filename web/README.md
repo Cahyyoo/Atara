@@ -1,6 +1,24 @@
 # Atara — Web & Backend API
 
-Backend REST API dan dashboard web untuk Atara — sistem tracking & monitoring sampel — dibangun dengan Next.js (App Router), TypeScript, Prisma ORM, MySQL, Tailwind CSS, dan shadcn/ui. Antarmuka tersedia dalam dua bahasa (id, en); teksnya ada di `messages/`.
+Backend REST API dan web untuk **Atara Super App**. Atara adalah satu aplikasi dengan beberapa modul, satu modul untuk setiap departemen. Dibangun dengan Next.js 16 (App Router), TypeScript, Prisma ORM, MySQL, Tailwind CSS, dan shadcn/ui. Antarmuka tersedia dalam dua bahasa (id, en); teksnya ada di `messages/`.
+
+## Konsep Super App
+
+| Modul | Path | Untuk siapa | Isi |
+| ----- | ---- | ----------- | --- |
+| **Lab · Monitoring Sampel** | `/lab/*` | Departemen **LAB** | Seluruh fitur tracking sampel: barcode, database sampel, hasil uji, kesimpulan, dashboard, Mode TV, master data, aktivitas. |
+| **Eksplorasi** | `/eksplorasi/*` | Departemen **EKSPLORASI** | Manage Data Drilling (CRUD lubang bor). Versi awal yang sederhana; fitur detail menyusul. |
+| **Sistem** | `/users`, `/admin/*` | **Super Admin** | Akun admin setiap departemen, pengumuman, audit login, backup. |
+
+Setelah masuk, semua orang mendarat di **portal `/home`**. Portal menampilkan kartu untuk modul yang boleh dibuka. Menu samping juga dikelompokkan per modul, dan sebuah grup hanya tampil untuk orang yang bekerja di modul itu.
+
+Aturan akses ada di tiga file murni yang dipakai bersama oleh server dan browser:
+
+- `src/lib/permissions.ts` menyimpan peran (`UserRole`) dan departemen (`Department`). Pasangan keduanya disebut *persona*, misalnya `ADMIN` + `LAB` = `LAB_ADMIN`. Tabel capability di file ini di-key oleh persona, dan setiap pemeriksaan memanggil `can(session, capability)`.
+- `src/lib/modules.ts` adalah registry modul (path, ikon, persona yang boleh masuk). Dipakai oleh portal, sidebar, dan redirect.
+- `src/lib/user-scope.ts` menentukan akun mana yang boleh dikelola oleh siapa (lihat [Peran](#peran)).
+
+Untuk menambah modul baru: tambahkan nilai di enum `Department` (Prisma + `DEPARTMENTS`), persona dan capability-nya di `permissions.ts`, entri di `MODULES`, grup di `sidebar-nav.tsx`, lalu halaman di `src/app/(app)/<modul>/` dengan `layout.tsx` yang memanggil `requireCapabilityPage`.
 
 ## Prasyarat
 
@@ -34,7 +52,7 @@ Backend REST API dan dashboard web untuk Atara — sistem tracking & monitoring 
    npm run db:migrate
    ```
 
-5. Isi data awal (satu akun per peran + 5 tahapan standar):
+5. Isi data awal (super admin, satu akun per peran di setiap departemen, dan 5 tahapan standar):
 
    ```bash
    npm run db:seed
@@ -64,25 +82,37 @@ Backend REST API dan dashboard web untuk Atara — sistem tracking & monitoring 
 
 ## Akun Default (hasil seed)
 
-| Peran    | Email                  | Password      |
-| -------- | ---------------------- | ------------- |
-| ADMIN    | admin@atara.local      | lihat catatan |
-| DATABASE | database@atara.local   | lihat catatan |
-| ANALISIS | analisis@atara.local   | lihat catatan |
-| OPERATOR | operator@atara.local   | lihat catatan |
+| Peran       | Departemen | Email                    | Password      |
+| ----------- | ---------- | ------------------------ | ------------- |
+| SUPER_ADMIN | —          | superadmin@atara.local   | lihat catatan |
+| ADMIN       | LAB        | admin@atara.local        | lihat catatan |
+| DATABASE    | LAB        | database@atara.local     | lihat catatan |
+| ANALISIS    | LAB        | analisis@atara.local     | lihat catatan |
+| OPERATOR    | LAB        | operator@atara.local     | lihat catatan |
+| ADMIN       | EKSPLORASI | eksplorasi@atara.local   | lihat catatan |
 
-> **Catatan kata sandi.** Akun ini dibuat oleh `npm run db:seed`. Di lingkungan pengembangan kata sandinya ada di `prisma/seed-policy.ts`. Di produksi seed **menolak** membuat akun kecuali `SEED_ADMIN_PASSWORD` (minimal 12 karakter) diberikan, dan hanya akun admin yang dibuat; akun contoh peran lain tidak dibuat sama sekali. Ganti kata sandi admin setelah masuk pertama kali.
+> **Catatan kata sandi.** Akun ini dibuat oleh `npm run db:seed`. Di lingkungan pengembangan kata sandinya ada di `prisma/seed-policy.ts`. Di produksi seed **menolak** membuat akun kecuali `SEED_ADMIN_PASSWORD` (minimal 12 karakter) diberikan, dan yang dibuat hanya akun **super admin**; akun contoh lainnya tidak dibuat sama sekali. Super admin lalu membuat admin setiap departemen dari halaman Akun Admin. Ganti kata sandi super admin setelah masuk pertama kali.
 
 ## Peran
 
-Siapa boleh melakukan apa ditentukan di satu tempat, `src/lib/permissions.ts`. Halaman, API, dan menu samping semuanya membaca tabel yang sama.
+Setiap akun punya **peran** dan **departemen** (kolom `users.department`; null hanya untuk super admin). Siapa boleh melakukan apa ditentukan di satu tempat, `src/lib/permissions.ts`. Halaman, API, dan menu samping semuanya membaca tabel yang sama. Pasangan peran–departemen yang tidak valid, misalnya `OPERATOR` di `EKSPLORASI`, ditolak saat validasi dan tidak mendapat hak apa pun.
 
-| Peran    | Website                                                                                                  | Aplikasi mobile                                   |
-| -------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| ADMIN    | Dashboard (termasuk pengaturan SLA & export), Database Sampel (hanya lihat, export, data terhapus), Kualitas Data, Kesimpulan, Aktivitas, Pengguna, Master Data, Administrasi, koreksi tahap dari halaman sampel | —                                                 |
-| DATABASE | Dashboard, Buat Barcode, Cetak Ulang Label, Database Sampel (edit, hapus/pulihkan, export), Kualitas Data, Kesimpulan | —                                                 |
-| ANALISIS | Dashboard, Input Hasil Uji, Kesimpulan                                                                    | —                                                 |
-| OPERATOR | Dashboard                                                                                                  | Scan & perbarui tahap, termasuk koreksi (mundur/lompat tahap) dengan alasan |
+| Persona (peran + departemen) | Website | Aplikasi mobile |
+| ---------------------------- | ------- | --------------- |
+| **SUPER_ADMIN** (tanpa departemen) | Portal, Akun Admin (kelola admin Lab & Eksplorasi + password default role ADMIN), Administrasi (pengumuman, backup), Audit Login. Tidak masuk ke fitur modul. | — |
+| **Admin Lab** (ADMIN + LAB) | Dashboard lab (termasuk pengaturan SLA & export), Database Sampel (hanya lihat, export, data terhapus), Kualitas Data, Kesimpulan, Aktivitas, Master Data, Pengguna (staf lab + password default-nya), koreksi tahap dari halaman sampel | — |
+| DATABASE (LAB) | Dashboard, Buat Barcode, Cetak Ulang Label, Database Sampel (edit, hapus/pulihkan, export), Kualitas Data, Kesimpulan | — |
+| ANALISIS (LAB) | Dashboard, Input Hasil Uji, Kesimpulan | — |
+| OPERATOR (LAB) | Dashboard | Scan & perbarui tahap, termasuk koreksi (mundur/lompat tahap) dengan alasan |
+| **Admin Eksplorasi** (ADMIN + EKSPLORASI) | Data Drilling (tambah, ubah, cari, hapus) | — |
+
+**Siapa mengelola akun siapa** (`src/lib/user-scope.ts`):
+
+- **Super admin** hanya mengelola akun `ADMIN` milik setiap departemen. Hanya ada satu super admin. Akun ini dibuat oleh seed dan tidak bisa dibuat lewat UI.
+- **Admin Lab** hanya mengelola staf departemennya sendiri, yaitu `DATABASE`, `ANALISIS`, dan `OPERATOR` di LAB.
+- **Admin Eksplorasi** belum punya staf untuk dikelola.
+
+Akun di luar cakupan tidak muncul di daftar, dan setiap route `/api/users/[id]/*` menjawab `404` untuk akun tersebut.
 
 ## Autentikasi
 
@@ -93,30 +123,38 @@ Akun yang punya faktor kedua tidak menerima cookie apa pun setelah langkah kata 
 - **Wajah** — admin mendaftarkan wajah pengguna dari halaman Pengguna (lima pose, dengan persetujuan eksplisit karena biometrik adalah *data pribadi spesifik* menurut UU PDP No. 27/2022). Saat masuk, frame dikirim ke `/api/auth/face`, diteruskan ke layanan wajah, lalu dicocokkan dan diperiksa kedipannya di sini (`src/lib/face-*.ts`). Jika layanan wajah mati, jawabannya `503` tanpa sesi — faktor kedua tidak pernah dilewati.
 - **TOTP** — kode 6 digit dari aplikasi authenticator. Admin meminta pengguna menyiapkannya dari halaman Pengguna; permintaan berlaku 24 jam dan disiapkan oleh pengguna sendiri saat masuk berikutnya.
 
-Akun baru dan akun yang kata sandinya direset memakai kata sandi default per peran (diatur di Administrasi) dan wajib menggantinya di `/change-password` saat masuk pertama.
+Akun baru dan akun yang kata sandinya direset memakai kata sandi default per peran dan wajib menggantinya di `/change-password` saat masuk pertama. Kata sandi default diatur di bagian bawah halaman Pengguna. Setiap pengelola hanya mengatur default untuk peran yang ia kelola.
 
 ## Struktur Halaman
 
-| Halaman                         | Isi |
-| ------------------------------- | --- |
-| `/login`                        | Masuk dengan kata sandi, lalu wajah atau TOTP bila akun memilikinya. |
-| `/change-password`              | Ganti kata sandi (wajib setelah kata sandi default). |
-| `/dashboard`                    | KPI, progres per tahap, waktu siklus, sampel yang lewat SLA, tabel monitoring, export laporan. |
-| `/samples/generate`             | Generate sampel (satu/massal) + preview & cetak label QR grid A4. |
-| `/samples/labels`               | Cetak ulang label. |
-| `/samples/[code]`               | Detail sampel, hasil uji, timeline perpindahan tahapan, koreksi tahap (admin). |
-| `/samples/[code]/sub/[subCode]` | Detail sub-sampel. |
-| `/database`                     | Database Sampel: cari, edit identitas, hapus/pulihkan, export. |
-| `/data-quality`                 | Sampel dengan identitas belum lengkap atau belum ada hasil setelah sekian hari. |
-| `/assay`                        | Input Hasil Uji: grid, tempel dari spreadsheet, atau impor workbook. |
-| `/assay/history`                | Riwayat perubahan hasil uji. |
-| `/grade`                        | Kesimpulan: rata-rata kadar per pit, SIR, lokasi, jenis batuan, kode non-prod, atau barging run. |
-| `/activity`                     | Jejak perpindahan tahap per operator dan audit percobaan masuk. |
-| `/users`                        | Kelola pengguna, sesi aktif, pendaftaran wajah, dan TOTP. |
-| `/master-data`                  | Kosakata penyusun Sample ID (tempat, jenis batuan, non-prod, pit, SIR). |
-| `/admin`                        | Pengumuman di atas semua halaman, kata sandi default per peran, dan backup lengkap. |
-| `/help`                         | Panduan pemakaian sesuai halaman yang bisa dibuka peran pengguna. |
-| `/tv`                           | Tampilan monitoring layar penuh untuk TV di lab. |
+| Halaman                             | Isi |
+| ----------------------------------- | --- |
+| `/login`                            | Masuk dengan kata sandi, lalu wajah atau TOTP bila akun memilikinya. |
+| `/change-password`                  | Ganti kata sandi (wajib setelah kata sandi default). |
+| `/home`                             | Portal: kartu modul yang boleh dibuka akun ini. Tujuan setelah login. |
+| **Modul Lab**                       | |
+| `/lab/dashboard`                    | KPI, progres per tahap, waktu siklus, sampel yang lewat SLA, tabel monitoring, export laporan. |
+| `/lab/samples/generate`             | Generate sampel (satu/massal) + preview & cetak label QR grid A4. |
+| `/lab/samples/labels`               | Cetak ulang label. |
+| `/lab/samples/[code]`               | Detail sampel, hasil uji, timeline perpindahan tahapan, koreksi tahap (admin lab). |
+| `/lab/samples/[code]/sub/[subCode]` | Detail sub-sampel. |
+| `/lab/database`                     | Database Sampel: cari, edit identitas, hapus/pulihkan, export. |
+| `/lab/data-quality`                 | Sampel dengan identitas belum lengkap atau belum ada hasil setelah sekian hari. |
+| `/lab/assay`                        | Input Hasil Uji: grid, tempel dari spreadsheet, atau impor workbook. |
+| `/lab/assay/history`                | Riwayat perubahan hasil uji. |
+| `/lab/grade`                        | Kesimpulan: rata-rata kadar per pit, SIR, lokasi, jenis batuan, kode non-prod, atau barging run. |
+| `/lab/activity`                     | Jejak perpindahan tahap per operator. |
+| `/lab/master-data`                  | Kosakata penyusun Sample ID (tempat, jenis batuan, non-prod, pit, SIR). |
+| `/lab/tv`                           | Tampilan monitoring layar penuh untuk TV di lab. |
+| **Modul Eksplorasi**                | |
+| `/eksplorasi/drilling`              | Data Drilling: daftar lubang bor, cari (Hole ID/area), filter status, tambah/ubah/hapus. |
+| **Sistem & bersama**                | |
+| `/users`                            | Super admin: akun admin setiap departemen. Admin Lab: staf lab. Termasuk sesi aktif, wajah, TOTP, dan password default per peran. |
+| `/admin`                            | Super admin: pengumuman di atas semua halaman dan backup lengkap. |
+| `/admin/sign-ins`                   | Super admin: audit percobaan masuk semua departemen. |
+| `/help`                             | Panduan pemakaian sesuai halaman yang bisa dibuka pengguna. |
+
+URL lama sebelum super app (`/dashboard`, `/samples/...`, `/database`, `/assay/...`, `/tv`, dll.) dialihkan otomatis ke `/lab/...` lewat `redirects()` di `next.config.ts`, sehingga bookmark dan layar TV tetap jalan. QR di label hanya berisi kode sampel, jadi label yang sudah tercetak tidak terpengaruh. **Semua endpoint API lama tidak berubah**, sehingga app mobile tidak perlu diubah selain penambahan enum `SUPER_ADMIN`.
 
 ## REST API
 
@@ -173,6 +211,17 @@ Semua endpoint berada di bawah `/api` dan mengembalikan bentuk `{ success, data 
 | GET    | `/api/lab-records/history`, `/[id]/history` | Riwayat perubahan hasil uji (semua / per record). |
 | GET    | `/api/grade-control`                  | Rata-rata kadar per dimensi untuk halaman Kesimpulan. |
 
+### Eksplorasi: drilling
+
+Semua endpoint di bawah ini membutuhkan capability `manageDrilling` (Admin Eksplorasi).
+
+| Method               | Endpoint                | Deskripsi |
+| -------------------- | ----------------------- | --------- |
+| GET / POST           | `/api/drill-holes`      | Daftar lubang bor (`search`, `status`, `page`, `pageSize`) / tambah lubang bor. Hole ID yang sudah dipakai → `409`. |
+| GET / PATCH / DELETE | `/api/drill-holes/[id]` | Detail / ubah sebagian kolom / hapus permanen. |
+
+Field: `holeId` (wajib, unik), `area`, `easting`, `northing`, `elevation`, `azimuth` (0–360), `dip` (−90–90), `totalDepth`, `status` (`PLANNED`/`ONGOING`/`COMPLETED`/`ABANDONED`), `startDate`, `endDate` (`YYYY-MM-DD`, selesai ≥ mulai), `remarks`.
+
 ### Dashboard & laporan
 
 | Method | Endpoint                    | Deskripsi |
@@ -185,17 +234,17 @@ Semua endpoint berada di bawah `/api` dan mengembalikan bentuk `{ success, data 
 
 | Method              | Endpoint                                  | Deskripsi |
 | ------------------- | ----------------------------------------- | --------- |
-| GET / POST          | `/api/users`                              | Daftar / buat pengguna. |
-| PATCH               | `/api/users/[id]`                         | Ubah pengguna. |
+| GET / POST          | `/api/users`                              | Daftar / buat pengguna, hanya dalam cakupan pemanggil (`user-scope.ts`). Body: `{ name, email, role, department? }`. |
+| PATCH               | `/api/users/[id]`                         | Ubah pengguna (nama, peran, departemen, aktif, buka kunci). |
 | POST                | `/api/users/[id]/reset-password`          | Reset ke kata sandi default peran. |
 | POST / DELETE       | `/api/users/[id]/face`                    | Daftarkan / hapus wajah pengguna. |
 | POST / DELETE       | `/api/users/[id]/totp`                    | Minta penyiapan / reset authenticator. |
 | GET / DELETE        | `/api/users/[id]/sessions`, `/[sessionId]` | Lihat / akhiri sesi aktif pengguna. |
-| GET                 | `/api/sign-in-audit`                      | Audit percobaan masuk (+ `/export`). |
+| GET                 | `/api/sign-in-audit`                      | Audit percobaan masuk (+ `/export`). Super admin. |
 | GET / POST, PATCH / DELETE | `/api/master-options`, `/[id]`     | Kelola master data. |
 | GET / POST, PATCH / DELETE | `/api/announcements`, `/[id]`      | Kelola pengumuman. |
-| GET / PUT           | `/api/admin/role-passwords`               | Kata sandi default per peran (kata sandinya sendiri tidak pernah dikembalikan). |
-| GET                 | `/api/admin/backup`                       | Backup seluruh database sebagai satu workbook. |
+| GET / PUT           | `/api/admin/role-passwords`               | Kata sandi default per peran yang dikelola pemanggil (kata sandinya sendiri tidak pernah dikembalikan). |
+| GET                 | `/api/admin/backup`                       | Backup seluruh database (termasuk departemen akun dan data drilling) sebagai satu workbook. Super admin. |
 | GET                 | `/api/health`                             | Cek kesehatan untuk load balancer/monitor, tanpa autentikasi. |
 
 ## Perintah Berguna
@@ -215,6 +264,23 @@ npm run db:studio         # buka Prisma Studio (GUI database)
 ```
 
 Tes end-to-end wajah (`src/lib/__tests__/face-e2e.test.ts`) dilewati kecuali server web dan layanan wajah sama-sama berjalan; lihat [`../face/README.md`](../face/README.md#tes-end-to-end).
+
+## Upgrade dari versi sebelum Super App
+
+1. `npm run db:migrate` menerapkan migrasi `20261011090000_super_app_departments`. Migrasi ini:
+   - menambah peran `SUPER_ADMIN`, kolom `users.department`, dan tabel `drill_holes`;
+   - mengisi `department = 'LAB'` untuk semua akun lama, sehingga `ADMIN` lama otomatis menjadi **Admin Lab** dan tetap memegang semua fitur lab.
+2. `npm run db:seed` membuat akun super admin. Di produksi, wajib dengan `SEED_ADMIN_PASSWORD`.
+3. Masuk sebagai super admin. Buat Admin Eksplorasi dari halaman **Akun Admin**, setelah mengatur password default role ADMIN di bawah tabel.
+4. Hal-hal yang pindah tempat:
+   - Pengumuman, backup, dan audit login sekarang milik super admin.
+   - Password default staf lab diatur Admin Lab di halaman Pengguna.
+5. Sesi yang sudah berjalan tetap berlaku. Peran dan departemen dibaca ulang dari database di setiap request.
+
+## Roadmap
+
+- **Komunikasi antar-admin.** Super admin dan admin setiap departemen akan bisa saling berkirim pesan. Admin bisa dikenali lewat persona `SUPER_ADMIN`, `LAB_ADMIN`, dan `EKSPLORASI_ADMIN` (`personaOf` di `permissions.ts`).
+- **Detail modul Eksplorasi.** Interval/logging, survey downhole, dan assay per lubang bor. Model `DrillHole` saat ini sengaja dibuat minimal.
 
 ## Catatan Konfigurasi Perangkat Mobile
 

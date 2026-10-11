@@ -14,12 +14,14 @@ import type { RolePasswordStatus } from "@/lib/role-password-status";
  */
 
 
-export async function listRolePasswordStatus(): Promise<RolePasswordStatus[]> {
+export async function listRolePasswordStatus(
+  roles: readonly Role[] = ROLES
+): Promise<RolePasswordStatus[]> {
   const rows = await prisma.rolePasswordDefault.findMany({
     select: { role: true, updatedAt: true, updatedBy: { select: { name: true } } },
   });
   const byRole = new Map(rows.map((row) => [row.role, row]));
-  return ROLES.map((role) => {
+  return roles.map((role) => {
     const row = byRole.get(role);
     return {
       role,
@@ -51,7 +53,7 @@ export async function roleDefaultHash(role: Role): Promise<string> {
   });
   if (!row) {
     throw new ApiError(
-      `The ${role} role has no default password yet. Set it under Administration first.`,
+      `The ${role} role has no default password yet. Set it on the Users page first.`,
       409,
       NO_ROLE_DEFAULT_CODE
     );

@@ -9,7 +9,7 @@ import { stageColumnKey } from "@/lib/export-columns";
  * its code. Against the real database; skipped when there is none.
  */
 
-const session = { userId: "", name: "Export test", email: "", role: "ADMIN" as const, sessionId: "test" };
+const session = { userId: "", name: "Export test", email: "", role: "ADMIN" as const, department: "LAB" as const, sessionId: "test" };
 vi.mock("@/lib/api-auth", () => ({
   requireCapability: vi.fn(async () => session),
   requireSession: vi.fn(async () => session),
@@ -46,7 +46,7 @@ describe.skipIf(!reachable)("exports with chosen columns", () => {
 
   beforeAll(async () => {
     const user = await prisma.user.create({
-      data: { name: `${tag} Operator`, email: `${tag.toLowerCase()}@test.invalid`, password: "x", role: "OPERATOR" },
+      data: { name: `${tag} Operator`, email: `${tag.toLowerCase()}@test.invalid`, password: "x", role: "OPERATOR", department: "LAB" as const },
     });
     created.user = user.id;
     session.userId = user.id;

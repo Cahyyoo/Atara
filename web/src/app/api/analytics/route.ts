@@ -1,13 +1,13 @@
 import { NextRequest } from "next/server";
 import { jsonSuccess, handleApiError } from "@/lib/api-response";
-import { requireSession } from "@/lib/api-auth";
+import { requireCapability } from "@/lib/api-auth";
 import { analyticsQuerySchema } from "@/lib/validation";
 import { cachedAnalytics } from "@/lib/analytics-cache";
 import { resolveAnalyticsRange } from "@/lib/analytics-range";
 
 export async function GET(request: NextRequest) {
   try {
-    await requireSession(request);
+    await requireCapability(request, "viewDashboard");
 
     const { searchParams } = new URL(request.url);
     const query = analyticsQuerySchema.parse(Object.fromEntries(searchParams));

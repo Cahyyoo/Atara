@@ -491,7 +491,7 @@ describe("picking samples to enter results for (assay mode)", () => {
     await user.click(screen.getByRole("button", { name: "Show or hide 1 sub-sample" }));
 
     const link = screen.getByRole("link", { name: "Sub-sample (-20)" });
-    expect(link.getAttribute("href")).toBe("/samples/NKL-2026-00001/sub/-20");
+    expect(link.getAttribute("href")).toBe("/lab/samples/NKL-2026-00001/sub/-20");
     fireEvent.click(link);
     expect(
       (screen.getByRole("checkbox", { name: "SPR.QLAB.20260918.001 (-20)" }) as HTMLInputElement).checked
@@ -552,7 +552,7 @@ describe("picking samples to enter results for (assay mode)", () => {
     // And the whole list is a link away.
     expect(
       screen.getByRole("link", { name: en.database.history.open, hidden: true }).getAttribute("href")
-    ).toBe("/assay/history");
+    ).toBe("/lab/assay/history");
   });
 
   it("offers a paste that needs no ticking", async () => {
@@ -613,7 +613,7 @@ describe("the sample code", () => {
     );
 
     const link = within(await row()).getByRole("link", { name: "NKL-2026-00001" });
-    expect(link.getAttribute("href")).toBe("/samples/NKL-2026-00001");
+    expect(link.getAttribute("href")).toBe("/lab/samples/NKL-2026-00001");
   });
 
   it("escapes a code that would not survive a URL", async () => {
@@ -628,9 +628,9 @@ describe("the sample code", () => {
 
     for (const link of screen.getAllByRole("link")) {
       const href = link.getAttribute("href") ?? "";
-      if (!href.startsWith("/samples/")) continue;
-      expect(href.slice("/samples/".length)).toBe(
-        encodeURIComponent(decodeURIComponent(href.slice("/samples/".length)))
+      if (!href.startsWith("/lab/samples/")) continue;
+      expect(href.slice("/lab/samples/".length)).toBe(
+        encodeURIComponent(decodeURIComponent(href.slice("/lab/samples/".length)))
       );
     }
   });

@@ -251,7 +251,12 @@ export function sampleIdentKeys(ident: string | null, sackCount: number | null |
   return [...new Set([key.full, subKey(withoutSacks(key.base, sackCount), key.code)])];
 }
 
+/** The page of one sample, in the lab module. */
+export function samplePath(sampleCode: string): string {
+  return `/lab/samples/${encodeURIComponent(sampleCode)}`;
+}
+
 /** The page of a sub-sample: under its sample's own page, by its code. */
 export function subSamplePath(sampleCode: string, subCode: string): string {
-  return `/samples/${encodeURIComponent(sampleCode)}/sub/${encodeURIComponent(subCode)}`;
+  return `${samplePath(sampleCode)}/sub/${encodeURIComponent(subCode)}`;
 }

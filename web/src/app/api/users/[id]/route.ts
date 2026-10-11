@@ -5,6 +5,8 @@ import { requireCapability } from "@/lib/api-auth";
 import { updateUserSchema } from "@/lib/validation";
 import { USER_SELECT } from "@/lib/user";
 import { readJsonBody } from "@/lib/api-request";
+import { requireManagedUser } from "@/lib/managed-user";
+import { canAssign } from "@/lib/user-scope";
 
 export async function PATCH(
   request: NextRequest,
@@ -15,20 +17,21 @@ export async function PATCH(
     const { id } = await params;
     const body = updateUserSchema.parse(await readJsonBody(request));
 
-    const target = await prisma.user.findUnique({ where: { id }, select: { id: true } });
-    if (!target) {
-      throw new ApiError("User not found.", 404);
+    // An admin must not be able to lock themselves out of the system. Their
+    // own account is never in their scope anyway; this says so plainly.
+    if (id === session.userId) {
+      throw new ApiError("You cannot change your own account here.", 400);
     }
 
-    // An admin must not be able to lock themselves out of the system.
-    if (id === session.userId) {
-      if (body.isActive === false) {
-        throw new ApiError("You cannot deactivate your own account.", 400);
-      }
-      // Any role but ADMIN, now that there is more than one other.
-      if (body.role !== undefined && body.role !== "ADMIN") {
-        throw new ApiError("You cannot remove your own administrator role.", 400);
-      }
+    const target = await requireManagedUser(session, id);
+
+    // The account as it would be after this change has to be one this
+    // manager may hand out: no promoting a lab analyst into an admin, no
+    // moving an exploration admin into the lab's staff.
+    const role = body.role ?? target.role;
+    const department = body.department !== undefined ? body.department : target.department;
+    if (!canAssign(session, role, department)) {
+      throw new ApiError("You cannot give this account that role in that department.", 403);
     }
 
     const user = await prisma.user.update({
@@ -36,6 +39,7 @@ export async function PATCH(
       data: {
         ...(body.name !== undefined ? { name: body.name } : {}),
         ...(body.role !== undefined ? { role: body.role } : {}),
+        ...(body.department !== undefined ? { department: body.department } : {}),
         ...(body.isActive !== undefined ? { isActive: body.isActive } : {}),
         ...(body.unlock ? { failedLoginAttempts: 0, lockedUntil: null } : {}),
       },

@@ -11,9 +11,14 @@
  * second factor at all. So in production the seed refuses to create anybody
  * unless an admin password is supplied on purpose, and the demonstration
  * accounts are never created there.
+ *
+ * The account the seed always creates is the super admin: the one account
+ * nobody else can create (user-scope.ts), and the one that creates the
+ * departments' admins. On a laptop there is also somebody for every role in
+ * every department.
  */
 
-import type { Role } from "../src/lib/permissions";
+import type { Department, Role } from "../src/lib/permissions";
 
 export interface SeedAccount {
   email: string;
@@ -21,17 +26,28 @@ export interface SeedAccount {
   password: string;
 }
 
-/** A demonstration account, one per role that is not the admin. */
+/** A demonstration account: a role in a department, below the super admin. */
 export interface DemoAccount {
   account: SeedAccount;
-  role: Exclude<Role, "ADMIN">;
+  role: Exclude<Role, "SUPER_ADMIN">;
+  department: Department;
 }
 
 /** Development only. Known, and meant to be. */
+export const DEV_SUPER_ADMIN: SeedAccount = {
+  email: "superadmin@atara.local",
+  name: "Super Admin",
+  password: "SuperAdmin123!",
+};
 export const DEV_ADMIN: SeedAccount = {
   email: "admin@atara.local",
-  name: "Main Admin",
+  name: "Lab Admin",
   password: "Admin123!",
+};
+export const DEV_EKSPLORASI_ADMIN: SeedAccount = {
+  email: "eksplorasi@atara.local",
+  name: "Eksplorasi Admin",
+  password: "Eksplorasi123!",
 };
 export const DEV_OPERATOR: SeedAccount = {
   email: "operator@atara.local",
@@ -49,14 +65,16 @@ export const DEV_ANALISIS: SeedAccount = {
   password: "Analisis123!",
 };
 
-/** Every role gets somebody to sign in as on a laptop. */
+/** Every role in every department gets somebody to sign in as on a laptop. */
 export const DEV_DEMO_ACCOUNTS: DemoAccount[] = [
-  { account: DEV_DATABASE, role: "DATABASE" },
-  { account: DEV_ANALISIS, role: "ANALISIS" },
-  { account: DEV_OPERATOR, role: "OPERATOR" },
+  { account: DEV_ADMIN, role: "ADMIN", department: "LAB" },
+  { account: DEV_DATABASE, role: "DATABASE", department: "LAB" },
+  { account: DEV_ANALISIS, role: "ANALISIS", department: "LAB" },
+  { account: DEV_OPERATOR, role: "OPERATOR", department: "LAB" },
+  { account: DEV_EKSPLORASI_ADMIN, role: "ADMIN", department: "EKSPLORASI" },
 ];
 
-/** Longer than the sign-in form's own floor: this one guards an admin. */
+/** Longer than the sign-in form's own floor: this one guards the super admin. */
 export const MIN_SEED_PASSWORD_CHARS = 12;
 
 export type SeedDecision =
@@ -83,18 +101,18 @@ export function resolveSeedAccounts(env: {
         ok: false,
         reason:
           "Refusing to seed accounts in production with the development passwords. " +
-          "Set SEED_ADMIN_PASSWORD to create the admin account, and change it after " +
+          "Set SEED_ADMIN_PASSWORD to create the super admin account, and change it after " +
           "the first sign-in.",
       };
     }
     // No demonstration accounts on a real server: accounts nobody asked for,
     // with passwords somebody could look up.
-    return { ok: true, admin: { ...DEV_ADMIN, password: supplied }, demo: [] };
+    return { ok: true, admin: { ...DEV_SUPER_ADMIN, password: supplied }, demo: [] };
   }
 
   return {
     ok: true,
-    admin: supplied ? { ...DEV_ADMIN, password: supplied } : DEV_ADMIN,
+    admin: supplied ? { ...DEV_SUPER_ADMIN, password: supplied } : DEV_SUPER_ADMIN,
     demo: DEV_DEMO_ACCOUNTS,
   };
 }

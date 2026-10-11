@@ -17,6 +17,7 @@ import { stageLabel } from "@/lib/stages";
 import { cn } from "@/lib/utils";
 import type { LabRecordListItemDTO } from "@/types";
 import { IoOpenOutline, IoPencilOutline } from "react-icons/io5";
+import { samplePath } from "@/lib/sample-ident";
 
 /**
  * Everything about one row, beside the list rather than instead of it.
@@ -151,7 +152,7 @@ export function LabRecordSheet({
                 </Button>
               ) : null}
               <Link
-                href={`/samples/${encodeURIComponent(record.sample.sampleCode)}`}
+                href={samplePath(record.sample.sampleCode)}
                 className={cn(buttonVariants({ variant: "outline" }), "flex-1 gap-2")}
               >
                 <IoOpenOutline className="size-4" />

@@ -19,8 +19,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: `${APP_NAME} - Sample Tracking System`,
-  description: "End-to-end nickel sample tracking and monitoring system",
+  title: `${APP_NAME} - Super App`,
+  description: "Mining operations super app: lab sample monitoring and exploration drilling data",
 };
 
 export default async function RootLayout({

@@ -26,7 +26,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { ROLE_LABEL_KEYS } from "@/lib/role-labels";
+import { DEPARTMENT_LABEL_KEYS, personaLabelKeys } from "@/lib/role-labels";
+import type { Access } from "@/lib/permissions";
 import {
   IoEllipsisHorizontal,
   IoDesktopOutline,
@@ -74,7 +75,7 @@ function statusOf(user: UserDTO): {
   return { key: "statusActive", className: "text-foreground", dot: "bg-primary" };
 }
 
-export function UsersTable({ currentUserId }: { currentUserId: string }) {
+export function UsersTable({ currentUserId, manager }: { currentUserId: string; manager: Access }) {
   const t = useTranslations("users");
   const tCommon = useTranslations("common");
   const tFace = useTranslations("face");
@@ -219,9 +220,16 @@ export function UsersTable({ currentUserId }: { currentUserId: string }) {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={user.role === "ADMIN" ? "default" : "secondary"}>
-                        {tDialog(ROLE_LABEL_KEYS[user.role].name)}
-                      </Badge>
+                      <div className="flex flex-col items-start gap-0.5">
+                        <Badge variant={user.role === "ADMIN" ? "default" : "secondary"}>
+                          {tDialog(personaLabelKeys(user).name)}
+                        </Badge>
+                        {user.department ? (
+                          <span className="text-xs text-muted-foreground">
+                            {tDialog(DEPARTMENT_LABEL_KEYS[user.department])}
+                          </span>
+                        ) : null}
+                      </div>
                     </TableCell>
                     <TableCell>
                       <span
@@ -387,6 +395,7 @@ export function UsersTable({ currentUserId }: { currentUserId: string }) {
       <UserDialog
         target={target}
         currentUserId={currentUserId}
+        manager={manager}
         onClose={() => setTarget(null)}
         onSaved={handleSaved}
       />

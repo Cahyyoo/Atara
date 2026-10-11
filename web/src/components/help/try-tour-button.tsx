@@ -9,6 +9,7 @@ import { tourFor, tourHref } from "@/lib/tours";
 import type { ApiResult, SampleListItemDTO } from "@/types";
 import { IoPlayOutline, IoReloadOutline } from "react-icons/io5";
 import { withBasePath } from "@/lib/base-path";
+import { samplePath } from "@/lib/sample-ident";
 
 /**
  * "Try it": opens the page a section explains with its guided tour running.
@@ -36,7 +37,7 @@ export function TryTourButton({ tourKey, className }: { tourKey: string; classNa
         toast(t("noSample"), "error");
         return;
       }
-      router.push(tourHref(tour, `/samples/${encodeURIComponent(newest.sampleCode)}`));
+      router.push(tourHref(tour, samplePath(newest.sampleCode)));
     } catch {
       toast(t("noSample"), "error");
     } finally {

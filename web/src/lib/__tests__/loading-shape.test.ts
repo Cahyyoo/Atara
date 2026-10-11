@@ -65,9 +65,10 @@ describe("the skeletons are shaped like the pages", () => {
    */
   const COLUMNS: Record<string, number> = {
     "users": 6,
-    "database": 10,
-    "assay": 9,
-    "samples/labels": 5,
+    "lab/database": 10,
+    "lab/assay": 9,
+    "lab/samples/labels": 5,
+    "eksplorasi/drilling": 8,
   };
 
   for (const [route, columns] of Object.entries(COLUMNS)) {

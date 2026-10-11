@@ -7,10 +7,11 @@ import { createUserSchema, listUsersQuerySchema } from "@/lib/validation";
 import { USER_SELECT } from "@/lib/user";
 import { readJsonBody } from "@/lib/api-request";
 import { roleDefaultHash } from "@/lib/role-password";
+import { assignableDepartments, canAssign, userScopeWhere } from "@/lib/user-scope";
 
 export async function GET(request: NextRequest) {
   try {
-    await requireCapability(request, "manageUsers");
+    const session = await requireCapability(request, "manageUsers");
 
     const { searchParams } = new URL(request.url);
     const query = listUsersQuerySchema.parse({
@@ -19,16 +20,23 @@ export async function GET(request: NextRequest) {
       pageSize: searchParams.get("pageSize") ?? undefined,
     });
 
-    const where: Prisma.UserWhereInput = query.search
-      ? { OR: [{ name: { contains: query.search } }, { email: { contains: query.search } }] }
-      : {};
+    // Only the accounts this manager looks after (user-scope.ts): the super
+    // admin sees the department admins, a department admin its own staff.
+    const where: Prisma.UserWhereInput = {
+      AND: [
+        userScopeWhere(session),
+        query.search
+          ? { OR: [{ name: { contains: query.search } }, { email: { contains: query.search } }] }
+          : {},
+      ],
+    };
 
     const [total, users] = await Promise.all([
       prisma.user.count({ where }),
       prisma.user.findMany({
         where,
         select: USER_SELECT,
-        orderBy: [{ role: "asc" }, { name: "asc" }],
+        orderBy: [{ department: "asc" }, { role: "asc" }, { name: "asc" }],
         skip: (query.page - 1) * query.pageSize,
         take: query.pageSize,
       }),
@@ -50,9 +58,15 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    await requireCapability(request, "manageUsers");
+    const session = await requireCapability(request, "manageUsers");
 
     const body = createUserSchema.parse(await readJsonBody(request));
+    // Left out when the role fits only one department this manager can give.
+    const choices = assignableDepartments(session, body.role);
+    const department = body.department !== undefined ? body.department : choices.length === 1 ? choices[0] : null;
+    if (!canAssign(session, body.role, department)) {
+      throw new ApiError("You cannot create an account with that role in that department.", 403);
+    }
     const email = body.email.toLowerCase();
 
     const existing = await prisma.user.findUnique({ where: { email }, select: { id: true } });
@@ -68,6 +82,7 @@ export async function POST(request: NextRequest) {
         // sign-in. Refused (409) while the role has none.
         password: await roleDefaultHash(body.role),
         role: body.role,
+        department,
         mustChangePassword: true,
       },
       select: USER_SELECT,

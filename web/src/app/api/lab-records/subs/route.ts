@@ -23,7 +23,7 @@ const deleteSubsSchema = z.object({
 export async function DELETE(request: NextRequest) {
   try {
     const session = await requireSession(request);
-    if (!can(session.role, "enterResults") && !can(session.role, "editDatabase")) {
+    if (!can(session, "enterResults") && !can(session, "editDatabase")) {
       throw new ApiError("Your role does not allow this action.", 403);
     }
     const { ids } = deleteSubsSchema.parse(await readJsonBody(request));

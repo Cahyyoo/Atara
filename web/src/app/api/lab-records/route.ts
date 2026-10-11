@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
       // Only a role with viewDeletedRecords may look at what was deleted. Read
       // off the session rather than trusted from the query string, or the flag
       // would be a way around the rule rather than subject to it.
-      deleted: can(session.role, "viewDeletedRecords")
+      deleted: can(session, "viewDeletedRecords")
         ? (searchParams.get("deleted") ?? undefined)
         : undefined,
       search: searchParams.get("search") ?? undefined,

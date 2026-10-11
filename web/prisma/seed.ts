@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
 import { resolveSeedAccounts, type SeedAccount } from "./seed-policy";
-import type { Role } from "../src/lib/permissions";
+import type { Department, Role } from "../src/lib/permissions";
 
 const prisma = new PrismaClient();
 
@@ -43,7 +43,7 @@ const STAGES = [
 ];
 
 /** Creates the account if it is missing; never resets a password that exists. */
-async function ensureAccount(account: SeedAccount, role: Role) {
+async function ensureAccount(account: SeedAccount, role: Role, department: Department | null) {
   await prisma.user.upsert({
     where: { email: account.email },
     update: { name: account.name },
@@ -52,6 +52,7 @@ async function ensureAccount(account: SeedAccount, role: Role) {
       email: account.email,
       password: await bcrypt.hash(account.password, 10),
       role,
+      department,
     },
   });
 }
@@ -79,9 +80,9 @@ async function main() {
   }
 
   console.log("Seeding users...");
-  await ensureAccount(decision.admin, "ADMIN");
-  for (const { account, role } of decision.demo) {
-    await ensureAccount(account, role);
+  await ensureAccount(decision.admin, "SUPER_ADMIN", null);
+  for (const { account, role, department } of decision.demo) {
+    await ensureAccount(account, role, department);
   }
 
   console.log("Seed completed.");

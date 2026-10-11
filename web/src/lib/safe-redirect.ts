@@ -7,7 +7,7 @@
  *
  * Only a path on this site is ever accepted.
  */
-const DEFAULT_DESTINATION = "/dashboard";
+const DEFAULT_DESTINATION = "/home";
 
 export function safeRedirectPath(
   value: string | null | undefined,

@@ -4,6 +4,7 @@ import { getSessionFromCookies, type SessionPayload } from "@/lib/auth";
 import { loadSession } from "@/lib/session-user";
 import { can, type Capability } from "@/lib/permissions";
 import { SIGN_IN_REASON } from "@/lib/session-codes";
+import { HOME_PATH } from "@/lib/modules";
 
 /**
  * The cookie's session for server components, with where it stands.
@@ -23,7 +24,7 @@ const readPageSession = cache(
     const state = await loadSession(session.sessionId, session.userId);
     if (state?.status === "active") {
       return {
-        session: { ...session, role: state.role },
+        session: { ...session, role: state.role, department: state.department },
         signInReason: null,
         mustChangePassword: state.mustChangePassword,
       };
@@ -64,8 +65,8 @@ export async function signInPath(): Promise<string> {
 
 /**
  * Guards a page by capability (see permissions.ts). Redirects rather than
- * throwing: somebody who follows an old link to a page their role no longer
- * has lands on the dashboard, which every role can see.
+ * throwing: somebody who follows a link to a page their role or department
+ * does not have lands on the portal, which everybody can see.
  */
 export async function requireCapabilityPage(capability: Capability): Promise<SessionPayload> {
   const session = await getActiveSession();
@@ -75,8 +76,20 @@ export async function requireCapabilityPage(capability: Capability): Promise<Ses
   if (await mustChangePassword()) {
     redirect("/change-password");
   }
-  if (!can(session.role, capability)) {
-    redirect("/dashboard");
+  if (!can(session, capability)) {
+    redirect(HOME_PATH);
+  }
+  return session;
+}
+
+/** Guards a page that only needs a usable session, such as the portal. */
+export async function requireSessionPage(): Promise<SessionPayload> {
+  const session = await getActiveSession();
+  if (!session) {
+    redirect(await signInPath());
+  }
+  if (await mustChangePassword()) {
+    redirect("/change-password");
   }
   return session;
 }

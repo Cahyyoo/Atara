@@ -37,15 +37,16 @@ const cursorArgs = (cursor: string | undefined) =>
 
 /** How many rows each sheet will have, for the About sheet and the size check. */
 export async function backupCounts() {
-  const [samples, logs, changes, masterOptions, stages, users] = await Promise.all([
+  const [samples, logs, changes, masterOptions, stages, users, drillHoles] = await Promise.all([
     prisma.sample.count(),
     prisma.sampleLog.count(),
     prisma.labRecordAudit.count(),
     prisma.masterOption.count(),
     prisma.stage.count(),
     prisma.user.count(),
+    prisma.drillHole.count(),
   ]);
-  return { samples, logs, changes, masterOptions, stages, users };
+  return { samples, logs, changes, masterOptions, stages, users, drillHoles };
 }
 
 export type BackupCounts = Awaited<ReturnType<typeof backupCounts>>;
@@ -53,7 +54,7 @@ export type BackupCounts = Awaited<ReturnType<typeof backupCounts>>;
 /**
  * The whole database as sheets: every sample with its lab record (deleted
  * ones included, and marked), every stage scan, every change to a result,
- * the master lists, the stages and the accounts. Accounts go out without
+ * the master lists, the stages, the drill holes and the accounts. Accounts go out without
  * their password hash, authenticator secret or face readings: a backup file
  * gets copied around, and none of those belong in one.
  */
@@ -273,14 +274,15 @@ export function backupSheets(counts: BackupCounts, by: string, at: Date): Stream
       columns: [
         { header: "Name", key: "name", width: 22 },
         { header: "Email", key: "email", width: 28 },
-        { header: "Role", key: "role", width: 11 },
+        { header: "Role", key: "role", width: 12 },
+        { header: "Department", key: "department", width: 12 },
         { header: "Active", key: "isActive", width: 8 },
         { header: "Created At", key: "createdAt", width: 20 },
       ],
       rows: async function* () {
         // Selected column by column: nothing secret can ride along by accident.
         const users = await prisma.user.findMany({
-          select: { name: true, email: true, role: true, isActive: true, createdAt: true },
+          select: { name: true, email: true, role: true, department: true, isActive: true, createdAt: true },
           orderBy: { name: "asc" },
         });
         for (const user of users) {
@@ -288,8 +290,54 @@ export function backupSheets(counts: BackupCounts, by: string, at: Date): Stream
             name: user.name,
             email: user.email,
             role: user.role,
+            department: user.department,
             isActive: user.isActive ? "Yes" : "No",
             createdAt: when(user.createdAt),
+          };
+        }
+      },
+    },
+    {
+      name: "Drill Holes",
+      columns: [
+        { header: "Hole ID", key: "holeId", width: 14 },
+        { header: "Area", key: "area", width: 16 },
+        { header: "Status", key: "status", width: 11 },
+        { header: "Easting", key: "easting", width: 13 },
+        { header: "Northing", key: "northing", width: 13 },
+        { header: "Elevation", key: "elevation", width: 10 },
+        { header: "Azimuth", key: "azimuth", width: 9 },
+        { header: "Dip", key: "dip", width: 8 },
+        { header: "Total Depth", key: "totalDepth", width: 11 },
+        { header: "Start Date", key: "startDate", width: 12 },
+        { header: "End Date", key: "endDate", width: 12 },
+        { header: "Remarks", key: "remarks", width: 30 },
+        { header: "Created By", key: "createdBy", width: 18 },
+        { header: "Created At", key: "createdAt", width: 20 },
+      ],
+      rows: async function* () {
+        const holes = paged((cursor) =>
+          prisma.drillHole.findMany({
+            ...cursorArgs(cursor),
+            include: { createdBy: { select: { name: true } } },
+          })
+        );
+        for await (const hole of holes) {
+          yield {
+            holeId: hole.holeId,
+            area: hole.area,
+            status: hole.status,
+            easting: num(hole.easting),
+            northing: num(hole.northing),
+            elevation: num(hole.elevation),
+            azimuth: num(hole.azimuth),
+            dip: num(hole.dip),
+            totalDepth: num(hole.totalDepth),
+            startDate: hole.startDate?.toISOString().slice(0, 10) ?? null,
+            endDate: hole.endDate?.toISOString().slice(0, 10) ?? null,
+            remarks: hole.remarks,
+            createdBy: hole.createdBy.name,
+            createdAt: when(hole.createdAt),
           };
         }
       },
@@ -310,6 +358,7 @@ export function backupSheets(counts: BackupCounts, by: string, at: Date): Stream
           ["Master data codes", counts.masterOptions],
           ["Stages", counts.stages],
           ["Users", counts.users],
+          ["Drill holes", counts.drillHoles],
           ["Not included", "Passwords, authenticator secrets, face readings, sign-in sessions"],
         ];
         for (const [item, value] of lines) yield { item, value };

@@ -33,12 +33,19 @@ function page(...targets: string[]) {
   }
 }
 
-function show(tour: string, role: "ADMIN" | "OPERATOR" = "ADMIN") {
+/** Signed in as the lab admin unless said otherwise; the admin tour is the super admin's. */
+const ACCESS = {
+  ADMIN: { role: "ADMIN", department: "LAB" },
+  OPERATOR: { role: "OPERATOR", department: "LAB" },
+  SUPER_ADMIN: { role: "SUPER_ADMIN", department: null },
+} as const;
+
+function show(tour: string, role: keyof typeof ACCESS = "ADMIN") {
   search = new URLSearchParams({ tour, keep: "me" });
   window.history.replaceState(null, "", `/dashboard?${search.toString()}`);
   return render(
     <NextIntlClientProvider locale="en" messages={en}>
-      <TourRunner role={role} />
+      <TourRunner access={ACCESS[role]} />
     </NextIntlClientProvider>
   );
 }
@@ -94,7 +101,7 @@ describe("the tour runner", () => {
     window.history.replaceState(null, "", `/dashboard?${search.toString()}`);
     render(
       <NextIntlClientProvider locale="en" messages={en}>
-        <TourRunner role="ADMIN" />
+        <TourRunner access={ACCESS.ADMIN} />
       </NextIntlClientProvider>
     );
     await settle();
@@ -119,7 +126,7 @@ describe("the tour runner", () => {
     search = new URLSearchParams({ tour: "admin", step: "3" });
     render(
       <NextIntlClientProvider locale="en" messages={en}>
-        <TourRunner role="ADMIN" />
+        <TourRunner access={ACCESS.SUPER_ADMIN} />
       </NextIntlClientProvider>
     );
     await settle();

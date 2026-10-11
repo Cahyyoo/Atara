@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { jsonSuccess, jsonError, handleApiError } from "@/lib/api-response";
-import { requireSession } from "@/lib/api-auth";
+import { requireCapability } from "@/lib/api-auth";
 import { toLabRecordDTO } from "@/lib/lab-record";
 
 export async function GET(
@@ -9,7 +9,7 @@ export async function GET(
   { params }: { params: Promise<{ code: string }> }
 ) {
   try {
-    await requireSession(request);
+    await requireCapability(request, "viewDashboard");
 
     const { code } = await params;
 

@@ -10,12 +10,12 @@
 
 const KEY = "atara.sample-origin";
 
-/** Modules that live under /samples, not pages of one sample. */
+/** Modules that live under /lab/samples, not pages of one sample. */
 const SAMPLE_MODULES = new Set(["labels", "generate"]);
 
-/** A page of one sample: `/samples/<code>`, or one of its sub-samples. */
+/** A page of one sample: `/lab/samples/<code>`, or one of its sub-samples. */
 export function isSamplePagePath(path: string): boolean {
-  const match = /^\/samples\/([^/?#]+)(?:\/sub\/[^/?#]+)?\/?$/.exec(path.split(/[?#]/)[0]);
+  const match = /^\/lab\/samples\/([^/?#]+)(?:\/sub\/[^/?#]+)?\/?$/.exec(path.split(/[?#]/)[0]);
   return match !== null && !SAMPLE_MODULES.has(match[1]);
 }
 

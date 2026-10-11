@@ -8,7 +8,7 @@ import { prisma } from "@/lib/prisma";
  * its parent. Skipped when there is no database.
  */
 
-const session = { userId: "", name: "Sub test", email: "", role: "ANALISIS" as const, sessionId: "test" };
+const session = { userId: "", name: "Sub test", email: "", role: "ANALISIS" as const, department: "LAB" as const, sessionId: "test" };
 vi.mock("@/lib/api-auth", () => ({
   requireCapability: vi.fn(async () => session),
   requireSession: vi.fn(async () => session),
@@ -78,7 +78,7 @@ describe.skipIf(!reachable)("sub-samples against the database", () => {
 
   beforeAll(async () => {
     const user = await prisma.user.create({
-      data: { name: "Sub test", email: `${tag.toLowerCase()}@test.invalid`, password: "x", role: "ANALISIS" },
+      data: { name: "Sub test", email: `${tag.toLowerCase()}@test.invalid`, password: "x", role: "ANALISIS", department: "LAB" as const },
     });
     created.user = user.id;
     session.userId = user.id;

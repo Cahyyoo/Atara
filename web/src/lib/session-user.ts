@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { prisma } from "@/lib/prisma";
-import type { Role } from "@/lib/permissions";
+import type { Department, Role } from "@/lib/permissions";
 import { parseDeviceInfo, type DeviceInfo } from "@/lib/session-client";
 import { isSessionEndedReason, type SessionEndedReason } from "@/lib/session-codes";
 
@@ -16,6 +16,7 @@ export type SessionState =
   | {
       status: "active";
       role: Role;
+      department: Department | null;
       /**
        * The password an administrator chose has to be replaced first, on the
        * web and on the phone alike. It matters most on the phone: operators
@@ -50,7 +51,7 @@ export const loadSession = cache(
         endedReason: true,
         replacedById: true,
         client: true,
-        user: { select: { isActive: true, role: true, mustChangePassword: true } },
+        user: { select: { isActive: true, role: true, department: true, mustChangePassword: true } },
       },
     });
 
@@ -60,6 +61,7 @@ export const loadSession = cache(
       return {
         status: "active",
         role: session.user.role,
+        department: session.user.department,
         mustChangePassword: session.user.mustChangePassword,
       };
     }

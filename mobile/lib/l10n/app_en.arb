@@ -5,6 +5,7 @@
   "statusPending": "Pending",
   "statusInProgress": "In Progress",
   "statusCompleted": "Completed",
+  "roleSuperAdmin": "Super Admin",
   "roleAdmin": "Administrator",
   "roleOperator": "Operator",
   "roleDatabase": "Database",

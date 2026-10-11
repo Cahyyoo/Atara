@@ -1,8 +1,8 @@
 export type SampleStatus = "PENDING" | "IN_PROGRESS" | "COMPLETED";
-import type { Role } from "@/lib/permissions";
+import type { Department, Role } from "@/lib/permissions";
 import type { DeviceInfo } from "@/lib/session-client";
 
-/** The four roles; what each may do is in permissions.ts. */
+/** The roles; what each may do, in which department, is in permissions.ts. */
 export type UserRole = Role;
 
 export interface StageDTO {
@@ -185,6 +185,8 @@ export interface UserDTO {
   name: string;
   email: string;
   role: UserRole;
+  /** The module the account works in; null for the super admin. */
+  department: Department | null;
   isActive: boolean;
   /** Set while the account is locked out after failed sign-ins. */
   lockedUntil: string | null;
@@ -288,3 +290,28 @@ export interface ApiFailure {
 }
 
 export type ApiResult<T> = ApiSuccess<T> | ApiFailure;
+
+export type DrillHoleStatus = "PLANNED" | "ONGOING" | "COMPLETED" | "ABANDONED";
+
+/** One drill hole of the Eksplorasi module; see drill-hole.ts. */
+export interface DrillHoleDTO {
+  id: string;
+  holeId: string;
+  area: string | null;
+  easting: number | null;
+  northing: number | null;
+  elevation: number | null;
+  azimuth: number | null;
+  dip: number | null;
+  totalDepth: number | null;
+  status: DrillHoleStatus;
+  /** YYYY-MM-DD. */
+  startDate: string | null;
+  /** YYYY-MM-DD. */
+  endDate: string | null;
+  remarks: string | null;
+  createdBy: string | null;
+  updatedBy: string | null;
+  createdAt: string;
+  updatedAt: string;
+}

@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { jsonSuccess, handleApiError, ApiError } from "@/lib/api-response";
-import { requireCapability, requireSession } from "@/lib/api-auth";
+import { requireCapability } from "@/lib/api-auth";
 import { createMasterOptionSchema, listMasterOptionsQuerySchema } from "@/lib/validation";
 import { masterOptionCount, toMasterOptionDTO } from "@/lib/master-option";
 import { invalidateMasterOptions, loadMasterOptions } from "@/lib/master-options-cache";
@@ -20,7 +20,8 @@ const EMPTY_COUNT = {
 /** Everyone picking from a dropdown needs to read these; only admins change them. */
 export async function GET(request: NextRequest) {
   try {
-    await requireSession(request);
+    // Lab data: only the people who work in the lab module.
+    await requireCapability(request, "viewDashboard");
 
     const { searchParams } = new URL(request.url);
     const query = listMasterOptionsQuerySchema.parse({

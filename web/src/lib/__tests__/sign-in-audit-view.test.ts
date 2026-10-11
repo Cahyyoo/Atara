@@ -22,7 +22,7 @@ const read = (...parts: string[]) => readFileSync(join(process.cwd(), "src", ...
 
 const TABLE = read("components", "activity", "sign-in-audit-table.tsx");
 const TABS = read("components", "activity", "activity-tabs.tsx");
-const PAGE = read("app", "(app)", "activity", "page.tsx");
+const PAGE = read("app", "(app)", "admin", "sign-ins", "page.tsx");
 const ROUTE = read("app", "api", "sign-in-audit", "route.ts");
 const EXPORT = read("app", "api", "sign-in-audit", "export", "route.ts");
 const SCHEMA = readFileSync(join(process.cwd(), "prisma", "schema.prisma"), "utf8");
@@ -223,25 +223,27 @@ describe("the export", () => {
 
 describe("who may read it", () => {
   /**
-   * Data about people. An operator seeing when everyone else signed in is not
-   * it. viewActivity is the admin's alone (see permissions.test.ts).
+   * Data about people, across every department since the app became a super
+   * app. viewSignInAudit is the super admin's alone (see permissions.test.ts).
    */
-  it("needs viewActivity, at the route and at the page", () => {
-    expect(code(ROUTE)).toContain('await requireCapability(request, "viewActivity")');
-    expect(code(EXPORT)).toContain('await requireCapability(request, "viewActivity")');
-    expect(code(PAGE)).toContain('await requireCapabilityPage("viewActivity")');
+  it("needs viewSignInAudit, at the route and at the page", () => {
+    expect(code(ROUTE)).toContain('await requireCapability(request, "viewSignInAudit")');
+    expect(code(EXPORT)).toContain('await requireCapability(request, "viewSignInAudit")');
+    expect(code(PAGE)).toContain('await requireCapabilityPage("viewSignInAudit")');
   });
 });
 
-describe("the two trails share one page", () => {
+describe("the two trails share one component", () => {
   /**
-   * An eleventh sidebar entry for a page only admins open, and rarely, would
-   * be noise in a menu every operator sees all day.
+   * The stage trail is the lab admin's (/lab/activity), the sign-in trail the
+   * super admin's (/admin/sign-ins): each page passes the one tab its reader
+   * holds, and the super admin's menu -- which no operator sees -- links it.
    */
-  it("are tabs, not a new menu entry", () => {
+  it("are tabs of one component, each page showing its own", () => {
     const sidebar = read("components", "layout", "sidebar-nav.tsx");
-    expect(sidebar).not.toContain("sign-in-audit");
-    expect(sidebar).not.toContain("signInAudit");
+    expect(sidebar).toContain('href: "/admin/sign-ins"');
+    expect(code(PAGE)).toContain('tabs={["signIn"]}');
+    expect(code(read("app", "(app)", "lab", "activity", "page.tsx"))).toContain('tabs={["stages"]}');
     expect(code(TABS)).toContain("StageActivityTable");
     expect(code(TABS)).toContain("SignInAuditTable");
   });

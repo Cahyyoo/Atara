@@ -7,11 +7,13 @@ import {
   DEV_ANALISIS,
   DEV_DATABASE,
   DEV_DEMO_ACCOUNTS,
+  DEV_EKSPLORASI_ADMIN,
   DEV_OPERATOR,
+  DEV_SUPER_ADMIN,
   MIN_SEED_PASSWORD_CHARS,
   resolveSeedAccounts,
 } from "../../../prisma/seed-policy";
-import { ROLES } from "@/lib/permissions";
+import { PERSONAS, personaOf } from "@/lib/permissions";
 
 /**
  * A known admin password must never reach a production database.
@@ -24,12 +26,15 @@ import { ROLES } from "@/lib/permissions";
 describe("seeding accounts", () => {
   it("creates the known development accounts on a laptop", () => {
     const decision = resolveSeedAccounts({ NODE_ENV: "development" });
-    expect(decision).toEqual({ ok: true, admin: DEV_ADMIN, demo: DEV_DEMO_ACCOUNTS });
+    expect(decision).toEqual({ ok: true, admin: DEV_SUPER_ADMIN, demo: DEV_DEMO_ACCOUNTS });
   });
 
-  it("gives every role somebody to sign in as on a laptop", () => {
-    const seeded = ["ADMIN", ...DEV_DEMO_ACCOUNTS.map((demo) => demo.role)].sort();
-    expect(seeded).toEqual([...ROLES].sort());
+  it("gives every role in every department somebody to sign in as on a laptop", () => {
+    const seeded = [
+      "SUPER_ADMIN",
+      ...DEV_DEMO_ACCOUNTS.map((demo) => personaOf({ role: demo.role, department: demo.department })),
+    ].sort();
+    expect(seeded).toEqual([...PERSONAS].sort());
   });
 
   /**
@@ -41,14 +46,14 @@ describe("seeding accounts", () => {
     if (!decision.ok) expect(decision.reason).toMatch(/SEED_ADMIN_PASSWORD/);
   });
 
-  it("creates only the admin in production, with the password it was given", () => {
+  it("creates only the super admin in production, with the password it was given", () => {
     const decision = resolveSeedAccounts({
       NODE_ENV: "production",
       SEED_ADMIN_PASSWORD: "a-real-admin-password",
     });
     expect(decision).toEqual({
       ok: true,
-      admin: { ...DEV_ADMIN, password: "a-real-admin-password" },
+      admin: { ...DEV_SUPER_ADMIN, password: "a-real-admin-password" },
       // No demonstration accounts on a real server.
       demo: [],
     });
@@ -84,7 +89,7 @@ describe("seeding accounts", () => {
       ["..", "mobile", "README.md"],
     ]) {
       const readme = readFileSync(join(process.cwd(), ...path), "utf8");
-      for (const account of [DEV_ADMIN, DEV_OPERATOR, DEV_DATABASE, DEV_ANALISIS]) {
+      for (const account of [DEV_SUPER_ADMIN, DEV_ADMIN, DEV_EKSPLORASI_ADMIN, DEV_OPERATOR, DEV_DATABASE, DEV_ANALISIS]) {
         expect(readme, path.join("/")).not.toContain(account.password);
       }
     }

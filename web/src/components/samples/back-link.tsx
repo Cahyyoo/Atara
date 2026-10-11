@@ -9,7 +9,7 @@ import { readSampleOrigin } from "@/lib/sample-origin";
  * Returns to wherever the user came from (the dashboard or the sample database),
  * falling back to the dashboard when this page was opened directly.
  */
-export function BackLink({ fallbackHref = "/dashboard" }: { fallbackHref?: string }) {
+export function BackLink({ fallbackHref = "/lab/dashboard" }: { fallbackHref?: string }) {
   const router = useRouter();
   const t = useTranslations("samples.detail");
 

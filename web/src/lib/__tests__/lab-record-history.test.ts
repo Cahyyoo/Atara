@@ -26,7 +26,7 @@ describe.skipIf(!reachable)("result history against the database", () => {
 
   beforeAll(async () => {
     const user = await prisma.user.create({
-      data: { name: "History test", email: `${tag.toLowerCase()}@test.invalid`, password: "x", role: "ANALISIS" },
+      data: { name: "History test", email: `${tag.toLowerCase()}@test.invalid`, password: "x", role: "ANALISIS", department: "LAB" as const },
     });
     created.user = user.id;
     const pitA = await prisma.masterOption.create({ data: { kind: "PIT", code: `${tag}A` } });

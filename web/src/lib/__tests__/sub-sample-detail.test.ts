@@ -11,8 +11,8 @@ import { subSamplePath } from "@/lib/sample-ident";
 
 describe("subSamplePath", () => {
   it("puts the sub under its sample's page, codes escaped", () => {
-    expect(subSamplePath("SMPL-2026-00099", "-20")).toBe("/samples/SMPL-2026-00099/sub/-20");
-    expect(subSamplePath("SMPL 1", "+40")).toBe("/samples/SMPL%201/sub/%2B40");
+    expect(subSamplePath("SMPL-2026-00099", "-20")).toBe("/lab/samples/SMPL-2026-00099/sub/-20");
+    expect(subSamplePath("SMPL 1", "+40")).toBe("/lab/samples/SMPL%201/sub/%2B40");
   });
 });
 
@@ -32,7 +32,7 @@ describe.skipIf(!reachable)("loadSubSampleDetail against the database", () => {
 
   beforeAll(async () => {
     const user = await prisma.user.create({
-      data: { name: "Sub page test", email: `${tag.toLowerCase()}@test.invalid`, password: "x", role: "ANALISIS" },
+      data: { name: "Sub page test", email: `${tag.toLowerCase()}@test.invalid`, password: "x", role: "ANALISIS", department: "LAB" as const },
     });
     created.user = user.id;
     const sample = await prisma.sample.create({

@@ -7,6 +7,7 @@ export const USER_SELECT = {
   name: true,
   email: true,
   role: true,
+  department: true,
   isActive: true,
   lockedUntil: true,
   createdAt: true,

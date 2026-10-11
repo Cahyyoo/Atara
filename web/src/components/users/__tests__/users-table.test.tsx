@@ -10,6 +10,7 @@ import type { UserDTO } from "@/types";
 
 const BASE: Omit<UserDTO, "id" | "name" | "email"> = {
   role: "OPERATOR",
+  department: "LAB",
   isActive: true,
   lockedUntil: null,
   createdAt: "2026-08-02T00:00:00.000Z",
@@ -43,7 +44,7 @@ const USERS: UserDTO[] = [
 function renderTable() {
   return render(
     <NextIntlClientProvider locale="id" messages={messages} timeZone="Asia/Makassar">
-      <UsersTable currentUserId="admin" />
+      <UsersTable currentUserId="admin" manager={{ role: "ADMIN", department: "LAB" }} />
     </NextIntlClientProvider>
   );
 }
@@ -117,7 +118,7 @@ describe("UsersTable", () => {
 
   it("names the role instead of printing the enum", async () => {
     renderTable();
-    expect(within(await row("Main Admin")).getByText("Admin")).toBeTruthy();
+    expect(within(await row("Main Admin")).getByText("Admin Lab")).toBeTruthy();
     expect(within(await row("Field Operator")).getByText("Operator")).toBeTruthy();
     expect(screen.queryByText("ADMIN")).toBeNull();
   });
@@ -204,7 +205,9 @@ describe("Adding a user", () => {
 
     const dialog = await screen.findByRole("dialog");
     expect(await within(dialog).findByText("Role Operator belum punya password default.")).toBeTruthy();
-    expect(within(dialog).getByRole("link", { name: "Atur di Administrasi" }).getAttribute("href")).toBe("/admin");
+    expect(
+      within(dialog).getByRole("link", { name: "Atur di bagian bawah halaman ini" }).getAttribute("href")
+    ).toBe("#role-passwords");
     expect((within(dialog).getByRole("button", { name: "Buat Pengguna" }) as HTMLButtonElement).disabled).toBe(true);
   });
 });

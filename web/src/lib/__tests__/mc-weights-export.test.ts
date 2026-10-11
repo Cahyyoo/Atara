@@ -10,7 +10,7 @@ import { prisma } from "@/lib/prisma";
  * there is none.
  */
 
-const session = { userId: "", name: "Database test", email: "", role: "DATABASE" as const, sessionId: "test" };
+const session = { userId: "", name: "Database test", email: "", role: "DATABASE" as const, department: "LAB" as const, sessionId: "test" };
 vi.mock("@/lib/api-auth", () => ({
   requireCapability: vi.fn(async () => session),
   requireSession: vi.fn(async () => session),
@@ -45,10 +45,10 @@ describe.skipIf(!reachable)("the moisture-content weighing and the analysis form
 
   beforeAll(async () => {
     const database = await prisma.user.create({
-      data: { name: `${tag} Database`, email: `${tag.toLowerCase()}-db@test.invalid`, password: "x", role: "DATABASE" },
+      data: { name: `${tag} Database`, email: `${tag.toLowerCase()}-db@test.invalid`, password: "x", role: "DATABASE", department: "LAB" as const },
     });
     const analyst = await prisma.user.create({
-      data: { name: `${tag} Analyst`, email: `${tag.toLowerCase()}-an@test.invalid`, password: "x", role: "ANALISIS" },
+      data: { name: `${tag} Analyst`, email: `${tag.toLowerCase()}-an@test.invalid`, password: "x", role: "ANALISIS", department: "LAB" as const },
     });
     created.users.push(database.id, analyst.id);
     session.userId = database.id;

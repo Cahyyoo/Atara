@@ -1,7 +1,8 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { jsonSuccess, handleApiError, ApiError } from "@/lib/api-response";
+import { jsonSuccess, handleApiError } from "@/lib/api-response";
 import { requireCapability } from "@/lib/api-auth";
+import { requireManagedUser } from "@/lib/managed-user";
 import { USER_SELECT } from "@/lib/user";
 
 /**
@@ -20,10 +21,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
     const admin = await requireCapability(request, "manageUsers");
     const { id } = await context.params;
 
-    const exists = await prisma.user.findUnique({ where: { id }, select: { id: true } });
-    if (!exists) {
-      throw new ApiError("User not found.", 404);
-    }
+    await requireManagedUser(admin, id);
 
     const user = await prisma.user.update({
       where: { id },
@@ -52,13 +50,9 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
  */
 export async function DELETE(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
-    await requireCapability(request, "manageUsers");
+    const admin = await requireCapability(request, "manageUsers");
     const { id } = await context.params;
-
-    const exists = await prisma.user.findUnique({ where: { id }, select: { id: true } });
-    if (!exists) {
-      throw new ApiError("User not found.", 404);
-    }
+    await requireManagedUser(admin, id);
 
     const user = await prisma.user.update({
       where: { id },

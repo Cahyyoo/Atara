@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { jsonSuccess, handleApiError, ApiError } from "@/lib/api-response";
 import { requireCapability } from "@/lib/api-auth";
+import { requireManagedUser } from "@/lib/managed-user";
 import { descriptorToBytes, isDescriptorPayload } from "@/lib/face-match";
 import { readJsonBody } from "@/lib/api-request";
 
@@ -35,10 +36,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
       throw new ApiError("One of the face readings was not usable. Please try again.", 400);
     }
 
-    const user = await prisma.user.findUnique({ where: { id }, select: { id: true } });
-    if (!user) {
-      throw new ApiError("User not found.", 404);
-    }
+    await requireManagedUser(admin, id);
 
     // Replace rather than append: re-enrolling exists because the old
     // readings stopped working, and keeping them would keep letting the old
@@ -75,8 +73,9 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
  */
 export async function DELETE(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
-    await requireCapability(request, "manageUsers");
+    const admin = await requireCapability(request, "manageUsers");
     const { id } = await context.params;
+    await requireManagedUser(admin, id);
 
     const removed = await prisma.$transaction([
       prisma.faceEnrollment.deleteMany({ where: { userId: id } }),

@@ -6,24 +6,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HelpToc } from "@/components/help/help-toc";
 import { TryTourButton } from "@/components/help/try-tour-button";
 import { tourFor } from "@/lib/tours";
-import { requireCapabilityPage } from "@/lib/page-auth";
+import { requireSessionPage } from "@/lib/page-auth";
 import { helpSectionsFor } from "@/lib/help-sections";
-import { ROLE_LABEL_KEYS } from "@/lib/role-labels";
+import { personaLabelKeys } from "@/lib/role-labels";
 import { cn } from "@/lib/utils";
 import { IoArrowForward, IoBulbOutline } from "react-icons/io5";
 
 export const dynamic = "force-dynamic";
 
 /**
- * The guide: one section per page this role can open, in menu order. Cards at
+ * The guide: one section per page this person can open, in menu order. Cards at
  * the top for jumping straight in, contents beside it on wide screens, and
  * each section's steps laid out as a short timeline. The section the "?"
  * button pointed at is outlined, through the CSS :target state alone.
  */
 export default async function HelpPage() {
-  const session = await requireCapabilityPage("viewDashboard");
+  // Everybody has a guide; what is in it depends on who they are.
+  const session = await requireSessionPage();
   const [t, tRoles] = await Promise.all([getTranslations("help"), getTranslations("users.dialog")]);
-  const sections = helpSectionsFor(session.role).map((section) => ({
+  const sections = helpSectionsFor(session).map((section) => ({
     ...section,
     title: t(`sections.${section.key}.title`),
     intro: t(`sections.${section.key}.intro`),
@@ -39,7 +40,7 @@ export default async function HelpPage() {
         <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
         <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
         <div className="flex flex-wrap items-center gap-2">
-          <Badge>{t("forRole", { role: tRoles(ROLE_LABEL_KEYS[session.role].name) })}</Badge>
+          <Badge>{t("forRole", { role: tRoles(personaLabelKeys(session).name) })}</Badge>
           <span className="text-xs text-muted-foreground">
             {t("sectionCount", { count: sections.length })}
           </span>

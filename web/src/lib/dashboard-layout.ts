@@ -1,7 +1,7 @@
-import type { Role } from "@/lib/permissions";
+import type { LabPersona } from "@/lib/permissions";
 
 /**
- * What each role's dashboard shows, in one table.
+ * What each lab role's dashboard shows, in one table.
  *
  * Every role lands on the dashboard, and it used to show everybody the same
  * six figures and five charts. Most of them answer somebody else's question:
@@ -46,9 +46,9 @@ export interface DashboardLayout {
   allSamples: boolean;
 }
 
-const LAYOUTS: Record<Role, DashboardLayout> = {
+const LAYOUTS: Record<LabPersona, DashboardLayout> = {
   // The whole picture: this is who looks after all of it.
-  ADMIN: {
+  LAB_ADMIN: {
     kpis: KPI_KEYS,
     charts: CHART_KEYS,
     myScans: false,
@@ -81,8 +81,8 @@ const LAYOUTS: Record<Role, DashboardLayout> = {
   },
 };
 
-export function dashboardLayoutFor(role: Role): DashboardLayout {
-  return LAYOUTS[role];
+export function dashboardLayoutFor(persona: LabPersona): DashboardLayout {
+  return LAYOUTS[persona];
 }
 
 /**

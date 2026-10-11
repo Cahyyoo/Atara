@@ -23,7 +23,7 @@ export default async function ChangePasswordPage({
   }
   // Nothing to replace: on to the app.
   if (!(await mustChangePassword())) {
-    redirect("/dashboard");
+    redirect("/home");
   }
   const { next } = await searchParams;
 

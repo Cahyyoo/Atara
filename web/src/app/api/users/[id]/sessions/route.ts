@@ -1,24 +1,17 @@
 import type { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { jsonSuccess, handleApiError, ApiError } from "@/lib/api-response";
+import { jsonSuccess, handleApiError } from "@/lib/api-response";
 import { requireCapability } from "@/lib/api-auth";
+import { requireManagedUser } from "@/lib/managed-user";
 import { recordSignIn, SignInOutcome } from "@/lib/sign-in-audit";
 import { endUserSessions } from "@/lib/user-session";
 import { listUserSessions } from "@/lib/user-sessions-admin";
-
-async function assertUser(id: string) {
-  const exists = await prisma.user.findUnique({ where: { id }, select: { id: true } });
-  if (!exists) {
-    throw new ApiError("User not found.", 404);
-  }
-}
 
 /** Where an account is signed in, and where it was lately. */
 export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
     const admin = await requireCapability(request, "manageUsers");
     const { id } = await context.params;
-    await assertUser(id);
+    await requireManagedUser(admin, id);
 
     return jsonSuccess(await listUserSessions(id, admin.sessionId));
   } catch (error) {
@@ -35,7 +28,7 @@ export async function DELETE(request: NextRequest, context: { params: Promise<{ 
   try {
     const admin = await requireCapability(request, "manageUsers");
     const { id } = await context.params;
-    await assertUser(id);
+    await requireManagedUser(admin, id);
 
     const ended = await endUserSessions(id, "ADMIN_ENDED", {
       exceptSessionId: id === admin.userId ? admin.sessionId : undefined,

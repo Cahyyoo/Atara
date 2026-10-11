@@ -1,5 +1,6 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import type { Department, Role } from "@/lib/permissions";
 import { describe, expect, it } from "vitest";
 import en from "../../../messages/en.json";
 import id from "../../../messages/id.json";
@@ -70,11 +71,14 @@ describe("the guided tours", () => {
   });
 
   it("offer each role only the pages it can open", () => {
-    const keys = (role: Parameters<typeof toursFor>[0]) => toursFor(role).map((tour) => tour.key);
+    const keys = (role: Role, department: Department | null = "LAB") =>
+      toursFor({ role, department }).map((tour) => tour.key);
     expect(keys("OPERATOR")).toEqual(["dashboard", "quickSearch", "sampleDetail", "account"]);
     expect(keys("OPERATOR")).not.toContain("masterData");
     expect(keys("ANALISIS")).toEqual(expect.arrayContaining(["assay", "grade"]));
     expect(keys("DATABASE")).toEqual(expect.arrayContaining(["generate", "labels", "database", "dataQuality"]));
-    expect(keys("ADMIN")).toEqual(expect.arrayContaining(["masterData", "users", "activity", "admin"]));
+    expect(keys("ADMIN")).toEqual(expect.arrayContaining(["masterData", "users", "activity"]));
+    expect(keys("SUPER_ADMIN", null)).toEqual(expect.arrayContaining(["users", "admin", "account"]));
+    expect(keys("ADMIN", "EKSPLORASI")).toEqual(["account"]);
   });
 });

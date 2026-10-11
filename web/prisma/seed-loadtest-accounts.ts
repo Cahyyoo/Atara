@@ -24,6 +24,8 @@ async function main() {
       email: `lt-vu-${role.toLowerCase()}-${String(i + 1).padStart(3, "0")}@atara.local`,
       password: hash,
       role,
+      // Every role the load test drives works in the lab.
+      department: "LAB" as const,
       guideSeenAt: new Date(),
     }));
     const { count } = await prisma.user.createMany({ data, skipDuplicates: true });

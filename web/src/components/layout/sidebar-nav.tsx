@@ -3,16 +3,21 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import type { IconType } from "react-icons";
 import { cn } from "@/lib/utils";
 import { NavPending } from "@/components/layout/nav-pending";
 import { APP_NAME } from "@/lib/brand";
 import type { SessionPayload } from "@/lib/auth";
 import { can, type Capability } from "@/lib/permissions";
+import { canAccessModule, HOME_PATH, type ModuleKey } from "@/lib/modules";
 import {
   IoAppsOutline,
+  IoCompassOutline,
   IoTimeOutline,
   IoCreateOutline,
   IoHelpCircleOutline,
+  IoHomeOutline,
+  IoFingerPrintOutline,
   IoSettingsOutline,
   IoListOutline,
   IoPeopleOutline,
@@ -25,24 +30,50 @@ import {
 } from "react-icons/io5";
 
 /**
- * Each item names the capability its page is guarded by, so the menu can only
- * offer what the page will then let somebody open. The pages check the same
- * capability on the server (requireCapabilityPage).
+ * The menu, grouped by module. A group shows only to the people who work in
+ * that module (modules.ts); each item names the capability its page is
+ * guarded by, so the menu can only offer what the page will then let somebody
+ * open. The pages check the same capability on the server
+ * (requireCapabilityPage).
+ *
+ * Users sits in both the lab and the system group: the same page, scoped to
+ * whoever opens it (user-scope.ts). Nobody works in both modules, so nobody
+ * sees it twice.
  */
-const NAV_ITEMS = [
-  { href: "/dashboard", key: "dashboard", icon: IoAppsOutline, capability: "viewDashboard" },
-  { href: "/samples/generate", key: "generateSamples", icon: IoQrCodeOutline, capability: "generateSamples" },
-  { href: "/samples/labels", key: "reprintLabels", icon: IoPrintOutline, capability: "printLabels" },
-  { href: "/database", key: "sampleDatabase", icon: IoServerOutline, capability: "viewDatabase" },
-  { href: "/data-quality", key: "dataQuality", icon: IoShieldCheckmarkOutline, capability: "viewDatabase" },
-  { href: "/assay", key: "assayEntry", icon: IoCreateOutline, capability: "enterResults" },
-  { href: "/grade", key: "gradeControl", icon: IoStatsChartOutline, capability: "readLabRecords" },
-  { href: "/master-data", key: "masterData", icon: IoListOutline, capability: "manageMasterData" },
-  { href: "/activity", key: "activity", icon: IoTimeOutline, capability: "viewActivity" },
-  { href: "/users", key: "users", icon: IoPeopleOutline, capability: "manageUsers" },
-  { href: "/admin", key: "admin", icon: IoSettingsOutline, capability: "manageAnnouncements" },
-  { href: "/help", key: "help", icon: IoHelpCircleOutline, capability: "viewDashboard" },
-] as const satisfies readonly { href: string; key: string; icon: unknown; capability: Capability }[];
+const NAV_GROUPS = [
+  {
+    module: "lab",
+    items: [
+      { href: "/lab/dashboard", key: "dashboard", icon: IoAppsOutline, capability: "viewDashboard" },
+      { href: "/lab/samples/generate", key: "generateSamples", icon: IoQrCodeOutline, capability: "generateSamples" },
+      { href: "/lab/samples/labels", key: "reprintLabels", icon: IoPrintOutline, capability: "printLabels" },
+      { href: "/lab/database", key: "sampleDatabase", icon: IoServerOutline, capability: "viewDatabase" },
+      { href: "/lab/data-quality", key: "dataQuality", icon: IoShieldCheckmarkOutline, capability: "viewDatabase" },
+      { href: "/lab/assay", key: "assayEntry", icon: IoCreateOutline, capability: "enterResults" },
+      { href: "/lab/grade", key: "gradeControl", icon: IoStatsChartOutline, capability: "readLabRecords" },
+      { href: "/lab/master-data", key: "masterData", icon: IoListOutline, capability: "manageMasterData" },
+      { href: "/lab/activity", key: "activity", icon: IoTimeOutline, capability: "viewActivity" },
+      { href: "/users", key: "users", icon: IoPeopleOutline, capability: "manageUsers" },
+    ],
+  },
+  {
+    module: "eksplorasi",
+    items: [
+      { href: "/eksplorasi/drilling", key: "drilling", icon: IoCompassOutline, capability: "manageDrilling" },
+    ],
+  },
+  {
+    module: "system",
+    items: [
+      { href: "/users", key: "adminAccounts", icon: IoPeopleOutline, capability: "manageUsers" },
+      { href: "/admin", key: "admin", icon: IoSettingsOutline, capability: "manageAnnouncements" },
+      { href: "/admin/sign-ins", key: "signInAudit", icon: IoFingerPrintOutline, capability: "viewSignInAudit" },
+    ],
+  },
+] as const satisfies readonly {
+  module: ModuleKey;
+  items: readonly { href: string; key: string; icon: unknown; capability: Capability }[];
+}[];
 
 /** Matches the section, not any path that merely starts with the same letters. */
 function isActivePath(pathname: string, href: string): boolean {
@@ -54,7 +85,7 @@ export function Brand({ onNavigate }: { onNavigate?: () => void }) {
 
   return (
     <Link
-      href="/dashboard"
+      href={HOME_PATH}
       onClick={onNavigate}
       className="flex items-center gap-2.5 rounded-xl px-2 py-1.5 transition-colors hover:bg-muted"
     >
@@ -79,7 +110,9 @@ export function SidebarNav({
 }) {
   const pathname = usePathname();
   const t = useTranslations("nav");
-  const items = NAV_ITEMS.filter((item) => can(user.role, item.capability));
+  const groups = NAV_GROUPS.filter((group) => canAccessModule(user, group.module))
+    .map((group) => ({ ...group, items: group.items.filter((item) => can(user, item.capability)) }))
+    .filter((group) => group.items.length > 0);
 
   return (
     <>
@@ -88,41 +121,75 @@ export function SidebarNav({
       </div>
 
       {/* Scrolls on its own if the menu ever outgrows the viewport. */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4" data-tour="sidebar-nav">
-        <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-          {t("menu")}
-        </p>
-        <ul className="flex flex-col gap-1">
-          {items.map((item) => {
-            const isActive = isActivePath(pathname, item.href);
-            const Icon = item.icon;
-
-            return (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  onClick={onNavigate}
-                  aria-current={isActive ? "page" : undefined}
-                  className={cn(
-                    // min-h-11 clears a 44px touch target, the size iOS asks
-                    // for and the size a gloved thumb needs.
-                    "relative flex min-h-11 items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition-all",
-                    isActive
-                      ? "surface-hero text-white"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                  )}
-                >
-                  <Icon className="size-4 shrink-0" />
-                  <span className="truncate">{t(item.key)}</span>
-                  {/* Inside the Link, which is how useLinkStatus scopes
-                      itself to this navigation rather than to any. */}
-                  <NavPending />
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+      <nav className="flex flex-1 flex-col gap-5 overflow-y-auto px-3 py-4" data-tour="sidebar-nav">
+        <NavList
+          items={[{ href: HOME_PATH, key: "home", icon: IoHomeOutline }]}
+          pathname={pathname}
+          onNavigate={onNavigate}
+        />
+        {groups.map((group) => (
+          <div key={group.module}>
+            <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              {t(`groups.${group.module}`)}
+            </p>
+            <NavList items={group.items} pathname={pathname} onNavigate={onNavigate} />
+          </div>
+        ))}
+        <NavList
+          items={[{ href: "/help", key: "help", icon: IoHelpCircleOutline }]}
+          pathname={pathname}
+          onNavigate={onNavigate}
+        />
       </nav>
     </>
+  );
+}
+
+function NavList({
+  items,
+  pathname,
+  onNavigate,
+}: {
+  items: readonly { href: string; key: string; icon: IconType }[];
+  pathname: string;
+  onNavigate?: () => void;
+}) {
+  const t = useTranslations("nav");
+  // The most specific match only: /admin/sign-ins is not also /admin.
+  const active = items
+    .filter((item) => isActivePath(pathname, item.href))
+    .reduce<string | null>((best, item) => (best && best.length >= item.href.length ? best : item.href), null);
+
+  return (
+    <ul className="flex flex-col gap-1">
+      {items.map((item) => {
+        const isActive = item.href === active;
+        const Icon = item.icon;
+
+        return (
+          <li key={item.href}>
+            <Link
+              href={item.href}
+              onClick={onNavigate}
+              aria-current={isActive ? "page" : undefined}
+              className={cn(
+                // min-h-11 clears a 44px touch target, the size iOS asks
+                // for and the size a gloved thumb needs.
+                "relative flex min-h-11 items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition-all",
+                isActive
+                  ? "surface-hero text-white"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              )}
+            >
+              <Icon className="size-4 shrink-0" />
+              <span className="truncate">{t(item.key)}</span>
+              {/* Inside the Link, which is how useLinkStatus scopes
+                  itself to this navigation rather than to any. */}
+              <NavPending />
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

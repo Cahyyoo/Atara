@@ -40,7 +40,7 @@ describe.skipIf(!reachable)("counting failed attempts", () => {
         email: `lockout-test-${process.pid}-${Math.random().toString(36).slice(2)}@test.invalid`,
         name: "Lockout Test",
         password: "not-a-real-hash",
-        role: "OPERATOR",
+        role: "OPERATOR", department: "LAB" as const,
       },
       select: { id: true },
     });

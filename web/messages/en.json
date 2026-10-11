@@ -60,7 +60,7 @@
     "account": "Account",
     "appearance": "Appearance",
     "assayEntry": "Enter Results",
-    "brandSubtitle": "Sample Monitoring",
+    "brandSubtitle": "Super App",
     "dashboard": "Dashboard",
     "generateSamples": "Generate Barcode",
     "language": "Language",
@@ -80,7 +80,16 @@
     "gradeControl": "Conclusion",
     "dataQuality": "Data Quality",
     "admin": "Administration",
-    "help": "Guide"
+    "help": "Guide",
+    "home": "Home",
+    "drilling": "Drilling Data",
+    "adminAccounts": "Admin Accounts",
+    "signInAudit": "Sign-in Audit",
+    "groups": {
+      "lab": "Lab · Sample Monitoring",
+      "eksplorasi": "Exploration",
+      "system": "System"
+    }
   },
   "auth": {
     "title": "Sample Tracking System",
@@ -543,7 +552,7 @@
   },
   "users": {
     "title": "Users",
-    "subtitle": "Manage who can sign in, and what they are allowed to do.",
+    "subtitle": "Manage your department’s staff: who can sign in, and what they may do.",
     "add": "Add User",
     "searchPlaceholder": "Search name or email…",
     "user": "User",
@@ -559,9 +568,9 @@
     "dialog": {
       "addTitle": "Add User",
       "editTitle": "Edit User",
-      "addDescription": "Each role sees only the pages its work needs.",
+      "addDescription": "Each role only sees the modules and pages its work needs.",
       "roleAdmin": "Admin",
-      "roleAdminHint": "Dashboard, users, master data and activity. Reads the sample database without changing it.",
+      "roleAdminHint": "The admin of a department.",
       "roleDatabase": "Database",
       "roleDatabaseHint": "Generates barcodes, reprints labels and keeps the sample database.",
       "roleAnalisis": "Analyst",
@@ -578,7 +587,15 @@
       "save": "Save Changes",
       "defaultPasswordNote": "The account starts on the {role} default password. The user has to replace it on their first sign-in.",
       "noRoleDefault": "The {role} role has no default password yet.",
-      "noRoleDefaultLink": "Set it under Administration"
+      "noRoleDefaultLink": "Set it at the bottom of this page",
+      "roleSuperAdmin": "Super Admin",
+      "roleSuperAdminHint": "Manages each department’s admin accounts, announcements, the sign-in audit and backups.",
+      "roleLabAdmin": "Lab Admin",
+      "roleLabAdminHint": "Lab module: dashboard, lab staff, master data and activity. Reads the sample database without changing it.",
+      "roleEksplorasiAdmin": "Exploration Admin",
+      "roleEksplorasiAdminHint": "Exploration module: manages the drilling data.",
+      "departmentLab": "Lab",
+      "departmentEksplorasi": "Exploration"
     },
     "verification": "Verification",
     "moreActions": "More actions for {name}",
@@ -617,7 +634,10 @@
       "confirm": "{name}'s password goes back to the {role} default. Every device they are signed in on is signed out, and they must replace the password on their next sign-in.",
       "action": "Reset password",
       "done": "{name}'s password was reset to the default."
-    }
+    },
+    "department": "Department",
+    "adminsTitle": "Admin Accounts",
+    "adminsSubtitle": "Manage the admin account of each department. Each admin manages their own features and staff."
   },
   "masterData": {
     "title": "Master Data",
@@ -1041,7 +1061,7 @@
   },
   "admin": {
     "title": "Administration",
-    "subtitle": "Announcements shown above every page, and a full backup of the data.",
+    "subtitle": "Announcements above every page, and a full backup of every module’s data.",
     "rolePasswords": {
       "title": "Default password per role",
       "description": "Every new account starts on its role's default, and a forgotten password is reset to it. The person then has to replace it on their next sign-in.",
@@ -1226,23 +1246,34 @@
           "3": "Both can be exported."
         }
       },
+      "drilling": {
+        "title": "Drilling Data",
+        "intro": "The drill holes of the Exploration module.",
+        "steps": {
+          "1": "Add Drill Hole records the hole ID, area, collar coordinates, orientation and depth.",
+          "2": "Search by hole ID or area, and filter by status.",
+          "3": "Edit fills in the rest; the bin icon deletes a drill hole permanently."
+        },
+        "tip": "The hole ID must be unique. Every other field may be left empty and completed later."
+      },
       "users": {
         "title": "Users",
-        "intro": "Who can sign in, and what they may do.",
+        "intro": "The Super Admin manages each department’s admin accounts; the Lab Admin manages the lab staff.",
         "steps": {
-          "1": "Add a user with a role; Edit changes the role, resets the password, unlocks or deactivates.",
+          "1": "Add a user with a role (and a department, for the Super Admin); Edit changes the role, resets the password, unlocks or deactivates.",
           "2": "From the ⋯ menu: enrol a face, require an authenticator app, or see the devices signed in.",
-          "3": "Resetting a password signs that person out everywhere."
+          "3": "Each role’s default password is set at the bottom of this page."
         },
         "tip": "Resetting a password signs that person out on every device, so use it when a password may be known to someone else."
       },
       "admin": {
         "title": "Administration",
-        "intro": "Announcements above every page, and the full backup.",
+        "intro": "Announcements above every page, the sign-in audit, and the full backup.",
         "steps": {
           "1": "Write an announcement, choose Info or Warning and who sees it; set start and end, or leave them empty.",
           "2": "End now takes it down but keeps it in the list; Delete removes it.",
-          "3": "Download backup gives one Excel file with all the data, without passwords or secrets."
+          "3": "Sign-in Audit shows who signed in, from where, and who was refused, across every department.",
+          "4": "Download backup gives one Excel file with all the data, without passwords or secrets."
         }
       },
       "mobile": {
@@ -1273,21 +1304,33 @@
       "back": "Back",
       "done": "Done",
       "openGuide": "Open the full guide",
-      "ADMIN": {
+      "SUPER_ADMIN": {
         "steps": {
           "1": {
-            "title": "You look after the whole system",
-            "body": "The dashboard, TV mode and Conclusion show how the lab is doing. Activity shows who did what."
+            "title": "You look after the admins",
+            "body": "Admin Accounts is where each department’s admin is created and managed: Lab and Exploration. Each admin runs their own module."
+          },
+          "2": {
+            "title": "System settings",
+            "body": "Administration posts announcements and downloads backups; Sign-in Audit shows who signed in."
+          },
+          "3": {
+            "title": "Help is always here",
+            "body": "Press ? at the top of any page for the part of the guide about it."
+          }
+        }
+      },
+      "LAB_ADMIN": {
+        "steps": {
+          "1": {
+            "title": "You run the Lab module",
+            "body": "The dashboard, TV mode and Conclusion show how the lab is doing. Activity shows who moved which sample."
           },
           "2": {
             "title": "People and codes",
-            "body": "Users is where accounts, roles and sign-in methods are managed. Master Data holds the codes every Sample ID is built from."
+            "body": "Users is where the lab staff, their roles and sign-in methods are managed. Master Data holds the codes every Sample ID is built from."
           },
           "3": {
-            "title": "Announcements and backup",
-            "body": "Administration puts a banner above every page and downloads a full backup of the data."
-          },
-          "4": {
             "title": "Help is always here",
             "body": "Press ? at the top of any page for the part of the guide about it, or Ctrl+K to open any sample."
           }
@@ -1338,6 +1381,18 @@
           "3": {
             "title": "Help is always here",
             "body": "Press ? at the top of any page for the part of the guide about it, or Ctrl+K to open any sample."
+          }
+        }
+      },
+      "EKSPLORASI_ADMIN": {
+        "steps": {
+          "1": {
+            "title": "You run the Exploration module",
+            "body": "Drilling Data holds every drill hole: add, edit, search and delete."
+          },
+          "2": {
+            "title": "Help is always here",
+            "body": "Press ? at the top of any page for the part of the guide about it."
           }
         }
       }
@@ -1575,22 +1630,18 @@
     },
     "activity": {
       "1": {
-        "title": "Two trails",
-        "body": "Stage activity (scans) and the sign-in audit. Try switching tabs."
-      },
-      "2": {
         "title": "Per person",
         "body": "Who made how many scans. Click a name to filter the table."
       },
-      "3": {
+      "2": {
         "title": "Filter",
         "body": "By person, stage, day, or corrections only."
       },
-      "4": {
+      "3": {
         "title": "Export",
         "body": "Download the trail as it is filtered."
       },
-      "5": {
+      "4": {
         "title": "The details",
         "body": "One row per event, newest first."
       }
@@ -1697,5 +1748,87 @@
     "excel": "Excel (.xlsx)",
     "csv": "CSV",
     "place": "Place"
+  },
+  "home": {
+    "greeting": "Hello, {name}",
+    "subtitle": "Choose the module you want to open.",
+    "open": "Open module",
+    "noModules": "Your account has no access to any module yet. Contact the Super Admin.",
+    "modules": {
+      "lab": {
+        "name": "Lab · Sample Monitoring",
+        "description": "Sample tracking from receipt to report: barcodes, the sample database, assay results and the dashboard."
+      },
+      "eksplorasi": {
+        "name": "Exploration",
+        "description": "Manage drilling data: drill holes, collar coordinates, orientation, depth and status."
+      },
+      "system": {
+        "name": "System",
+        "description": "Each department’s admin accounts, announcements, the sign-in audit and data backups."
+      }
+    }
+  },
+  "drilling": {
+    "title": "Drilling Data",
+    "subtitle": "The drill holes of the Exploration module.",
+    "add": "Add Drill Hole",
+    "searchPlaceholder": "Search hole ID or area…",
+    "allStatuses": "All statuses",
+    "empty": "No drilling data yet.",
+    "emptyFiltered": "No drill holes match.",
+    "noun": "drill holes",
+    "status": {
+      "PLANNED": "Planned",
+      "ONGOING": "Ongoing",
+      "COMPLETED": "Completed",
+      "ABANDONED": "Abandoned"
+    },
+    "fields": {
+      "holeId": "Hole ID",
+      "area": "Area / Prospect",
+      "status": "Status",
+      "easting": "Easting",
+      "northing": "Northing",
+      "elevation": "Elevation (m)",
+      "azimuth": "Azimuth (°)",
+      "dip": "Dip (°)",
+      "totalDepth": "Total Depth (m)",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "remarks": "Remarks"
+    },
+    "columns": {
+      "coordinates": "Collar Coordinates",
+      "orientation": "Orientation",
+      "period": "Start / End",
+      "azimuthShort": "Az",
+      "dipShort": "Dip"
+    },
+    "placeholders": {
+      "holeId": "e.g. DH-2026-001",
+      "area": "e.g. Block A"
+    },
+    "sections": {
+      "collar": "Collar coordinates",
+      "survey": "Orientation & depth"
+    },
+    "addTitle": "Add Drill Hole",
+    "editTitle": "Edit {holeId}",
+    "dialogDescription": "Everything but the hole ID may be left empty and filled in later.",
+    "create": "Save Drill Hole",
+    "created": "{holeId} added.",
+    "updated": "{holeId} updated.",
+    "errors": {
+      "dateOrder": "The end date cannot be before the start date.",
+      "duplicate": "Hole ID {holeId} is already in use."
+    },
+    "delete": {
+      "label": "Delete {holeId}",
+      "title": "Delete drill hole?",
+      "confirm": "{holeId} will be deleted permanently and cannot be restored.",
+      "action": "Delete",
+      "done": "{holeId} deleted."
+    }
   }
 }

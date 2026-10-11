@@ -329,7 +329,7 @@ export function PasteImport() {
             <IoClipboardOutline className="size-4" />
             {t("pasteAnother")}
           </Button>
-          <Link href="/database" className={buttonVariants({ variant: "outline" })}>
+          <Link href="/lab/database" className={buttonVariants({ variant: "outline" })}>
             {t("openDatabase")}
           </Link>
         </div>

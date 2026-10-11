@@ -69,7 +69,7 @@ describe.skipIf(!reachable)("against the database", () => {
 
   beforeAll(async () => {
     const user = await prisma.user.create({
-      data: { name: "Bulk test", email: `${tag.toLowerCase()}@test.invalid`, password: "x", role: "DATABASE" },
+      data: { name: "Bulk test", email: `${tag.toLowerCase()}@test.invalid`, password: "x", role: "DATABASE", department: "LAB" as const },
     });
     created.user = user.id;
     const option = async (kind: "PLACE" | "PIT", code: string) => {

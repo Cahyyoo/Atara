@@ -90,6 +90,6 @@ describe("GenerateForm", () => {
   it("points to the Database, where the identity is filled in", () => {
     show();
     const link = screen.getByRole("link", { name: en.samples.generate.openDatabase });
-    expect(link.getAttribute("href")).toBe("/database?ident=missing");
+    expect(link.getAttribute("href")).toBe("/lab/database?ident=missing");
   });
 });

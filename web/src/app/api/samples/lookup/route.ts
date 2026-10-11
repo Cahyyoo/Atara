@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { jsonSuccess, handleApiError, ApiError } from "@/lib/api-response";
-import { requireSession } from "@/lib/api-auth";
+import { requireCapability } from "@/lib/api-auth";
 import { consumeAttempt } from "@/lib/rate-limit";
 import { ACTIVE_SAMPLE } from "@/lib/soft-delete";
 import { normalizeLookupQuery, rankLookupMatches } from "@/lib/sample-lookup";
@@ -22,7 +22,7 @@ const CANDIDATES = 20;
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await requireSession(request);
+    const session = await requireCapability(request, "viewDashboard");
     if (!consumeAttempt(`lookup:${session.userId}`, LOOKUP_LIMIT)) {
       throw new ApiError("Too many searches. Please wait a moment.", 429);
     }

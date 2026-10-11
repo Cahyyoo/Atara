@@ -21,8 +21,9 @@ import type { StageDTO } from "@/types";
  * below.
  */
 
-const TABS = ["stages", "signIn"] as const;
-type Tab = (typeof TABS)[number];
+export const ACTIVITY_TABS = ["stages", "signIn"] as const;
+export type ActivityTab = (typeof ACTIVITY_TABS)[number];
+type Tab = ActivityTab;
 
 /**
  * The filter keys each tab owns.
@@ -40,14 +41,27 @@ const TAB_PARAMS: Record<Tab, string[]> = {
 /** Only what the stage filter row and a stage label need. */
 type StageOption = Pick<StageDTO, "id" | "key" | "name">;
 
-export function ActivityTabs({ stages }: { stages: StageOption[] }) {
+/**
+ * Since the app became a super app the two trails belong to different people:
+ * the lab admin reads the stage moves (/lab/activity), the super admin the
+ * sign-ins of every department (/admin/sign-ins). Each page passes the tabs
+ * its reader holds; with one, the switch is not drawn.
+ */
+export function ActivityTabs({
+  stages,
+  tabs = ACTIVITY_TABS,
+}: {
+  stages: StageOption[];
+  tabs?: readonly Tab[];
+}) {
   const t = useTranslations("activity");
   const tStageActivity = useTranslations("stageActivity");
   const tSignInAudit = useTranslations("signInAudit");
   const { get, setParams } = useTableParams();
 
-  const raw = get("tab", "stages");
-  const tab: Tab = TABS.includes(raw as Tab) ? (raw as Tab) : "stages";
+  const first = tabs[0] ?? "stages";
+  const raw = get("tab", first);
+  const tab: Tab = tabs.includes(raw as Tab) ? (raw as Tab) : first;
 
   const labels: Record<Tab, string> = {
     stages: tStageActivity("title"),
@@ -65,21 +79,24 @@ export function ActivityTabs({ stages }: { stages: StageOption[] }) {
     const cleared = Object.fromEntries(
       [...TAB_PARAMS[tab], "sort", "order"].map((key) => [key, null])
     );
-    setParams({ ...cleared, tab: next === "stages" ? null : next });
+    setParams({ ...cleared, tab: next === first ? null : next });
   }
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-4">
-        <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          {tabs.length > 1 ? t("title") : labels[tab]}
+        </h1>
 
+        {tabs.length > 1 ? (
         <div
           data-tour="activity-tabs"
           role="group"
           aria-label={t("title")}
           className="flex w-fit max-w-full gap-1 overflow-x-auto rounded-xl bg-muted/60 p-1"
         >
-          {TABS.map((name) => (
+          {tabs.map((name) => (
             <button
               key={name}
               type="button"
@@ -95,6 +112,7 @@ export function ActivityTabs({ stages }: { stages: StageOption[] }) {
             </button>
           ))}
         </div>
+        ) : null}
 
         <p className="text-sm text-muted-foreground">{subtitles[tab]}</p>
       </div>

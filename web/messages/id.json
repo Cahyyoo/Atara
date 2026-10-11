@@ -60,7 +60,7 @@
     "account": "Akun",
     "appearance": "Tampilan",
     "assayEntry": "Input Hasil Uji",
-    "brandSubtitle": "Monitoring Sampel",
+    "brandSubtitle": "Super App",
     "dashboard": "Dasbor",
     "generateSamples": "Buat Barcode",
     "language": "Bahasa",
@@ -80,7 +80,16 @@
     "gradeControl": "Kesimpulan",
     "dataQuality": "Kualitas Data",
     "admin": "Administrasi",
-    "help": "Panduan"
+    "help": "Panduan",
+    "home": "Beranda",
+    "drilling": "Data Drilling",
+    "adminAccounts": "Akun Admin",
+    "signInAudit": "Audit Login",
+    "groups": {
+      "lab": "Lab · Monitoring Sampel",
+      "eksplorasi": "Eksplorasi",
+      "system": "Sistem"
+    }
   },
   "auth": {
     "title": "Sistem Tracking Sampel",
@@ -543,7 +552,7 @@
   },
   "users": {
     "title": "Pengguna",
-    "subtitle": "Atur siapa yang bisa masuk dan apa yang boleh mereka lakukan.",
+    "subtitle": "Atur staf departemen Anda: siapa yang bisa masuk dan apa yang boleh mereka lakukan.",
     "add": "Tambah Pengguna",
     "searchPlaceholder": "Cari nama atau email…",
     "user": "Pengguna",
@@ -559,9 +568,9 @@
     "dialog": {
       "addTitle": "Tambah Pengguna",
       "editTitle": "Ubah Pengguna",
-      "addDescription": "Setiap peran hanya melihat halaman yang dibutuhkan pekerjaannya.",
+      "addDescription": "Setiap peran hanya melihat modul dan halaman yang dibutuhkan pekerjaannya.",
       "roleAdmin": "Admin",
-      "roleAdminHint": "Dashboard, pengguna, master data, dan aktivitas. Melihat database sampel tanpa mengubahnya.",
+      "roleAdminHint": "Admin sebuah departemen.",
       "roleDatabase": "Database",
       "roleDatabaseHint": "Membuat barcode, mencetak ulang label, dan mengelola database sampel.",
       "roleAnalisis": "Analisis",
@@ -578,7 +587,15 @@
       "save": "Simpan Perubahan",
       "defaultPasswordNote": "Akun memakai password default role {role}. User wajib menggantinya saat login pertama.",
       "noRoleDefault": "Role {role} belum punya password default.",
-      "noRoleDefaultLink": "Atur di Administrasi"
+      "noRoleDefaultLink": "Atur di bagian bawah halaman ini",
+      "roleSuperAdmin": "Super Admin",
+      "roleSuperAdminHint": "Mengelola akun admin setiap departemen, pengumuman, audit login, dan backup.",
+      "roleLabAdmin": "Admin Lab",
+      "roleLabAdminHint": "Modul Lab: dashboard, staf lab, master data, dan aktivitas. Melihat database sampel tanpa mengubahnya.",
+      "roleEksplorasiAdmin": "Admin Eksplorasi",
+      "roleEksplorasiAdminHint": "Modul Eksplorasi: mengelola data drilling.",
+      "departmentLab": "Lab",
+      "departmentEksplorasi": "Eksplorasi"
     },
     "verification": "Verifikasi",
     "moreActions": "Aksi lain untuk {name}",
@@ -617,7 +634,10 @@
       "confirm": "Password {name} dikembalikan ke password default role {role}. Semua perangkat yang sedang login akan dikeluarkan, dan ia wajib mengganti password saat login berikutnya.",
       "action": "Reset password",
       "done": "Password {name} direset ke default."
-    }
+    },
+    "department": "Departemen",
+    "adminsTitle": "Akun Admin",
+    "adminsSubtitle": "Kelola akun admin setiap departemen. Setiap admin mengelola fitur dan stafnya sendiri."
   },
   "masterData": {
     "title": "Master Data",
@@ -1041,7 +1061,7 @@
   },
   "admin": {
     "title": "Administrasi",
-    "subtitle": "Pengumuman di atas semua halaman, dan backup lengkap data.",
+    "subtitle": "Pengumuman di atas semua halaman, dan backup lengkap data seluruh modul.",
     "rolePasswords": {
       "title": "Password default per role",
       "description": "Setiap akun baru memakai password default role-nya, dan password yang lupa direset ke password ini. User wajib menggantinya saat login berikutnya.",
@@ -1226,23 +1246,34 @@
           "3": "Keduanya bisa diekspor."
         }
       },
+      "drilling": {
+        "title": "Data Drilling",
+        "intro": "Daftar lubang bor modul Eksplorasi.",
+        "steps": {
+          "1": "Tambah Lubang Bor untuk mencatat Hole ID, area, koordinat collar, orientasi, dan kedalaman.",
+          "2": "Cari dengan Hole ID atau area, dan saring per status.",
+          "3": "Ubah untuk melengkapi data; ikon tempat sampah menghapus lubang bor secara permanen."
+        },
+        "tip": "Hole ID harus unik. Kolom lain boleh dikosongkan lalu dilengkapi nanti."
+      },
       "users": {
         "title": "Pengguna",
-        "intro": "Siapa yang bisa masuk, dan apa yang boleh dilakukan.",
+        "intro": "Super Admin mengelola akun admin tiap departemen; Admin Lab mengelola staf lab.",
         "steps": {
-          "1": "Tambah pengguna dengan perannya; Ubah untuk mengganti peran, reset password, membuka kunci, atau menonaktifkan.",
+          "1": "Tambah pengguna dengan perannya (dan departemennya, untuk Super Admin); Ubah untuk mengganti peran, reset password, membuka kunci, atau menonaktifkan.",
           "2": "Dari menu ⋯: daftarkan wajah, wajibkan aplikasi authenticator, atau lihat perangkat yang sedang masuk.",
-          "3": "Reset password mengeluarkan orang itu dari semua perangkat."
+          "3": "Password default setiap peran diatur di bagian bawah halaman ini."
         },
         "tip": "Reset password mengeluarkan orang itu dari semua perangkat, jadi pakai bila password mungkin diketahui orang lain."
       },
       "admin": {
         "title": "Administrasi",
-        "intro": "Pengumuman di atas semua halaman, dan backup lengkap.",
+        "intro": "Pengumuman di atas semua halaman, audit login, dan backup lengkap.",
         "steps": {
           "1": "Tulis pengumuman, pilih Info atau Peringatan dan siapa yang melihat; atur mulai dan selesai, atau biarkan kosong.",
           "2": "Akhiri sekarang menurunkan pengumuman tapi tetap di daftar; Hapus membuangnya.",
-          "3": "Unduh backup memberi satu file Excel berisi semua data, tanpa password atau rahasia."
+          "3": "Audit Login menunjukkan siapa masuk, dari mana, dan siapa yang ditolak, untuk semua departemen.",
+          "4": "Unduh backup memberi satu file Excel berisi semua data, tanpa password atau rahasia."
         }
       },
       "mobile": {
@@ -1273,21 +1304,33 @@
       "back": "Kembali",
       "done": "Selesai",
       "openGuide": "Buka panduan lengkap",
-      "ADMIN": {
+      "SUPER_ADMIN": {
         "steps": {
           "1": {
-            "title": "Anda mengelola seluruh sistem",
-            "body": "Dashboard, Mode TV, dan Kesimpulan menunjukkan kondisi lab. Aktivitas menunjukkan siapa melakukan apa."
+            "title": "Anda mengelola para admin",
+            "body": "Akun Admin untuk membuat dan mengelola admin setiap departemen: Lab dan Eksplorasi. Setiap admin mengelola modulnya sendiri."
+          },
+          "2": {
+            "title": "Pengaturan sistem",
+            "body": "Administrasi memasang pengumuman dan mengunduh backup; Audit Login menunjukkan siapa yang masuk."
+          },
+          "3": {
+            "title": "Bantuan selalu ada",
+            "body": "Tekan ? di atas halaman mana pun untuk panduan halaman itu."
+          }
+        }
+      },
+      "LAB_ADMIN": {
+        "steps": {
+          "1": {
+            "title": "Anda mengelola modul Lab",
+            "body": "Dashboard, Mode TV, dan Kesimpulan menunjukkan kondisi lab. Aktivitas menunjukkan siapa memindahkan sampel."
           },
           "2": {
             "title": "Orang dan kode",
-            "body": "Pengguna untuk mengelola akun, peran, dan cara login. Master Data berisi kode pembentuk setiap Sample ID."
+            "body": "Pengguna untuk mengelola staf lab, peran, dan cara login. Master Data berisi kode pembentuk setiap Sample ID."
           },
           "3": {
-            "title": "Pengumuman dan backup",
-            "body": "Administrasi memasang banner di atas semua halaman dan mengunduh backup lengkap data."
-          },
-          "4": {
             "title": "Bantuan selalu ada",
             "body": "Tekan ? di atas halaman mana pun untuk panduan halaman itu, atau Ctrl+K untuk membuka sampel mana pun."
           }
@@ -1338,6 +1381,18 @@
           "3": {
             "title": "Bantuan selalu ada",
             "body": "Tekan ? di atas halaman mana pun untuk panduan halaman itu, atau Ctrl+K untuk membuka sampel mana pun."
+          }
+        }
+      },
+      "EKSPLORASI_ADMIN": {
+        "steps": {
+          "1": {
+            "title": "Anda mengelola modul Eksplorasi",
+            "body": "Data Drilling berisi semua lubang bor: tambah, ubah, cari, dan hapus."
+          },
+          "2": {
+            "title": "Bantuan selalu ada",
+            "body": "Tekan ? di atas halaman mana pun untuk panduan halaman itu."
           }
         }
       }
@@ -1575,22 +1630,18 @@
     },
     "activity": {
       "1": {
-        "title": "Dua jejak",
-        "body": "Aktivitas tahap (scan) dan audit login. Coba beralih tab."
-      },
-      "2": {
         "title": "Per orang",
         "body": "Siapa melakukan berapa scan. Klik nama untuk menyaring tabel."
       },
-      "3": {
+      "2": {
         "title": "Saring",
         "body": "Per orang, tahap, hari, atau koreksi saja."
       },
-      "4": {
+      "3": {
         "title": "Ekspor",
         "body": "Unduh jejak sesuai saringan."
       },
-      "5": {
+      "4": {
         "title": "Rinciannya",
         "body": "Satu baris satu kejadian, yang terbaru di atas."
       }
@@ -1697,5 +1748,87 @@
     "excel": "Excel (.xlsx)",
     "csv": "CSV",
     "place": "Tempat"
+  },
+  "home": {
+    "greeting": "Halo, {name}",
+    "subtitle": "Pilih modul yang ingin Anda buka.",
+    "open": "Buka modul",
+    "noModules": "Akun Anda belum memiliki akses ke modul mana pun. Hubungi Super Admin.",
+    "modules": {
+      "lab": {
+        "name": "Lab · Monitoring Sampel",
+        "description": "Tracking sampel dari penerimaan sampai laporan: barcode, database sampel, hasil uji, dan dashboard."
+      },
+      "eksplorasi": {
+        "name": "Eksplorasi",
+        "description": "Kelola data drilling: lubang bor, koordinat collar, orientasi, kedalaman, dan statusnya."
+      },
+      "system": {
+        "name": "Sistem",
+        "description": "Akun admin setiap departemen, pengumuman, audit login, dan backup data."
+      }
+    }
+  },
+  "drilling": {
+    "title": "Data Drilling",
+    "subtitle": "Daftar lubang bor modul Eksplorasi.",
+    "add": "Tambah Lubang Bor",
+    "searchPlaceholder": "Cari Hole ID atau area…",
+    "allStatuses": "Semua status",
+    "empty": "Belum ada data drilling.",
+    "emptyFiltered": "Tidak ada lubang bor yang cocok.",
+    "noun": "lubang bor",
+    "status": {
+      "PLANNED": "Direncanakan",
+      "ONGOING": "Berjalan",
+      "COMPLETED": "Selesai",
+      "ABANDONED": "Dibatalkan"
+    },
+    "fields": {
+      "holeId": "Hole ID",
+      "area": "Area / Prospek",
+      "status": "Status",
+      "easting": "Easting",
+      "northing": "Northing",
+      "elevation": "Elevasi (m)",
+      "azimuth": "Azimuth (°)",
+      "dip": "Dip (°)",
+      "totalDepth": "Kedalaman Total (m)",
+      "startDate": "Tanggal Mulai",
+      "endDate": "Tanggal Selesai",
+      "remarks": "Catatan"
+    },
+    "columns": {
+      "coordinates": "Koordinat Collar",
+      "orientation": "Orientasi",
+      "period": "Mulai / Selesai",
+      "azimuthShort": "Az",
+      "dipShort": "Dip"
+    },
+    "placeholders": {
+      "holeId": "mis. DH-2026-001",
+      "area": "mis. Blok A"
+    },
+    "sections": {
+      "collar": "Koordinat collar",
+      "survey": "Orientasi & kedalaman"
+    },
+    "addTitle": "Tambah Lubang Bor",
+    "editTitle": "Ubah {holeId}",
+    "dialogDescription": "Kolom selain Hole ID boleh dikosongkan dan dilengkapi nanti.",
+    "create": "Simpan Lubang Bor",
+    "created": "{holeId} ditambahkan.",
+    "updated": "{holeId} diperbarui.",
+    "errors": {
+      "dateOrder": "Tanggal selesai tidak boleh sebelum tanggal mulai.",
+      "duplicate": "Hole ID {holeId} sudah dipakai."
+    },
+    "delete": {
+      "label": "Hapus {holeId}",
+      "title": "Hapus lubang bor?",
+      "confirm": "{holeId} akan dihapus permanen dan tidak bisa dikembalikan.",
+      "action": "Hapus",
+      "done": "{holeId} dihapus."
+    }
   }
 }

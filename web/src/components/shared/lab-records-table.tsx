@@ -62,7 +62,7 @@ import { downloadFromApi } from "@/lib/download";
 import type { ApiResult, LabRecordDTO, LabRecordListItemDTO, PaginationDTO } from "@/types";
 import { stageLabel } from "@/lib/stages";
 import { cn } from "@/lib/utils";
-import { searchIdentForms, subSamplePath } from "@/lib/sample-ident";
+import { searchIdentForms, subSamplePath, samplePath } from "@/lib/sample-ident";
 import {
   IoArrowUndoOutline,
   IoChevronForward,
@@ -916,7 +916,7 @@ export function LabRecordsTable({
               </Button>
             ) : null}
             {/* Who changed which result, and when, across every sample. */}
-            <Link href="/assay/history" className={cn(buttonVariants({ variant: "outline" }), "gap-2")}>
+            <Link href="/lab/assay/history" className={cn(buttonVariants({ variant: "outline" }), "gap-2")}>
               <IoTimeOutline className="size-4" />
               {t("history.open")}
             </Link>
@@ -1309,7 +1309,7 @@ export function LabRecordsTable({
                           */}
                           <span className="flex flex-wrap items-center gap-x-1.5">
                             <Link
-                              href={`/samples/${encodeURIComponent(record.sample.sampleCode)}`}
+                              href={samplePath(record.sample.sampleCode)}
                               className="font-medium text-primary [overflow-wrap:anywhere] hover:underline"
                             >
                               {record.sample.sampleCode}

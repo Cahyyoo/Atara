@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { jsonSuccess, handleApiError, ApiError } from "@/lib/api-response";
 import { requireCapability } from "@/lib/api-auth";
+import { requireManagedUser } from "@/lib/managed-user";
 import { recordSignIn, SignInOutcome } from "@/lib/sign-in-audit";
 import { endSessionById } from "@/lib/user-session";
 
@@ -15,6 +16,7 @@ export async function DELETE(
   try {
     const admin = await requireCapability(request, "manageUsers");
     const { id, sessionId } = await context.params;
+    await requireManagedUser(admin, id);
 
     if (sessionId === admin.sessionId) {
       throw new ApiError("Use sign out to end your own current session.", 400);

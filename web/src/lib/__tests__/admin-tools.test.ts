@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import ExcelJS from "exceljs";
+import type { Department, Role } from "@/lib/permissions";
 import en from "../../../messages/en.json";
 import id from "../../../messages/id.json";
 import { prisma } from "@/lib/prisma";
@@ -62,12 +63,16 @@ describe("who sees an announcement, and when", () => {
 
 describe("the guide", () => {
   it("teaches each role only the pages it can open", () => {
-    const keys = (role: Parameters<typeof helpSectionsFor>[0]) => helpSectionsFor(role).map((s) => s.key);
+    const keys = (role: Role, department: Department | null = "LAB") =>
+      helpSectionsFor({ role, department }).map((s) => s.key);
     expect(keys("OPERATOR")).toContain("mobile");
     expect(keys("OPERATOR")).not.toContain("masterData");
-    expect(keys("ADMIN")).toContain("admin");
+    expect(keys("ADMIN")).toContain("masterData");
+    expect(keys("ADMIN")).not.toContain("admin");
     expect(keys("ADMIN")).not.toContain("mobile");
     expect(keys("ANALISIS")).toEqual(expect.arrayContaining(["assay", "grade"]));
+    expect(keys("SUPER_ADMIN", null)).toEqual(["users", "admin", "account"]);
+    expect(keys("ADMIN", "EKSPLORASI")).toEqual(["drilling", "account"]);
   });
 
   it("has words for every section in both languages", () => {
@@ -93,9 +98,9 @@ describe("the guide", () => {
   });
 
   it("points each page at its own section, and its link at a real menu item", () => {
-    expect(helpSectionForPath("/database")).toBe("database");
-    expect(helpSectionForPath("/samples/generate")).toBe("generate");
-    expect(helpSectionForPath("/samples/NKL-2026-00001")).toBe("sampleDetail");
+    expect(helpSectionForPath("/lab/database")).toBe("database");
+    expect(helpSectionForPath("/lab/samples/generate")).toBe("generate");
+    expect(helpSectionForPath("/lab/samples/NKL-2026-00001")).toBe("sampleDetail");
     expect(helpSectionForPath("/nowhere")).toBeNull();
 
     const nav = read("components", "layout", "sidebar-nav.tsx");
@@ -156,7 +161,7 @@ describe.skipIf(!reachable)("against the database", () => {
 
   beforeAll(async () => {
     const user = await prisma.user.create({
-      data: { name: `Admin tools ${tag}`, email: `${tag.toLowerCase()}@test.invalid`, password: "secret-hash", role: "ADMIN" },
+      data: { name: `Admin tools ${tag}`, email: `${tag.toLowerCase()}@test.invalid`, password: "secret-hash", role: "ADMIN", department: "LAB" as const },
     });
     created.user = user.id;
   });
@@ -230,6 +235,7 @@ describe.skipIf(!reachable)("against the database", () => {
       "name",
       "email",
       "role",
+      "department",
       "isActive",
       "createdAt",
     ]);

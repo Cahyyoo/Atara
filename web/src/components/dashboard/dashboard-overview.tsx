@@ -66,6 +66,7 @@ import {
   IoTvOutline,
   IoWarningOutline,
 } from "react-icons/io5";
+import { samplePath } from "@/lib/sample-ident";
 
 /** The identity dimensions the dashboard can be sliced by, in the order shown. */
 const IDENTITY_FILTERS = [
@@ -375,7 +376,7 @@ export function DashboardOverview({
             <IoReloadOutline className={cn("size-4", isPolling && "animate-spin")} />
           </Button>
           <Link
-            href="/tv" data-tour="dashboard-tv"
+            href="/lab/tv" data-tour="dashboard-tv"
             target="_blank"
             className={cn(buttonVariants({ variant: "outline" }), "gap-2")}
           >
@@ -506,7 +507,7 @@ export function DashboardOverview({
                             <TableRow key={sample.sampleCode}>
                               <TableCell className="font-medium">
                                 <Link
-                                  href={`/samples/${encodeURIComponent(sample.sampleCode)}`}
+                                  href={samplePath(sample.sampleCode)}
                                   className="text-primary hover:underline"
                                 >
                                   {sample.sampleCode}

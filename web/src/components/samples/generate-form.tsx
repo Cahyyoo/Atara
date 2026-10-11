@@ -122,7 +122,7 @@ export function GenerateForm({ onGenerated }: GenerateFormProps) {
             <IoInformationCircleOutline aria-hidden className="mt-0.5 size-4 shrink-0 text-primary" />
             <p>
               {t("identityLater")}{" "}
-              <Link href="/database?ident=missing" className="font-medium text-primary hover:underline">
+              <Link href="/lab/database?ident=missing" className="font-medium text-primary hover:underline">
                 {t("openDatabase")}
               </Link>
             </p>

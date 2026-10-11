@@ -81,7 +81,7 @@ describe("LoginForm", () => {
     expect(push).not.toHaveBeenCalled();
   });
 
-  it("goes to the dashboard on success", async () => {
+  it("goes to the portal on success", async () => {
     const user = userEvent.setup();
     renderForm();
 
@@ -89,7 +89,7 @@ describe("LoginForm", () => {
     await user.type(screen.getByLabelText("Kata Sandi"), "Admin123!");
     await user.click(screen.getByRole("button", { name: "Masuk" }));
 
-    await waitFor(() => expect(push).toHaveBeenCalledWith("/dashboard"));
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/home"));
   });
 
   it("goes to change the password first when an administrator chose it", async () => {
@@ -114,7 +114,7 @@ describe("LoginForm", () => {
     await user.type(screen.getByLabelText("Kata Sandi"), "Admin123!");
     await user.click(screen.getByRole("button", { name: "Masuk" }));
 
-    await waitFor(() => expect(push).toHaveBeenCalledWith("/dashboard"));
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/home"));
     expect(push).not.toHaveBeenCalledWith("https://evil.example");
   });
 
@@ -164,7 +164,7 @@ describe("LoginForm", () => {
 
       await user.type(screen.getByLabelText("Kode 6 digit"), "123456");
 
-      await waitFor(() => expect(push).toHaveBeenCalledWith("/dashboard"));
+      await waitFor(() => expect(push).toHaveBeenCalledWith("/home"));
       const [url, init] = fetchMock.mock.calls[1];
       expect(url).toBe("/api/auth/totp");
       expect(JSON.parse(init.body)).toEqual({ challenge: "challenge-token", code: "123456" });
@@ -204,7 +204,7 @@ describe("LoginForm", () => {
       await user.click(await screen.findByLabelText("Kode 6 digit"));
       await user.paste("123 456");
 
-      await waitFor(() => expect(push).toHaveBeenCalledWith("/dashboard"));
+      await waitFor(() => expect(push).toHaveBeenCalledWith("/home"));
       expect(JSON.parse(fetchMock.mock.calls[1][1].body).code).toBe("123456");
     });
 
@@ -250,7 +250,7 @@ describe("LoginForm", () => {
 
       await user.type(screen.getByLabelText("Kode 6 digit"), "654321");
 
-      await waitFor(() => expect(push).toHaveBeenCalledWith("/dashboard"));
+      await waitFor(() => expect(push).toHaveBeenCalledWith("/home"));
       // The code goes with the challenge the setup handed back.
       expect(JSON.parse(fetchMock.mock.calls[2][1].body)).toEqual({
         challenge: "fresh-challenge",

@@ -9,7 +9,7 @@ const USER = {
   userId: "user-1",
   name: "Main Admin",
   email: "admin@atara.local",
-  role: "ADMIN" as const,
+  role: "ADMIN" as const, department: "LAB" as const,
   sessionId: "session-1",
 };
 

@@ -46,7 +46,7 @@ function stubFetch() {
 function show(locale: "en" | "id" = "en", onError: (e: unknown) => void = () => {}) {
   return render(
     <NextIntlClientProvider locale={locale} messages={locale === "en" ? en : id} onError={onError}>
-      <DashboardOverview layout={dashboardLayoutFor("ADMIN")} initialAnalytics={ANALYTICS} />
+      <DashboardOverview layout={dashboardLayoutFor("LAB_ADMIN")} initialAnalytics={ANALYTICS} />
     </NextIntlClientProvider>
   );
 }
@@ -167,7 +167,7 @@ describe("dashboard filters", () => {
 
     render(
       <NextIntlClientProvider locale="en" messages={en} onError={() => {}}>
-        <DashboardOverview layout={dashboardLayoutFor("ADMIN")} initialAnalytics={withOverdue} />
+        <DashboardOverview layout={dashboardLayoutFor("LAB_ADMIN")} initialAnalytics={withOverdue} />
       </NextIntlClientProvider>
     );
 

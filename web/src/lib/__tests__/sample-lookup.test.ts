@@ -79,12 +79,12 @@ describe("rankLookupMatches", () => {
 });
 
 describe("where it is enforced", () => {
-  it("needs a session and never finds a deleted sample", () => {
+  it("needs the lab module and never finds a deleted sample", () => {
     const route = readFileSync(
       join(process.cwd(), "src", "app", "api", "samples", "lookup", "route.ts"),
       "utf8"
     );
-    expect(route).toContain("requireSession(request)");
+    expect(route).toContain('requireCapability(request, "viewDashboard")');
     expect(route.match(/\.\.\.ACTIVE_SAMPLE/g)).toHaveLength(2);
   });
 });

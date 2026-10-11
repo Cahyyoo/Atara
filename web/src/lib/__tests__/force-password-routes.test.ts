@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import type { Role } from "@/lib/permissions";
 import { NO_ROLE_DEFAULT_CODE, ROLE_DEFAULT_PASSWORD_CODE } from "@/lib/session-codes";
 
 /**
@@ -15,7 +16,7 @@ import { NO_ROLE_DEFAULT_CODE, ROLE_DEFAULT_PASSWORD_CODE } from "@/lib/session-
  * so the ones found are put back afterwards.
  */
 
-const session = { userId: "", name: "Admin", email: "", role: "ADMIN" as const, sessionId: "" };
+const session = { userId: "", name: "Admin", email: "", role: "ADMIN" as const, department: "LAB" as const, sessionId: "" };
 vi.mock("@/lib/api-auth", () => ({
   requireCapability: vi.fn(async () => session),
   requireSession: vi.fn(async () => session),
@@ -51,14 +52,14 @@ const DEFAULT = "OperatorDefault1!";
 describe.skipIf(!reachable)("role default passwords and the duty to change them", () => {
   const tag = `fr${Date.now().toString(36)}`;
   const created: string[] = [];
-  let saved: { role: "ADMIN" | "DATABASE" | "ANALISIS" | "OPERATOR"; passwordHash: string; updatedById: string | null }[] = [];
+  let saved: { role: Role; passwordHash: string; updatedById: string | null }[] = [];
 
   beforeAll(async () => {
     saved = await prisma.rolePasswordDefault.findMany({
       select: { role: true, passwordHash: true, updatedById: true },
     });
     const admin = await prisma.user.create({
-      data: { name: "Admin", email: `${tag}-admin@test.invalid`, password: await bcrypt.hash("Admin123!", 4), role: "ADMIN" },
+      data: { name: "Admin", email: `${tag}-admin@test.invalid`, password: await bcrypt.hash("Admin123!", 4), role: "ADMIN", department: "LAB" as const },
     });
     created.push(admin.id);
     const own = await prisma.userSession.create({ data: { userId: admin.id, client: "WEB" } });
@@ -80,7 +81,8 @@ describe.skipIf(!reachable)("role default passwords and the duty to change them"
     expect(listed).not.toContain(DEFAULT);
     expect(listed).not.toContain("$2");
     const body = JSON.parse(listed);
-    expect(body.data).toHaveLength(4);
+    // Only the roles a lab admin hands out (user-scope.ts).
+    expect(body.data.map((entry: { role: string }) => entry.role)).toEqual(["DATABASE", "ANALISIS", "OPERATOR"]);
     expect(body.data.find((entry: { role: string }) => entry.role === "OPERATOR")).toMatchObject({
       isSet: true,
       updatedBy: "Admin",
@@ -92,7 +94,7 @@ describe.skipIf(!reachable)("role default passwords and the duty to change them"
 
   it("starts a new account on its role's default, which it must change", async () => {
     const response = await createUser(
-      json("/api/users", "POST", { name: "New person", email: `${tag}-new@test.invalid`, role: "OPERATOR" })
+      json("/api/users", "POST", { name: "New person", email: `${tag}-new@test.invalid`, role: "OPERATOR", department: "LAB" as const })
     );
     expect(response.status).toBe(201);
     const body = await response.json();
@@ -106,7 +108,7 @@ describe.skipIf(!reachable)("role default passwords and the duty to change them"
   it("refuses an account for a role without a default", async () => {
     await prisma.rolePasswordDefault.deleteMany({ where: { role: "DATABASE" } });
     const response = await createUser(
-      json("/api/users", "POST", { name: "No default", email: `${tag}-none@test.invalid`, role: "DATABASE" })
+      json("/api/users", "POST", { name: "No default", email: `${tag}-none@test.invalid`, role: "DATABASE", department: "LAB" as const })
     );
     expect(response.status).toBe(409);
     expect((await response.json()).code).toBe(NO_ROLE_DEFAULT_CODE);
@@ -118,7 +120,7 @@ describe.skipIf(!reachable)("role default passwords and the duty to change them"
         name: "Other",
         email: `${tag}-other@test.invalid`,
         password: await bcrypt.hash("Mine1234!", 4),
-        role: "OPERATOR",
+        role: "OPERATOR", department: "LAB" as const,
         failedLoginAttempts: 5,
         lockedUntil: new Date(Date.now() + 60_000),
       },
@@ -156,7 +158,7 @@ describe.skipIf(!reachable)("role default passwords and the duty to change them"
         name: "Person",
         email: `${tag}-person@test.invalid`,
         password: await bcrypt.hash("Given1234!", 4),
-        role: "OPERATOR",
+        role: "OPERATOR", department: "LAB" as const,
         mustChangePassword: true,
       },
     });

@@ -14,7 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import type { Role } from "@/lib/permissions";
+import type { Persona } from "@/lib/permissions";
 import { tourFor, tourHref } from "@/lib/tours";
 import { withBasePath } from "@/lib/base-path";
 
@@ -24,15 +24,15 @@ interface WelcomeStep {
 }
 
 /**
- * A few steps on what this role does here, shown once per account on the
+ * A few steps on what this person does here, shown once per account on the
  * first visit after this was added. Closing it any way counts as seen; the
  * full guide stays one click away under "?".
  */
-export function WelcomeDialog({ role, name }: { role: Role; name: string }) {
+export function WelcomeDialog({ persona, name }: { persona: Persona; name: string }) {
   const t = useTranslations("help.welcome");
   const tTour = useTranslations("tour");
   const router = useRouter();
-  const steps = Object.values(t.raw(`${role}.steps`) as Record<string, WelcomeStep>);
+  const steps = Object.values(t.raw(`${persona}.steps`) as Record<string, WelcomeStep>);
   const [open, setOpen] = useState(true);
   const [index, setIndex] = useState(0);
   const step = steps[index];

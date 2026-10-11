@@ -79,7 +79,7 @@ describe("quick search", () => {
     expect(screen.getByText("Pending")).toBeTruthy();
 
     await user.keyboard("{ArrowDown}{Enter}");
-    expect(push).toHaveBeenCalledWith("/samples/AT0002");
+    expect(push).toHaveBeenCalledWith("/lab/samples/AT0002");
   });
 
   it("opens an exact scan straight away, without waiting for the pause", async () => {
@@ -88,7 +88,7 @@ describe("quick search", () => {
     await user.keyboard("{Control>}k{/Control}");
 
     await user.type(await screen.findByRole("combobox"), "AT0001{Enter}");
-    await waitFor(() => expect(push).toHaveBeenCalledWith("/samples/AT0001"));
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/lab/samples/AT0001"));
   });
 
   it("says so when nothing matches", async () => {

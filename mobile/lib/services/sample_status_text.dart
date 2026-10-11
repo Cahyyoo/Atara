@@ -25,10 +25,11 @@ String sampleStatusText(AppLocalizations l10n, SampleStatus status) {
 /// That badge showed the raw Dart enum name — `OPERATOR` — which is a detail of
 /// how the app is written, not a word anyone chose to show someone.
 ///
-/// All four roles, although only an operator can be signed in here: the switch
+/// Every role, although only an operator can be signed in here: the switch
 /// is exhaustive so a fifth role is a compile error rather than a blank badge.
 String userRoleText(AppLocalizations l10n, UserRole role) {
   return switch (role) {
+    UserRole.superAdmin => l10n.roleSuperAdmin,
     UserRole.admin => l10n.roleAdmin,
     UserRole.database => l10n.roleDatabase,
     UserRole.analisis => l10n.roleAnalisis,
