@@ -1252,7 +1252,8 @@
         "steps": {
           "1": "Tambah Lubang Bor untuk mencatat Hole ID, area, koordinat collar, orientasi, dan kedalaman.",
           "2": "Cari dengan Hole ID atau area, dan saring per status.",
-          "3": "Ubah untuk melengkapi data; ikon tempat sampah menghapus lubang bor secara permanen."
+          "3": "Ubah untuk melengkapi data; ikon tempat sampah menghapus lubang bor secara permanen.",
+          "4": "Import untuk mengunggah ribuan lubang bor sekaligus dari Excel/CSV (pratinjau dulu, baris error bisa diunduh); Export mengunduh daftar yang sedang tampil dalam format yang sama."
         },
         "tip": "Hole ID harus unik. Kolom lain boleh dikosongkan lalu dilengkapi nanti."
       },
@@ -1829,6 +1830,46 @@
       "confirm": "{holeId} akan dihapus permanen dan tidak bisa dikembalikan.",
       "action": "Hapus",
       "done": "{holeId} dihapus."
+    },
+    "export": {
+      "button": "Export"
+    },
+    "import": {
+      "button": "Import",
+      "title": "Import Data Drilling",
+      "description": "Unggah file Excel (.xlsx) atau CSV. Data dicocokkan dengan Hole ID: Hole ID baru ditambahkan, yang sudah ada bisa diperbarui. Maksimal 50.000 baris, 20 MB.",
+      "choose": "Pilih file",
+      "chooseAnother": "Ganti file",
+      "columnsHint": "Baris pertama berisi judul kolom: {columns}. Hanya Hole ID yang wajib; kolom lain boleh dihilangkan. Tanggal: YYYY-MM-DD atau DD/MM/YYYY.",
+      "template": "Unduh template",
+      "reading": "Membaca dan memeriksa file…",
+      "summary": {
+        "rows": "Baris",
+        "new": "Baru",
+        "toUpdate": "Diperbarui",
+        "toSkip": "Sudah ada (dilewati)",
+        "invalid": "Error",
+        "created": "Ditambahkan",
+        "updated": "Diperbarui",
+        "skipped": "Dilewati"
+      },
+      "updateExisting": "Perbarui {count} lubang bor yang sudah ada (Hole ID sama)",
+      "updateExistingHint": "Sel yang kosong di file tidak menghapus data yang sudah tersimpan.",
+      "ignoredHeaders": "Kolom tidak dikenal, diabaikan: {headers}",
+      "errorsTitle": "{count, plural, other {# baris error, tidak akan di-import}}",
+      "downloadErrors": "Unduh laporan error (CSV)",
+      "moreErrors": "Menampilkan {shown} dari {total} error. Unduh laporan untuk daftar lengkapnya.",
+      "progress": "Menyimpan {done} dari {total} baris…",
+      "run": "Import {count} baris",
+      "runEmpty": "Import",
+      "doneTitle": "Import selesai",
+      "doneToast": "{created} lubang bor ditambahkan, {updated} diperbarui.",
+      "another": "Import file lain",
+      "report": {
+        "line": "Baris",
+        "column": "Kolom",
+        "error": "Error"
+      }
     }
   }
 }

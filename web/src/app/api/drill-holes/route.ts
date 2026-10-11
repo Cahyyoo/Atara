@@ -1,11 +1,10 @@
 import { NextRequest } from "next/server";
-import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { jsonSuccess, handleApiError } from "@/lib/api-response";
 import { requireCapability } from "@/lib/api-auth";
 import { readJsonBody } from "@/lib/api-request";
 import { createDrillHoleSchema, listDrillHolesQuerySchema } from "@/lib/validation";
-import { blankToNull, DRILL_HOLE_SELECT, toDateColumn, toDrillHoleDTO } from "@/lib/drill-hole";
+import { blankToNull, DRILL_HOLE_SELECT, drillHoleWhere, toDateColumn, toDrillHoleDTO } from "@/lib/drill-hole";
 
 /** The drill holes, newest first, by hole ID or area and by status. */
 export async function GET(request: NextRequest) {
@@ -20,12 +19,7 @@ export async function GET(request: NextRequest) {
       pageSize: searchParams.get("pageSize") ?? undefined,
     });
 
-    const where: Prisma.DrillHoleWhereInput = {
-      ...(query.status ? { status: query.status } : {}),
-      ...(query.search
-        ? { OR: [{ holeId: { contains: query.search } }, { area: { contains: query.search } }] }
-        : {}),
-    };
+    const where = drillHoleWhere(query);
 
     const [total, rows] = await Promise.all([
       prisma.drillHole.count({ where }),

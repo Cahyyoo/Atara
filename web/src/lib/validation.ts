@@ -632,6 +632,15 @@ export const updateDrillHoleSchema = z
   .partial()
   .refine(datesInOrder, DATES_IN_ORDER);
 
+/**
+ * One row of an imported sheet. Like a new hole, except that a blank status
+ * stays blank: on a hole that already exists, an empty cell leaves the stored
+ * value alone (drill-hole-upsert.ts), and a default here would overwrite it.
+ */
+export const importDrillHoleRowSchema = z
+  .object({ ...drillHoleFields, status: drillHoleFields.status.optional() })
+  .refine(datesInOrder, DATES_IN_ORDER);
+
 export const listDrillHolesQuerySchema = z.object({
   search: z.string().trim().optional(),
   status: z.enum(DRILL_HOLE_STATUSES).optional(),

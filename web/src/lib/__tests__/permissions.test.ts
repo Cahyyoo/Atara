@@ -213,7 +213,13 @@ describe("where the table is enforced", () => {
   });
 
   it("guards every drilling route", () => {
-    for (const route of [["drill-holes", "route.ts"], ["drill-holes", "[id]", "route.ts"]]) {
+    for (const route of [
+      ["drill-holes", "route.ts"],
+      ["drill-holes", "[id]", "route.ts"],
+      ["drill-holes", "export", "route.ts"],
+      ["drill-holes", "template", "route.ts"],
+      ["drill-holes", "import", "route.ts"],
+    ]) {
       const code = read("app", "api", ...route);
       const handlers = code.match(/export async function \w+/g) ?? [];
       const guards = code.match(/requireCapability\(request, "manageDrilling"\)/g) ?? [];

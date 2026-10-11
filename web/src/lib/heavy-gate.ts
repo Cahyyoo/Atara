@@ -99,6 +99,12 @@ export const xlsxExportGate = new HeavyGate("spreadsheet export", 2);
 export const backupGate = new HeavyGate("backup", 1);
 
 /**
+ * A drilling sheet import, preview or write: tens of thousands of rows
+ * parsed, looked up and written. One at a time per process.
+ */
+export const drillHoleImportGate = new HeavyGate("drilling import", 1);
+
+/**
  * Text searches and very deep pages of the record lists: each reads every
  * record (seconds idle, a minute under load), and forty people doing it at
  * once held every database connection, so operators' scans waited and

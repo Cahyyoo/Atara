@@ -56,6 +56,16 @@ export function toDrillHoleDTO(row: DrillHoleRow): DrillHoleDTO {
   };
 }
 
+/** The list's filters, shared by the page's list and its export so both show the same holes. */
+export function drillHoleWhere(query: { search?: string; status?: DrillHoleDTO["status"] }): Prisma.DrillHoleWhereInput {
+  return {
+    ...(query.status ? { status: query.status } : {}),
+    ...(query.search
+      ? { OR: [{ holeId: { contains: query.search } }, { area: { contains: query.search } }] }
+      : {}),
+  };
+}
+
 /** A YYYY-MM-DD from the form, as the DATE column's value; null and undefined pass through. */
 export function toDateColumn(value: string | null | undefined): Date | null | undefined {
   if (value === undefined || value === null) return value;

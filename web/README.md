@@ -7,7 +7,7 @@ Backend REST API dan web untuk **Atara Super App**. Atara adalah satu aplikasi d
 | Modul | Path | Untuk siapa | Isi |
 | ----- | ---- | ----------- | --- |
 | **Lab · Monitoring Sampel** | `/lab/*` | Departemen **LAB** | Seluruh fitur tracking sampel: barcode, database sampel, hasil uji, kesimpulan, dashboard, Mode TV, master data, aktivitas. |
-| **Eksplorasi** | `/eksplorasi/*` | Departemen **EKSPLORASI** | Manage Data Drilling (CRUD lubang bor). Versi awal yang sederhana; fitur detail menyusul. |
+| **Eksplorasi** | `/eksplorasi/*` | Departemen **EKSPLORASI** | Manage Data Drilling: CRUD lubang bor, serta import/export Excel & CSV (import ±34.000 baris dalam hitungan detik). Fitur detail menyusul. |
 | **Sistem** | `/users`, `/admin/*` | **Super Admin** | Akun admin setiap departemen, pengumuman, audit login, backup. |
 
 Setelah masuk, semua orang mendarat di **portal `/home`**. Portal menampilkan kartu untuk modul yang boleh dibuka. Menu samping juga dikelompokkan per modul, dan sebuah grup hanya tampil untuk orang yang bekerja di modul itu.
@@ -147,7 +147,7 @@ Akun baru dan akun yang kata sandinya direset memakai kata sandi default per per
 | `/lab/master-data`                  | Kosakata penyusun Sample ID (tempat, jenis batuan, non-prod, pit, SIR). |
 | `/lab/tv`                           | Tampilan monitoring layar penuh untuk TV di lab. |
 | **Modul Eksplorasi**                | |
-| `/eksplorasi/drilling`              | Data Drilling: daftar lubang bor, cari (Hole ID/area), filter status, tambah/ubah/hapus. |
+| `/eksplorasi/drilling`              | Data Drilling: daftar lubang bor, cari (Hole ID/area), filter status, tambah/ubah/hapus, import & export Excel/CSV. |
 | **Sistem & bersama**                | |
 | `/users`                            | Super admin: akun admin setiap departemen. Admin Lab: staf lab. Termasuk sesi aktif, wajah, TOTP, dan password default per peran. |
 | `/admin`                            | Super admin: pengumuman di atas semua halaman dan backup lengkap. |
@@ -219,8 +219,50 @@ Semua endpoint di bawah ini membutuhkan capability `manageDrilling` (Admin Ekspl
 | -------------------- | ----------------------- | --------- |
 | GET / POST           | `/api/drill-holes`      | Daftar lubang bor (`search`, `status`, `page`, `pageSize`) / tambah lubang bor. Hole ID yang sudah dipakai → `409`. |
 | GET / PATCH / DELETE | `/api/drill-holes/[id]` | Detail / ubah sebagian kolom / hapus permanen. |
+| GET                  | `/api/drill-holes/export` | Unduh daftar sebagai `format=xlsx` (default) atau `csv`, dengan filter `search`/`status` yang sama seperti di layar. Di-stream baris per baris; maksimal 50.000 baris. |
+| GET                  | `/api/drill-holes/template` | Template kosong (`format=xlsx`/`csv`) berisi header kolom. |
+| POST                 | `/api/drill-holes/import` | Multipart `file` (.xlsx/.csv, ≤ 20 MB, ≤ 50.000 baris), `apply` (`0` pratinjau / `1` simpan), `updateExisting` (`0`/`1`). Pratinjau menjawab JSON (jumlah baru/sudah ada/error + daftar error per baris). Simpan menjawab NDJSON berisi progres per batch lalu total. |
 
 Field: `holeId` (wajib, unik), `area`, `easting`, `northing`, `elevation`, `azimuth` (0–360), `dip` (−90–90), `totalDepth`, `status` (`PLANNED`/`ONGOING`/`COMPLETED`/`ABANDONED`), `startDate`, `endDate` (`YYYY-MM-DD`, selesai ≥ mulai), `remarks`.
+
+#### Import & export Excel/CSV
+
+Format file export, template, dan import sama persis (`src/lib/drill-hole-columns.ts`). File hasil export bisa diedit di Excel lalu di-import kembali.
+
+Baris 1 berisi header. Kolomnya: `Hole ID`, `Area`, `Status`, `Easting`, `Northing`, `Elevation (m)`, `Azimuth (°)`, `Dip (°)`, `Total Depth (m)`, `Start Date`, `End Date`, `Remarks`.
+
+Aturan pembacaan file saat import:
+
+- **Header**
+  - Hanya `Hole ID` yang wajib; urutan kolom bebas.
+  - Header tidak peka huruf besar/kecil, dan satuan dalam kurung diabaikan.
+  - Alias Indonesia juga diterima, misalnya `Elevasi`, `Kedalaman Total`, `Tanggal Mulai`, `Catatan`.
+  - Kolom yang tidak dikenal diabaikan dan dilaporkan.
+- **Format nilai**
+  - CSV boleh dipisah koma, titik koma (Excel berlokal Indonesia), atau tab.
+  - Angka boleh pakai koma atau titik desimal.
+  - Tanggal: `YYYY-MM-DD`, `DD/MM/YYYY`, atau sel tanggal Excel.
+  - Status: kode (`COMPLETED`) atau label (`Selesai`/`Completed`).
+- **Pencocokan baris**
+  - Baris dicocokkan lewat Hole ID. Hole ID baru dibuat.
+  - Hole ID yang sudah ada dilewati, kecuali "Perbarui data yang sudah ada" dicentang.
+  - Saat update, sel kosong **tidak** menghapus nilai yang tersimpan.
+- **Baris error**
+  - Termasuk Hole ID ganda di dalam file.
+  - Baris error dilewati; baris lain tetap masuk.
+  - Semua error bisa diunduh sebagai CSV dari dialog import.
+
+Penulisan dibuat batch: `createMany` per 1.000 baris untuk data baru, dan satu `UPDATE … JOIN` per 500 baris untuk data lama. Tiap batch commit sendiri, jadi kalau proses terputus, meng-import ulang file yang sama aman. Hanya satu import yang berjalan per proses.
+
+Hasil uji di MySQL 8 lokal untuk 34.000 baris:
+
+| Langkah | Waktu |
+| ------- | ----- |
+| Pratinjau CSV | ±1,7 detik |
+| Simpan baris baru | ±10 detik |
+| Update semua dari .xlsx | ±14 detik |
+
+Lihat `src/lib/__tests__/drill-hole-import-db.test.ts`.
 
 ### Dashboard & laporan
 

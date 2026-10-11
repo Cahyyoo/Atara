@@ -11,6 +11,14 @@ import { AnimatedTableRow } from "@/components/ui/animated-table-row";
 import { InlineNotice } from "@/components/ui/inline-notice";
 import { DrillHoleDialog, type DrillHoleDialogTarget } from "@/components/drilling/drill-hole-dialog";
 import { DeleteDrillHoleDialog } from "@/components/drilling/delete-drill-hole-dialog";
+import { DrillHoleImportDialog } from "@/components/drilling/drill-hole-import-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { downloadFromApi } from "@/lib/download";
 import { DRILL_HOLE_STATUSES } from "@/lib/drill-hole";
 import { withBasePath } from "@/lib/base-path";
 import type { ApiResult, DrillHoleDTO, DrillHoleStatus, PaginationDTO } from "@/types";
@@ -18,6 +26,10 @@ import {
   IoAddOutline,
   IoChevronBack,
   IoChevronForward,
+  IoCloudDownloadOutline,
+  IoCloudUploadOutline,
+  IoDocumentTextOutline,
+  IoGridOutline,
   IoPencilOutline,
   IoReloadOutline,
   IoSearchOutline,
@@ -53,6 +65,20 @@ export function DrillHolesTable() {
   const [error, setError] = useState<string | null>(null);
   const [target, setTarget] = useState<DrillHoleDialogTarget>(null);
   const [deleteTarget, setDeleteTarget] = useState<DrillHoleDTO | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
+  const [exporting, setExporting] = useState(false);
+
+  /** The holes the list is showing, filters and all, as a file the importer reads back. */
+  async function exportAs(fileFormat: "xlsx" | "csv") {
+    setExporting(true);
+    setError(null);
+    const params = new URLSearchParams({ format: fileFormat });
+    if (search) params.set("search", search);
+    if (status !== ALL) params.set("status", status);
+    const failure = await downloadFromApi(`/api/drill-holes/export?${params.toString()}`, `drill-holes.${fileFormat}`);
+    if (failure) setError(failure);
+    setExporting(false);
+  }
 
   const fetchRows = useCallback(
     async (signal?: AbortSignal) => {
@@ -139,10 +165,40 @@ export function DrillHolesTable() {
             </SelectContent>
           </Select>
         </div>
-        <Button className="gap-2" onClick={() => setTarget("new")}>
-          <IoAddOutline className="size-4" />
-          {t("add")}
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" className="gap-2" onClick={() => setImportOpen(true)}>
+            <IoCloudUploadOutline className="size-4" />
+            {t("import.button")}
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button variant="outline" className="gap-2" disabled={exporting}>
+                  {exporting ? (
+                    <IoReloadOutline className="size-4 animate-spin" />
+                  ) : (
+                    <IoCloudDownloadOutline className="size-4" />
+                  )}
+                  {t("export.button")}
+                </Button>
+              }
+            />
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={() => exportAs("xlsx")}>
+                <IoGridOutline />
+                Excel (.xlsx)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => exportAs("csv")}>
+                <IoDocumentTextOutline />
+                CSV (.csv)
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button className="gap-2" onClick={() => setTarget("new")}>
+            <IoAddOutline className="size-4" />
+            {t("add")}
+          </Button>
+        </div>
       </div>
 
       <InlineNotice tone="error">{error}</InlineNotice>
@@ -262,6 +318,15 @@ export function DrillHolesTable() {
             isNew ? [saved, ...previous] : previous.map((row) => (row.id === saved.id ? saved : row))
           );
           if (isNew) setPagination((current) => (current ? { ...current, total: current.total + 1 } : current));
+        }}
+      />
+
+      <DrillHoleImportDialog
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        onImported={() => {
+          setPage(1);
+          void fetchRows();
         }}
       />
 
