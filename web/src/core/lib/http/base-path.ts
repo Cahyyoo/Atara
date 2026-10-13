@@ -17,3 +17,18 @@ export function withBasePath(path: string): string {
   if (!BASE_PATH || !path.startsWith("/") || path.startsWith("//")) return path;
   return BASE_PATH + path;
 }
+
+/**
+ * The other way: a path read off `window.location` ("/atara/lab/assay?x=1") as
+ * the router wants it ("/lab/assay?x=1"). The router adds BASE_PATH itself, so
+ * a path that already carries it ends up under it twice -- "/atara/atara/...",
+ * a page that does not exist. Only a whole leading segment is taken off:
+ * "/ataraxia" is left alone.
+ */
+export function withoutBasePath(path: string): string {
+  if (!BASE_PATH || !path.startsWith(BASE_PATH)) return path;
+  const rest = path.slice(BASE_PATH.length);
+  if (rest === "") return "/";
+  if (rest.startsWith("?") || rest.startsWith("#")) return `/${rest}`;
+  return rest.startsWith("/") ? rest : path;
+}

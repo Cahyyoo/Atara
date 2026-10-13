@@ -238,7 +238,6 @@ export function LabRecordsTable({
           isRemoving={removal.isRemoving}
           onClear={clearSelection}
           onRemoveSubs={() => removal.setConfirming("subs")}
-          onPaste={onPaste}
           onEnterResults={onEnterResults}
         />
       ) : null}

@@ -33,6 +33,26 @@ describe("withBasePath", () => {
   });
 });
 
+describe("withoutBasePath", () => {
+  it("turns the address bar's path back into the router's", async () => {
+    const { withoutBasePath } = await loadWith("/atara");
+    expect(withoutBasePath("/atara/lab/assay?results=missing")).toBe("/lab/assay?results=missing");
+    expect(withoutBasePath("/atara")).toBe("/");
+    expect(withoutBasePath("/atara?x=1")).toBe("/?x=1");
+  });
+
+  it("takes off only a whole leading segment, and only its own", async () => {
+    const { withoutBasePath } = await loadWith("/atara");
+    expect(withoutBasePath("/ataraxia/x")).toBe("/ataraxia/x");
+    expect(withoutBasePath("/lab/assay")).toBe("/lab/assay");
+  });
+
+  it("leaves everything alone when no base path is set", async () => {
+    const { withoutBasePath } = await loadWith("");
+    expect(withoutBasePath("/atara/lab")).toBe("/atara/lab");
+  });
+});
+
 /**
  * basePath covers <Link>, the router and redirect(), and nothing else. A
  * fetch or location.href written as "/api/..." works in dev and then fails

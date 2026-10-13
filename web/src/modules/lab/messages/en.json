@@ -258,7 +258,6 @@
     "caption": "{count} sample(s)",
     "noResultsYet": "No results yet",
     "paste": {
-      "open": "Paste from Excel",
       "openAll": "Paste by Sample ID"
     },
     "enterResults": "Enter results",
@@ -1000,7 +999,7 @@
       },
       "3": {
         "title": "Enter results",
-        "body": "This bar appears once something is selected: paste from Excel or enter by hand. Nothing is saved until you press Save on the next screen."
+        "body": "This bar appears once something is selected: open Type manually, then type or paste a block from Excel straight into the grid (Ctrl+V). Nothing is saved until you press Save."
       },
       "4": {
         "title": "Import a file",

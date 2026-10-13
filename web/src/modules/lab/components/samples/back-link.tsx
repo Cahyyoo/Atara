@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { IoArrowBack } from "react-icons/io5";
 import { readSampleOrigin } from "@/modules/lab/lib/samples/sample-origin";
+import { withoutBasePath } from "@/core/lib/http/base-path";
 
 /**
  * Returns to wherever the user came from (the dashboard or the sample database),
@@ -21,7 +22,9 @@ export function BackLink({ fallbackHref = "/lab/dashboard" }: { fallbackHref?: s
         // of history may only be another of this sample's pages.
         const origin = readSampleOrigin();
         if (origin) {
-          router.push(origin);
+          // An origin kept by a tab from before carries the base path; the
+          // router adds its own.
+          router.push(withoutBasePath(origin));
         } else if (window.history.length > 1) {
           router.back();
         } else {

@@ -76,12 +76,9 @@ export function ResultsPage() {
         // deleted view belong to the Sample Database.
         access={ASSAY_ACCESS}
         mode="assay"
-        onPaste={(records) => {
-          // Ticked samples are rows already: the grid takes the paste.
-          if (records.length > 0) {
-            setEditing(records);
-            return;
-          }
+        // Only the toolbar's "Paste by Sample ID": ticked samples are pasted
+        // into in the entry grid itself.
+        onPaste={() => {
           setPasteMounted(true);
           setIsPasting(true);
         }}

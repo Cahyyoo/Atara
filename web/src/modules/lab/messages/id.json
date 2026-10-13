@@ -258,7 +258,6 @@
     "caption": "{count} sampel",
     "noResultsYet": "Belum ada hasil uji",
     "paste": {
-      "open": "Tempel dari Excel",
       "openAll": "Tempel via Sample ID"
     },
     "enterResults": "Isi hasil",
@@ -1000,7 +999,7 @@
       },
       "3": {
         "title": "Masukkan hasil",
-        "body": "Bar ini muncul setelah memilih: tempel dari Excel atau isi manual. Belum ada yang tersimpan sampai Anda menekan Simpan di layar berikutnya."
+        "body": "Bar ini muncul setelah memilih: buka Isi manual, lalu ketik atau tempel blok dari Excel langsung ke grid (Ctrl+V). Belum ada yang tersimpan sampai Anda menekan Simpan."
       },
       "4": {
         "title": "Impor file",

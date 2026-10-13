@@ -564,9 +564,9 @@ describe("picking samples to enter results for (assay mode)", () => {
     expect(onPaste).toHaveBeenCalledWith([]);
   });
 
-  it("ticks a row when the row is clicked, and hands the ticked rows to paste", async () => {
+  it("ticks a row when the row is clicked, and hands the ticked rows to the entry grid", async () => {
     const user = userEvent.setup({ delay: null });
-    const { onPaste } = showAssay();
+    const { onPaste, onEnterResults } = showAssay();
     const first = await row();
 
     await user.click(within(first).getByText(/SPR\.QLAB\.20260918\.001/));
@@ -575,8 +575,11 @@ describe("picking samples to enter results for (assay mode)", () => {
     expect(screen.queryByRole("dialog")).toBeNull();
 
     expect(screen.getByText("1 row(s) selected")).toBeTruthy();
-    await user.click(screen.getByRole("button", { name: en.database.paste.open }));
-    expect(onPaste).toHaveBeenCalledWith([expect.objectContaining({ id: "r1" })]);
+    // One way in for ticked rows: the grid, which takes typing and pasting alike.
+    expect(screen.queryByRole("button", { name: "Paste from Excel" })).toBeNull();
+    await user.click(screen.getByRole("button", { name: en.database.enterManually }));
+    expect(onEnterResults).toHaveBeenCalledWith([expect.objectContaining({ id: "r1" })]);
+    expect(onPaste).not.toHaveBeenCalled();
   });
 
   it("ticks a whole run with shift+click, and hands it to manual entry", async () => {
