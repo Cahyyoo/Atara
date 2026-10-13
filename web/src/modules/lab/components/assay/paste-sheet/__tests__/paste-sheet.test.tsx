@@ -11,32 +11,39 @@ import { sheetToImportText } from "@/modules/lab/components/assay/paste-sheet/sh
 import type { ImportPreviewRow } from "@/modules/lab/types";
 
 /**
- * Pasting results by Sample ID into a sheet: the block spreads across rows and
- * columns, the server's verdict on each row lands on that row, and Save writes
- * them through the sheet import.
+ * Pasting results by Sample ID into a sheet headed as the instrument's export
+ * is: the block spreads across rows and columns, only the rows that changed
+ * are checked, each verdict lands on its row, and Save writes the whole sheet.
  */
 
 let requests: { csv: string; apply: boolean; overwrite: boolean }[] = [];
+/** Held open by a test that wants to see what the sheet shows while it waits. */
+let gate: Promise<void> | null = null;
 
-/** The server, as far as this screen needs it: a verdict per line it was sent. */
+/** The server, as far as this screen needs it: a verdict per line it was sent, read by its header. */
 function verdicts(csv: string): ImportPreviewRow[] {
-  return csv
-    .split("\n")
-    .slice(1)
-    .flatMap((line, index): ImportPreviewRow[] => {
-      const [key, ni] = line.split("\t");
-      if (!key && !ni) return [];
-      const at = index + 2;
-      if (key === "NOPE") return [{ line: at, labCode: key, status: "unknown", changes: {}, field: "sampleIdent", message: "No sample" }];
-      if (!/^\d+(\.\d+)?$/.test(ni ?? "")) {
-        return [{ line: at, labCode: key, status: "invalid", changes: {}, field: "ni", message: `ni: "${ni}" is not a number.` }];
-      }
-      return [{ line: at, labCode: key, sampleCode: `S-${key}`, status: "update", changes: { ni: { from: null, to: Number(ni) } } }];
-    });
+  const [header, ...lines] = csv.split("\n");
+  const at = (name: string) => header.split("\t").indexOf(name);
+  return lines.flatMap((line, index): ImportPreviewRow[] => {
+    const cells = line.split("\t");
+    const key = cells[at("Sample ID")];
+    const ni = cells[at("Ni (%)")];
+    if (!key && !ni) return [];
+    const row = index + 2;
+    if (key === "NOPE") return [{ line: row, labCode: key, status: "unknown", changes: {}, field: "sampleIdent", message: "No sample" }];
+    if (!/^\d+(\.\d+)?$/.test(ni ?? "")) {
+      return [{ line: row, labCode: key, status: "invalid", changes: {}, field: "ni", message: `ni: "${ni}" is not a number.` }];
+    }
+    return [{ line: row, labCode: key, sampleCode: `S-${key}`, status: "update", changes: { ni: { from: null, to: Number(ni) } } }];
+  });
 }
+
+/** Data lines in a request: what the sheet actually sent to be checked. */
+const dataLines = (csv: string) => csv.split("\n").slice(1).filter((line) => line.replace(/\t/g, "").trim() !== "");
 
 beforeEach(() => {
   requests = [];
+  gate = null;
   window.localStorage.clear();
   resetPersistedColumns();
   vi.stubGlobal(
@@ -44,17 +51,10 @@ beforeEach(() => {
     vi.fn(async (_url: string, init?: RequestInit) => {
       const body = JSON.parse(String(init?.body));
       requests.push(body);
+      if (gate) await gate;
       const rows = verdicts(body.csv);
       const count = (status: string) => rows.filter((row) => row.status === status).length;
-      const summary = {
-        total: rows.length,
-        update: count("update"),
-        create: 0,
-        unchanged: 0,
-        unknown: count("unknown"),
-        invalid: count("invalid"),
-        overwrite: 0,
-      };
+      const summary = { total: rows.length, update: count("update"), create: 0, unchanged: 0, unknown: count("unknown"), invalid: count("invalid"), overwrite: 0 };
       return { ok: true, json: async () => ({ success: true, data: { rows, summary, applied: body.apply } }) };
     })
   );
@@ -75,63 +75,111 @@ function show(onApplied = vi.fn()) {
 
 const box = (row: number, column: string) =>
   screen.getByRole("textbox", { name: `Row ${row} ${column}` }) as HTMLInputElement;
+const paste = (text: string) => fireEvent.paste(box(1, "Sample ID"), { clipboardData: { getData: () => text } });
+const LONG = { timeout: 8000 };
 
 describe("the paste sheet", () => {
-  it("is sent to the import as a header and a line per row", () => {
-    const text = sheetToImportText([{ sampleIdent: "A-1", ni: "1.5" }, {}, { sampleIdent: "A-3", measurementFinished: "2026-03-16T10:34" }], [
-      "sampleIdent",
-      "ni",
-      "measurementFinished",
-    ]);
-    // The blank row stays, so the import's line numbers come back as row + 2.
-    expect(text).toBe("Sample ID\tni\tMeasurement Finished\nA-1\t1.5\t\n\nA-3\t\t2026-03-16 10:34");
+  it("is headed exactly as the instrument's export, with the Sample ID in front", () => {
+    show();
+    const headings = screen.getAllByRole("columnheader").map((cell) => cell.textContent);
+    expect(headings.slice(1, 6)).toEqual(["Sample ID", "Measurement Finished", "Ni (%)", "Fe (%)", "Co (%)"]);
+    expect(headings).toContain("SiO2 (%)");
+    expect(headings.slice(-3)).toEqual(["Sum (%)", "Measurement Method", "Solution ID"]);
   });
 
-  it("spreads a pasted block across the sheet and paints the verdict on each row", async () => {
-    show();
-    fireEvent.paste(box(1, "Sample ID"), {
-      clipboardData: { getData: () => "Sample ID\tNi\nA-1\t1.5\nA-2\tx\nNOPE\t1" },
-    });
+  it("is sent to the import with those same headings, a line per row", () => {
+    const text = sheetToImportText([{ sampleIdent: "A-1", ni: "1.5" }, {}, { sampleIdent: "A-3", measurementFinished: "9/1/2026 8:54" }], [
+      "sampleIdent",
+      "measurementFinished",
+      "ni",
+    ]);
+    // The blank row stays, so the import's line numbers come back as row + 2;
+    // the date goes as it was written.
+    expect(text).toBe("Sample ID\tMeasurement Finished\tNi (%)\nA-1\t\t1.5\n\nA-3\t9/1/2026 8:54\t");
+  });
 
+  it("spreads a pasted block and paints the verdict on each row", async () => {
+    show();
+    paste("Sample ID\tNi (%)\nA-1\t1.5\nA-2\tx\nNOPE\t1");
     expect(box(1, "Sample ID").value).toBe("A-1");
-    expect(box(2, "Ni %").value).toBe("x");
     expect(box(3, "Sample ID").value).toBe("NOPE");
 
-    await waitFor(() => expect(requests).toHaveLength(1), { timeout: 8000 });
-    expect(requests[0]).toMatchObject({ apply: false, overwrite: false });
-    expect(requests[0].csv.startsWith("Sample ID\tni\tfe")).toBe(true);
+    await waitFor(() => expect(requests).toHaveLength(1), LONG);
+    expect(requests[0].csv.startsWith("Sample ID\tMeasurement Finished\tNi (%)\tFe (%)")).toBe(true);
 
-    await waitFor(() => expect(box(2, "Ni %").getAttribute("aria-invalid")).toBe("true"), { timeout: 8000 });
-    expect(box(2, "Ni %").title).toContain("is not a number");
+    await waitFor(() => expect(screen.getByRole("img", { name: /Will update/ })).toBeTruthy(), LONG);
+    // "x" is wrong before the server says so, and stays wrong after.
+    expect(box(2, "Ni (%)").getAttribute("aria-invalid")).toBe("true");
     expect(box(3, "Sample ID").getAttribute("aria-invalid")).toBe("true");
-    expect(screen.getByRole("img", { name: /Will update/ })).toBeTruthy();
-    // Nothing is saved while a row is wrong.
     expect((screen.getByRole("button", { name: "Save 1 row(s)" }) as HTMLButtonElement).disabled).toBe(true);
   });
 
-  it("saves through the import once every row is right", async () => {
+  it("checks only the row that changed, then saves the whole sheet", async () => {
     const onApplied = show();
-    fireEvent.paste(box(1, "Sample ID"), { clipboardData: { getData: () => "Sample ID\tNi\nA-1\t1.5\nA-2\tx" } });
-    await waitFor(() => expect(box(2, "Ni %").getAttribute("aria-invalid")).toBe("true"), { timeout: 8000 });
+    paste("Sample ID\tNi (%)\nA-1\t1.5\nA-2\tx\nA-3\t1.7");
+    await waitFor(() => expect(screen.getByRole("img", { name: /Not valid/ })).toBeTruthy(), LONG);
+    const before = requests.length;
 
-    fireEvent.change(box(2, "Ni %"), { target: { value: "1.6" } });
-    const save = await screen.findByRole("button", { name: "Save 2 row(s)" }, { timeout: 8000 });
-    await waitFor(() => expect((save as HTMLButtonElement).disabled).toBe(false), { timeout: 8000 });
+    fireEvent.change(box(2, "Ni (%)"), { target: { value: "1.6" } });
+    const save = await screen.findByRole("button", { name: "Save 3 row(s)" }, LONG);
+    await waitFor(() => expect((save as HTMLButtonElement).disabled).toBe(false), LONG);
+    // One more check, carrying the one row that changed and nothing else.
+    expect(requests).toHaveLength(before + 1);
+    expect(dataLines(requests.at(-1)!.csv)).toEqual([expect.stringMatching(/^A-2\t\t1\.6/)]);
 
     await userEvent.setup().click(save);
-    await waitFor(() => expect(onApplied).toHaveBeenCalledWith(2), { timeout: 8000 });
+    await waitFor(() => expect(onApplied).toHaveBeenCalledWith(3), LONG);
     expect(requests.at(-1)).toMatchObject({ apply: true, overwrite: false });
+    expect(dataLines(requests.at(-1)!.csv)).toHaveLength(3);
+  });
+
+  it("takes the date as the instrument's sheet writes it, and says how it was read", () => {
+    show();
+    fireEvent.change(box(1, "Measurement Finished"), { target: { value: "9/1/2026 8:54" } });
+    expect(box(1, "Measurement Finished").value).toBe("9/1/2026 8:54");
+    expect(box(1, "Measurement Finished").title).toMatch(/Sep 1, 2026.*8:54.*WITA/);
+
+    // Wrong at once, without waiting for the server.
+    fireEvent.change(box(1, "Measurement Finished"), { target: { value: "1/1/2099 8:00" } });
+    expect(box(1, "Measurement Finished").getAttribute("aria-invalid")).toBe("true");
+    fireEvent.change(box(1, "Measurement Finished"), { target: { value: "yesterday" } });
+    expect(box(1, "Measurement Finished").title).toContain("cannot be read");
+  });
+
+  it("lays a block from the instrument's export down from the date box, column for column", () => {
+    show();
+    fireEvent.paste(box(1, "Measurement Finished"), { clipboardData: { getData: () => "9/1/2026 8:54\t1.86\t42.2\n9/1/2026 9:10\t1.9\t41" } });
+    expect(box(1, "Measurement Finished").value).toBe("9/1/2026 8:54");
+    expect(box(1, "Ni (%)").value).toBe("1.86");
+    expect(box(2, "Fe (%)").value).toBe("41");
+  });
+
+  it("shows how far the check has got while it runs, and says so while it saves", async () => {
+    let release = () => {};
+    gate = new Promise<void>((resolve) => (release = resolve));
+    show();
+    paste("Sample ID\tNi (%)\nA-1\t1.5\nA-2\t1.6");
+
+    await waitFor(() => expect(screen.getByRole("progressbar")).toBeTruthy(), LONG);
+    expect(screen.getByText("Checking 0 of 2 rows…")).toBeTruthy();
+    release();
+    const save = await screen.findByRole("button", { name: "Save 2 row(s)" }, LONG);
+
+    gate = new Promise<void>((resolve) => (release = resolve));
+    await userEvent.setup().click(save);
+    expect(await screen.findByText("Saving 2 rows… keep this page open.")).toBeTruthy();
+    release();
   });
 
   it("copies selected boxes out as rows and columns for Excel", () => {
     show();
-    fireEvent.paste(box(1, "Sample ID"), { clipboardData: { getData: () => "A-1\t1.5\nA-2\t1.6" } });
+    paste("A-1\t9/1/2026 8:54\t1.5\nA-2\t\t1.6");
 
     fireEvent.mouseDown(box(1, "Sample ID"), { button: 0 });
-    fireEvent.mouseOver(box(2, "Ni %"));
+    fireEvent.mouseOver(box(2, "Ni (%)"));
     fireEvent.mouseUp(window);
     const setData = vi.fn();
     fireEvent.copy(box(1, "Sample ID"), { clipboardData: { setData } });
-    expect(setData).toHaveBeenCalledWith("text/plain", "A-1\t1.5\nA-2\t1.6");
+    expect(setData).toHaveBeenCalledWith("text/plain", "A-1\t9/1/2026 8:54\t1.5\nA-2\t\t1.6");
   });
 });

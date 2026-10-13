@@ -87,6 +87,16 @@ describe("a block pasted into the grid", () => {
     expect(result.hiddenFilled).toEqual(["measurementFinished"]);
   });
 
+  it("keeps a date as the sheet wrote it, for a grid whose date box is text", () => {
+    const result = spreadPaste("9/1/2026 8:54	1.86", {
+      visible: ["measurementFinished", "ni"],
+      known: KNOWN,
+      start: { row: 0, col: 0 },
+      rawDates: true,
+    });
+    expect(at(result.writes)).toEqual({ "0:measurementFinished": "9/1/2026 8:54", "0:ni": "1.86" });
+  });
+
   it("fills a selected rectangle with one copied value", () => {
     const result = spreadPaste("0.5", {
       visible: VISIBLE,

@@ -41,6 +41,8 @@ export interface SpreadTarget {
   rowCount?: number;
   /** The rectangle selected, when one value should fill all of it. */
   range?: { top: number; left: number; bottom: number; right: number };
+  /** Dates kept as the sheet wrote them, for a grid whose date box is text. */
+  rawDates?: boolean;
 }
 
 /** Rows as Excel puts them on the clipboard: tab-separated, the trailing newline dropped. */
@@ -61,9 +63,9 @@ export function isBlock(text: string): boolean {
  * uses, so the two cannot disagree. Anything it cannot read is left as typed,
  * and shows up as wrong where it lands.
  */
-function boxValue(key: SheetKey, cell: string): string {
+function boxValue(key: SheetKey, cell: string, rawDates = false): string {
   const value = cell.trim();
-  if (key !== "measurementFinished" || value === "") return value;
+  if (rawDates || key !== "measurementFinished" || value === "") return value;
   const instant = parseSheetDateTime(value);
   return instant ? toWitaInputValue(instant) : value;
 }
@@ -98,7 +100,7 @@ export function spreadPaste(text: string, target: SpreadTarget): SpreadResult {
   const empty: SpreadResult = { writes: [], rowsNeeded: 0, extraRows: 0, hiddenFilled: [] };
   if (block.length === 0) return empty;
 
-  const { visible, known, start, rowCount, range } = target;
+  const { visible, known, start, rowCount, range, rawDates } = target;
   const fits = (row: number) => rowCount === undefined || row < rowCount;
 
   if (block.length === 1 && block[0].length === 1 && range) {
@@ -106,7 +108,7 @@ export function spreadPaste(text: string, target: SpreadTarget): SpreadResult {
     for (let row = range.top; row <= range.bottom; row++) {
       for (let col = range.left; col <= range.right; col++) {
         const key = visible[col];
-        if (key !== undefined && fits(row)) writes.push({ row, key, value: boxValue(key, block[0][0]) });
+        if (key !== undefined && fits(row)) writes.push({ row, key, value: boxValue(key, block[0][0], rawDates) });
       }
     }
     return { writes, rowsNeeded: range.bottom + 1, extraRows: 0, hiddenFilled: [] };
@@ -141,7 +143,7 @@ export function spreadPaste(text: string, target: SpreadTarget): SpreadResult {
     cells.forEach((cell, index) => {
       const key = keyAt(index);
       if (key === null || cell.trim() === "") return;
-      writes.push({ row, key, value: boxValue(key, cell) });
+      writes.push({ row, key, value: boxValue(key, cell, rawDates) });
       filled.add(key);
     });
   });

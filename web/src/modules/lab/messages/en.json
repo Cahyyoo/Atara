@@ -517,12 +517,19 @@
       "pasteHint": "Paste a block from Excel straight into any box (Ctrl+V). Select several boxes by dragging, Shift+click or Shift+arrows, then Ctrl+C copies them to Excel; Delete empties them.",
       "rowsIgnored": "{count, plural, one {# row} other {# rows}} of the pasted block went past the ticked samples and {count, plural, one {was} other {were}} left out.",
       "title": "Paste results by Sample ID",
-      "description": "Copy a block from Excel (with or without its header row), click any box, then Ctrl+V. The sheet grows by itself up to {max, number} rows. Every row is checked as it lands: red boxes need fixing, amber ones would replace an earlier result.",
+      "description": "Columns follow the instrument's export, with the Sample ID in front. Copy a block from Excel (with or without its header row), click any box, then Ctrl+V. The sheet grows by itself up to {max, number} rows. Red boxes need fixing; amber ones would replace an earlier result.",
       "statusColumn": "No.",
       "row": "Row {row}",
       "tooMany": "The pasted block runs past {max, number} rows; the rest was left out. Save these first, then paste the remainder.",
       "addRows": "Add 50 rows",
-      "saved": "{count, plural, one {# row} other {# rows}} of results saved."
+      "saved": "{count, plural, one {# row} other {# rows}} of results saved.",
+      "pasting": "Pasting {count, number} rows…",
+      "checkingProgress": "Checking {done, number} of {total, number} rows…",
+      "saving": "Saving {count, number} rows… keep this page open.",
+      "dateHint": "Read as {date} WITA",
+      "datePlaceholder": "9/1/2026 8:54",
+      "dateUnreadable": "This date cannot be read. Write it as the instrument's sheet does, e.g. 9/1/2026 8:54 (month/day/year hour:minute).",
+      "dateFuture": "This date is in the future, so it cannot be when a measurement finished. Check the order of month and day."
     }
   },
   "stages": {

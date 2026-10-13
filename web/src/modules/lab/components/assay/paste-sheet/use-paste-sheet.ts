@@ -5,125 +5,106 @@ import { useTranslations } from "next-intl";
 import { useResultsColumns } from "@/modules/lab/components/assay/use-results-columns";
 import { useGridSelection, type GridRange } from "@/modules/lab/components/assay/grid/use-grid-selection";
 import { useVirtualRows } from "@/modules/lab/components/assay/grid/use-virtual-rows";
+import { useSheetCheck } from "@/modules/lab/components/assay/paste-sheet/use-sheet-check";
+import { lineOf } from "@/modules/lab/components/assay/paste-sheet/sheet-check";
 import { ALL_COLUMNS, type Column } from "@/modules/lab/components/assay/results-entry-utils";
 import {
+  SHEET_COLUMN_ORDER,
   SHEET_MAX_ROWS,
   SHEET_START_ROWS,
-  rowOfLine,
   sheetToImportText,
   type SheetRow,
 } from "@/modules/lab/components/assay/paste-sheet/sheet-text";
-import { rangeToTsv, spreadPaste } from "@/modules/lab/lib/records/sheet-paste";
+import { INSTRUMENT_EXPORT_ORDER } from "@/modules/lab/lib/records/assay";
+import { readClipboardBlock, rangeToTsv, spreadPaste } from "@/modules/lab/lib/records/sheet-paste";
 import { withBasePath } from "@/core/lib/http/base-path";
 import type { ApiResult } from "@/core/types";
-import type { ImportPreviewDTO, ImportPreviewRow } from "@/modules/lab/types";
+import type { ImportPreviewDTO } from "@/modules/lab/types";
 
-/** Long enough that a paste is one check rather than one per keystroke. */
-const CHECK_DELAY_MS = 500;
 export const SHEET_ROW_HEIGHT = 36;
 const KNOWN = ["sampleIdent", ...ALL_COLUMNS];
+/** Shown before the boxes fill, past this many rows: long enough to be noticed. */
+const BIG_PASTE = 200;
 
 const blankRows = (count: number): SheetRow[] => Array.from({ length: count }, () => ({}));
 
 /**
- * The paste sheet's state: rows of a Sample ID and results, checked by the
- * server as they are typed or pasted, and saved in one go.
+ * The paste sheet's state: rows of a Sample ID and results in the
+ * instrument's own column order, checked by the server as they are typed or
+ * pasted (only the rows that changed -- useSheetCheck), and saved in one go
+ * through the sheet import: the same matching, validation, sub-sample creation
+ * and overwrite question as uploading a file, in one transaction.
  *
- * Checking and saving go through the sheet import (POST /api/lab-records/import)
- * -- the same matching, validation, sub-sample creation and overwrite question
- * as uploading a file, up to five thousand rows in one transaction. The grid is
- * only a better way to put the block in, and a better place to read the answer:
- * each verdict comes back by line and lands on its row and cell.
+ * Whatever takes a moment says so while it happens -- a big paste, the checks
+ * batch by batch, the save -- so the sheet never just sits there.
  */
 export function usePasteSheet(onApplied: (count: number) => void) {
   const tPaste = useTranslations("assay.paste");
   const tCommon = useTranslations("common");
-  const columnsState = useResultsColumns("atara.columns.paste-sheet.v1");
-  const { columns, instrumentColumns, showRemarks, visible, setVisible } = columnsState;
+  // Opens on exactly the instrument export's columns; the key is v2 because
+  // the first version opened on the elements alone.
+  const columnsState = useResultsColumns("atara.columns.paste-sheet.v2", INSTRUMENT_EXPORT_ORDER as unknown as Column[]);
+  const { visible, setVisible } = columnsState;
 
   const keys = useMemo(
-    () => [
-      "sampleIdent",
-      ...columns.map((field) => field.key),
-      ...instrumentColumns.map((field) => field.key),
-      ...(showRemarks ? ["remarks"] : []),
-    ],
-    [columns, instrumentColumns, showRemarks]
+    () => SHEET_COLUMN_ORDER.filter((key) => key === "sampleIdent" || visible.includes(key as Column)) as string[],
+    [visible]
   );
 
   const [rows, setRows] = useState<SheetRow[]>(() => blankRows(SHEET_START_ROWS));
-  const [preview, setPreview] = useState<{ text: string; dto: ImportPreviewDTO } | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  // Each of these belongs to the sheet as it was when it was set, and lapses
-  // by itself the moment the sheet changes: derived, never reset by hand.
-  const [failure, setFailure] = useState<{ text: string | null; message: string } | null>(null);
-  const [confirmFor, setConfirmFor] = useState<string | null>(null);
+  const [pasting, setPasting] = useState(0);
+  const [saveFailure, setSaveFailure] = useState<{ rows: SheetRow[]; message: string } | null>(null);
+  const [confirmFor, setConfirmFor] = useState<SheetRow[] | null>(null);
   const [tooMany, setTooMany] = useState(false);
-  const requestId = useRef(0);
-
-  const text = useMemo(() => sheetToImportText(rows, keys), [rows, keys]);
-  const error = failure && failure.text === text ? failure.message : null;
-  const isChecking = text !== null && preview?.text !== text && error === null;
-  const confirmOverwrite = confirmFor !== null && confirmFor === text;
-  const setConfirmOverwrite = (ask: boolean) => setConfirmFor(ask ? text : null);
 
   const send = useCallback(
-    async (csv: string, apply: boolean, overwrite: boolean) =>
+    async (csv: string, apply: boolean, overwrite: boolean, signal?: AbortSignal) =>
       (await (
         await fetch(withBasePath("/api/lab-records/import"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ csv, apply, overwrite, reason: tPaste("auditReason") }),
+          signal,
         })
       ).json()) as ApiResult<ImportPreviewDTO>,
     [tPaste]
   );
+  const check = useSheetCheck({
+    rows,
+    keys,
+    send: useCallback((csv: string, signal: AbortSignal) => send(csv, false, false, signal), [send]),
+    networkError: tCommon("networkError"),
+  });
 
-  // Checked a moment after the last change; an answer to an older sheet is dropped.
-  useEffect(() => {
-    if (text === null) return;
-    const id = ++requestId.current;
-    const timer = setTimeout(async () => {
-      try {
-        const body = await send(text, false, false);
-        if (id !== requestId.current) return;
-        if (body.success) setPreview({ text, dto: body.data });
-        else setFailure({ text, message: body.error });
-      } catch {
-        if (id === requestId.current) setFailure({ text, message: tCommon("networkError") });
-      }
-    }, CHECK_DELAY_MS);
-    return () => clearTimeout(timer);
-  }, [text, send, tCommon]);
-
-  const verdicts = useMemo(() => {
-    const byRow = new Map<number, ImportPreviewRow>();
-    if (preview && preview.text === text) for (const row of preview.dto.rows) byRow.set(rowOfLine(row.line), row);
-    return byRow;
-  }, [preview, text]);
-
-  const summary = preview && preview.text === text ? preview.dto.summary : null;
+  const summary = check.progress.summary;
   const writes = summary ? summary.update + summary.create : 0;
-  const canSave = summary !== null && writes > 0 && summary.invalid === 0 && !isChecking && !isSaving;
+  const canSave = summary !== null && writes > 0 && summary.invalid === 0 && !check.isChecking && !isSaving;
+  const error = check.error ?? (saveFailure && saveFailure.rows === rows ? saveFailure.message : null);
+  // Asked about one sheet: an edit after the question needs the question again.
+  const confirmOverwrite = confirmFor !== null && confirmFor === rows;
+  const setConfirmOverwrite = (ask: boolean) => setConfirmFor(ask ? rows : null);
 
   async function save(overwrite = false) {
-    if (!canSave || text === null) return;
+    if (!canSave) return;
     if (!overwrite && (summary?.overwrite ?? 0) > 0) {
-      setConfirmFor(text);
+      setConfirmFor(rows);
       return;
     }
+    const text = sheetToImportText(rows, keys, (row) => lineOf(row, keys));
+    if (text === null) return;
     setIsSaving(true);
-    setFailure(null);
     try {
       const body = await send(text, true, overwrite);
       if (!body.success) {
-        if (body.code === "overwrite") setConfirmFor(text);
-        else setFailure({ text, message: body.error });
+        if (body.code === "overwrite") setConfirmFor(rows);
+        else setSaveFailure({ rows, message: body.error });
         return;
       }
+      // The sheet closes and comes back fresh (results-page.tsx): no verdict outlives the save.
       onApplied(writes);
     } catch {
-      setFailure({ text, message: tCommon("networkError") });
+      setSaveFailure({ rows, message: tCommon("networkError") });
     } finally {
       setIsSaving(false);
     }
@@ -145,6 +126,15 @@ export function usePasteSheet(onApplied: (count: number) => void) {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  // Closing the tab mid-save is asked about: the write is one transaction, but
+  // nobody should have to wonder whether it went through.
+  useEffect(() => {
+    if (!isSaving) return;
+    const warn = (event: BeforeUnloadEvent) => event.preventDefault();
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [isSaving]);
+
   const setCell = useCallback((row: number, key: string, value: string) => {
     setRows((previous) => previous.map((entry, index) => (index === row ? { ...entry, [key]: value } : entry)));
   }, []);
@@ -160,7 +150,23 @@ export function usePasteSheet(onApplied: (count: number) => void) {
     });
   }, []);
 
-  const virtual = useVirtualRows({ rowCount: rows.length, rowHeight: SHEET_ROW_HEIGHT, headerHeight: 40 });
+  const virtual = useVirtualRows({ rowCount: rows.length, rowHeight: SHEET_ROW_HEIGHT, headerHeight: 48 });
+
+  function pasteBlock(block: string, range: GridRange) {
+    // Dates stay as the sheet wrote them ("9/1/2026 8:54"): the box is text here.
+    const result = spreadPaste(block, {
+      visible: keys,
+      known: KNOWN,
+      start: { row: range.top, col: range.left },
+      range,
+      rawDates: true,
+    });
+    setTooMany(result.rowsNeeded > SHEET_MAX_ROWS);
+    const reveal = result.hiddenFilled.filter((key): key is Column => (ALL_COLUMNS as string[]).includes(key));
+    if (reveal.length > 0) setVisible([...visible, ...reveal.filter((key) => !visible.includes(key))]);
+    // A few blank rows under the block, so the next paste has somewhere to go.
+    write(result.writes, result.rowsNeeded + 5);
+  }
 
   const clipboard = useGridSelection({
     rowCount: rows.length,
@@ -174,12 +180,19 @@ export function usePasteSheet(onApplied: (count: number) => void) {
       write(cells);
     },
     paste: (block: string, range: GridRange) => {
-      const result = spreadPaste(block, { visible: keys, known: KNOWN, start: { row: range.top, col: range.left }, range });
-      setTooMany(result.rowsNeeded > SHEET_MAX_ROWS);
-      const reveal = result.hiddenFilled.filter((key): key is Column => (ALL_COLUMNS as string[]).includes(key));
-      if (reveal.length > 0) setVisible([...visible, ...reveal.filter((key) => !visible.includes(key))]);
-      // A few blank rows under the block, so the next paste has somewhere to go.
-      write(result.writes, result.rowsNeeded + 5);
+      const size = readClipboardBlock(block).length;
+      if (size < BIG_PASTE) {
+        pasteBlock(block, range);
+        return;
+      }
+      // Say so first, then do it on the next frame, once the notice is painted.
+      setPasting(size);
+      requestAnimationFrame(() =>
+        setTimeout(() => {
+          pasteBlock(block, range);
+          setPasting(0);
+        }, 0)
+      );
     },
     copyText: (range: GridRange) => rangeToTsv(range, keys, (row, key) => rows[row]?.[key] ?? ""),
   });
@@ -195,12 +208,14 @@ export function usePasteSheet(onApplied: (count: number) => void) {
     columnsState,
     keys,
     rows,
-    verdicts,
+    verdictFor: check.verdictFor,
+    progress: check.progress,
     summary,
     writes,
     canSave,
-    isChecking,
+    isChecking: check.isChecking,
     isSaving,
+    pasting,
     error,
     tooMany,
     confirmOverwrite,

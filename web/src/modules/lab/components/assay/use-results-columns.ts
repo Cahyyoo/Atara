@@ -12,7 +12,7 @@ import { ALL_COLUMNS, type Column } from "@/modules/lab/components/assay/results
  * keeps its own choice (a different `storageKey`): a narrow sheet for pasting
  * three columns is not the grid somebody types eighteen into.
  */
-export function useResultsColumns(storageKey = "atara.columns.assay.v2") {
+export function useResultsColumns(storageKey = "atara.columns.assay.v2", defaults: Column[] = ASSAY_ENTRY_FIELDS) {
   const tDatabase = useTranslations("database");
 
   /**
@@ -28,7 +28,7 @@ export function useResultsColumns(storageKey = "atara.columns.assay.v2") {
    */
   const [visible, setVisible] = usePersistedColumns<Column>(
     storageKey,
-    ASSAY_ENTRY_FIELDS,
+    defaults,
     ALL_COLUMNS
   );
   const columns = useMemo(() => ASSAY_FIELDS.filter((field) => visible.includes(field.key)), [visible]);

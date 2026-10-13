@@ -2,12 +2,12 @@
 
 import { useTranslations } from "next-intl";
 import { cn } from "@/core/lib/utils";
-import type { ImportPreviewDTO, ImportPreviewRow } from "@/modules/lab/types";
+import type { ImportPreviewDTO } from "@/modules/lab/types";
+import type { Verdict } from "@/modules/lab/components/assay/paste-sheet/sheet-check";
 import {
   IoAddCircle,
   IoCheckmarkCircle,
   IoCloseCircle,
-  IoEllipsisHorizontal,
   IoHelpCircle,
   IoRemoveCircleOutline,
 } from "react-icons/io5";
@@ -30,14 +30,15 @@ export function StatusMark({
   filled,
   pending,
 }: {
-  verdict: ImportPreviewRow | undefined;
+  verdict: Verdict | undefined;
   filled: boolean;
   pending: boolean;
 }) {
   const t = useTranslations("assay.paste.status");
   if (!filled) return null;
   if (!verdict) {
-    return pending ? <IoEllipsisHorizontal aria-hidden className="size-4 animate-pulse text-muted-foreground" /> : null;
+    // Not checked yet: a soft shimmer where the mark will be, rather than nothing.
+    return pending ? <span aria-hidden className="skeleton-sheen inline-block size-3.5 rounded-full bg-muted" /> : null;
   }
   const { icon: Icon, className } = MARKS[verdict.status];
   const label = verdict.message ? `${t(verdict.status)}: ${verdict.message}` : t(verdict.status);

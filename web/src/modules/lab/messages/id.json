@@ -517,12 +517,19 @@
       "pasteHint": "Tempel blok dari Excel langsung ke sel mana pun (Ctrl+V). Pilih beberapa sel dengan drag, Shift+klik, atau Shift+panah, lalu Ctrl+C untuk menyalinnya ke Excel; Delete untuk mengosongkan.",
       "rowsIgnored": "{count, plural, other {# baris}} dari blok yang ditempel melebihi sampel yang dipilih dan tidak dipakai.",
       "title": "Tempel hasil per Sample ID",
-      "description": "Salin blok dari Excel (dengan atau tanpa baris header), klik sel mana pun, lalu Ctrl+V. Lembar bertambah sendiri hingga {max, number} baris. Setiap baris langsung dicek: sel merah perlu diperbaiki, sel kuning akan menimpa hasil lama.",
+      "description": "Kolom mengikuti ekspor instrumen, dengan Sample ID di depan. Salin blok dari Excel (dengan atau tanpa baris header), klik sel mana pun, lalu Ctrl+V. Lembar bertambah sendiri hingga {max, number} baris. Sel merah perlu diperbaiki, sel kuning akan menimpa hasil lama.",
       "statusColumn": "No.",
       "row": "Baris {row}",
       "tooMany": "Blok yang ditempel melebihi {max, number} baris; baris setelahnya tidak dipakai. Simpan dulu, lalu tempel sisanya.",
       "addRows": "Tambah 50 baris",
-      "saved": "{count, plural, other {# baris}} hasil tersimpan."
+      "saved": "{count, plural, other {# baris}} hasil tersimpan.",
+      "pasting": "Menempel {count, number} baris…",
+      "checkingProgress": "Memeriksa {done, number} dari {total, number} baris…",
+      "saving": "Menyimpan {count, number} baris… jangan tutup halaman ini.",
+      "dateHint": "Dibaca sebagai {date} WITA",
+      "datePlaceholder": "9/1/2026 8:54",
+      "dateUnreadable": "Tanggal tidak terbaca. Tulis seperti di Excel instrumen, mis. 9/1/2026 8:54 (bulan/tanggal/tahun jam:menit).",
+      "dateFuture": "Tanggal ini ada di masa depan, jadi tidak mungkin waktu selesai ukur. Periksa urutan bulan dan tanggal."
     }
   },
   "stages": {
