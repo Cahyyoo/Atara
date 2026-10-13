@@ -241,6 +241,14 @@
     box-shadow: var(--shadow-hero);
   }
 
+  /* A faint grid of dots for a large brand surface (the login panel), laid
+     on an overlay of its own so it never fights a gradient for
+     background-image. Static: nothing here animates. */
+  .pattern-dots {
+    background-image: radial-gradient(oklch(1 0 0 / 0.1) 1px, transparent 1.6px);
+    background-size: 22px 22px;
+  }
+
   .surface-soft {
     box-shadow: var(--shadow-soft);
   }

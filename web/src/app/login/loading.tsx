@@ -4,27 +4,33 @@ import { Skeleton } from "@/core/components/ui/skeleton";
 /**
  * Reached by a client navigation more often than it looks: logging out pushes
  * here, and without a boundary that push leaves the operator staring at the
- * page they just left.
+ * page they just left. The page's own shape: the brand half from lg up, the
+ * form on the other.
  */
 export default function LoginLoading() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-muted/40 px-4 py-10">
-      <div className="flex flex-col items-center gap-3">
-        <Skeleton className="size-14 rounded-2xl" />
-        <Skeleton className="h-7 w-32" />
-        <Skeleton className="h-4 w-48" />
-      </div>
+    <div className="grid h-dvh overflow-hidden lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+      <div aria-hidden className="surface-hero hidden lg:block" />
 
-      <Card className="w-full max-w-sm [--card-spacing:--spacing(6)]">
-        <CardContent className="flex flex-col gap-5">
-          <Skeleton className="mx-auto h-4 w-56 max-w-full" />
-          <div className="flex flex-col gap-4">
-            <Skeleton className="h-9 w-full rounded-xl" />
-            <Skeleton className="h-9 w-full rounded-xl" />
-            <Skeleton className="mt-1 h-10 w-full rounded-xl" />
+      <div className="flex min-h-0 flex-col items-center justify-center gap-4 bg-muted/40 px-4 py-4 lg:bg-background">
+        <div className="flex items-center gap-3 lg:hidden">
+          <Skeleton className="size-10 rounded-2xl" />
+          <div className="flex flex-col gap-1.5">
+            <Skeleton className="h-5 w-20" />
+            <Skeleton className="h-3 w-28" />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+        <Skeleton className="hidden h-8 w-64 lg:block" />
+
+        <Card className="w-full max-w-sm [--card-spacing:--spacing(5)] lg:bg-transparent lg:shadow-none lg:[--card-spacing:--spacing(0)]">
+          <CardContent className="flex flex-col gap-4">
+            <Skeleton className="mx-auto h-4 w-56 max-w-full" />
+            <Skeleton className="h-10 w-full rounded-xl" />
+            <Skeleton className="h-10 w-full rounded-xl" />
+            <Skeleton className="mt-1 h-10 w-full rounded-xl" />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

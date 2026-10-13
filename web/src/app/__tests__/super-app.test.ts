@@ -82,7 +82,8 @@ describe("who manages whose account", () => {
 describe("the modules", () => {
   it("opens each module to its own people only", () => {
     expect(modulesFor(SUPER).map((m) => m.key)).toEqual(["system"]);
-    expect(modulesFor(LAB_ADMIN).map((m) => m.key)).toEqual(["lab"]);
+    // The lab admin also opens Settings, for the lab's staff on Users.
+    expect(modulesFor(LAB_ADMIN).map((m) => m.key)).toEqual(["lab", "system"]);
     expect(modulesFor(OPERATOR).map((m) => m.key)).toEqual(["lab"]);
     expect(modulesFor(EKS_ADMIN).map((m) => m.key)).toEqual(["eksplorasi"]);
     expect(canAccessModule({ role: "ADMIN", department: null }, "lab")).toBe(false);

@@ -18,7 +18,8 @@ const CORE_TOURS: readonly Tour[] = [
   {
     key: "account",
     path: "/home",
-    steps: [{ target: "user-menu" }, { target: "sidebar-nav", optional: true }],
+    // The launcher's cards: optional, since an account with no module has none.
+    steps: [{ target: "user-menu" }, { target: "module-launcher", optional: true }],
   },
 ];
 

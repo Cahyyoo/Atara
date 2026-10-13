@@ -1,12 +1,14 @@
 "use client";
 
-import { Suspense, useState, type ReactNode } from "react";
+import { Suspense, useCallback, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button, buttonVariants } from "@/core/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/core/components/ui/dialog";
-import { Brand, SidebarNav } from "@/core/components/layout/sidebar-nav";
+import { Brand, ModuleSidebar } from "@/core/components/layout/sidebar-nav";
+import { ModuleIdentity } from "@/core/components/layout/module-identity";
+import { Breadcrumb } from "@/core/components/layout/breadcrumb";
 import { VersionFooter } from "@/core/components/layout/version-footer";
 import { UserMenu } from "@/core/components/layout/user-menu";
 import { MotionProvider, PageTransition } from "@/core/components/layout/motion-provider";
@@ -18,8 +20,9 @@ import { TourRunner } from "@/core/components/tour/tour-runner";
 import type { SessionPayload } from "@/core/lib/auth/auth";
 import { helpSectionForPath } from "@/core/lib/app/help-sections";
 import { personaOf } from "@/core/lib/auth/permissions";
-import { modulesFor } from "@/core/lib/app/modules";
+import { moduleForPath, modulesFor } from "@/core/lib/app/modules";
 import { cn } from "@/core/lib/utils";
+import { rememberSidebarCollapsed } from "@/core/lib/ui/sidebar";
 import type { BannerDTO } from "@/core/types";
 import { IoHelpCircleOutline, IoMenuOutline } from "react-icons/io5";
 
@@ -27,6 +30,7 @@ export function AppShell({
   user,
   announcements = [],
   showWelcome = false,
+  sidebarCollapsed = false,
   children,
 }: {
   user: SessionPayload;
@@ -34,17 +38,29 @@ export function AppShell({
   announcements?: BannerDTO[];
   /** True until this account has seen the welcome guide once. */
   showWelcome?: boolean;
+  /** The module sidebar narrowed to icons, as last left (cookie, read by the layout). */
+  sidebarCollapsed?: boolean;
   children: ReactNode;
 }) {
   const t = useTranslations("nav");
   const pathname = usePathname();
   const [isNavOpen, setIsNavOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(sidebarCollapsed);
+  const toggleSidebar = useCallback(() => {
+    const next = !isCollapsed;
+    setIsCollapsed(next);
+    rememberSidebarCollapsed(next);
+  }, [isCollapsed]);
   const helpSection = helpSectionForPath(pathname);
   const persona = personaOf(user);
-  // What the person's modules add to the shell: the lab's sample search in
-  // the header, its sample-origin tracker out of sight. The shell itself
-  // names no module.
-  const extras = modulesFor(user).flatMap((m) => (m.shell ? [m.shell] : []));
+  // Two faces, as in Odoo: the launcher and the guide belong to no module
+  // and show no sidebar; inside a module the sidebar holds that module's menu
+  // only. One shell for both, so moving between them remounts nothing.
+  const currentModule = useMemo(() => moduleForPath(pathname), [pathname]);
+  const HeaderExtra = currentModule?.shell?.header;
+  // Out of sight, for every module the person works in: the lab's
+  // sample-origin tracker. The shell itself names no module.
+  const backgrounds = modulesFor(user).flatMap((m) => (m.shell?.background ? [m.shell.background] : []));
 
   return (
     <MotionProvider>
@@ -52,28 +68,50 @@ export function AppShell({
         is what makes the whole thing read as iOS rather than as a web table. */}
     <div className="flex min-h-screen bg-canvas">
       {/* Desktop: sticky, so the menu stays put while the page scrolls. */}
-      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col bg-background lg:flex">
-        <SidebarNav user={user} />
-      </aside>
+      {currentModule ? (
+        <aside
+          className={cn(
+            "sticky top-0 hidden h-screen shrink-0 flex-col bg-background transition-[width] duration-200 ease-out lg:flex",
+            isCollapsed ? "w-[4.5rem]" : "w-64"
+          )}
+        >
+          <ModuleSidebar module={currentModule} user={user} collapsed={isCollapsed} onToggle={toggleSidebar} />
+        </aside>
+      ) : null}
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Translucent and blurred, so content passing underneath is felt
             rather than hidden behind a solid bar. */}
         <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center justify-between gap-2 bg-canvas/80 px-3 backdrop-blur-sm sm:px-6">
           <div className="flex min-w-0 items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label={t("openNavigation")}
-              className="lg:hidden"
-              onClick={() => setIsNavOpen(true)}
-            >
-              <IoMenuOutline className="size-5" />
-            </Button>
-            {/* The sidebar already carries the brand from lg upwards. */}
-            <div className="lg:hidden">
+            {currentModule ? (
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label={t("openNavigation")}
+                className="lg:hidden"
+                onClick={() => setIsNavOpen(true)}
+              >
+                <IoMenuOutline className="size-5" />
+              </Button>
+            ) : null}
+            {/* Inside a module, below lg, the header says which module is
+                open (the sidebar does from lg up). The launcher has no
+                sidebar, so the app's own name is always here. */}
+            {currentModule ? (
+              <>
+                <div className="min-w-0 lg:hidden">
+                  <ModuleIdentity module={currentModule} />
+                </div>
+                {/* From lg up the sidebar names the module, so the header
+                    says where in it this page is. */}
+                <div className="hidden min-w-0 lg:block">
+                  <Breadcrumb module={currentModule} user={user} pathname={pathname} />
+                </div>
+              </>
+            ) : (
               <Brand />
-            </div>
+            )}
           </div>
 
           <div className="flex items-center gap-2">
@@ -87,7 +125,8 @@ export function AppShell({
             >
               <IoHelpCircleOutline className="size-5" />
             </Link>
-            {extras.map(({ header: Header }, index) => (Header ? <Header key={index} /> : null))}
+            {/* The open module's own header piece: the lab's sample search. */}
+            {HeaderExtra ? <HeaderExtra /> : null}
             <UserMenu user={user} />
           </div>
         </header>
@@ -109,20 +148,24 @@ export function AppShell({
           After the tab lock, so its dialog sits on top when both apply. */}
       <SessionWatch />
       {/* Where the sample pages were opened from, for their "Kembali". */}
-      {extras.map(({ background: Background }, index) => (Background ? <Background key={index} /> : null))}
+      {backgrounds.map((Background, index) => (
+        <Background key={index} />
+      ))}
       {showWelcome && persona ? <WelcomeDialog persona={persona} name={user.name} /> : null}
       {/* A guided tour, when the address asks for one (?tour=...). */}
       <Suspense fallback={null}>
         <TourRunner access={user} />
       </Suspense>
 
-      <Dialog open={isNavOpen} onOpenChange={setIsNavOpen}>
+      <Dialog open={isNavOpen && currentModule !== null} onOpenChange={setIsNavOpen}>
         <DialogContent
           showCloseButton={false}
           className="left-0 top-0 flex h-full w-72 max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none bg-background p-0 sm:max-w-none"
         >
           <DialogTitle className="sr-only">{t("menu")}</DialogTitle>
-          <SidebarNav user={user} onNavigate={() => setIsNavOpen(false)} />
+          {currentModule ? (
+            <ModuleSidebar module={currentModule} user={user} onNavigate={() => setIsNavOpen(false)} />
+          ) : null}
         </DialogContent>
       </Dialog>
     </div>

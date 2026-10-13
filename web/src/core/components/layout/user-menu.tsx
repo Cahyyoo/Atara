@@ -41,15 +41,8 @@ import {
   IoReloadOutline,
 } from "react-icons/io5";
 import { withBasePath } from "@/core/lib/http/base-path";
+import { initialsOf } from "@/core/lib/ui/initials";
 
-function initialsOf(name: string): string {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0]?.toUpperCase() ?? "")
-    .join("");
-}
 
 export function UserMenu({ user }: { user: SessionPayload }) {
   const t = useTranslations("nav");

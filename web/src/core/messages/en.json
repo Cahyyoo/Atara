@@ -83,17 +83,23 @@
     "help": "Guide",
     "home": "Home",
     "drilling": "Drilling Data",
-    "adminAccounts": "Admin Accounts",
     "signInAudit": "Sign-in Audit",
     "groups": {
-      "lab": "Lab · Sample Monitoring",
+      "lab": "Lab",
       "eksplorasi": "Exploration",
-      "system": "System"
-    }
+      "system": "Settings"
+    },
+    "allApps": "All apps",
+    "switchApp": "Switch app",
+    "apps": "Apps",
+    "currentApp": "Open now",
+    "collapseMenu": "Collapse menu",
+    "expandMenu": "Expand menu",
+    "breadcrumb": "Breadcrumb"
   },
   "auth": {
-    "title": "Sample Tracking System",
-    "subtitle": "Sign in to access the monitoring dashboard",
+    "title": "Super App",
+    "subtitle": "Sign in to open your apps",
     "email": "Email",
     "password": "Password",
     "signIn": "Sign In",
@@ -104,7 +110,10 @@
     "showPassword": "Show password",
     "hidePassword": "Hide password",
     "endedByAdminNotice": "An administrator signed you out. Sign in again to continue.",
-    "passwordChangedNotice": "Your password was changed, so you were signed out here. Sign in with the new password."
+    "passwordChangedNotice": "Your password was changed, so you were signed out here. Sign in with the new password.",
+    "welcomeTitle": "Welcome back",
+    "panelTitle": "One app for every department.",
+    "panelSubtitle": "Lab, exploration and settings in one place — everyone sees only the apps that are theirs."
   },
   "users": {
     "dialog": {
@@ -310,15 +319,14 @@
         "body": "Click your name to change language, light or dark appearance, your password, open the Guide, or sign out."
       },
       "2": {
-        "title": "Main menu",
-        "body": "Only the menus your role may open are shown here."
+        "title": "Your apps",
+        "body": "Choose an app here. Inside an app, \"All apps\" at the top of the side menu brings you back to this page."
       }
     }
   },
   "home": {
     "greeting": "Hello, {name}",
-    "subtitle": "Choose the module you want to open.",
-    "open": "Open module",
+    "subtitle": "Choose the app you want to open.",
     "noModules": "Your account has no access to any module yet. Contact the Super Admin.",
     "modules": {
       "lab": {
@@ -330,9 +338,24 @@
         "description": "Manage drilling data: drill holes, collar coordinates, orientation, depth and status."
       },
       "system": {
-        "name": "System",
-        "description": "Each department’s admin accounts, announcements, the sign-in audit and data backups."
+        "name": "Settings",
+        "description": "Users, announcements, the sign-in audit and data backups — as far as your access goes."
       }
+    },
+    "yourApps": "Your apps",
+    "appCount": "{count, plural, one {# app} other {# apps}}",
+    "more": "+{count} more",
+    "shortcuts": "Go straight to",
+    "noModulesTitle": "No apps yet",
+    "quick": {
+      "title": "Quick access",
+      "account": "Your account",
+      "guide": "User guide",
+      "guideHint": "How to use every page",
+      "tour": "Quick tour",
+      "tourHint": "Get to know this screen in a minute",
+      "password": "Change password",
+      "passwordHint": "Update your account's password"
     }
   }
 }

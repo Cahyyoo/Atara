@@ -8,9 +8,17 @@ Backend REST API dan web untuk **Atara Super App**. Atara adalah satu aplikasi d
 | ----- | ---- | ----------- | --- |
 | **Lab · Monitoring Sampel** | `/lab/*` | Departemen **LAB** | Seluruh fitur tracking sampel: barcode, database sampel, hasil uji, kesimpulan, dashboard, Mode TV, master data, aktivitas. |
 | **Eksplorasi** | `/eksplorasi/*` | Departemen **EKSPLORASI** | Manage Data Drilling: CRUD lubang bor, serta import/export Excel & CSV (import ±34.000 baris dalam hitungan detik). Fitur detail menyusul. |
-| **Sistem** | `/users`, `/admin/*` | **Super Admin** | Akun admin setiap departemen, pengumuman, audit login, backup. |
+| **Pengaturan** | `/users`, `/admin/*` | **Super Admin**, **Admin Lab** (hanya Pengguna) | Akun admin setiap departemen (super admin) atau staf lab (admin lab), pengumuman, audit login, backup. |
 
-Setelah masuk, semua orang mendarat di **portal `/home`**. Portal menampilkan kartu untuk modul yang boleh dibuka. Menu samping juga dikelompokkan per modul, dan sebuah grup hanya tampil untuk orang yang bekerja di modul itu.
+Tampilannya dibagi dua, seperti Odoo:
+
+- **Pemilih aplikasi (`/home`).** Semua orang mendarat di sini setelah masuk. Layarnya tanpa sidebar dan berisi kartu untuk setiap modul yang boleh dibuka. Setiap kartu memuat deskripsi singkat dan pintasan yang bisa diklik langsung ke halaman-halaman modul yang boleh dibuka akun tersebut.
+- **Tampilan modul.** Setelah sebuah kartu dibuka, sidebar hanya berisi menu modul itu.
+  - Nama modul di puncak sidebar adalah **app switcher** untuk pindah ke modul lain atau kembali ke semua aplikasi.
+  - Header desktop menampilkan **breadcrumb** (misalnya Lab › Database Sampel).
+  - Sidebar bisa **diciutkan** menjadi ikon saja agar tabel lebar punya ruang.
+
+Halaman Panduan (`/help`) bukan milik modul mana pun, jadi tampil seperti pemilih, tanpa sidebar.
 
 Aturan akses:
 
@@ -131,8 +139,8 @@ Setiap akun punya **peran** dan **departemen** (kolom `users.department`; null h
 
 | Persona (peran + departemen) | Website | Aplikasi mobile |
 | ---------------------------- | ------- | --------------- |
-| **SUPER_ADMIN** (tanpa departemen) | Portal, Akun Admin (kelola admin Lab & Eksplorasi + password default role ADMIN), Administrasi (pengumuman, backup), Audit Login. Tidak masuk ke fitur modul. | — |
-| **Admin Lab** (ADMIN + LAB) | Dashboard lab (termasuk pengaturan SLA & export), Database Sampel (hanya lihat, export, data terhapus), Kualitas Data, Kesimpulan, Aktivitas, Master Data, Pengguna (staf lab + password default-nya), koreksi tahap dari halaman sampel | — |
+| **SUPER_ADMIN** (tanpa departemen) | Pemilih aplikasi, Pengaturan: Pengguna (kelola admin Lab & Eksplorasi + password default role ADMIN), Administrasi (pengumuman, backup), Audit Login. Tidak masuk ke fitur modul. | — |
+| **Admin Lab** (ADMIN + LAB) | Dashboard lab (termasuk pengaturan SLA & export), Database Sampel (hanya lihat, export, data terhapus), Kualitas Data, Kesimpulan, Aktivitas, Master Data, Pengguna di tile Pengaturan (staf lab + password default-nya), koreksi tahap dari halaman sampel | — |
 | DATABASE (LAB) | Dashboard, Buat Barcode, Cetak Ulang Label, Database Sampel (edit, hapus/pulihkan, export), Kualitas Data, Kesimpulan | — |
 | ANALISIS (LAB) | Dashboard, Input Hasil Uji, Kesimpulan | — |
 | OPERATOR (LAB) | Dashboard | Scan & perbarui tahap, termasuk koreksi (mundur/lompat tahap) dengan alasan |
@@ -163,7 +171,7 @@ Akun baru dan akun yang kata sandinya direset memakai kata sandi default per per
 | ----------------------------------- | --- |
 | `/login`                            | Masuk dengan kata sandi, lalu wajah atau TOTP bila akun memilikinya. |
 | `/change-password`                  | Ganti kata sandi (wajib setelah kata sandi default). |
-| `/home`                             | Portal: kartu modul yang boleh dibuka akun ini. Tujuan setelah login. |
+| `/home`                             | Pemilih aplikasi (tanpa sidebar): kartu modul yang boleh dibuka akun ini, dengan menu yang tersedia di dalamnya. Tujuan setelah login. |
 | **Modul Lab**                       | |
 | `/lab/dashboard`                    | KPI, progres per tahap, waktu siklus, sampel yang lewat SLA, tabel monitoring, export laporan. |
 | `/lab/samples/generate`             | Generate sampel (satu/massal) + preview & cetak label QR grid A4. |
@@ -180,7 +188,7 @@ Akun baru dan akun yang kata sandinya direset memakai kata sandi default per per
 | `/lab/tv`                           | Tampilan monitoring layar penuh untuk TV di lab. |
 | **Modul Eksplorasi**                | |
 | `/eksplorasi/drilling`              | Data Drilling: daftar lubang bor, cari (Hole ID/area), filter status, tambah/ubah/hapus, import & export Excel/CSV. |
-| **Sistem & bersama**                | |
+| **Modul Pengaturan & bersama**      | |
 | `/users`                            | Super admin: akun admin setiap departemen. Admin Lab: staf lab. Termasuk sesi aktif, wajah, TOTP, dan password default per peran. |
 | `/admin`                            | Super admin: pengumuman di atas semua halaman dan backup lengkap. |
 | `/admin/sign-ins`                   | Super admin: audit percobaan masuk semua departemen. |

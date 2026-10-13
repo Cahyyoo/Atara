@@ -83,17 +83,23 @@
     "help": "Panduan",
     "home": "Beranda",
     "drilling": "Data Drilling",
-    "adminAccounts": "Akun Admin",
     "signInAudit": "Audit Login",
     "groups": {
-      "lab": "Lab · Monitoring Sampel",
+      "lab": "Lab",
       "eksplorasi": "Eksplorasi",
-      "system": "Sistem"
-    }
+      "system": "Pengaturan"
+    },
+    "allApps": "Semua aplikasi",
+    "switchApp": "Ganti aplikasi",
+    "apps": "Aplikasi",
+    "currentApp": "Sedang dibuka",
+    "collapseMenu": "Ciutkan menu",
+    "expandMenu": "Lebarkan menu",
+    "breadcrumb": "Lokasi halaman"
   },
   "auth": {
-    "title": "Sistem Tracking Sampel",
-    "subtitle": "Masuk untuk membuka dasbor monitoring",
+    "title": "Super App",
+    "subtitle": "Masuk untuk membuka aplikasi Anda",
     "email": "Email",
     "password": "Kata Sandi",
     "signIn": "Masuk",
@@ -104,7 +110,10 @@
     "showPassword": "Tampilkan kata sandi",
     "hidePassword": "Sembunyikan kata sandi",
     "endedByAdminNotice": "Admin mengeluarkan Anda. Masuk lagi untuk melanjutkan.",
-    "passwordChangedNotice": "Password Anda diubah, sehingga Anda dikeluarkan dari perangkat ini. Masuk dengan password baru."
+    "passwordChangedNotice": "Password Anda diubah, sehingga Anda dikeluarkan dari perangkat ini. Masuk dengan password baru.",
+    "welcomeTitle": "Selamat datang kembali",
+    "panelTitle": "Satu aplikasi untuk setiap departemen.",
+    "panelSubtitle": "Lab, eksplorasi, dan pengaturan dalam satu tempat — setiap orang hanya melihat aplikasi miliknya."
   },
   "users": {
     "dialog": {
@@ -310,15 +319,14 @@
         "body": "Klik nama Anda untuk mengganti bahasa, tampilan terang/gelap, password, membuka Panduan, atau keluar."
       },
       "2": {
-        "title": "Menu utama",
-        "body": "Hanya menu yang boleh dibuka peran Anda yang tampil di sini."
+        "title": "Aplikasi Anda",
+        "body": "Pilih aplikasi di sini. Di dalam aplikasi, tombol \"Semua aplikasi\" di menu samping membawa Anda kembali ke halaman ini."
       }
     }
   },
   "home": {
     "greeting": "Halo, {name}",
-    "subtitle": "Pilih modul yang ingin Anda buka.",
-    "open": "Buka modul",
+    "subtitle": "Pilih aplikasi yang ingin Anda buka.",
     "noModules": "Akun Anda belum memiliki akses ke modul mana pun. Hubungi Super Admin.",
     "modules": {
       "lab": {
@@ -330,9 +338,24 @@
         "description": "Kelola data drilling: lubang bor, koordinat collar, orientasi, kedalaman, dan statusnya."
       },
       "system": {
-        "name": "Sistem",
-        "description": "Akun admin setiap departemen, pengumuman, audit login, dan backup data."
+        "name": "Pengaturan",
+        "description": "Pengguna, pengumuman, audit login, dan backup data — sesuai hak akses Anda."
       }
+    },
+    "yourApps": "Aplikasi Anda",
+    "appCount": "{count, plural, other {# aplikasi}}",
+    "more": "+{count} lainnya",
+    "shortcuts": "Langsung ke",
+    "noModulesTitle": "Belum ada aplikasi",
+    "quick": {
+      "title": "Akses cepat",
+      "account": "Akun Anda",
+      "guide": "Panduan pemakaian",
+      "guideHint": "Cara memakai setiap halaman",
+      "tour": "Tur singkat",
+      "tourHint": "Kenali layar ini dalam 1 menit",
+      "password": "Ganti password",
+      "passwordHint": "Perbarui kata sandi akun Anda"
     }
   }
 }

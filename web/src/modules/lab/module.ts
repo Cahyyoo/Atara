@@ -3,7 +3,6 @@ import {
   IoCreateOutline,
   IoFlaskOutline,
   IoListOutline,
-  IoPeopleOutline,
   IoPrintOutline,
   IoQrCodeOutline,
   IoServerOutline,
@@ -19,7 +18,7 @@ import { SampleOriginTracker } from "@/modules/lab/components/shell/sample-origi
 
 /**
  * The Lab module: sample monitoring, from barcode to report. Its pages live
- * under /lab; this manifest is how the shared shell, portal and guide learn
+ * under /lab; this manifest is how the shared shell, launcher and guide learn
  * about them (see src/modules/registry.ts).
  */
 export const labModule = {
@@ -38,8 +37,6 @@ export const labModule = {
     { href: "/lab/grade", key: "gradeControl", icon: IoStatsChartOutline, capability: "readLabRecords" },
     { href: "/lab/master-data", key: "masterData", icon: IoListOutline, capability: "manageMasterData" },
     { href: "/lab/activity", key: "activity", icon: IoTimeOutline, capability: "viewActivity" },
-    // The lab admin's staff, on the shared Users page (scoped in user-scope.ts).
-    { href: "/users", key: "users", icon: IoPeopleOutline, capability: "manageUsers" },
   ],
   helpSections: LAB_HELP_SECTIONS,
   tours: LAB_TOURS,

@@ -7,18 +7,19 @@ import {
 import type { AppModule } from "@/core/lib/app/module-types";
 
 /**
- * The system module: the super admin's tools -- the departments' admin
- * accounts, announcements, the sign-in trail and the backup. The Users page
- * is shared with department admins, scoped to their own staff.
+ * The settings module ("Pengaturan"): the super admin's tools -- the
+ * departments' admin accounts, announcements, the sign-in trail and the
+ * backup. The lab admin works in it too, for Users only: the same page,
+ * scoped to their own staff (user-scope.ts), so its menu shows them just that.
  */
 export const systemModule = {
   key: "system",
   basePath: "/admin",
   homePath: "/admin",
   icon: IoShieldHalfOutline,
-  personas: ["SUPER_ADMIN"],
+  personas: ["SUPER_ADMIN", "LAB_ADMIN"],
   nav: [
-    { href: "/users", key: "adminAccounts", icon: IoPeopleOutline, capability: "manageUsers" },
+    { href: "/users", key: "users", icon: IoPeopleOutline, capability: "manageUsers" },
     { href: "/admin", key: "admin", icon: IoSettingsOutline, capability: "manageAnnouncements" },
     { href: "/admin/sign-ins", key: "signInAudit", icon: IoFingerPrintOutline, capability: "viewSignInAudit" },
   ],

@@ -10,7 +10,7 @@ Satu aplikasi dengan beberapa modul, satu modul untuk setiap departemen:
 - **Eksplorasi** (departemen EKSPLORASI). Manage Data Drilling: daftar lubang bor beserta koordinat, orientasi, kedalaman, dan statusnya.
 - **Sistem**. Satu **Super Admin** mengelola akun admin setiap departemen, pengumuman, audit login, dan backup. Setiap admin departemen hanya mengelola fitur dan staf di modulnya sendiri.
 
-Setelah masuk, pengguna mendarat di portal `/home` yang hanya menampilkan modul miliknya. Detail arsitekturnya ada di [`web/README.md`](web/README.md#konsep-super-app).
+Setelah masuk, pengguna mendarat di pemilih aplikasi `/home` (seperti Odoo) yang hanya menampilkan modul miliknya; di dalam modul, sidebar hanya berisi menu modul itu. Detail arsitekturnya ada di [`web/README.md`](web/README.md#konsep-super-app).
 
 ## Struktur Repo
 

@@ -18,9 +18,19 @@ Aturan di sini **ditegakkan otomatis**:
 | ----- | ---- | -------------------- |
 | `lab` | `/lab/*` | LAB: Admin Lab, DATABASE, ANALISIS, OPERATOR |
 | `eksplorasi` | `/eksplorasi/*` | EKSPLORASI: Admin Eksplorasi |
-| `system` | `/admin/*`, `/users` | Super Admin (tanpa departemen) |
+| `system` (Pengaturan) | `/admin/*`, `/users` | Super Admin; Admin Lab untuk Pengguna saja |
 
 **Persona** adalah gabungan peran dan departemen, misalnya `ADMIN` + `LAB` = `LAB_ADMIN`. Semua hak akses ditulis per persona dalam bentuk **capability** (`viewDashboard`, `manageDrilling`, …). Setiap pemeriksaan memanggil `can(session, "capability")`.
+
+**Dua tampilan, seperti Odoo:**
+
+- **Pemilih aplikasi (`/home`).** Layar tanpa sidebar yang berisi satu kartu per modul milik persona.
+- **Tampilan modul.** Sidebar hanya berisi menu modul yang sedang dibuka. Elemen pendukungnya:
+  - **App switcher** di puncak sidebar (nama modul + panah): pindah langsung ke modul lain atau ke "Semua aplikasi". Polanya seperti workspace switcher di Linear, Slack, dan Atlassian.
+  - **Breadcrumb** di header desktop, misalnya "⌂ › Lab › Database Sampel", seperti shell bar SAP Fiori. Halaman yang punya item `nav` otomatis tampil di sini. Halaman tanpa item menu (misalnya detail sampel) berhenti di nama modul.
+  - **Sidebar bisa diciutkan** menjadi ikon saja. Pilihannya disimpan di cookie `atara-sidebar`, sehingga server langsung merender lebar yang benar.
+
+Satu `AppShell` yang sama memilih tampilannya dari URL lewat `moduleForPath()` di `core/lib/app/modules.ts`. Sebuah halaman milik sebuah modul bila berada di bawah `basePath`-nya **atau** tercantum di `nav`-nya (contoh: `/users` milik modul Pengaturan). Halaman yang bukan milik modul mana pun, seperti `/home` dan `/help`, tampil tanpa sidebar.
 
 **Tiga lapisan kode:**
 
@@ -69,7 +79,7 @@ prisma/schema/<m>.prisma     Tabel modul.
 
 | File | Isi |
 | ---- | --- |
-| `src/modules/registry.ts` | Daftar manifest: menu, portal, panduan, tour, shell extras |
+| `src/modules/registry.ts` | Daftar manifest: menu, kartu pemilih aplikasi, panduan, tour, shell extras |
 | `src/modules/capabilities.ts` | Gabungan tabel capability (dibaca `can()`) |
 | `src/modules/messages.ts` | Katalog pesan per modul |
 | `src/modules/backup.ts` | Gabungan sheet backup |
@@ -244,8 +254,8 @@ Hasil uji: 34.000 baris tersimpan dalam ±10 detik.
 - Kunci `id.json` dan `en.json` harus sama; ini dicek test.
 - Namespace utama adalah nama fitur, misalnya `drilling`.
 - Modul boleh menambah bagian ke namespace bersama. Contoh:
-  - `nav.<itemKey>` dan `nav.groups.<modul>` untuk menu;
-  - `home.modules.<modul>` untuk kartu portal;
+  - `nav.<itemKey>` untuk item menu, dan `nav.groups.<modul>` untuk nama modul di atas sidebar;
+  - `home.modules.<modul>` (`name`, `description`) untuk kartu di pemilih aplikasi. Kartu juga menautkan langsung ke setiap halaman `nav` yang boleh dibuka persona (maksimal 6, sisanya "+n"). Kartu membuka `homePath`; bila persona tidak boleh membukanya, kartu membuka menu pertama yang boleh (`moduleEntryPath`);
   - `help.sections.<key>`, `tours.<key>`, dan `help.welcome.<PERSONA>`.
 
   Semuanya digabung otomatis (`core/i18n/merge.ts`).

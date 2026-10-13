@@ -11,7 +11,7 @@ import type { Capability, Persona } from "@/core/lib/auth/permissions";
  * tours) and on the server (portal, guide) alike.
  */
 
-/** One entry in the side menu. Its page checks the same capability (requireCapabilityPage). */
+/** One entry in the module's sidebar. Its page checks the same capability (requireCapabilityPage). */
 export interface NavItem {
   href: string;
   /** Message key under `nav`. */
@@ -58,10 +58,10 @@ export interface AppModule {
   key: string;
   /** Every page of the module lives under this path. */
   basePath: string;
-  /** The page its portal card opens. */
+  /** The page its card on the launcher opens (when this person may; else the first menu they may). */
   homePath: string;
   icon: IconType;
-  /** Who works in it: the people who see its card and its menu group. */
+  /** Who works in it: the people who see its card on the launcher. */
   personas: readonly Persona[];
   nav: readonly NavItem[];
   helpSections: readonly HelpSection[];
@@ -69,8 +69,9 @@ export interface AppModule {
   /** Pages under this prefix that are explained by a section without a menu entry. */
   helpFallbacks?: readonly { prefix: string; section: string }[];
   /**
-   * Pieces the shell renders for the module's people: in the header (a search
-   * box) or out of sight (a tracker). Lab-only things stay in the lab.
+   * Pieces the shell renders: in the header while the module is open (a
+   * search box), and out of sight for the module's people everywhere (a
+   * tracker). Lab-only things stay in the lab.
    */
   shell?: { header?: ComponentType; background?: ComponentType };
 }
