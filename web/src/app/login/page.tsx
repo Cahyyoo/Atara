@@ -69,15 +69,21 @@ export default async function LoginPage() {
 
         {/* A card on small screens, to lift the form off the grey; on the
             plain right half from lg up it needs no chrome of its own. */}
-        <Card className="flex w-full min-h-0 max-w-sm flex-col [--card-spacing:--spacing(5)] lg:bg-transparent lg:shadow-none lg:[--card-spacing:--spacing(0)]">
+        <Card className="flex w-full min-h-0 max-w-sm flex-col [--card-spacing:--spacing(5)] lg:overflow-visible lg:bg-transparent lg:shadow-none lg:[--card-spacing:--spacing(0)]">
           {/*
             The scrolling child, as a last resort rather than a habit.
 
             The camera above shrinks first, so on any ordinary window this
             never scrolls. It is here because content clipped off the bottom
             of a card is worse than content somebody can reach.
+
+            A scrolling box clips on every side, and a focus ring is drawn
+            3px outside its field: 4px of padding gives the ring room, and
+            the same 4px taken back as margin leaves every field where it
+            was. Sideways only from lg up, where the chromeless card has no
+            padding of its own (and so need not clip either).
           */}
-          <CardContent className="flex min-h-0 flex-col gap-4 overflow-y-auto">
+          <CardContent className="-my-1 flex min-h-0 flex-col gap-4 overflow-y-auto py-1 lg:-mx-1 lg:px-1">
             {/* The opening line belongs to the form, not to the page. It used
                 to live here and stayed put when the form moved to the face
                 step, so "Sign in to access the monitoring dashboard" sat above
