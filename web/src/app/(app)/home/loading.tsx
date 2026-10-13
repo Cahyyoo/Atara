@@ -1,5 +1,5 @@
-import { Skeleton } from "@/components/ui/skeleton";
-import { PageHeadingSkeleton } from "@/components/layout/page-skeleton";
+import { Skeleton } from "@/core/components/ui/skeleton";
+import { PageHeadingSkeleton } from "@/core/components/layout/page-skeleton";
 
 /** The greeting, then a card per module. */
 export default function HomeLoading() {

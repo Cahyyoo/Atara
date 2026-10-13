@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
 import { resolveSeedAccounts, type SeedAccount } from "./seed-policy";
-import type { Department, Role } from "../src/lib/permissions";
+import type { Department, Role } from "../src/core/lib/auth/permissions";
 
 const prisma = new PrismaClient();
 

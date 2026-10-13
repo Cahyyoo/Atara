@@ -4,7 +4,7 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 
-import en from "../../../../../../../messages/en.json";
+import { en } from "@/core/i18n/test-messages";
 import GenerateSamplePage from "@/app/(app)/lab/samples/generate/page";
 
 /** Printing opens a browser dialog jsdom has no business running. */

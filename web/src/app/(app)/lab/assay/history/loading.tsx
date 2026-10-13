@@ -1,4 +1,4 @@
-import { PageHeadingSkeleton } from "@/components/layout/page-skeleton";
+import { PageHeadingSkeleton } from "@/core/components/layout/page-skeleton";
 
 export default function ResultsHistoryLoading() {
   return (

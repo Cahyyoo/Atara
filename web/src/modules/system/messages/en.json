@@ -1,0 +1,274 @@
+{
+  "users": {
+    "title": "Users",
+    "subtitle": "Manage your department’s staff: who can sign in, and what they may do.",
+    "add": "Add User",
+    "searchPlaceholder": "Search name or email…",
+    "user": "User",
+    "email": "Email",
+    "role": "Role",
+    "created": "Created",
+    "you": "(you)",
+    "empty": "No users found.",
+    "noun": "users",
+    "statusActive": "Active",
+    "statusDeactivated": "Deactivated",
+    "statusLocked": "Locked",
+    "dialog": {
+      "addTitle": "Add User",
+      "editTitle": "Edit User",
+      "addDescription": "Each role only sees the modules and pages its work needs.",
+      "selfNote": "You cannot change your own role or status.",
+      "activeLabel": "Active",
+      "activeDescription": "Deactivated users cannot sign in, and existing sessions stop working immediately.",
+      "lockedNotice": "Locked out after too many failed sign-ins.",
+      "unlock": "Unlock now",
+      "emailPlaceholder": "name@atara.local",
+      "create": "Create User",
+      "save": "Save Changes",
+      "defaultPasswordNote": "The account starts on the {role} default password. The user has to replace it on their first sign-in.",
+      "noRoleDefault": "The {role} role has no default password yet.",
+      "noRoleDefaultLink": "Set it at the bottom of this page"
+    },
+    "verification": "Verification",
+    "moreActions": "More actions for {name}",
+    "sessions": {
+      "menuLabel": "Sessions",
+      "menuItem": "Signed-in devices",
+      "title": "Signed-in devices — {name}",
+      "description": "Where this account is signed in now, and the last few sessions that ended.",
+      "activeHeading": "Signed in now",
+      "recentHeading": "Recently ended",
+      "noneActive": "Not signed in anywhere.",
+      "web": "Web",
+      "mobile": "Mobile app",
+      "thisDevice": "You, here",
+      "unknownDevice": "Unknown device",
+      "since": "Since {time}",
+      "endedAt": "ended {time} ({reason})",
+      "end": "Sign out",
+      "endAll": "Sign out everywhere",
+      "confirmEndAll": "Yes, sign out everywhere",
+      "endAllHint": "{name} will be signed out on every device and has to sign in again.",
+      "ended": "{count, plural, =0 {Nothing to sign out} one {Signed out # session of {name}} other {Signed out # sessions of {name}}}.",
+      "reason": {
+        "REPLACED": "signed in elsewhere",
+        "LOGOUT": "signed out",
+        "ADMIN_ENDED": "by an administrator",
+        "PASSWORD_CHANGED": "password changed"
+      }
+    },
+    "mustChange": "Must change password",
+    "mustChangeHint": "This account is still on a password from an administrator (the role default) and will be asked to replace it at the next sign-in.",
+    "resetDefault": {
+      "menuLabel": "Password",
+      "menuItem": "Reset to default password",
+      "title": "Reset to default password",
+      "confirm": "{name}'s password goes back to the {role} default. Every device they are signed in on is signed out, and they must replace the password on their next sign-in.",
+      "action": "Reset password",
+      "done": "{name}'s password was reset to the default."
+    },
+    "department": "Department",
+    "adminsTitle": "Admin Accounts",
+    "adminsSubtitle": "Manage the admin account of each department. Each admin manages their own features and staff."
+  },
+  "signInAudit": {
+    "title": "Sign-in Audit",
+    "subtitle": "Who signed in, and what they proved besides a password.",
+    "noun": "attempts",
+    "empty": "No sign-in attempts match yet.",
+    "when": "When",
+    "who": "Who",
+    "result": "Result",
+    "verified": "Verified",
+    "verifiedFace": "Face",
+    "verifiedTotp": "Authenticator",
+    "verifiedNone": "—",
+    "address": "Address",
+    "addressUnknown": "—",
+    "from": "From",
+    "to": "To",
+    "allPeople": "Everyone",
+    "allOutcomes": "Every result",
+    "summaryTitle": "Per result",
+    "summaryHint": "Counted across every matching row, not just this page. Picking a result filters the list below; this row still shows all of them.",
+    "summaryEmpty": "No sign-in attempts match these filters.",
+    "outcomes": {
+      "FACE_VERIFIED": "Signed in with face",
+      "TOTP_VERIFIED": "Signed in with a code",
+      "TOTP_ENROLLED": "Authenticator set up",
+      "PASSWORD_ONLY": "Password only",
+      "FACE_MISMATCH": "Face did not match",
+      "TOTP_MISMATCH": "Wrong code",
+      "FACE_UNREADABLE": "Face not readable",
+      "FACE_SERVICE_DOWN": "Face service unavailable",
+      "PASSWORD_FAILED": "Wrong password",
+      "ACCOUNT_LOCKED": "Account locked",
+      "ACCOUNT_INACTIVE": "Account deactivated",
+      "SESSION_REPLACED": "Signed out by another device",
+      "PASSWORD_CHANGED": "Password changed",
+      "SESSION_ENDED_BY_ADMIN": "Signed out by an administrator"
+    }
+  },
+  "admin": {
+    "title": "Administration",
+    "subtitle": "Announcements above every page, and a full backup of every module’s data.",
+    "rolePasswords": {
+      "title": "Default password per role",
+      "description": "Every new account starts on its role's default, and a forgotten password is reset to it. The person then has to replace it on their next sign-in.",
+      "set": "Set",
+      "notSet": "Not set",
+      "notSetHint": "Accounts of this role cannot be created or reset yet.",
+      "setAt": "Updated {when} by {by}",
+      "setAction": "Set",
+      "change": "Change",
+      "editFor": "Set the default password for {role}",
+      "note": "Stored encrypted and never shown again. A change applies to new accounts and later resets only; accounts already on the old default keep it.",
+      "dialogTitle": "Default password for {role}",
+      "dialogDescription": "Write it down somewhere safe to pass on to new users: it cannot be shown again after saving.",
+      "password": "Default password",
+      "confirm": "Confirm default password",
+      "hint": "At least 8 characters.",
+      "show": "Show password",
+      "hide": "Hide password",
+      "tooShort": "The password must be at least 8 characters.",
+      "mismatch": "The passwords do not match.",
+      "save": "Save",
+      "saved": "Default password for {role} saved."
+    }
+  },
+  "announcements": {
+    "title": "Announcements",
+    "description": "A banner above every page, for everybody or for some roles. Info can be closed by each reader; a warning stays up until it ends.",
+    "message": "Message",
+    "messagePlaceholder": "e.g. XRF maintenance tomorrow 08:00–10:00. Hold analysis samples until then.",
+    "tone": "Type",
+    "tones": {
+      "INFO": "Info",
+      "WARNING": "Warning"
+    },
+    "roles": "Shown to",
+    "rolesHint": "Tick none to show it to everybody.",
+    "startsAt": "Starts (WITA)",
+    "endsAt": "Ends (WITA)",
+    "timesHint": "Leave the start empty to show it now, and the end empty to keep it until you end it.",
+    "publish": "Publish",
+    "save": "Save changes",
+    "created": "Announcement published.",
+    "saved": "Announcement saved.",
+    "ended": "Announcement ended.",
+    "deleted": "Announcement deleted.",
+    "empty": "No announcements yet.",
+    "everyone": "Everybody",
+    "untilEnded": "until ended",
+    "window": "{start} → {end}",
+    "status": {
+      "active": "Showing",
+      "scheduled": "Scheduled",
+      "ended": "Ended"
+    },
+    "endNow": "End now",
+    "delete": "Delete"
+  },
+  "backup": {
+    "title": "Backup",
+    "description": "Everything in one Excel workbook: every sample with its results (deleted ones included and marked), the stage log, result changes, master data, stages and users.",
+    "samples": "Samples",
+    "logs": "Stage log",
+    "changes": "Result changes",
+    "masterOptions": "Master codes",
+    "users": "Users",
+    "excluded": "Not included: passwords, authenticator secrets, face readings and sign-in sessions. Keep the file somewhere safe; it holds every result.",
+    "download": "Download backup",
+    "preparing": "Preparing…",
+    "done": "Backup downloaded."
+  },
+  "help": {
+    "sections": {
+      "users": {
+        "title": "Users",
+        "intro": "The Super Admin manages each department’s admin accounts; the Lab Admin manages the lab staff.",
+        "steps": {
+          "1": "Add a user with a role (and a department, for the Super Admin); Edit changes the role, resets the password, unlocks or deactivates.",
+          "2": "From the ⋯ menu: enrol a face, require an authenticator app, or see the devices signed in.",
+          "3": "Each role’s default password is set at the bottom of this page."
+        },
+        "tip": "Resetting a password signs that person out on every device, so use it when a password may be known to someone else."
+      },
+      "admin": {
+        "title": "Administration",
+        "intro": "Announcements above every page, the sign-in audit, and the full backup.",
+        "steps": {
+          "1": "Write an announcement, choose Info or Warning and who sees it; set start and end, or leave them empty.",
+          "2": "End now takes it down but keeps it in the list; Delete removes it.",
+          "3": "Sign-in Audit shows who signed in, from where, and who was refused, across every department.",
+          "4": "Download backup gives one Excel file with all the data, without passwords or secrets."
+        }
+      }
+    },
+    "welcome": {
+      "SUPER_ADMIN": {
+        "steps": {
+          "1": {
+            "title": "You look after the admins",
+            "body": "Admin Accounts is where each department’s admin is created and managed: Lab and Exploration. Each admin runs their own module."
+          },
+          "2": {
+            "title": "System settings",
+            "body": "Administration posts announcements and downloads backups; Sign-in Audit shows who signed in."
+          },
+          "3": {
+            "title": "Help is always here",
+            "body": "Press ? at the top of any page for the part of the guide about it."
+          }
+        }
+      }
+    }
+  },
+  "tours": {
+    "users": {
+      "1": {
+        "title": "Find a user",
+        "body": "Search by name or email."
+      },
+      "2": {
+        "title": "Add a user",
+        "body": "Create an account with its role. Saved when you press Save in the form."
+      },
+      "3": {
+        "title": "Verification",
+        "body": "Shows whether a face or an authenticator app is active for the account."
+      },
+      "4": {
+        "title": "Edit",
+        "body": "Change the role, reset the password, unlock or deactivate."
+      },
+      "5": {
+        "title": "More",
+        "body": "Enrol a face, manage the authenticator, or see the devices signed in."
+      }
+    },
+    "admin": {
+      "1": {
+        "title": "Write an announcement",
+        "body": "A short message shown above every page."
+      },
+      "2": {
+        "title": "Type and audience",
+        "body": "Info can be closed by readers; a Warning stays up. Tick roles, or none for everybody."
+      },
+      "3": {
+        "title": "Schedule",
+        "body": "Set when it starts and ends (WITA), or leave them empty."
+      },
+      "4": {
+        "title": "Publish",
+        "body": "The announcement shows to its audience straight away."
+      },
+      "5": {
+        "title": "Backup",
+        "body": "Download all the data as one Excel file, without passwords or secrets."
+      }
+    }
+  }
+}

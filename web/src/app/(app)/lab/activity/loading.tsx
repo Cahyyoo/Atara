@@ -1,6 +1,6 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { PageHeadingSkeleton, TableCardSkeleton } from "@/components/layout/page-skeleton";
+import { Card, CardContent, CardHeader } from "@/core/components/ui/card";
+import { Skeleton } from "@/core/components/ui/skeleton";
+import { PageHeadingSkeleton, TableCardSkeleton } from "@/core/components/layout/page-skeleton";
 
 /** A summary row of people, then the trail itself: time, sample, stage, by, correction, notes. */
 export default function StageActivityLoading() {

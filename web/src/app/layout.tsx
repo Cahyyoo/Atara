@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
-import { APP_NAME } from "@/lib/brand";
+import { APP_NAME } from "@/core/lib/app/brand";
 import { Geist, Geist_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
-import { getTheme } from "@/lib/theme-server";
-import { ThemeProvider } from "@/components/layout/theme-provider";
-import { Toaster } from "@/components/ui/toast";
+import { getTheme } from "@/core/lib/ui/theme-server";
+import { ThemeProvider } from "@/core/components/layout/theme-provider";
+import { Toaster } from "@/core/components/ui/toast";
+import { isLocale, DEFAULT_LOCALE } from "@/core/i18n/config";
+import { coreMessages } from "@/core/i18n/catalogue";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -39,7 +41,9 @@ export default async function RootLayout({
       className={`${theme} ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <NextIntlClientProvider>
+        {/* The shared words only. The app's layouts add the modules each
+            person works in (catalogue.ts), so no page carries all of them. */}
+        <NextIntlClientProvider messages={coreMessages(isLocale(locale) ? locale : DEFAULT_LOCALE)}>
           <ThemeProvider theme={theme}>
             {children}
             {/* At the root, not inside the app shell: login lives outside it,

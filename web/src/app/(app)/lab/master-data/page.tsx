@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
-import { requireCapabilityPage } from "@/lib/page-auth";
-import { MasterDataTables } from "@/components/master/master-data-tables";
+import { requireCapabilityPage } from "@/core/lib/http/page-auth";
+import { MasterDataTables } from "@/modules/lab/components/master/master-data-tables";
 
 export const dynamic = "force-dynamic";
 

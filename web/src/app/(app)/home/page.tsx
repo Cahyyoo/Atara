@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { Badge } from "@/components/ui/badge";
-import { requireSessionPage } from "@/lib/page-auth";
-import { modulesFor } from "@/lib/modules";
-import { DEPARTMENT_LABEL_KEYS, personaLabelKeys } from "@/lib/role-labels";
+import { Badge } from "@/core/components/ui/badge";
+import { requireSessionPage } from "@/core/lib/http/page-auth";
+import { modulesFor } from "@/core/lib/app/modules";
+import { DEPARTMENT_LABEL_KEYS, personaLabelKeys } from "@/core/lib/auth/role-labels";
 import { IoArrowForward } from "react-icons/io5";
 
 export const dynamic = "force-dynamic";

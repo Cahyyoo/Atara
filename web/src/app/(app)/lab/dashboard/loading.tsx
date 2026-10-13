@@ -1,6 +1,6 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { PageHeadingSkeleton, TableCardSkeleton } from "@/components/layout/page-skeleton";
+import { Card, CardContent, CardHeader } from "@/core/components/ui/card";
+import { Skeleton } from "@/core/components/ui/skeleton";
+import { PageHeadingSkeleton, TableCardSkeleton } from "@/core/components/layout/page-skeleton";
 
 /**
  * The heaviest page in the app: six KPI tiles, five charts and a table, behind

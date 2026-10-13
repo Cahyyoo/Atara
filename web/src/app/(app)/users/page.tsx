@@ -1,8 +1,8 @@
 import { getTranslations } from "next-intl/server";
-import { requireCapabilityPage } from "@/lib/page-auth";
-import { personaOf } from "@/lib/permissions";
-import { UsersTable } from "@/components/users/users-table";
-import { RolePasswordDefaults } from "@/components/admin/role-password-defaults";
+import { requireCapabilityPage } from "@/core/lib/http/page-auth";
+import { personaOf } from "@/core/lib/auth/permissions";
+import { UsersTable } from "@/modules/system/components/users/users-table";
+import { RolePasswordDefaults } from "@/modules/system/components/admin/role-password-defaults";
 
 export const dynamic = "force-dynamic";
 

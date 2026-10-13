@@ -1,8 +1,8 @@
 import { PrismaClient, type SampleStatus } from "@prisma/client";
-import { generateSampleCodes } from "@/lib/sample-code";
-import { allocateLabCodes } from "@/lib/lab-code";
-import { getShiftDate, SHIFT_START_HOUR, SHIFT_TIMEZONE_OFFSET_MINUTES } from "@/lib/shift-date";
-import { composeSampleIdent } from "@/lib/sample-ident";
+import { generateSampleCodes } from "@/modules/lab/lib/samples/sample-code";
+import { allocateLabCodes } from "@/modules/lab/lib/samples/lab-code";
+import { getShiftDate, SHIFT_START_HOUR, SHIFT_TIMEZONE_OFFSET_MINUTES } from "@/modules/lab/lib/stages/shift-date";
+import { composeSampleIdent } from "@/modules/lab/lib/samples/sample-ident";
 import { createRandom, DUMMY_REMARKS, dummyInstrument, dummyResults, dummyWeights } from "./dummy-values";
 
 const prisma = new PrismaClient();

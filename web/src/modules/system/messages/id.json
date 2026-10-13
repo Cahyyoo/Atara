@@ -1,0 +1,274 @@
+{
+  "users": {
+    "title": "Pengguna",
+    "subtitle": "Atur staf departemen Anda: siapa yang bisa masuk dan apa yang boleh mereka lakukan.",
+    "add": "Tambah Pengguna",
+    "searchPlaceholder": "Cari nama atau email…",
+    "user": "Pengguna",
+    "email": "Email",
+    "role": "Peran",
+    "created": "Dibuat",
+    "you": "(Anda)",
+    "empty": "Tidak ada pengguna ditemukan.",
+    "noun": "pengguna",
+    "statusActive": "Aktif",
+    "statusDeactivated": "Dinonaktifkan",
+    "statusLocked": "Terkunci",
+    "dialog": {
+      "addTitle": "Tambah Pengguna",
+      "editTitle": "Ubah Pengguna",
+      "addDescription": "Setiap peran hanya melihat modul dan halaman yang dibutuhkan pekerjaannya.",
+      "selfNote": "Anda tidak bisa mengubah peran atau status akun sendiri.",
+      "activeLabel": "Aktif",
+      "activeDescription": "Pengguna yang dinonaktifkan tidak bisa masuk, dan sesi yang sedang berjalan langsung berhenti.",
+      "lockedNotice": "Terkunci setelah terlalu banyak percobaan masuk yang gagal.",
+      "unlock": "Buka kunci sekarang",
+      "emailPlaceholder": "nama@atara.local",
+      "create": "Buat Pengguna",
+      "save": "Simpan Perubahan",
+      "defaultPasswordNote": "Akun memakai password default role {role}. User wajib menggantinya saat login pertama.",
+      "noRoleDefault": "Role {role} belum punya password default.",
+      "noRoleDefaultLink": "Atur di bagian bawah halaman ini"
+    },
+    "verification": "Verifikasi",
+    "moreActions": "Aksi lain untuk {name}",
+    "sessions": {
+      "menuLabel": "Sesi",
+      "menuItem": "Perangkat yang masuk",
+      "title": "Perangkat yang masuk — {name}",
+      "description": "Di mana akun ini sedang masuk, dan beberapa sesi terakhir yang sudah berakhir.",
+      "activeHeading": "Sedang masuk",
+      "recentHeading": "Baru berakhir",
+      "noneActive": "Tidak sedang masuk di mana pun.",
+      "web": "Web",
+      "mobile": "Aplikasi mobile",
+      "thisDevice": "Anda, di sini",
+      "unknownDevice": "Perangkat tidak dikenal",
+      "since": "Sejak {time}",
+      "endedAt": "berakhir {time} ({reason})",
+      "end": "Keluarkan",
+      "endAll": "Keluarkan dari semua perangkat",
+      "confirmEndAll": "Ya, keluarkan dari semua",
+      "endAllHint": "{name} akan dikeluarkan dari semua perangkat dan harus masuk lagi.",
+      "ended": "{count, plural, =0 {Tidak ada sesi yang diakhiri} other {# sesi {name} diakhiri}}.",
+      "reason": {
+        "REPLACED": "masuk di perangkat lain",
+        "LOGOUT": "keluar",
+        "ADMIN_ENDED": "oleh admin",
+        "PASSWORD_CHANGED": "password diubah"
+      }
+    },
+    "mustChange": "Wajib ganti password",
+    "mustChangeHint": "Akun ini masih memakai password dari admin (default role), dan akan diminta menggantinya saat login berikutnya.",
+    "resetDefault": {
+      "menuLabel": "Password",
+      "menuItem": "Reset ke password default",
+      "title": "Reset ke password default",
+      "confirm": "Password {name} dikembalikan ke password default role {role}. Semua perangkat yang sedang login akan dikeluarkan, dan ia wajib mengganti password saat login berikutnya.",
+      "action": "Reset password",
+      "done": "Password {name} direset ke default."
+    },
+    "department": "Departemen",
+    "adminsTitle": "Akun Admin",
+    "adminsSubtitle": "Kelola akun admin setiap departemen. Setiap admin mengelola fitur dan stafnya sendiri."
+  },
+  "signInAudit": {
+    "title": "Riwayat Masuk",
+    "subtitle": "Siapa yang masuk, dan apa yang dibuktikan selain kata sandi.",
+    "noun": "percobaan",
+    "empty": "Belum ada percobaan masuk yang cocok.",
+    "when": "Waktu",
+    "who": "Siapa",
+    "result": "Hasil",
+    "verified": "Terverifikasi",
+    "verifiedFace": "Wajah",
+    "verifiedTotp": "Authenticator",
+    "verifiedNone": "—",
+    "address": "Alamat",
+    "addressUnknown": "—",
+    "from": "Dari tanggal",
+    "to": "Sampai tanggal",
+    "allPeople": "Semua orang",
+    "allOutcomes": "Semua hasil",
+    "summaryTitle": "Ringkasan per hasil",
+    "summaryHint": "Dihitung dari seluruh hasil saringan, bukan hanya halaman ini. Memilih satu hasil menyaring daftarnya, tapi ringkasan ini tetap menampilkan semuanya.",
+    "summaryEmpty": "Tidak ada percobaan masuk pada saringan ini.",
+    "outcomes": {
+      "FACE_VERIFIED": "Masuk dengan wajah",
+      "TOTP_VERIFIED": "Masuk dengan kode",
+      "TOTP_ENROLLED": "Authenticator didaftarkan",
+      "PASSWORD_ONLY": "Kata sandi saja",
+      "FACE_MISMATCH": "Wajah tidak cocok",
+      "TOTP_MISMATCH": "Kode salah",
+      "FACE_UNREADABLE": "Wajah tidak terbaca",
+      "FACE_SERVICE_DOWN": "Layanan wajah mati",
+      "PASSWORD_FAILED": "Kata sandi salah",
+      "ACCOUNT_LOCKED": "Akun terkunci",
+      "ACCOUNT_INACTIVE": "Akun nonaktif",
+      "SESSION_REPLACED": "Dikeluarkan oleh perangkat lain",
+      "PASSWORD_CHANGED": "Password diganti",
+      "SESSION_ENDED_BY_ADMIN": "Dikeluarkan oleh admin"
+    }
+  },
+  "admin": {
+    "title": "Administrasi",
+    "subtitle": "Pengumuman di atas semua halaman, dan backup lengkap data seluruh modul.",
+    "rolePasswords": {
+      "title": "Password default per role",
+      "description": "Setiap akun baru memakai password default role-nya, dan password yang lupa direset ke password ini. User wajib menggantinya saat login berikutnya.",
+      "set": "Sudah diatur",
+      "notSet": "Belum diatur",
+      "notSetHint": "Akun dengan role ini belum bisa dibuat atau direset.",
+      "setAt": "Diperbarui {when} oleh {by}",
+      "setAction": "Atur",
+      "change": "Ganti",
+      "editFor": "Atur password default untuk {role}",
+      "note": "Disimpan terenkripsi dan tidak bisa dilihat lagi. Perubahan hanya berlaku untuk akun baru dan reset berikutnya; akun yang masih memakai default lama tetap memakainya.",
+      "dialogTitle": "Password default {role}",
+      "dialogDescription": "Catat di tempat aman untuk diberikan ke user baru: setelah disimpan, password ini tidak bisa ditampilkan lagi.",
+      "password": "Password default",
+      "confirm": "Ulangi password default",
+      "hint": "Minimal 8 karakter.",
+      "show": "Tampilkan password",
+      "hide": "Sembunyikan password",
+      "tooShort": "Password minimal 8 karakter.",
+      "mismatch": "Password tidak sama.",
+      "save": "Simpan",
+      "saved": "Password default {role} disimpan."
+    }
+  },
+  "announcements": {
+    "title": "Pengumuman",
+    "description": "Banner di atas semua halaman, untuk semua orang atau peran tertentu. Info bisa ditutup oleh tiap pembaca; peringatan tetap tampil sampai berakhir.",
+    "message": "Pesan",
+    "messagePlaceholder": "mis. Maintenance XRF besok 08.00–10.00. Tahan sampel analisis sampai selesai.",
+    "tone": "Jenis",
+    "tones": {
+      "INFO": "Info",
+      "WARNING": "Peringatan"
+    },
+    "roles": "Ditampilkan ke",
+    "rolesHint": "Kosongkan semua untuk menampilkan ke semua orang.",
+    "startsAt": "Mulai (WITA)",
+    "endsAt": "Selesai (WITA)",
+    "timesHint": "Kosongkan waktu mulai untuk tampil sekarang, dan waktu selesai agar tampil sampai Anda akhiri.",
+    "publish": "Terbitkan",
+    "save": "Simpan perubahan",
+    "created": "Pengumuman diterbitkan.",
+    "saved": "Pengumuman disimpan.",
+    "ended": "Pengumuman diakhiri.",
+    "deleted": "Pengumuman dihapus.",
+    "empty": "Belum ada pengumuman.",
+    "everyone": "Semua orang",
+    "untilEnded": "sampai diakhiri",
+    "window": "{start} → {end}",
+    "status": {
+      "active": "Tampil",
+      "scheduled": "Terjadwal",
+      "ended": "Berakhir"
+    },
+    "endNow": "Akhiri sekarang",
+    "delete": "Hapus"
+  },
+  "backup": {
+    "title": "Backup",
+    "description": "Semua data dalam satu file Excel: setiap sampel beserta hasilnya (termasuk yang dihapus, ditandai), riwayat tahap, perubahan hasil, master data, tahap, dan pengguna.",
+    "samples": "Sampel",
+    "logs": "Riwayat tahap",
+    "changes": "Perubahan hasil",
+    "masterOptions": "Kode master",
+    "users": "Pengguna",
+    "excluded": "Tidak disertakan: password, rahasia authenticator, data wajah, dan sesi login. Simpan file di tempat aman; isinya semua hasil uji.",
+    "download": "Unduh backup",
+    "preparing": "Menyiapkan…",
+    "done": "Backup diunduh."
+  },
+  "help": {
+    "sections": {
+      "users": {
+        "title": "Pengguna",
+        "intro": "Super Admin mengelola akun admin tiap departemen; Admin Lab mengelola staf lab.",
+        "steps": {
+          "1": "Tambah pengguna dengan perannya (dan departemennya, untuk Super Admin); Ubah untuk mengganti peran, reset password, membuka kunci, atau menonaktifkan.",
+          "2": "Dari menu ⋯: daftarkan wajah, wajibkan aplikasi authenticator, atau lihat perangkat yang sedang masuk.",
+          "3": "Password default setiap peran diatur di bagian bawah halaman ini."
+        },
+        "tip": "Reset password mengeluarkan orang itu dari semua perangkat, jadi pakai bila password mungkin diketahui orang lain."
+      },
+      "admin": {
+        "title": "Administrasi",
+        "intro": "Pengumuman di atas semua halaman, audit login, dan backup lengkap.",
+        "steps": {
+          "1": "Tulis pengumuman, pilih Info atau Peringatan dan siapa yang melihat; atur mulai dan selesai, atau biarkan kosong.",
+          "2": "Akhiri sekarang menurunkan pengumuman tapi tetap di daftar; Hapus membuangnya.",
+          "3": "Audit Login menunjukkan siapa masuk, dari mana, dan siapa yang ditolak, untuk semua departemen.",
+          "4": "Unduh backup memberi satu file Excel berisi semua data, tanpa password atau rahasia."
+        }
+      }
+    },
+    "welcome": {
+      "SUPER_ADMIN": {
+        "steps": {
+          "1": {
+            "title": "Anda mengelola para admin",
+            "body": "Akun Admin untuk membuat dan mengelola admin setiap departemen: Lab dan Eksplorasi. Setiap admin mengelola modulnya sendiri."
+          },
+          "2": {
+            "title": "Pengaturan sistem",
+            "body": "Administrasi memasang pengumuman dan mengunduh backup; Audit Login menunjukkan siapa yang masuk."
+          },
+          "3": {
+            "title": "Bantuan selalu ada",
+            "body": "Tekan ? di atas halaman mana pun untuk panduan halaman itu."
+          }
+        }
+      }
+    }
+  },
+  "tours": {
+    "users": {
+      "1": {
+        "title": "Cari pengguna",
+        "body": "Cari dengan nama atau email."
+      },
+      "2": {
+        "title": "Tambah pengguna",
+        "body": "Buat akun baru beserta perannya. Tersimpan setelah Anda menekan Simpan di formulir."
+      },
+      "3": {
+        "title": "Cara verifikasi",
+        "body": "Menunjukkan apakah wajah atau aplikasi authenticator sudah aktif untuk akun itu."
+      },
+      "4": {
+        "title": "Ubah",
+        "body": "Ganti peran, reset password, buka kunci, atau nonaktifkan."
+      },
+      "5": {
+        "title": "Menu lainnya",
+        "body": "Daftarkan wajah, kelola authenticator, atau lihat perangkat yang sedang masuk."
+      }
+    },
+    "admin": {
+      "1": {
+        "title": "Tulis pengumuman",
+        "body": "Pesan singkat yang tampil di atas semua halaman."
+      },
+      "2": {
+        "title": "Jenis & penerima",
+        "body": "Info bisa ditutup pembaca; Peringatan tetap tampil. Centang peran tertentu, atau kosongkan untuk semua."
+      },
+      "3": {
+        "title": "Jadwal",
+        "body": "Atur kapan mulai dan berakhir (WITA), atau kosongkan."
+      },
+      "4": {
+        "title": "Terbitkan",
+        "body": "Pengumuman langsung tampil untuk penerimanya."
+      },
+      "5": {
+        "title": "Backup",
+        "body": "Unduh semua data dalam satu file Excel, tanpa password atau rahasia."
+      }
+    }
+  }
+}

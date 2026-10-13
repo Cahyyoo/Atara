@@ -1,5 +1,5 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from "@/core/components/ui/card";
+import { Skeleton } from "@/core/components/ui/skeleton";
 
 /** The brand, then a card of three password fields and two buttons. */
 export default function ChangePasswordLoading() {

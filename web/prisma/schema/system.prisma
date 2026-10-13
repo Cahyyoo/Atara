@@ -1,0 +1,42 @@
+// System module: default passwords per role, announcements.
+
+/// The password every new account of a role starts on, and the one an
+/// administrator resets a forgotten password to. Only its hash is kept: once
+/// set, nobody can read it back. Whoever is given it replaces it on their
+/// next sign-in (`User.mustChangePassword`).
+model RolePasswordDefault {
+  role         UserRole @id
+  passwordHash String   @map("password_hash")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  updatedById  String?  @map("updated_by")
+  updatedBy    User?    @relation("RolePasswordDefaultSetBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@map("role_password_defaults")
+}
+
+/// How loudly an announcement speaks: INFO can be closed by each reader,
+/// WARNING stays up until it ends.
+enum AnnouncementTone {
+  INFO
+  WARNING
+}
+
+/// A banner an administrator puts above every page for a while: "XRF
+/// maintenance tomorrow 08:00".
+model Announcement {
+  id          String           @id @default(cuid())
+  message     String           @db.Text
+  tone        AnnouncementTone @default(INFO)
+  /// Null for everybody; otherwise the role names that see it.
+  roles       Json?
+  startsAt    DateTime         @default(now()) @map("starts_at")
+  /// Null runs until somebody ends it.
+  endsAt      DateTime?        @map("ends_at")
+  createdById String           @map("created_by")
+  createdBy   User             @relation("AnnouncementAuthor", fields: [createdById], references: [id])
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  @@index([startsAt, endsAt])
+  @@map("announcements")
+}

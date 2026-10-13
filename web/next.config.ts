@@ -2,7 +2,9 @@ import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 import { version } from "./package.json";
 
-const withNextIntl = createNextIntlPlugin();
+// The request config lives with the rest of the shared code, not at the
+// plugin's default src/i18n/request.ts.
+const withNextIntl = createNextIntlPlugin("./src/core/i18n/request.ts");
 
 const isProduction = process.env.NODE_ENV === "production";
 

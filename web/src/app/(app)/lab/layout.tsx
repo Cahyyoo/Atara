@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { requireCapabilityPage } from "@/lib/page-auth";
+import { requireCapabilityPage } from "@/core/lib/http/page-auth";
 
 /**
  * The lab module: sample monitoring. Only the lab's people come in; everybody

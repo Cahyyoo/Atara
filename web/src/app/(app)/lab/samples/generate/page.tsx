@@ -4,23 +4,23 @@ import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useReactToPrint } from "react-to-print";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/core/components/ui/button";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
   CardDescription,
-} from "@/components/ui/card";
-import { GenerateForm } from "@/components/samples/generate-form";
-import { PrintLabelGrid, clampCopies } from "@/components/samples/print-label-grid";
+} from "@/core/components/ui/card";
+import { GenerateForm } from "@/modules/lab/components/samples/generate-form";
+import { PrintLabelGrid, clampCopies } from "@/modules/lab/components/samples/print-label-grid";
 import {
   LabelPrintControls,
   useLabelPrintSettings,
-} from "@/components/samples/label-print-controls";
-import { StatusBadge } from "@/components/samples/status-badge";
-import { LABEL_PAGE_STYLE } from "@/components/samples/label-print-style";
-import type { SampleListItemDTO } from "@/types";
+} from "@/modules/lab/components/samples/label-print-controls";
+import { StatusBadge } from "@/modules/lab/components/samples/status-badge";
+import { LABEL_PAGE_STYLE } from "@/modules/lab/components/samples/label-print-style";
+import type { SampleListItemDTO } from "@/modules/lab/types";
 import { IoArrowBack, IoArrowForward, IoCheckboxOutline, IoPrintOutline, IoSquareOutline } from "react-icons/io5";
 
 export default function GenerateSamplePage() {

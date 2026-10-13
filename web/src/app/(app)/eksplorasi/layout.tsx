@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { requireCapabilityPage } from "@/lib/page-auth";
+import { requireCapabilityPage } from "@/core/lib/http/page-auth";
 
 /**
  * The Eksplorasi module. Only its people come in; everybody else is sent back

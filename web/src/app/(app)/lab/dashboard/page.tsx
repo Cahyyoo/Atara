@@ -1,15 +1,16 @@
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
-import { DashboardOverview } from "@/components/dashboard/dashboard-overview";
-import { MyScansCard } from "@/components/dashboard/my-scans-card";
-import { SamplesTable } from "@/components/samples/samples-table";
-import { requireCapabilityPage } from "@/lib/page-auth";
-import { cachedAnalytics } from "@/lib/analytics-cache";
-import { resolveAnalyticsRange } from "@/lib/analytics-range";
-import { can, isLabPersona, personaOf } from "@/lib/permissions";
-import { dashboardLayoutFor } from "@/lib/dashboard-layout";
-import { loadShiftScanSummary } from "@/lib/my-scans";
+import { DashboardOverview } from "@/modules/lab/components/dashboard/dashboard-overview";
+import { MyScansCard } from "@/modules/lab/components/dashboard/my-scans-card";
+import { SamplesTable } from "@/modules/lab/components/samples/samples-table";
+import { requireCapabilityPage } from "@/core/lib/http/page-auth";
+import { cachedAnalytics } from "@/modules/lab/lib/analytics/analytics-cache";
+import { resolveAnalyticsRange } from "@/modules/lab/lib/analytics/analytics-range";
+import { can, personaOf } from "@/core/lib/auth/permissions";
+import { isLabPersona } from "@/modules/lab/capabilities";
+import { dashboardLayoutFor } from "@/modules/lab/lib/analytics/dashboard-layout";
+import { loadShiftScanSummary } from "@/modules/lab/lib/stages/my-scans";
 
 export const dynamic = "force-dynamic";
 

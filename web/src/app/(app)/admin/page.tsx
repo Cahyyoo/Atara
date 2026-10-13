@@ -1,8 +1,8 @@
 import { getTranslations } from "next-intl/server";
-import { AnnouncementsManager } from "@/components/admin/announcements-manager";
-import { BackupPanel } from "@/components/admin/backup-panel";
-import { requireCapabilityPage } from "@/lib/page-auth";
-import { can } from "@/lib/permissions";
+import { AnnouncementsManager } from "@/modules/system/components/admin/announcements-manager";
+import { BackupPanel } from "@/modules/system/components/admin/backup-panel";
+import { requireCapabilityPage } from "@/core/lib/http/page-auth";
+import { can } from "@/core/lib/auth/permissions";
 
 export const dynamic = "force-dynamic";
 

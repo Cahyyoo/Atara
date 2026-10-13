@@ -1,5 +1,5 @@
 import { PrismaClient, type Prisma } from "@prisma/client";
-import { composeSampleIdent } from "../src/lib/sample-ident";
+import { composeSampleIdent } from "../src/modules/lab/lib/samples/sample-ident";
 import { createRandom, dummyInstrument, dummyResults, dummyWeights } from "./dummy-values";
 
 /**

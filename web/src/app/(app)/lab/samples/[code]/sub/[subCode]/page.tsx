@@ -1,15 +1,15 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BackLink } from "@/components/samples/back-link";
-import { LabRecordPanel } from "@/components/samples/lab-record-panel";
-import { toLabRecordDTO } from "@/lib/lab-record";
-import { requireCapabilityPage } from "@/lib/page-auth";
-import { can } from "@/lib/permissions";
-import { subSamplePath, samplePath } from "@/lib/sample-ident";
-import { loadSubSampleDetail } from "@/lib/sub-sample-detail";
-import type { LabRecordAuditDTO } from "@/types";
+import { Card, CardContent, CardHeader, CardTitle } from "@/core/components/ui/card";
+import { BackLink } from "@/modules/lab/components/samples/back-link";
+import { LabRecordPanel } from "@/modules/lab/components/samples/lab-record-panel";
+import { toLabRecordDTO } from "@/modules/lab/lib/records/lab-record";
+import { requireCapabilityPage } from "@/core/lib/http/page-auth";
+import { can } from "@/core/lib/auth/permissions";
+import { subSamplePath, samplePath } from "@/modules/lab/lib/samples/sample-ident";
+import { loadSubSampleDetail } from "@/modules/lab/lib/records/sub-sample-detail";
+import type { LabRecordAuditDTO } from "@/modules/lab/types";
 import { IoArrowUp, IoCalendarOutline, IoGitBranchOutline } from "react-icons/io5";
 
 export const dynamic = "force-dynamic";

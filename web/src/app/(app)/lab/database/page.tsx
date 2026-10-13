@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
-import { LabRecordsTable } from "@/components/shared/lab-records-table";
-import { requireCapabilityPage } from "@/lib/page-auth";
-import { can } from "@/lib/permissions";
+import { LabRecordsTable } from "@/modules/lab/components/shared/lab-records-table";
+import { requireCapabilityPage } from "@/core/lib/http/page-auth";
+import { can } from "@/core/lib/auth/permissions";
 
 export const dynamic = "force-dynamic";
 

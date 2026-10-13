@@ -1,5 +1,7 @@
-import { requireCapabilityPage } from "@/lib/page-auth";
-import { ActivityTabs } from "@/components/activity/activity-tabs";
+import { getTranslations } from "next-intl/server";
+import { requireCapabilityPage } from "@/core/lib/http/page-auth";
+import { PageHeader } from "@/core/components/layout/page-header";
+import { SignInAuditTable } from "@/modules/system/components/activity/sign-in-audit-table";
 
 export const dynamic = "force-dynamic";
 
@@ -9,5 +11,12 @@ export const dynamic = "force-dynamic";
  */
 export default async function SignInsPage() {
   await requireCapabilityPage("viewSignInAudit");
-  return <ActivityTabs stages={[]} tabs={["signIn"]} />;
+  const t = await getTranslations("signInAudit");
+
+  return (
+    <div className="flex flex-col gap-6">
+      <PageHeader title={t("title")} subtitle={t("subtitle")} />
+      <SignInAuditTable />
+    </div>
+  );
 }

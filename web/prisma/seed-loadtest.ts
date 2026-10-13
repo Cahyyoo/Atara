@@ -22,9 +22,9 @@ import fs from "node:fs";
 import path from "node:path";
 import bcrypt from "bcryptjs";
 import { PrismaClient, type Prisma, type SampleStatus } from "@prisma/client";
-import { formatLabCode } from "@/lib/lab-code";
-import { getShiftDate, SHIFT_START_HOUR, SHIFT_TIMEZONE_OFFSET_MINUTES } from "@/lib/shift-date";
-import { composeSampleIdent } from "@/lib/sample-ident";
+import { formatLabCode } from "@/modules/lab/lib/samples/lab-code";
+import { getShiftDate, SHIFT_START_HOUR, SHIFT_TIMEZONE_OFFSET_MINUTES } from "@/modules/lab/lib/stages/shift-date";
+import { composeSampleIdent } from "@/modules/lab/lib/samples/sample-ident";
 import { createRandom, dummyInstrument, dummyResults, dummyWeights } from "./dummy-values";
 
 const prisma = new PrismaClient();

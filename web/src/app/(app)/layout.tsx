@@ -1,8 +1,12 @@
 import { redirect } from "next/navigation";
-import { getActiveSession, mustChangePassword, signInPath } from "@/lib/page-auth";
-import { AppShell } from "@/components/layout/app-shell";
-import { prisma } from "@/lib/prisma";
-import { loadActiveAnnouncements } from "@/lib/announcements";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale } from "next-intl/server";
+import { getActiveSession, mustChangePassword, signInPath } from "@/core/lib/http/page-auth";
+import { AppShell } from "@/core/components/layout/app-shell";
+import { prisma } from "@/core/lib/prisma";
+import { loadActiveAnnouncements } from "@/modules/system/lib/announcements";
+import { DEFAULT_LOCALE, isLocale } from "@/core/i18n/config";
+import { messagesFor, moduleKeysFor } from "@/core/i18n/catalogue";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await getActiveSession();
@@ -15,18 +19,24 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   }
 
   // Both small: a cached list of a few banners, and one column by primary key.
-  const [announcements, account] = await Promise.all([
+  const [announcements, account, locale] = await Promise.all([
     loadActiveAnnouncements(session.role),
     prisma.user.findUnique({ where: { id: session.userId }, select: { guideSeenAt: true } }),
+    getLocale(),
   ]);
 
+  // The words of the modules this person works in, and no others.
+  const messages = messagesFor(isLocale(locale) ? locale : DEFAULT_LOCALE, moduleKeysFor(session));
+
   return (
-    <AppShell
-      user={session}
-      announcements={announcements}
-      showWelcome={account !== null && account.guideSeenAt === null}
-    >
-      {children}
-    </AppShell>
+    <NextIntlClientProvider messages={messages}>
+      <AppShell
+        user={session}
+        announcements={announcements}
+        showWelcome={account !== null && account.guideSeenAt === null}
+      >
+        {children}
+      </AppShell>
+    </NextIntlClientProvider>
   );
 }

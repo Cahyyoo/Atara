@@ -1,0 +1,259 @@
+// Lab module: samples, their stages and scans, lab records and results,
+// the master vocabularies of a Sample ID.
+
+enum SampleStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+/// The five field vocabularies that compose a Sample ID. One table rather than
+/// five: they have the same shape, so five would be the same code five times.
+enum MasterKind {
+  PLACE
+  ROCK_TYPE
+  NON_PROD
+  PIT
+  SIR
+}
+
+model MasterOption {
+  id        String     @id @default(cuid())
+  kind      MasterKind
+  /// What appears in a Sample ID: "MOL", "LIM", "TP", "A4", "3".
+  code      String
+  /// Optional long name for the master-data screen.
+  label     String?
+  sortOrder Int        @default(0)
+  /// Retired options stay readable in old Sample IDs but leave the dropdowns.
+  isActive  Boolean    @default(true) @map("is_active")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  placeRecords    LabRecord[] @relation("LabRecordPlace")
+  rockTypeRecords LabRecord[] @relation("LabRecordRockType")
+  nonProdRecords  LabRecord[] @relation("LabRecordNonProd")
+  pitRecords      LabRecord[] @relation("LabRecordPit")
+  sirRecords      LabRecord[] @relation("LabRecordSir")
+
+  @@unique([kind, code])
+  @@index([kind, isActive, sortOrder])
+  @@map("master_options")
+}
+
+model Stage {
+  id String @id @default(cuid())
+
+  /// Stable name for the code and the translations to hang on.
+  ///
+  /// The displayed wording lives in the message catalogues, because a stage
+  /// name is app vocabulary rather than something anyone types: the update
+  /// endpoint accepts only the description. `name` below stays as
+  /// the fallback, so a stage added later without a key still shows something.
+  key           String? @unique
+  name          String
+  sequenceOrder Int     @unique @map("sequence_order")
+  description   String? @db.Text
+  /// No longer read: every stage uses DEFAULT_SLA_HOURS (src/lib/sla.ts).
+  /// Left in place so dropping it can be its own migration.
+  slaHours      Int?    @map("sla_hours")
+
+  currentSamples Sample[]    @relation("SampleCurrentStage")
+  sampleLogs     SampleLog[] @relation("SampleLogStage")
+
+  @@map("stages")
+}
+
+model Sample {
+  id             String       @id @default(cuid())
+  sampleCode     String       @unique @map("sample_code")
+  currentStageId String?      @map("current_stage_id")
+  currentStage   Stage?       @relation("SampleCurrentStage", fields: [currentStageId], references: [id])
+  status         SampleStatus @default(PENDING)
+  stageEnteredAt DateTime?    @map("stage_entered_at")
+  createdById    String       @map("created_by")
+  createdBy      User         @relation("SampleCreatedBy", fields: [createdById], references: [id])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  logs      SampleLog[]
+  labRecord LabRecord?
+
+  /// Removed from view without being destroyed. A sample is the container in
+  /// front of someone, its scan history and its assay results all at once, so
+  /// a mistake is undone rather than mourned. Null means present.
+  ///
+  /// The row keeps its lab code and its Sample ID, and the unique indexes keep
+  /// holding them: the printed label still exists, and a second sample must
+  /// not be able to claim the same identity while it does.
+  deletedAt   DateTime? @map("deleted_at")
+  deletedById String?   @map("deleted_by")
+  deletedBy   User?     @relation("SampleDeletedBy", fields: [deletedById], references: [id])
+
+  @@index([status])
+  @@index([currentStageId])
+  // The default sort of the samples table and the export, usually behind a
+  // status filter; the composite serves filter and sort in one pass.
+  @@index([status, updatedAt])
+  @@index([updatedAt])
+  // Every analytics window filters on this, directly and as the join predicate
+  // for sample_logs.
+  @@index([createdAt])
+  // The overdue query: not completed, and sitting in a stage since before its
+  // SLA cut-off. stageEnteredAt was previously unindexed and also sorted on.
+  @@index([status, stageEnteredAt])
+  // Every list, export and analytics window now filters on this.
+  /// The soft-delete predicate is on every live-sample query, and on its own
+  /// it matches ~100% of rows: an index on it alone could only ever say "all
+  /// of them". With the sort column after it, the filter and the sort are
+  /// one index walk instead of a scan and a filesort per page.
+  @@index([deletedAt, updatedAt])
+  @@index([deletedAt, status, updatedAt])
+  @@index([deletedAt, createdAt])
+  @@map("samples")
+}
+
+model SampleLog {
+  id           String   @id @default(cuid())
+  sampleId     String   @map("sample_id")
+  sample       Sample   @relation(fields: [sampleId], references: [id], onDelete: Cascade)
+  stageId      String   @map("stage_id")
+  stage        Stage    @relation("SampleLogStage", fields: [stageId], references: [id])
+  operatorId   String   @map("operator_id")
+  operator     User     @relation("SampleLogOperator", fields: [operatorId], references: [id])
+  notes        String?  @db.Text
+  isCorrection Boolean  @default(false) @map("is_correction")
+  scannedAt    DateTime @default(now()) @map("scanned_at")
+
+  // A superset of the plain sampleId index: it also removes the filesort in the
+  // stage-duration window function and on the sample timeline.
+  @@index([sampleId, scannedAt])
+  // The exact shape of "what did this operator record this shift".
+  @@index([operatorId, scannedAt])
+  /// The stage-activity trail with no operator chosen sorts on this, and its
+  /// shift-day filter ranges on it. Neither index above starts with it.
+  @@index([scannedAt])
+  @@map("sample_logs")
+}
+
+model LabRecord {
+  id        String   @id @default(cuid())
+  /// The barcode this record belongs to. Empty on a sub-sample, which belongs
+  /// to its parent record instead -- so a sample still has exactly one record
+  /// of its own, and `sample.labRecord` stays one to one.
+  sampleId  String?  @unique @map("sample_id")
+  sample    Sample?  @relation(fields: [sampleId], references: [id], onDelete: Cascade)
+  labCode   String   @unique @map("lab_code")
+  shiftDate DateTime @map("shift_date") @db.Date
+  /// Empty on a sub-sample: it has no place in the day's run of lab codes.
+  sequence  Int?
+
+  /// A sub-sample -- a fraction such as "(-20)" assayed on its own -- points
+  /// at the record it was taken from. One level only: a sub has no subs.
+  parentId String?     @map("parent_id")
+  parent   LabRecord?  @relation("LabRecordSubs", fields: [parentId], references: [id], onDelete: Cascade)
+  subs     LabRecord[] @relation("LabRecordSubs")
+  /// What sets the sub apart, as written between the brackets: "-20".
+  subCode  String?     @map("sub_code") @db.VarChar(32)
+
+  ni    Decimal? @db.Decimal(9, 3)
+  fe    Decimal? @db.Decimal(9, 3)
+  co    Decimal? @db.Decimal(9, 3)
+  sio2  Decimal? @db.Decimal(9, 3)
+  mgo   Decimal? @db.Decimal(9, 3)
+  cao   Decimal? @db.Decimal(9, 3)
+  al2o3 Decimal? @db.Decimal(9, 3)
+  cr    Decimal? @db.Decimal(9, 3)
+  fe2o3 Decimal? @db.Decimal(9, 3)
+  cr2o3 Decimal? @db.Decimal(9, 3)
+  mno   Decimal? @db.Decimal(9, 3)
+  na2o  Decimal? @db.Decimal(9, 3)
+  p2o5  Decimal? @db.Decimal(9, 3)
+  tio2  Decimal? @db.Decimal(9, 3)
+  s     Decimal? @db.Decimal(9, 3)
+  co2   Decimal? @db.Decimal(9, 3)
+  zn    Decimal? @db.Decimal(9, 3)
+  /// The instrument's own total, stored as reported rather than recomputed.
+  sum   Decimal? @db.Decimal(9, 3)
+
+  /// The field identity, chosen from master data and typed in. Nullable because
+  /// a sample exists from the moment its barcode is generated, long before
+  /// anyone knows which barging run it will leave on.
+  placeId    String? @map("place_id")
+  rockTypeId String? @map("rock_type_id")
+  nonProdId  String? @map("non_prod_id")
+  pitId      String? @map("pit_id")
+  sirId      String? @map("sir_id")
+
+  place    MasterOption? @relation("LabRecordPlace", fields: [placeId], references: [id])
+  rockType MasterOption? @relation("LabRecordRockType", fields: [rockTypeId], references: [id])
+  nonProd  MasterOption? @relation("LabRecordNonProd", fields: [nonProdId], references: [id])
+  pit      MasterOption? @relation("LabRecordPit", fields: [pitId], references: [id])
+  sir      MasterOption? @relation("LabRecordSir", fields: [sirId], references: [id])
+
+  bargingNo  String? @map("barging_no")
+  sequenceNo Int?    @map("sequence_no")
+  sampleNo   Int?    @map("sample_no")
+  sackCount  Int?    @map("sack_count")
+
+  /// Stored rather than composed on read: it is searched, exported, and — the
+  /// deciding reason — matched against pasted spreadsheet rows.
+  sampleIdent String? @unique @map("sample_ident")
+
+  /// What the instrument reported alongside the numbers.
+  measurementMethod   String?   @map("measurement_method")
+  solutionId          String?   @map("solution_id")
+  measurementFinished DateTime? @map("measurement_finished")
+  /// Which X-ray instrument read it ("S2 PUMA"). Entered with the results.
+  xrayInstrument      String?   @map("xray_instrument")
+
+  /// The moisture-content weighing, entered by the Database role: the pan
+  /// (Wp), pan with the wet sample (W0) and pan with the dried sample (Wd), in
+  /// grams. MC = (W0 - Wd) * 100 / (W0 - Wp), computed rather than stored.
+  wp Decimal? @map("mc_wp") @db.Decimal(10, 2)
+  w0 Decimal? @map("mc_w0") @db.Decimal(10, 2)
+  wd Decimal? @map("mc_wd") @db.Decimal(10, 2)
+
+  remarks String? @db.Text
+
+  updatedById String? @map("updated_by")
+  updatedBy   User?   @relation("LabRecordUpdatedBy", fields: [updatedById], references: [id])
+
+  audits LabRecordAudit[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  /// One run of numbers per shift day; SPR codes no longer split by place.
+  @@unique([shiftDate, sequence])
+  @@unique([parentId, subCode])
+  @@index([shiftDate])
+  @@index([parentId])
+  @@map("lab_records")
+}
+
+model LabRecordAudit {
+  id          String    @id @default(cuid())
+  labRecordId String    @map("lab_record_id")
+  labRecord   LabRecord @relation(fields: [labRecordId], references: [id], onDelete: Cascade)
+  changedById String    @map("changed_by")
+  changedBy   User      @relation("LabRecordAuditUser", fields: [changedById], references: [id])
+  changes     Json
+  reason      String?   @db.Text
+  changedAt   DateTime  @default(now()) @map("changed_at")
+
+  @@index([labRecordId])
+  /// The change history, newest first, across every record: without it each page
+  /// sorted the whole audit table (43 s at half a million rows).
+  @@index([changedAt, id])
+  @@map("lab_record_audits")
+}
+
+/// One row per code sequence allocated "read the highest, add one" (see
+/// sample-creation.ts). Nothing is stored here: a generation locks its row
+/// until it commits, so two generations never read the same highest code.
+model AllocationLock {
+  name String @id @db.VarChar(64)
+
+  @@map("allocation_locks")
+}

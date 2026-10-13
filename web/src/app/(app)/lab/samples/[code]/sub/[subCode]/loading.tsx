@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader } from "@/core/components/ui/card";
+import { Skeleton } from "@/core/components/ui/skeleton";
 
 /** A sub-sample's page: heading, its sample and when it was made, then results. */
 export default function SubSampleDetailLoading() {

@@ -1,4 +1,4 @@
-import { requireCapabilityPage } from "@/lib/page-auth";
+import { requireCapabilityPage } from "@/core/lib/http/page-auth";
 
 /** Reprinting labels is an admin action; operators are sent back to the dashboard. */
 export default async function LabelsLayout({ children }: { children: React.ReactNode }) {

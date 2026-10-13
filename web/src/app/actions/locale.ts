@@ -1,7 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { LOCALE_COOKIE, isLocale } from "@/i18n/config";
+import { LOCALE_COOKIE, isLocale } from "@/core/i18n/config";
 
 /** Persists the reader's language choice for a year. */
 export async function setLocale(value: string) {

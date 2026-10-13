@@ -44,7 +44,7 @@ Setiap akun adalah sebuah **peran di dalam departemen**.
 | OPERATOR    | LAB        | Dashboard                                                                               | Scan & perbarui tahapan       |
 | ADMIN       | EKSPLORASI | Data Drilling                                                                           | —                             |
 
-Aturan lengkapnya ada di `web/src/lib/permissions.ts` (siapa boleh apa) dan `web/src/lib/user-scope.ts` (siapa mengelola akun siapa).
+Aturan lengkapnya ada di `web/src/core/lib/auth/permissions.ts` + `web/src/modules/<modul>/capabilities.ts` (siapa boleh apa) dan `web/src/modules/system/lib/user-scope.ts` (siapa mengelola akun siapa).
 
 ## Autentikasi
 
@@ -87,4 +87,4 @@ Urutan startup: **database → layanan face → backend web → aplikasi mobile*
 - **UserSession** / **SignInAudit** — sesi aktif dan jejak setiap upaya masuk.
 - **DrillHole** — modul Eksplorasi: satu record per lubang bor (Hole ID unik, area, koordinat collar, azimuth/dip, kedalaman, status, tanggal).
 
-Lihat `web/prisma/schema.prisma` untuk definisi lengkap.
+Lihat `web/prisma/schema/` (satu file per modul) untuk definisi lengkap.

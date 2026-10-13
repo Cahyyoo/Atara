@@ -1,6 +1,6 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { PageHeadingSkeleton } from "@/components/layout/page-skeleton";
+import { Card, CardContent, CardHeader } from "@/core/components/ui/card";
+import { Skeleton } from "@/core/components/ui/skeleton";
+import { PageHeadingSkeleton } from "@/core/components/layout/page-skeleton";
 
 /** Five master kinds — PLACE, ROCK_TYPE, NON_PROD, PIT, SIR — two to a row. */
 export default function MasterDataLoading() {

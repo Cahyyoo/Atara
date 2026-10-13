@@ -1,15 +1,15 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { HelpToc } from "@/components/help/help-toc";
-import { TryTourButton } from "@/components/help/try-tour-button";
-import { tourFor } from "@/lib/tours";
-import { requireSessionPage } from "@/lib/page-auth";
-import { helpSectionsFor } from "@/lib/help-sections";
-import { personaLabelKeys } from "@/lib/role-labels";
-import { cn } from "@/lib/utils";
+import { Badge } from "@/core/components/ui/badge";
+import { buttonVariants } from "@/core/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/core/components/ui/card";
+import { HelpToc } from "@/core/components/help/help-toc";
+import { TryTourButton } from "@/core/components/help/try-tour-button";
+import { tourFor } from "@/core/lib/app/tours";
+import { requireSessionPage } from "@/core/lib/http/page-auth";
+import { helpSectionsFor } from "@/core/lib/app/help-sections";
+import { personaLabelKeys } from "@/core/lib/auth/role-labels";
+import { cn } from "@/core/lib/utils";
 import { IoArrowForward, IoBulbOutline } from "react-icons/io5";
 
 export const dynamic = "force-dynamic";
@@ -88,7 +88,7 @@ export default async function HelpPage() {
                 <div className="hidden shrink-0 gap-2 sm:flex">
                   {/* Try it: the page opens with its tour running. */}
                   {tourFor(key) ? <TryTourButton tourKey={key} className="gap-1" /> : null}
-                  {"href" in section ? (
+                  {section.href ? (
                     <Link
                       href={section.href}
                       className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-1")}
@@ -131,7 +131,7 @@ export default async function HelpPage() {
 
                 <div className="flex flex-wrap gap-2 sm:hidden">
                   {tourFor(key) ? <TryTourButton tourKey={key} className="gap-1" /> : null}
-                  {"href" in section ? (
+                  {section.href ? (
                     <Link
                       href={section.href}
                       className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-1")}

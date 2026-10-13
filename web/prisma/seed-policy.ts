@@ -18,7 +18,7 @@
  * every department.
  */
 
-import type { Department, Role } from "../src/lib/permissions";
+import type { Department, Role } from "../src/core/lib/auth/permissions";
 
 export interface SeedAccount {
   email: string;

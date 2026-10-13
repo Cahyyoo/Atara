@@ -1,6 +1,6 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { PageHeadingSkeleton } from "@/components/layout/page-skeleton";
+import { Card, CardContent, CardHeader } from "@/core/components/ui/card";
+import { Skeleton } from "@/core/components/ui/skeleton";
+import { PageHeadingSkeleton } from "@/core/components/layout/page-skeleton";
 
 /** The heading, the grid of shortcut cards, then contents beside the section cards. */
 export default function HelpLoading() {

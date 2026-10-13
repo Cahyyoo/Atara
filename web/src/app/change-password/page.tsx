@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
-import { Card, CardContent } from "@/components/ui/card";
-import { ForcePasswordForm } from "@/components/auth/force-password-form";
-import { getActiveSession, mustChangePassword, signInPath } from "@/lib/page-auth";
-import { APP_NAME } from "@/lib/brand";
+import { Card, CardContent } from "@/core/components/ui/card";
+import { ForcePasswordForm } from "@/core/components/auth/force-password-form";
+import { getActiveSession, mustChangePassword, signInPath } from "@/core/lib/http/page-auth";
+import { APP_NAME } from "@/core/lib/app/brand";
 import { IoPrismOutline } from "react-icons/io5";
 
 export const dynamic = "force-dynamic";

@@ -15,11 +15,11 @@
 export async function register(): Promise<void> {
   if (process.env.NEXT_RUNTIME !== "nodejs") return;
 
-  const { assertSecrets } = await import("@/lib/env-guard");
+  const { assertSecrets } = await import("@/core/lib/env-guard");
   assertSecrets();
 
   // Checked here and not in env-guard: secret-box imports node:crypto, and
   // env-guard is reached from the edge middleware where that does not exist.
-  const { assertMfaKey } = await import("@/lib/secret-box");
+  const { assertMfaKey } = await import("@/core/lib/auth/secret-box");
   assertMfaKey(process.env.MFA_ENCRYPTION_KEY);
 }

@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
-import { requireCapabilityPage } from "@/lib/page-auth";
-import { ResultsPage } from "@/components/assay/results-page";
+import { requireCapabilityPage } from "@/core/lib/http/page-auth";
+import { ResultsPage } from "@/modules/lab/components/assay/results-page";
 
 export const dynamic = "force-dynamic";
 

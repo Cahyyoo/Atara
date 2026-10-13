@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
-import { requireCapabilityPage } from "@/lib/page-auth";
-import { LabelReprint } from "@/components/samples/label-reprint";
+import { requireCapabilityPage } from "@/core/lib/http/page-auth";
+import { LabelReprint } from "@/modules/lab/components/samples/label-reprint";
 
 export const dynamic = "force-dynamic";
 

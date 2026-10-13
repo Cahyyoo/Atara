@@ -16,10 +16,8 @@
     "db:reset-samples": "tsx prisma/reset-samples.ts",
     "db:seed-dummy": "tsx prisma/seed-dummy.ts",
     "db:seed-master": "tsx prisma/seed-master.ts",
-    "db:fill-dummy": "tsx prisma/fill-dummy.ts"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "db:fill-dummy": "tsx prisma/fill-dummy.ts",
+    "module:new": "node scripts/new-module.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

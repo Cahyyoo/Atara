@@ -1,0 +1,133 @@
+{
+  "help": {
+    "sections": {
+      "drilling": {
+        "title": "Drilling Data",
+        "intro": "The drill holes of the Exploration module.",
+        "steps": {
+          "1": "Add Drill Hole records the hole ID, area, collar coordinates, orientation and depth.",
+          "2": "Search by hole ID or area, and filter by status.",
+          "3": "Edit fills in the rest; the bin icon deletes a drill hole permanently.",
+          "4": "Import uploads thousands of drill holes at once from Excel/CSV (previewed first; rows with errors can be downloaded); Export downloads the list on screen in the same format."
+        },
+        "tip": "The hole ID must be unique. Every other field may be left empty and completed later."
+      }
+    },
+    "welcome": {
+      "EKSPLORASI_ADMIN": {
+        "steps": {
+          "1": {
+            "title": "You run the Exploration module",
+            "body": "Drilling Data holds every drill hole: add, edit, search and delete."
+          },
+          "2": {
+            "title": "Help is always here",
+            "body": "Press ? at the top of any page for the part of the guide about it."
+          }
+        }
+      }
+    }
+  },
+  "drilling": {
+    "title": "Drilling Data",
+    "subtitle": "The drill holes of the Exploration module.",
+    "add": "Add Drill Hole",
+    "searchPlaceholder": "Search hole ID or area…",
+    "allStatuses": "All statuses",
+    "empty": "No drilling data yet.",
+    "emptyFiltered": "No drill holes match.",
+    "noun": "drill holes",
+    "status": {
+      "PLANNED": "Planned",
+      "ONGOING": "Ongoing",
+      "COMPLETED": "Completed",
+      "ABANDONED": "Abandoned"
+    },
+    "fields": {
+      "holeId": "Hole ID",
+      "area": "Area / Prospect",
+      "status": "Status",
+      "easting": "Easting",
+      "northing": "Northing",
+      "elevation": "Elevation (m)",
+      "azimuth": "Azimuth (°)",
+      "dip": "Dip (°)",
+      "totalDepth": "Total Depth (m)",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "remarks": "Remarks"
+    },
+    "columns": {
+      "coordinates": "Collar Coordinates",
+      "orientation": "Orientation",
+      "period": "Start / End",
+      "azimuthShort": "Az",
+      "dipShort": "Dip"
+    },
+    "placeholders": {
+      "holeId": "e.g. DH-2026-001",
+      "area": "e.g. Block A"
+    },
+    "sections": {
+      "collar": "Collar coordinates",
+      "survey": "Orientation & depth"
+    },
+    "addTitle": "Add Drill Hole",
+    "editTitle": "Edit {holeId}",
+    "dialogDescription": "Everything but the hole ID may be left empty and filled in later.",
+    "create": "Save Drill Hole",
+    "created": "{holeId} added.",
+    "updated": "{holeId} updated.",
+    "errors": {
+      "dateOrder": "The end date cannot be before the start date.",
+      "duplicate": "Hole ID {holeId} is already in use."
+    },
+    "delete": {
+      "label": "Delete {holeId}",
+      "title": "Delete drill hole?",
+      "confirm": "{holeId} will be deleted permanently and cannot be restored.",
+      "action": "Delete",
+      "done": "{holeId} deleted."
+    },
+    "export": {
+      "button": "Export"
+    },
+    "import": {
+      "button": "Import",
+      "title": "Import Drilling Data",
+      "description": "Upload an Excel (.xlsx) or CSV file. Rows are matched by hole ID: new hole IDs are added, existing ones can be updated. At most 50,000 rows, 20 MB.",
+      "choose": "Choose file",
+      "chooseAnother": "Choose another file",
+      "columnsHint": "The first row holds the column headers: {columns}. Only Hole ID is required; other columns may be left out. Dates: YYYY-MM-DD or DD/MM/YYYY.",
+      "template": "Download template",
+      "reading": "Reading and checking the file…",
+      "summary": {
+        "rows": "Rows",
+        "new": "New",
+        "toUpdate": "To update",
+        "toSkip": "Existing (skipped)",
+        "invalid": "Errors",
+        "created": "Added",
+        "updated": "Updated",
+        "skipped": "Skipped"
+      },
+      "updateExisting": "Update the {count} drill holes that already exist (same hole ID)",
+      "updateExistingHint": "Empty cells in the file do not erase what is already stored.",
+      "ignoredHeaders": "Unknown columns, ignored: {headers}",
+      "errorsTitle": "{count, plural, one {# row has errors and will not be imported} other {# rows have errors and will not be imported}}",
+      "downloadErrors": "Download error report (CSV)",
+      "moreErrors": "Showing {shown} of {total} errors. Download the report for the full list.",
+      "progress": "Saving {done} of {total} rows…",
+      "run": "Import {count} rows",
+      "runEmpty": "Import",
+      "doneTitle": "Import finished",
+      "doneToast": "{created} drill holes added, {updated} updated.",
+      "another": "Import another file",
+      "report": {
+        "line": "Line",
+        "column": "Column",
+        "error": "Error"
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
-import { requireCapabilityPage } from "@/lib/page-auth";
-import { DrillHolesTable } from "@/components/drilling/drill-holes-table";
+import { requireCapabilityPage } from "@/core/lib/http/page-auth";
+import { DrillHolesTable } from "@/modules/eksplorasi/components/drill-holes-table";
 
 export const dynamic = "force-dynamic";
 

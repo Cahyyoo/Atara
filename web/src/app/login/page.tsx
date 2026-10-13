@@ -1,9 +1,9 @@
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
-import { Card, CardContent } from "@/components/ui/card";
-import { LoginForm } from "@/components/login-form";
-import { LoginLocaleSwitch } from "@/components/login-locale-switch";
-import { APP_NAME } from "@/lib/brand";
+import { Card, CardContent } from "@/core/components/ui/card";
+import { LoginForm } from "@/core/components/auth/login-form";
+import { LoginLocaleSwitch } from "@/core/components/auth/login-locale-switch";
+import { APP_NAME } from "@/core/lib/app/brand";
 import { IoPrismOutline } from "react-icons/io5";
 
 export default async function LoginPage() {

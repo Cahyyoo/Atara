@@ -1,5 +1,5 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from "@/core/components/ui/card";
+import { Skeleton } from "@/core/components/ui/skeleton";
 
 /**
  * Reached by a client navigation more often than it looks: logging out pushes

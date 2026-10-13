@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
-import { DataQualityView } from "@/components/data-quality/data-quality";
-import { requireCapabilityPage } from "@/lib/page-auth";
-import { can } from "@/lib/permissions";
+import { DataQualityView } from "@/modules/lab/components/data-quality/data-quality";
+import { requireCapabilityPage } from "@/core/lib/http/page-auth";
+import { can } from "@/core/lib/auth/permissions";
 
 export const dynamic = "force-dynamic";
 

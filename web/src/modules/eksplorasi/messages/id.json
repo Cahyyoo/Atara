@@ -1,0 +1,133 @@
+{
+  "help": {
+    "sections": {
+      "drilling": {
+        "title": "Data Drilling",
+        "intro": "Daftar lubang bor modul Eksplorasi.",
+        "steps": {
+          "1": "Tambah Lubang Bor untuk mencatat Hole ID, area, koordinat collar, orientasi, dan kedalaman.",
+          "2": "Cari dengan Hole ID atau area, dan saring per status.",
+          "3": "Ubah untuk melengkapi data; ikon tempat sampah menghapus lubang bor secara permanen.",
+          "4": "Import untuk mengunggah ribuan lubang bor sekaligus dari Excel/CSV (pratinjau dulu, baris error bisa diunduh); Export mengunduh daftar yang sedang tampil dalam format yang sama."
+        },
+        "tip": "Hole ID harus unik. Kolom lain boleh dikosongkan lalu dilengkapi nanti."
+      }
+    },
+    "welcome": {
+      "EKSPLORASI_ADMIN": {
+        "steps": {
+          "1": {
+            "title": "Anda mengelola modul Eksplorasi",
+            "body": "Data Drilling berisi semua lubang bor: tambah, ubah, cari, dan hapus."
+          },
+          "2": {
+            "title": "Bantuan selalu ada",
+            "body": "Tekan ? di atas halaman mana pun untuk panduan halaman itu."
+          }
+        }
+      }
+    }
+  },
+  "drilling": {
+    "title": "Data Drilling",
+    "subtitle": "Daftar lubang bor modul Eksplorasi.",
+    "add": "Tambah Lubang Bor",
+    "searchPlaceholder": "Cari Hole ID atau area…",
+    "allStatuses": "Semua status",
+    "empty": "Belum ada data drilling.",
+    "emptyFiltered": "Tidak ada lubang bor yang cocok.",
+    "noun": "lubang bor",
+    "status": {
+      "PLANNED": "Direncanakan",
+      "ONGOING": "Berjalan",
+      "COMPLETED": "Selesai",
+      "ABANDONED": "Dibatalkan"
+    },
+    "fields": {
+      "holeId": "Hole ID",
+      "area": "Area / Prospek",
+      "status": "Status",
+      "easting": "Easting",
+      "northing": "Northing",
+      "elevation": "Elevasi (m)",
+      "azimuth": "Azimuth (°)",
+      "dip": "Dip (°)",
+      "totalDepth": "Kedalaman Total (m)",
+      "startDate": "Tanggal Mulai",
+      "endDate": "Tanggal Selesai",
+      "remarks": "Catatan"
+    },
+    "columns": {
+      "coordinates": "Koordinat Collar",
+      "orientation": "Orientasi",
+      "period": "Mulai / Selesai",
+      "azimuthShort": "Az",
+      "dipShort": "Dip"
+    },
+    "placeholders": {
+      "holeId": "mis. DH-2026-001",
+      "area": "mis. Blok A"
+    },
+    "sections": {
+      "collar": "Koordinat collar",
+      "survey": "Orientasi & kedalaman"
+    },
+    "addTitle": "Tambah Lubang Bor",
+    "editTitle": "Ubah {holeId}",
+    "dialogDescription": "Kolom selain Hole ID boleh dikosongkan dan dilengkapi nanti.",
+    "create": "Simpan Lubang Bor",
+    "created": "{holeId} ditambahkan.",
+    "updated": "{holeId} diperbarui.",
+    "errors": {
+      "dateOrder": "Tanggal selesai tidak boleh sebelum tanggal mulai.",
+      "duplicate": "Hole ID {holeId} sudah dipakai."
+    },
+    "delete": {
+      "label": "Hapus {holeId}",
+      "title": "Hapus lubang bor?",
+      "confirm": "{holeId} akan dihapus permanen dan tidak bisa dikembalikan.",
+      "action": "Hapus",
+      "done": "{holeId} dihapus."
+    },
+    "export": {
+      "button": "Export"
+    },
+    "import": {
+      "button": "Import",
+      "title": "Import Data Drilling",
+      "description": "Unggah file Excel (.xlsx) atau CSV. Data dicocokkan dengan Hole ID: Hole ID baru ditambahkan, yang sudah ada bisa diperbarui. Maksimal 50.000 baris, 20 MB.",
+      "choose": "Pilih file",
+      "chooseAnother": "Ganti file",
+      "columnsHint": "Baris pertama berisi judul kolom: {columns}. Hanya Hole ID yang wajib; kolom lain boleh dihilangkan. Tanggal: YYYY-MM-DD atau DD/MM/YYYY.",
+      "template": "Unduh template",
+      "reading": "Membaca dan memeriksa file…",
+      "summary": {
+        "rows": "Baris",
+        "new": "Baru",
+        "toUpdate": "Diperbarui",
+        "toSkip": "Sudah ada (dilewati)",
+        "invalid": "Error",
+        "created": "Ditambahkan",
+        "updated": "Diperbarui",
+        "skipped": "Dilewati"
+      },
+      "updateExisting": "Perbarui {count} lubang bor yang sudah ada (Hole ID sama)",
+      "updateExistingHint": "Sel yang kosong di file tidak menghapus data yang sudah tersimpan.",
+      "ignoredHeaders": "Kolom tidak dikenal, diabaikan: {headers}",
+      "errorsTitle": "{count, plural, other {# baris error, tidak akan di-import}}",
+      "downloadErrors": "Unduh laporan error (CSV)",
+      "moreErrors": "Menampilkan {shown} dari {total} error. Unduh laporan untuk daftar lengkapnya.",
+      "progress": "Menyimpan {done} dari {total} baris…",
+      "run": "Import {count} baris",
+      "runEmpty": "Import",
+      "doneTitle": "Import selesai",
+      "doneToast": "{created} lubang bor ditambahkan, {updated} diperbarui.",
+      "another": "Import file lain",
+      "report": {
+        "line": "Baris",
+        "column": "Kolom",
+        "error": "Error"
+      }
+    }
+  }
+}

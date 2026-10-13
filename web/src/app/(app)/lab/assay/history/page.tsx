@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
-import { getActiveSession, requireCapabilityPage } from "@/lib/page-auth";
-import { can } from "@/lib/permissions";
-import { HistoryBackLink, ResultsHistory } from "@/components/assay/results-history";
+import { getActiveSession, requireCapabilityPage } from "@/core/lib/http/page-auth";
+import { can } from "@/core/lib/auth/permissions";
+import { HistoryBackLink, ResultsHistory } from "@/modules/lab/components/assay/results-history";
 
 export const dynamic = "force-dynamic";
 

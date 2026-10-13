@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
-import { GradeControlView } from "@/components/grade/grade-control";
-import { requireCapabilityPage } from "@/lib/page-auth";
+import { GradeControlView } from "@/modules/lab/components/grade/grade-control";
+import { requireCapabilityPage } from "@/core/lib/http/page-auth";
 
 export const dynamic = "force-dynamic";
 

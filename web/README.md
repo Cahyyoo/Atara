@@ -1,6 +1,6 @@
 # Atara — Web & Backend API
 
-Backend REST API dan web untuk **Atara Super App**. Atara adalah satu aplikasi dengan beberapa modul, satu modul untuk setiap departemen. Dibangun dengan Next.js 16 (App Router), TypeScript, Prisma ORM, MySQL, Tailwind CSS, dan shadcn/ui. Antarmuka tersedia dalam dua bahasa (id, en); teksnya ada di `messages/`.
+Backend REST API dan web untuk **Atara Super App**. Atara adalah satu aplikasi dengan beberapa modul, satu modul untuk setiap departemen. Dibangun dengan Next.js 16 (App Router), TypeScript, Prisma ORM, MySQL, Tailwind CSS, dan shadcn/ui. Antarmuka tersedia dalam dua bahasa (id, en); teksnya ada di `src/core/messages/` dan `src/modules/<modul>/messages/`.
 
 ## Konsep Super App
 
@@ -12,13 +12,45 @@ Backend REST API dan web untuk **Atara Super App**. Atara adalah satu aplikasi d
 
 Setelah masuk, semua orang mendarat di **portal `/home`**. Portal menampilkan kartu untuk modul yang boleh dibuka. Menu samping juga dikelompokkan per modul, dan sebuah grup hanya tampil untuk orang yang bekerja di modul itu.
 
-Aturan akses ada di tiga file murni yang dipakai bersama oleh server dan browser:
+Aturan akses:
 
-- `src/lib/permissions.ts` menyimpan peran (`UserRole`) dan departemen (`Department`). Pasangan keduanya disebut *persona*, misalnya `ADMIN` + `LAB` = `LAB_ADMIN`. Tabel capability di file ini di-key oleh persona, dan setiap pemeriksaan memanggil `can(session, capability)`.
-- `src/lib/modules.ts` adalah registry modul (path, ikon, persona yang boleh masuk). Dipakai oleh portal, sidebar, dan redirect.
-- `src/lib/user-scope.ts` menentukan akun mana yang boleh dikelola oleh siapa (lihat [Peran](#peran)).
+- `src/core/lib/auth/permissions.ts` menyimpan peran (`UserRole`), departemen (`Department`), dan *persona*, yaitu pasangan keduanya (misalnya `ADMIN` + `LAB` = `LAB_ADMIN`). Setiap pemeriksaan memanggil `can(session, capability)`.
+- Setiap modul menulis tabel capability → persona miliknya sendiri di `src/modules/<modul>/capabilities.ts`. Semua tabel digabung di `src/modules/capabilities.ts`.
+- `src/modules/system/lib/user-scope.ts` menentukan akun mana yang boleh dikelola oleh siapa (lihat [Peran](#peran)).
 
-Untuk menambah modul baru: tambahkan nilai di enum `Department` (Prisma + `DEPARTMENTS`), persona dan capability-nya di `permissions.ts`, entri di `MODULES`, grup di `sidebar-nav.tsx`, lalu halaman di `src/app/(app)/<modul>/` dengan `layout.tsx` yang memanggil `requireCapabilityPage`.
+## Arsitektur Modul
+
+Kode dibagi per modul agar modul baru bisa ditambahkan tanpa menyentuh modul lain:
+
+```
+src/
+  app/            Routing saja: halaman dan route handler tipis.
+    (app)/lab/…  (app)/eksplorasi/…  (app)/{home,help,users,admin}
+    api/(core)/  api/(lab)/  api/(eksplorasi)/  api/(system)/    ← route group, URL tetap /api/...
+  core/           Infrastruktur bersama: auth, sesi, HTTP helper, i18n, UI kit, layout.
+  modules/
+    registry.ts  capabilities.ts  messages.ts  backup.ts            ← satu baris per modul
+    lab/  eksplorasi/  system/
+      module.ts         manifest: path, ikon, persona, menu, panduan, tour
+      capabilities.ts   capability → persona
+      types.ts  validation.ts  lib/  components/  messages/{id,en}.json
+prisma/schema/    core.prisma  lab.prisma  eksplorasi.prisma  system.prisma
+prisma.config.ts  lokasi schema, migrasi, dan seed
+```
+
+Aturan impor:
+
+- `core` tidak mengimpor modul, kecuali lewat empat file registry.
+- Sebuah modul hanya mengimpor `core` dan dirinya sendiri.
+- Route `api/(<modul>)` hanya mengimpor modulnya sendiri.
+- Tidak ada barrel `index.ts`.
+- Setiap file maksimal 300 baris kode, tidak termasuk komentar dan baris kosong.
+
+Semua aturan ini ditegakkan oleh `npm run lint` dan test arsitektur (`src/core/lib/__tests__/architecture.test.ts`).
+
+Browser hanya menerima teks UI milik core dan milik modul yang dipegang persona. Admin Eksplorasi, misalnya, tidak mengunduh teks modul Lab.
+
+**Menambah modul baru:** jalankan `npm run module:new -- <key>`, lalu ikuti baris registrasi yang dicetaknya. Panduan lengkap untuk developer ada di **[`docs/MODULES.md`](docs/MODULES.md)**: konvensi, resep (halaman, API, list, import/export), aturan performa, pola pemecahan file, testing, dan checklist PR.
 
 ## Prasyarat
 
@@ -75,7 +107,7 @@ Untuk menambah modul baru: tambahkan nilai di enum `Department` (Prisma + `DEPAR
 | `JWT_SECRET`         | Rahasia penanda tangan token sesi. Wajib diganti di produksi. |
 | `TRUST_PROXY`        | Isi `1` **hanya** bila ada reverse proxy di depan aplikasi yang menambahkan `x-forwarded-for` sendiri. Jika tidak, pembatas percobaan masuk akan mempercayai header yang bisa diatur klien. |
 | `APP_HTTPS`          | `1` bila situs dilayani lewat HTTPS, `0` untuk server HTTP biasa (mis. server lokal `http://192.168.x.x`). Kosong = HTTPS diasumsikan di production. Mengatur flag `Secure` cookie sesi, HSTS, dan `upgrade-insecure-requests`. Dibaca saat `next build` — build ulang setelah mengubahnya. Catatan: kamera (login/enrol wajah) tetap hanya jalan di HTTPS atau `localhost`; untuk uji coba di HTTP bisa pakai `chrome://flags/#unsafely-treat-insecure-origin-as-secure` dengan origin server. |
-| `NEXT_PUBLIC_BASE_PATH` | Sub-path bila aplikasi disajikan di bawah reverse proxy, mis. `/atara` untuk `http://host/atara`. Kosong = aplikasi memegang seluruh origin. Dibaca saat `next build` — build ulang setelah mengubahnya. Proxy harus meneruskan path **dengan** prefix-nya (Caddy: `handle /atara* { reverse_proxy 127.0.0.1:3010 }`, bukan `handle_path`). Di kode, setiap `fetch`/`location.href`/`<a href>` ke path internal wajib lewat `withBasePath()` dari `@/lib/base-path`; `<Link>`, router, dan `redirect()` sudah otomatis. App mobile: isi alamat server dengan sub-path-nya. |
+| `NEXT_PUBLIC_BASE_PATH` | Sub-path bila aplikasi disajikan di bawah reverse proxy, mis. `/atara` untuk `http://host/atara`. Kosong = aplikasi memegang seluruh origin. Dibaca saat `next build` — build ulang setelah mengubahnya. Proxy harus meneruskan path **dengan** prefix-nya (Caddy: `handle /atara* { reverse_proxy 127.0.0.1:3010 }`, bukan `handle_path`). Di kode, setiap `fetch`/`location.href`/`<a href>` ke path internal wajib lewat `withBasePath()` dari `@/core/lib/http/base-path`; `<Link>`, router, dan `redirect()` sudah otomatis. App mobile: isi alamat server dengan sub-path-nya. |
 | `FACE_SERVICE_URL`   | Alamat layanan wajah, default `http://127.0.0.1:8001`. Harus loopback. |
 | `FACE_SERVICE_TOKEN` | Rahasia bersama dengan layanan wajah — **harus sama** dengan `FACE_SERVICE_TOKEN` di `face/.env`. Browser tidak pernah melihatnya: frame mengalir browser → Next.js → layanan wajah. |
 | `MFA_ENCRYPTION_KEY` | Kunci untuk mengenkripsi rahasia TOTP sebelum disimpan, sehingga salinan tabel `users` saja tidak cukup untuk membuat kode. 32 byte acak dalam base64: `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`. Mengubahnya membatalkan semua authenticator yang sudah disiapkan; admin harus meresetnya dari halaman Pengguna. |
@@ -95,7 +127,7 @@ Untuk menambah modul baru: tambahkan nilai di enum `Department` (Prisma + `DEPAR
 
 ## Peran
 
-Setiap akun punya **peran** dan **departemen** (kolom `users.department`; null hanya untuk super admin). Siapa boleh melakukan apa ditentukan di satu tempat, `src/lib/permissions.ts`. Halaman, API, dan menu samping semuanya membaca tabel yang sama. Pasangan peran–departemen yang tidak valid, misalnya `OPERATOR` di `EKSPLORASI`, ditolak saat validasi dan tidak mendapat hak apa pun.
+Setiap akun punya **peran** dan **departemen** (kolom `users.department`; null hanya untuk super admin). Siapa boleh melakukan apa ditentukan di `src/core/lib/auth/permissions.ts` dan tabel `capabilities.ts` tiap modul. Halaman, API, dan menu samping semuanya membaca tabel yang sama. Pasangan peran–departemen yang tidak valid, misalnya `OPERATOR` di `EKSPLORASI`, ditolak saat validasi dan tidak mendapat hak apa pun.
 
 | Persona (peran + departemen) | Website | Aplikasi mobile |
 | ---------------------------- | ------- | --------------- |
@@ -106,7 +138,7 @@ Setiap akun punya **peran** dan **departemen** (kolom `users.department`; null h
 | OPERATOR (LAB) | Dashboard | Scan & perbarui tahap, termasuk koreksi (mundur/lompat tahap) dengan alasan |
 | **Admin Eksplorasi** (ADMIN + EKSPLORASI) | Data Drilling (tambah, ubah, cari, hapus) | — |
 
-**Siapa mengelola akun siapa** (`src/lib/user-scope.ts`):
+**Siapa mengelola akun siapa** (`src/modules/system/lib/user-scope.ts`):
 
 - **Super admin** hanya mengelola akun `ADMIN` milik setiap departemen. Hanya ada satu super admin. Akun ini dibuat oleh seed dan tidak bisa dibuat lewat UI.
 - **Admin Lab** hanya mengelola staf departemennya sendiri, yaitu `DATABASE`, `ANALISIS`, dan `OPERATOR` di LAB.
@@ -120,7 +152,7 @@ Masuk dengan email + kata sandi; sesi disimpan sebagai JWT di cookie httpOnly. S
 
 Akun yang punya faktor kedua tidak menerima cookie apa pun setelah langkah kata sandi; cookie baru diberikan setelah faktor kedua lolos:
 
-- **Wajah** — admin mendaftarkan wajah pengguna dari halaman Pengguna (lima pose, dengan persetujuan eksplisit karena biometrik adalah *data pribadi spesifik* menurut UU PDP No. 27/2022). Saat masuk, frame dikirim ke `/api/auth/face`, diteruskan ke layanan wajah, lalu dicocokkan dan diperiksa kedipannya di sini (`src/lib/face-*.ts`). Jika layanan wajah mati, jawabannya `503` tanpa sesi — faktor kedua tidak pernah dilewati.
+- **Wajah** — admin mendaftarkan wajah pengguna dari halaman Pengguna (lima pose, dengan persetujuan eksplisit karena biometrik adalah *data pribadi spesifik* menurut UU PDP No. 27/2022). Saat masuk, frame dikirim ke `/api/auth/face`, diteruskan ke layanan wajah, lalu dicocokkan dan diperiksa kedipannya di sini (`src/core/lib/face/`). Jika layanan wajah mati, jawabannya `503` tanpa sesi — faktor kedua tidak pernah dilewati.
 - **TOTP** — kode 6 digit dari aplikasi authenticator. Admin meminta pengguna menyiapkannya dari halaman Pengguna; permintaan berlaku 24 jam dan disiapkan oleh pengguna sendiri saat masuk berikutnya.
 
 Akun baru dan akun yang kata sandinya direset memakai kata sandi default per peran dan wajib menggantinya di `/change-password` saat masuk pertama. Kata sandi default diatur di bagian bawah halaman Pengguna. Setiap pengelola hanya mengatur default untuk peran yang ia kelola.
@@ -158,7 +190,7 @@ URL lama sebelum super app (`/dashboard`, `/samples/...`, `/database`, `/assay/.
 
 ## REST API
 
-Semua endpoint berada di bawah `/api` dan mengembalikan bentuk `{ success, data }` atau `{ success: false, error }`. Hak akses per endpoint mengikuti `src/lib/permissions.ts`.
+Semua endpoint berada di bawah `/api` dan mengembalikan bentuk `{ success, data }` atau `{ success: false, error }`. Hak akses per endpoint mengikuti tabel capability modulnya (`src/modules/<modul>/capabilities.ts`).
 
 ### Autentikasi & sesi
 
@@ -227,7 +259,7 @@ Field: `holeId` (wajib, unik), `area`, `easting`, `northing`, `elevation`, `azim
 
 #### Import & export Excel/CSV
 
-Format file export, template, dan import sama persis (`src/lib/drill-hole-columns.ts`). File hasil export bisa diedit di Excel lalu di-import kembali.
+Format file export, template, dan import sama persis (`src/modules/eksplorasi/lib/drill-hole-columns.ts`). File hasil export bisa diedit di Excel lalu di-import kembali.
 
 Baris 1 berisi header. Kolomnya: `Hole ID`, `Area`, `Status`, `Easting`, `Northing`, `Elevation (m)`, `Azimuth (°)`, `Dip (°)`, `Total Depth (m)`, `Start Date`, `End Date`, `Remarks`.
 
@@ -262,7 +294,7 @@ Hasil uji di MySQL 8 lokal untuk 34.000 baris:
 | Simpan baris baru | ±10 detik |
 | Update semua dari .xlsx | ±14 detik |
 
-Lihat `src/lib/__tests__/drill-hole-import-db.test.ts`.
+Lihat `src/modules/eksplorasi/lib/__tests__/drill-hole-import-db.test.ts`.
 
 ### Dashboard & laporan
 
@@ -295,7 +327,8 @@ Lihat `src/lib/__tests__/drill-hole-import-db.test.ts`.
 npm run dev               # development server
 npm run build             # production build
 npm start                 # jalankan hasil build
-npm run lint              # ESLint
+npm run lint              # ESLint (termasuk batas modul & ukuran file)
+npm run module:new -- <key>  # kerangka modul baru (lihat docs/MODULES.md)
 npm test                  # vitest (sekali jalan); npm run test:watch untuk mode watch
 npm run db:migrate        # jalankan migrasi Prisma
 npm run db:seed           # isi akun & tahapan awal
@@ -305,7 +338,7 @@ npm run db:reset-samples  # hapus SEMUA sampel, log, dan hasil uji (akun & tahap
 npm run db:studio         # buka Prisma Studio (GUI database)
 ```
 
-Tes end-to-end wajah (`src/lib/__tests__/face-e2e.test.ts`) dilewati kecuali server web dan layanan wajah sama-sama berjalan; lihat [`../face/README.md`](../face/README.md#tes-end-to-end).
+Tes end-to-end wajah (`src/core/lib/__tests__/face-e2e.test.ts`) dilewati kecuali server web dan layanan wajah sama-sama berjalan; lihat [`../face/README.md`](../face/README.md#tes-end-to-end).
 
 ## Upgrade dari versi sebelum Super App
 
