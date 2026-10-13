@@ -106,13 +106,14 @@ describe("the blank template", () => {
     expect(ROUTE).toContain("AsyncIterable<SheetRow> {}");
   });
 
-  it("is offered on both screens, each with the shape it can use", () => {
+  it("is offered on both screens that match by Sample ID, in the keyed shape", () => {
     expect(DIALOG).toContain('/api/lab-records/template?shape=keyed');
 
-    const paste = readFileSync(
-      join(process.cwd(), "src", "modules", "lab", "components", "shared", "paste-from-excel.tsx"),
+    // The paste sheet matches rows by Sample ID too, so it offers the same shape.
+    const sheet = readFileSync(
+      join(process.cwd(), "src", "modules", "lab", "components", "assay", "paste-sheet", "paste-sheet-dialog.tsx"),
       "utf8"
     );
-    expect(paste).toContain('/api/lab-records/template?shape=instrument');
+    expect(sheet).toContain('/api/lab-records/template?shape=keyed');
   });
 });

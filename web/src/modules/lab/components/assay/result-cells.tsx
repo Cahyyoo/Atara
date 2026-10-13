@@ -22,18 +22,33 @@ interface CellProps {
   value: string;
   /** Tints the box when it differs from what was loaded. */
   changed: boolean;
+  /** Where the box sits, row and column on screen: what selecting and pasting read. */
+  row: number;
+  col: number;
+  /** Inside a selected rectangle. */
+  selected?: boolean;
   className?: string;
   onChange: (value: string) => void;
   onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
 }
 
 const CHANGED_TINT = "bg-amber-100/70 dark:bg-amber-500/15";
+/** A box inside a selected rectangle, drawn over whatever tint it has. */
+const SELECTED = "data-[selected]:bg-primary/15 data-[selected]:ring-1 data-[selected]:ring-primary/50";
+
+/** The attributes every box carries, so the grid can tell which box an event came from. */
+function cellData(row: number, col: number, selected?: boolean) {
+  return { "data-cell-row": row, "data-cell-col": col, "data-selected": selected ? "" : undefined };
+}
 
 export function AssayInput({
   id,
   ariaLabel,
   value,
   changed,
+  row,
+  col,
+  selected,
   className,
   problem,
   problemLabel,
@@ -56,7 +71,8 @@ export function AssayInput({
       autoComplete="off"
       aria-invalid={problem ? true : undefined}
       title={problem ? problemLabel : undefined}
-      className={cn("h-8 text-right tabular-nums", changed && !problem && CHANGED_TINT, className)}
+      {...cellData(row, col, selected)}
+      className={cn("h-8 text-right tabular-nums", changed && !problem && CHANGED_TINT, SELECTED, className)}
       value={value}
       onChange={(event) => onChange(event.target.value)}
       onKeyDown={onKeyDown}
@@ -69,6 +85,9 @@ export function InstrumentInput({
   ariaLabel,
   value,
   changed,
+  row,
+  col,
+  selected,
   className,
   kind,
   onChange,
@@ -79,7 +98,8 @@ export function InstrumentInput({
       id={id}
       aria-label={ariaLabel}
       type={kind === "datetime" ? "datetime-local" : "text"}
-      className={cn("h-8", changed && CHANGED_TINT, className)}
+      {...cellData(row, col, selected)}
+      className={cn("h-8", changed && CHANGED_TINT, SELECTED, className)}
       value={value}
       onChange={(event) => onChange(event.target.value)}
       onKeyDown={onKeyDown}
@@ -92,6 +112,9 @@ export function RemarksInput({
   ariaLabel,
   value,
   changed,
+  row,
+  col,
+  selected,
   className,
   onChange,
   onKeyDown,
@@ -100,7 +123,8 @@ export function RemarksInput({
     <Input
       id={id}
       aria-label={ariaLabel}
-      className={cn("h-8", changed && CHANGED_TINT, className)}
+      {...cellData(row, col, selected)}
+      className={cn("h-8", changed && CHANGED_TINT, SELECTED, className)}
       value={value}
       onChange={(event) => onChange(event.target.value)}
       onKeyDown={onKeyDown}

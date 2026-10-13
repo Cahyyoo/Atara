@@ -5,9 +5,8 @@ import {
   type AssayField,
   type InstrumentField,
 } from "@/modules/lab/lib/records/assay";
-import { parseWitaInput, toWitaInputValue } from "@/core/lib/wita-time";
+import { parseWitaInput } from "@/core/lib/wita-time";
 import type { Overwrite } from "@/modules/lab/lib/records/overwrite";
-import type { PasteRow } from "@/modules/lab/lib/records/paste-map";
 
 /**
  * How many samples still read better as a form than as a grid.
@@ -49,23 +48,6 @@ export const ALL_COLUMNS: Column[] = [
   ...INSTRUMENT_FIELDS.map((field) => field.key),
   "remarks",
 ];
-
-/** The rows with a pasted block written into their boxes, as text the boxes hold. */
-export function fillRows(previous: Record<string, RowValues>, rows: PasteRow[]): Record<string, RowValues> {
-  const next = { ...previous };
-  for (const row of rows) {
-    if (!row.targetId || !next[row.targetId]) continue;
-    const current = { ...next[row.targetId] };
-    for (const [key, value] of Object.entries(row.values)) {
-      if (!(key in current)) continue;
-      const isDate = INSTRUMENT_FIELDS.some((field) => field.key === key && field.kind === "datetime");
-      current[key as CellField] =
-        value === null ? "" : isDate ? toWitaInputValue(String(value)) : String(value);
-    }
-    next[row.targetId] = current;
-  }
-  return next;
-}
 
 /** The rows with only the replaced boxes put back to what was there. */
 export function restoreReplaced(

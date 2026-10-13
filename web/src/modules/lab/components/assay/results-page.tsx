@@ -20,8 +20,8 @@ const ASSAY_ACCESS: LabRecordsAccess = { canEdit: false, canExport: false, canVi
  * The paste dialog, the grid and the whole-sheet import each arrive the first
  * time they are used. The list is what every visit opens on.
  */
-const PasteFromExcel = dynamic(
-  () => import("@/modules/lab/components/shared/paste-from-excel").then((m) => m.PasteFromExcel),
+const PasteSheetDialog = dynamic(
+  () => import("@/modules/lab/components/assay/paste-sheet/paste-sheet-dialog").then((m) => m.PasteSheetDialog),
   { ssr: false }
 );
 const ResultsEntry = dynamic(
@@ -37,20 +37,18 @@ const PasteImport = dynamic(
  * Entering results: pick the samples, then fill them in.
  *
  * The list comes first, opened on the samples still waiting for a result, so
- * the choice of which ones to fill is the user's. From the ticked rows:
+ * the choice of which ones to fill is the user's. From the ticked rows, Paste
+ * from Excel and Type manually both open the same grid: one row per ticked
+ * sample, a box per result, and a block copied out of the instrument's sheet
+ * pastes straight into it as it would into another sheet.
  *
- *   Paste from Excel -- the common case; a block copied out of the instrument's
- *                       sheet is matched to the ticked rows and saved.
- *   Type manually    -- the grid, for the few read off a printout.
- *
- * A whole sheet covering samples nobody has ticked goes through Import file,
- * which matches against every sample.
+ * With nothing ticked, Paste by Sample ID opens the paste sheet -- a Sample ID
+ * column beside the results, up to five thousand rows, matched against every
+ * sample by the server. A whole file goes through Import file.
  */
 export function ResultsPage() {
   const t = useTranslations("assay");
-  const tPaste = useTranslations("database.paste");
   const [editing, setEditing] = useState<LabRecordListItemDTO[] | null>(null);
-  const [pasteTargets, setPasteTargets] = useState<LabRecordListItemDTO[]>([]);
   const [isPasting, setIsPasting] = useState(false);
   const [pasteMounted, setPasteMounted] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
@@ -79,7 +77,11 @@ export function ResultsPage() {
         access={ASSAY_ACCESS}
         mode="assay"
         onPaste={(records) => {
-          setPasteTargets(records);
+          // Ticked samples are rows already: the grid takes the paste.
+          if (records.length > 0) {
+            setEditing(records);
+            return;
+          }
           setPasteMounted(true);
           setIsPasting(true);
         }}
@@ -88,13 +90,16 @@ export function ResultsPage() {
       />
 
       {pasteMounted ? (
-        <PasteFromExcel
-          records={pasteTargets}
+        <PasteSheetDialog
+          // A fresh sheet after each save: what was saved is gone from it. Its
+          // own key, not the list's -- two siblings sharing one key leave React
+          // matching the wrong one, and the list stops answering its ticks.
+          key={`sheet-${listKey}`}
           open={isPasting}
           onClose={() => setIsPasting(false)}
-          onApplied={() => {
+          onApplied={(count) => {
             setIsPasting(false);
-            toast(tPaste("applied"));
+            toast(t("sheet.saved", { count }));
             setListKey((key) => key + 1);
           }}
         />

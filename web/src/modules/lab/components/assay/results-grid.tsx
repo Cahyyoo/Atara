@@ -3,6 +3,7 @@
 import { memo, useMemo, type KeyboardEvent } from "react";
 import { useTranslations } from "next-intl";
 import { AssayInput, InstrumentInput, RemarksInput } from "@/modules/lab/components/assay/result-cells";
+import { inSelection } from "@/modules/lab/components/assay/grid/use-grid-selection";
 import {
   Table,
   TableBody,
@@ -88,39 +89,15 @@ export function cellId(rowIndex: number, field: CellField): string {
   return `cell-${rowIndex}-${field}`;
 }
 
-function focusCell(rowIndex: number, field: CellField) {
-  const next = document.getElementById(cellId(rowIndex, field));
-  if (next instanceof HTMLInputElement) {
-    next.focus();
-    next.select();
-  }
-}
-
 /**
- * Moving the way a spreadsheet does: down the same column with Enter or the
- * arrow, back up with Shift+Enter or the arrow. Esc puts back what was there.
- *
- * Arrows are taken over on purpose: in the old number boxes they nudged the
- * value by 0.001, which is a changed result nobody meant to type.
+ * Esc puts back what was there. Moving between boxes -- Enter and the arrows,
+ * as in a spreadsheet -- belongs to the grid as a whole (useGridSelection),
+ * not to each box.
  */
-export function handleKeyDown(
-  event: KeyboardEvent<HTMLInputElement>,
-  rowIndex: number,
-  field: CellField,
-  onRevert: () => void
-) {
-  if (event.key === "Escape") {
-    event.preventDefault();
-    onRevert();
-    return;
-  }
-  const down = (event.key === "Enter" && !event.shiftKey) || event.key === "ArrowDown";
-  const up = (event.key === "Enter" && event.shiftKey) || event.key === "ArrowUp";
-  if (!down && !up) return;
-  // A datetime box uses the arrows for its own fields.
-  if (event.currentTarget.type === "datetime-local" && event.key !== "Enter") return;
+export function revertOnEscape(event: KeyboardEvent<HTMLInputElement>, onRevert: () => void) {
+  if (event.key !== "Escape") return;
   event.preventDefault();
-  focusCell(rowIndex + (down ? 1 : -1), field);
+  onRevert();
 }
 
 interface RowProps {
@@ -134,6 +111,8 @@ interface RowProps {
   showRemarks: boolean;
   dateLabel: string;
   problemLabels: Record<CellProblem, (max: number) => string>;
+  /** "left:right" when the row is inside a selected rectangle (inSelection). */
+  selection: string | null;
   onCellChange: (id: string, field: CellField, value: string) => void;
 }
 
@@ -152,6 +131,7 @@ const ResultRow = memo(function ResultRow({
   showRemarks,
   dateLabel,
   problemLabels,
+  selection,
   onCellChange,
 }: RowProps) {
   const dirty = isRowDirty(original, row);
@@ -159,6 +139,9 @@ const ResultRow = memo(function ResultRow({
 
   const changed = (field: CellField) => original[field] !== row[field];
   const revert = (field: CellField) => () => onCellChange(record.id, field, original[field]);
+  // Columns are numbered left to right across all three kinds, as on screen.
+  const instrumentFrom = columns.length;
+  const remarksAt = columns.length + instrumentColumns.length;
 
   return (
     <TableRow className={cn(dirty && "bg-amber-50/60 dark:bg-amber-500/5")}>
@@ -178,12 +161,15 @@ const ResultRow = memo(function ResultRow({
           ) : null}
         </div>
       </TableCell>
-      {columns.map((field) => {
+      {columns.map((field, col) => {
         const problem = numberProblem(row[field.key], field.max);
         return (
           <TableCell key={field.key} className="p-1">
             <AssayInput
               id={cellId(rowIndex, field.key)}
+              row={rowIndex}
+              col={col}
+              selected={inSelection(selection, col)}
               ariaLabel={`${name} ${field.shortLabel}`}
               value={row[field.key]}
               changed={changed(field.key)}
@@ -191,22 +177,25 @@ const ResultRow = memo(function ResultRow({
               problemLabel={problem ? problemLabels[problem](field.max) : undefined}
               className="w-24"
               onChange={(value) => onCellChange(record.id, field.key, value)}
-              onKeyDown={(event) => handleKeyDown(event, rowIndex, field.key, revert(field.key))}
+              onKeyDown={(event) => revertOnEscape(event, revert(field.key))}
             />
           </TableCell>
         );
       })}
-      {instrumentColumns.map((field) => (
+      {instrumentColumns.map((field, index) => (
         <TableCell key={field.key} className="p-1">
           <InstrumentInput
             id={cellId(rowIndex, field.key)}
+            row={rowIndex}
+            col={instrumentFrom + index}
+            selected={inSelection(selection, instrumentFrom + index)}
             ariaLabel={`${name} ${field.label}`}
             kind={field.kind}
             value={row[field.key]}
             changed={changed(field.key)}
             className="min-w-40"
             onChange={(value) => onCellChange(record.id, field.key, value)}
-            onKeyDown={(event) => handleKeyDown(event, rowIndex, field.key, revert(field.key))}
+            onKeyDown={(event) => revertOnEscape(event, revert(field.key))}
           />
         </TableCell>
       ))}
@@ -214,12 +203,15 @@ const ResultRow = memo(function ResultRow({
         <TableCell className="p-1">
           <RemarksInput
             id={cellId(rowIndex, "remarks")}
+            row={rowIndex}
+            col={remarksAt}
+            selected={inSelection(selection, remarksAt)}
             ariaLabel={`${name} remarks`}
             value={row.remarks}
             changed={changed("remarks")}
             className="min-w-48"
             onChange={(value) => onCellChange(record.id, "remarks", value)}
-            onKeyDown={(event) => handleKeyDown(event, rowIndex, "remarks", revert("remarks"))}
+            onKeyDown={(event) => revertOnEscape(event, revert("remarks"))}
           />
         </TableCell>
       ) : null}
@@ -241,6 +233,7 @@ export function ResultsGrid({
   isLoading,
   emptyMessage,
   formatDate,
+  selectionFor,
   onCellChange,
 }: {
   records: LabRecordListItemDTO[];
@@ -250,6 +243,8 @@ export function ResultsGrid({
   columns: AssayFieldSpec[];
   instrumentColumns: InstrumentColumn[];
   showRemarks: boolean;
+  /** A row's part of the selected rectangle (useGridSelection). */
+  selectionFor: (row: number) => string | null;
   isLoading: boolean;
   emptyMessage: string;
   formatDate: (shiftDate: string) => string;
@@ -318,6 +313,7 @@ export function ResultsGrid({
                   showRemarks={showRemarks}
                   dateLabel={formatDate(record.shiftDate)}
                   problemLabels={problemLabels}
+                  selection={selectionFor(rowIndex)}
                   onCellChange={onCellChange}
                 />
               );

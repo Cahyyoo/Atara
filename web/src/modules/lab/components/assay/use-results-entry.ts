@@ -12,19 +12,13 @@ import {
   type RowValues,
 } from "@/modules/lab/components/assay/results-grid";
 import { parseDayInput } from "@/core/lib/wita-time";
-import type { PasteRow } from "@/modules/lab/lib/records/paste-map";
 import { findOverwrites, type Overwrite } from "@/modules/lab/lib/records/overwrite";
 import type { ApiResult } from "@/core/types";
 import type { LabRecordListItemDTO } from "@/modules/lab/types";
 import { withBasePath } from "@/core/lib/http/base-path";
-import {
-  ALL_COLUMNS,
-  fillRows,
-  restoreReplaced,
-  toPayload,
-  type Replaced,
-} from "@/modules/lab/components/assay/results-entry-utils";
+import { restoreReplaced, toPayload, type Replaced } from "@/modules/lab/components/assay/results-entry-utils";
 import { useResultsColumns } from "@/modules/lab/components/assay/use-results-columns";
+import { useResultsClipboard } from "@/modules/lab/components/assay/use-results-clipboard";
 
 /** The entry screen's state: the rows as typed, what changed, and the save. */
 export function useResultsEntry(records: LabRecordListItemDTO[], onDone: (changed: boolean) => void) {
@@ -42,12 +36,21 @@ export function useResultsEntry(records: LabRecordListItemDTO[], onDone: (change
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
-  const [isPasting, setIsPasting] = useState(false);
-  const [pasteMounted, setPasteMounted] = useState(false);
   /** Set while the analyst decides about results a save would replace. */
   const [replacing, setReplacing] = useState<Replaced[] | null>(null);
 
   const { visible, setVisible, columns, instrumentColumns, showRemarks, toggleColumn } = useResultsColumns();
+  // Copy, cut, paste and selecting across the boxes, as in Excel.
+  const clipboard = useResultsClipboard({
+    records,
+    values,
+    setValues,
+    columns,
+    instrumentColumns,
+    showRemarks,
+    visible,
+    setVisible,
+  });
 
   const dirtyIds = useMemo(
     () =>
@@ -198,25 +201,6 @@ export function useResultsEntry(records: LabRecordListItemDTO[], onDone: (change
     setReplacing(null);
   }
 
-  /**
-   * A pasted block lands in the boxes rather than going to the server, so it
-   * is checked on screen like anything typed. Columns it filled that were
-   * hidden are shown, or they would be saved without ever being seen.
-   */
-  function handleFill(rows: PasteRow[]) {
-    const filled = new Set(rows.flatMap((row) => Object.keys(row.values)));
-    const reveal = ALL_COLUMNS.filter((key) => filled.has(key) && !visible.includes(key));
-    if (reveal.length > 0) setVisible([...visible, ...reveal]);
-
-    setValues((previous) => fillRows(previous, rows));
-    setIsPasting(false);
-  }
-
-  function openPaste() {
-    setPasteMounted(true);
-    setIsPasting(true);
-  }
-
   const formatDate = useCallback(
     (shiftDate: string) => {
       const date = parseDayInput(shiftDate);
@@ -233,9 +217,6 @@ export function useResultsEntry(records: LabRecordListItemDTO[], onDone: (change
     isSaving,
     confirmLeave,
     setConfirmLeave,
-    isPasting,
-    setIsPasting,
-    pasteMounted,
     replacing,
     setReplacing,
     visible,
@@ -252,8 +233,7 @@ export function useResultsEntry(records: LabRecordListItemDTO[], onDone: (change
     leave,
     saveAndLeave,
     keepOld,
-    handleFill,
-    openPaste,
+    clipboard,
     toggleColumn,
     formatDate,
   };

@@ -228,6 +228,17 @@ describe.skipIf(!reachable)("sub-samples against the database", () => {
     expect(Number(sub.ni)).toBe(1.7);
   });
 
+  it("names the column at fault, so a grid can mark the very cell", async () => {
+    const parent = await sample();
+    const csv = `Sample ID\tNi\tFe\n${parent.sampleIdent}\t1.5\tabc\nNO-SUCH-SAMPLE\t1\t2\n\t1\t2\n`;
+    const preview = await call(importSheet, "/api/lab-records/import", "POST", { csv, apply: false });
+    const [bad, unknown, keyless] = preview.body.data.rows;
+
+    expect(bad).toMatchObject({ line: 2, status: "invalid", field: "fe" });
+    expect(unknown).toMatchObject({ line: 3, status: "unknown", field: "sampleIdent" });
+    expect(keyless).toMatchObject({ line: 4, status: "invalid", field: "sampleIdent" });
+  });
+
   it("keeps a sub in step when its parent's identity moves", async () => {
     const parent = await sample();
     await call(bulk, "/api/lab-records/bulk", "PATCH", { records: [{ parentId: parent.id, subCode: "-20", ni: 1 }] });

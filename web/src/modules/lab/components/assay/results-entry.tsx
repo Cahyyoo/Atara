@@ -1,6 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { Button } from "@/core/components/ui/button";
 import { InlineNotice } from "@/core/components/ui/inline-notice";
@@ -15,18 +14,15 @@ import { useResultsEntry } from "@/modules/lab/components/assay/use-results-entr
 import type { LabRecordListItemDTO } from "@/modules/lab/types";
 import { IoArrowBack, IoClipboardOutline } from "react-icons/io5";
 
-/** Loaded the first time it is opened; most rows are typed or pasted from the list. */
-const PasteFromExcel = dynamic(
-  () => import("@/modules/lab/components/shared/paste-from-excel").then((m) => m.PasteFromExcel),
-  { ssr: false }
-);
-
 /**
- * Typing results for the samples ticked on the list, and nothing else.
+ * Typing -- or pasting from Excel -- results for the samples ticked on the
+ * list, and nothing else.
  *
  * The grid holds exactly the rows it was handed, so it never loads anything of
- * its own. Nothing is saved until Save, and going back to the list with edits
- * on screen stops and asks -- as does leaving the page.
+ * its own. A block copied out of a sheet is pasted straight into the boxes,
+ * and boxes can be selected and copied back out (useResultsClipboard). Nothing
+ * is saved until Save, and going back to the list with edits on screen stops
+ * and asks -- as does leaving the page.
  */
 export function ResultsEntry({
   records,
@@ -37,7 +33,6 @@ export function ResultsEntry({
   onDone: (changed: boolean) => void;
 }) {
   const t = useTranslations("assay");
-  const tDatabase = useTranslations("database");
   const {
     original,
     values,
@@ -46,9 +41,6 @@ export function ResultsEntry({
     isSaving,
     confirmLeave,
     setConfirmLeave,
-    isPasting,
-    setIsPasting,
-    pasteMounted,
     replacing,
     setReplacing,
     visible,
@@ -65,8 +57,7 @@ export function ResultsEntry({
     leave,
     saveAndLeave,
     keepOld,
-    handleFill,
-    openPaste,
+    clipboard,
     toggleColumn,
     formatDate,
   } = useResultsEntry(records, onDone);
@@ -83,14 +74,21 @@ export function ResultsEntry({
         </span>
         <div className="ml-auto flex flex-wrap gap-2">
           <ResultsColumnPicker visible={visible} showRemarks={showRemarks} onToggle={toggleColumn} />
-          <Button variant="outline" className="gap-2" onClick={openPaste}>
-            <IoClipboardOutline className="size-4" />
-            {tDatabase("paste.open")}
-          </Button>
         </div>
       </div>
 
+      {/* How the grid takes a block from Excel, said where it is used. */}
+      <p className="flex items-start gap-2 text-sm text-muted-foreground">
+        <IoClipboardOutline aria-hidden className="mt-0.5 size-4 shrink-0" />
+        {t("sheet.pasteHint")}
+      </p>
+
       <InlineNotice tone="error">{error}</InlineNotice>
+      {clipboard.ignored > 0 ? (
+        <p role="status" className="rounded-lg bg-amber-500/10 px-3 py-2 text-sm text-amber-800 dark:text-amber-300">
+          {t("sheet.rowsIgnored", { count: clipboard.ignored })}
+        </p>
+      ) : null}
 
       {/*
         A form for a few samples, the grid for many.
@@ -104,6 +102,10 @@ export function ResultsEntry({
         Three is where it turns over: up to three cards fit a screen, and
         past that the stack gets longer than the scroll it saves.
       */}
+      {/* The whole grid listens for selecting and the clipboard, so a box
+          carries nothing beyond its value. No text selection while a block
+          of boxes is being dragged across. */}
+      <div {...clipboard.containerProps} className="data-[dragging]:select-none">
       {records.length > 0 && records.length <= FORM_UP_TO ? (
         <ResultsForm
         records={records}
@@ -114,6 +116,7 @@ export function ResultsEntry({
         instrumentColumns={instrumentColumns}
         showRemarks={showRemarks}
         formatDate={formatDate}
+        selectionFor={clipboard.selectionFor}
         onCellChange={setCell}
         />
       ) : (
@@ -126,11 +129,13 @@ export function ResultsEntry({
         instrumentColumns={instrumentColumns}
         showRemarks={showRemarks}
         formatDate={formatDate}
+        selectionFor={clipboard.selectionFor}
         onCellChange={setCell}
           isLoading={false}
           emptyMessage={t("noMatch")}
         />
       )}
+      </div>
 
       {isDirty ? (
         <ResultsSaveBar
@@ -159,15 +164,6 @@ export function ResultsEntry({
         onSave={() => void saveAndLeave()}
       />
 
-      {pasteMounted ? (
-        <PasteFromExcel
-          records={records}
-          open={isPasting}
-          onClose={() => setIsPasting(false)}
-          onApplied={() => setIsPasting(false)}
-          onFill={handleFill}
-        />
-      ) : null}
     </div>
   );
 }

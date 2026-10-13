@@ -19,7 +19,7 @@ import { TourRunner } from "@/core/components/tour/tour-runner";
 import type { SessionPayload } from "@/core/lib/auth/auth";
 import { helpSectionForPath } from "@/core/lib/app/help-sections";
 import { personaOf } from "@/core/lib/auth/permissions";
-import { moduleForPath, modulesFor } from "@/core/lib/app/modules";
+import { canAccessModule, moduleForPath, modulesFor, type ModuleKey } from "@/core/lib/app/modules";
 import { cn } from "@/core/lib/utils";
 import type { BannerDTO } from "@/core/types";
 import { IoHelpCircleOutline, IoMenuOutline } from "react-icons/io5";
@@ -46,7 +46,11 @@ export function AppShell({
   // and show one bar; inside a module a second row holds that module's menu
   // only. One shell for both, so moving between them remounts nothing.
   const currentModule = useMemo(() => moduleForPath(pathname), [pathname]);
-  const HeaderExtra = currentModule?.shell?.header;
+  // Only for a module this person works in. The address alone is not enough:
+  // somebody turned away from a module's page (the layout redirects them) is
+  // still drawn once on the way, and its search box has no words for them.
+  const HeaderExtra =
+    currentModule && canAccessModule(user, currentModule.key as ModuleKey) ? currentModule.shell?.header : undefined;
   // Out of sight, for every module the person works in: the lab's
   // sample-origin tracker. The shell itself names no module.
   const backgrounds = modulesFor(user).flatMap((m) => (m.shell?.background ? [m.shell.background] : []));

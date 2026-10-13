@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 
@@ -233,5 +233,78 @@ describe("replacing a result that is already there", () => {
     await user.keyboard("{Control>}s{/Control}");
     await waitFor(() => expect(saves).toHaveLength(1));
     expect(saves[0]).toMatchObject({ overwrite: false });
+  });
+});
+
+describe("Excel's clipboard in the grid", () => {
+  const FOUR = [record(1), record(2), record(3), record(4)];
+  const name = (n: number) => `NKL-2026-0000${n}`;
+  const paste = (box: HTMLElement, text: string) => fireEvent.paste(box, { clipboardData: { getData: () => text } });
+
+  it("lays a copied block down from the box it lands in, across and down", () => {
+    show(vi.fn(), FOUR);
+    paste(cell(name(1), "Ni"), "1.1\t2.2\n3.3\t4.4");
+
+    expect(cell(name(1), "Ni").value).toBe("1.1");
+    expect(cell(name(1), "Fe").value).toBe("2.2");
+    expect(cell(name(2), "Ni").value).toBe("3.3");
+    expect(cell(name(2), "Fe").value).toBe("4.4");
+    // Nothing went to the server: it is checked on screen like anything typed.
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("matches a block by its header, and shows a column it filled that was hidden", () => {
+    show(vi.fn(), FOUR);
+    expect(screen.queryByRole("textbox", { name: `${name(1)} Solution ID` })).toBeNull();
+
+    paste(cell(name(1), "Fe"), "Solution ID\tNi\nA-17\t1.5");
+    expect(cell(name(1), "Ni").value).toBe("1.5");
+    expect(cell(name(1), "Solution ID").value).toBe("A-17");
+  });
+
+  it("leaves out rows past the ticked samples, and says how many", () => {
+    show(vi.fn(), FOUR);
+    paste(cell(name(3), "Ni"), "1\n2\n3\n4");
+    expect(cell(name(4), "Ni").value).toBe("2");
+    expect(screen.getByRole("status").textContent).toContain("2 rows");
+  });
+
+  it("copies a dragged block out as Excel's rows and columns, and Delete empties it", () => {
+    show(vi.fn(), FOUR);
+    paste(cell(name(1), "Ni"), "1.1\t2.2\n3.3\t4.4");
+
+    fireEvent.mouseDown(cell(name(1), "Ni"), { button: 0 });
+    fireEvent.mouseOver(cell(name(2), "Fe"));
+    fireEvent.mouseUp(window);
+    expect(cell(name(2), "Fe").hasAttribute("data-selected")).toBe(true);
+
+    const setData = vi.fn();
+    fireEvent.copy(cell(name(1), "Ni"), { clipboardData: { setData } });
+    expect(setData).toHaveBeenCalledWith("text/plain", "1.1\t2.2\n3.3\t4.4");
+
+    fireEvent.keyDown(cell(name(1), "Ni"), { key: "Delete" });
+    expect(cell(name(1), "Ni").value).toBe("");
+    expect(cell(name(2), "Fe").value).toBe("");
+  });
+
+  it("fills a selected block with one copied value", () => {
+    show(vi.fn(), FOUR);
+    fireEvent.mouseDown(cell(name(1), "Ni"), { button: 0 });
+    fireEvent.mouseOver(cell(name(3), "Ni"));
+    fireEvent.mouseUp(window);
+
+    paste(cell(name(1), "Ni"), "0.5");
+    expect([1, 2, 3].map((n) => cell(name(n), "Ni").value)).toEqual(["0.5", "0.5", "0.5"]);
+    expect(cell(name(4), "Ni").value).toBe("");
+  });
+
+  it("moves left and right between boxes as a spreadsheet does", () => {
+    show(vi.fn(), FOUR);
+    const ni = cell(name(1), "Ni");
+    ni.focus();
+    fireEvent.keyDown(ni, { key: "ArrowRight" });
+    expect(document.activeElement).toBe(cell(name(1), "Fe"));
+    fireEvent.keyDown(cell(name(1), "Fe"), { key: "ArrowLeft" });
+    expect(document.activeElement).toBe(ni);
   });
 });

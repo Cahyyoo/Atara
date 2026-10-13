@@ -203,6 +203,11 @@ export interface ImportPreviewRow {
   /** Results already there that this row would replace. */
   overwrites?: { field: string; from: number | string; to: number | string | null }[];
   message?: string;
+  /**
+   * On an invalid or unknown row, the column at fault ("ni", "sampleIdent"),
+   * so a grid can mark the very cell rather than only the row.
+   */
+  field?: string;
 }
 
 export interface ImportPreviewDTO {

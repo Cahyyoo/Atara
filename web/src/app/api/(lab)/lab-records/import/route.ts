@@ -55,7 +55,7 @@ export const POST = route({ capability: "enterResults" }, async ({ request, sess
     const noun = "Sample ID";
 
     if (!key) {
-      preview.push({ line, labCode: "", status: "invalid", changes: {}, message: `Missing ${noun}.` });
+      preview.push({ line, labCode: "", status: "invalid", changes: {}, message: `Missing ${noun}.`, field: "sampleIdent" });
       return;
     }
 
@@ -67,6 +67,7 @@ export const POST = route({ capability: "enterResults" }, async ({ request, sess
         status: "invalid",
         changes: {},
         message: "This Sample ID fits more than one sample once the sack count is left out. Add the sack count.",
+        field: "sampleIdent",
       });
       return;
     }
@@ -77,6 +78,7 @@ export const POST = route({ capability: "enterResults" }, async ({ request, sess
         status: "unknown",
         changes: {},
         message: `No sample with this ${noun}.`,
+        field: "sampleIdent",
       });
       return;
     }
@@ -84,19 +86,19 @@ export const POST = route({ capability: "enterResults" }, async ({ request, sess
     const sampleCode = target.sample.sampleCode;
 
     const raw: Record<string, string | number | null> = {};
-    let badCell: string | null = null;
+    let badCell: { message: string; field: string } | null = null;
 
     for (const field of fields) {
       const cell = readImportCell(field.key, (row[field.index] ?? "").trim());
       if ("error" in cell) {
-        badCell ??= cell.error;
+        badCell ??= { message: cell.error, field: field.key };
         continue;
       }
       raw[field.key] = cell.value;
     }
 
     if (badCell) {
-      preview.push({ line, labCode: key, sampleCode, status: "invalid", changes: {}, message: badCell });
+      preview.push({ line, labCode: key, sampleCode, status: "invalid", changes: {}, ...badCell });
       return;
     }
 
@@ -110,6 +112,7 @@ export const POST = route({ capability: "enterResults" }, async ({ request, sess
         status: "invalid",
         changes: {},
         message: `${issue.path.join(".") || "value"}: ${issue.message}`,
+        field: typeof issue.path[0] === "string" ? issue.path[0] : undefined,
       });
       return;
     }

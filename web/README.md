@@ -180,7 +180,7 @@ Akun baru dan akun yang kata sandinya direset memakai kata sandi default per per
 | `/lab/samples/[code]/sub/[subCode]` | Detail sub-sampel. |
 | `/lab/database`                     | Database Sampel: cari, edit identitas, hapus/pulihkan, export. |
 | `/lab/data-quality`                 | Sampel dengan identitas belum lengkap atau belum ada hasil setelah sekian hari. |
-| `/lab/assay`                        | Input Hasil Uji: grid, tempel dari spreadsheet, atau impor workbook. |
+| `/lab/assay`                        | Input Hasil Uji dengan grid seperti Excel: blok dari Excel ditempel langsung ke sel (Ctrl+V), sel bisa diseleksi lalu di-copy ke Excel (Ctrl+C) atau dikosongkan (Delete). Sampel tercentang diisi di grid; tanpa centang, "Tempel per Sample ID" membuka lembar hingga 5.000 baris yang dicek server per baris. Impor file CSV/XLSX tetap tersedia. |
 | `/lab/assay/history`                | Riwayat perubahan hasil uji. |
 | `/lab/grade`                        | Kesimpulan: rata-rata kadar per pit, SIR, lokasi, jenis batuan, kode non-prod, atau barging run. |
 | `/lab/activity`                     | Jejak perpindahan tahap per operator. |

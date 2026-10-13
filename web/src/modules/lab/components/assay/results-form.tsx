@@ -6,14 +6,15 @@ import { Label } from "@/core/components/ui/label";
 import { AssayInput, InstrumentInput, RemarksInput } from "@/modules/lab/components/assay/result-cells";
 import {
   cellId,
-  handleKeyDown,
   isRowDirty,
   numberProblem,
   type CellField,
   type CellProblem,
   type InstrumentColumn,
   type RowValues,
+  revertOnEscape,
 } from "@/modules/lab/components/assay/results-grid";
+import { inSelection } from "@/modules/lab/components/assay/grid/use-grid-selection";
 import type { AssayFieldSpec } from "@/modules/lab/lib/records/assay";
 import { cn } from "@/core/lib/utils";
 import type { LabRecordListItemDTO } from "@/modules/lab/types";
@@ -32,9 +33,10 @@ import { IoCheckmarkCircle } from "react-icons/io5";
  * Wrapped, the same eighteen fit on one screen with room to spare, and the
  * vertical space that was doing nothing is what pays for it.
  *
- * The cell ids are the grid's, unchanged and deliberately: Enter still steps
- * to the same field in the next sample, so somebody filling in Ni for three
- * samples types a number, Enter, a number, Enter -- exactly as before.
+ * The cells are numbered as the grid's are, a card being a row: Enter still
+ * steps to the same field in the next sample, so somebody filling in Ni for
+ * three samples types a number, Enter, a number, Enter -- exactly as before --
+ * and a block pasted from Excel spreads across the cards as it would down rows.
  */
 export function ResultsForm({
   records,
@@ -45,6 +47,7 @@ export function ResultsForm({
   instrumentColumns,
   showRemarks,
   formatDate,
+  selectionFor,
   onCellChange,
 }: {
   records: LabRecordListItemDTO[];
@@ -55,6 +58,8 @@ export function ResultsForm({
   instrumentColumns: InstrumentColumn[];
   showRemarks: boolean;
   formatDate: (shiftDate: string) => string;
+  /** A card's part of the selected rectangle: a card is a row of the grid. */
+  selectionFor: (row: number) => string | null;
   onCellChange: (id: string, field: CellField, value: string) => void;
 }) {
   const t = useTranslations("assay");
@@ -81,6 +86,9 @@ export function ResultsForm({
         const name = record.sample.sampleCode;
         const changed = (field: CellField) => before[field] !== row[field];
         const revert = (field: CellField) => () => onCellChange(record.id, field, before[field]);
+        const selection = selectionFor(rowIndex);
+        const instrumentFrom = columns.length;
+        const remarksAt = columns.length + instrumentColumns.length;
 
         return (
           <section
@@ -115,7 +123,7 @@ export function ResultsForm({
               scrolled back to.
             */}
             <div className="grid grid-cols-2 gap-x-3 gap-y-2 sm:grid-cols-3 lg:grid-cols-6">
-              {columns.map((field) => {
+              {columns.map((field, col) => {
                 const problem = numberProblem(row[field.key], field.max);
                 return (
                   <div key={field.key} className="flex flex-col gap-1">
@@ -124,13 +132,16 @@ export function ResultsForm({
                     </Label>
                     <AssayInput
                       id={cellId(rowIndex, field.key)}
+                      row={rowIndex}
+                      col={col}
+                      selected={inSelection(selection, col)}
                       ariaLabel={`${name} ${field.shortLabel}`}
                       value={row[field.key]}
                       changed={changed(field.key)}
                       problem={problem}
                       problemLabel={problem ? problemLabels[problem](field.max) : undefined}
                       onChange={(value) => onCellChange(record.id, field.key, value)}
-                      onKeyDown={(event) => handleKeyDown(event, rowIndex, field.key, revert(field.key))}
+                      onKeyDown={(event) => revertOnEscape(event, revert(field.key))}
                     />
                   </div>
                 );
@@ -141,19 +152,22 @@ export function ResultsForm({
               /* Wider boxes than the numbers, so they get their own row rather
                  than stretching the six-column rhythm above. */
               <div className="mt-3 grid grid-cols-1 gap-x-3 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
-                {instrumentColumns.map((field) => (
+                {instrumentColumns.map((field, index) => (
                   <div key={field.key} className="flex flex-col gap-1">
                     <Label htmlFor={cellId(rowIndex, field.key)} className="text-xs font-normal text-muted-foreground">
                       {field.label}
                     </Label>
                     <InstrumentInput
                       id={cellId(rowIndex, field.key)}
+                      row={rowIndex}
+                      col={instrumentFrom + index}
+                      selected={inSelection(selection, instrumentFrom + index)}
                       ariaLabel={`${name} ${field.label}`}
                       kind={field.kind}
                       value={row[field.key]}
                       changed={changed(field.key)}
                       onChange={(value) => onCellChange(record.id, field.key, value)}
-                      onKeyDown={(event) => handleKeyDown(event, rowIndex, field.key, revert(field.key))}
+                      onKeyDown={(event) => revertOnEscape(event, revert(field.key))}
                     />
                   </div>
                 ))}
@@ -164,11 +178,14 @@ export function ResultsForm({
                     </Label>
                     <RemarksInput
                       id={cellId(rowIndex, "remarks")}
+                      row={rowIndex}
+                      col={remarksAt}
+                      selected={inSelection(selection, remarksAt)}
                       ariaLabel={`${name} remarks`}
                       value={row.remarks}
                       changed={changed("remarks")}
                       onChange={(value) => onCellChange(record.id, "remarks", value)}
-                      onKeyDown={(event) => handleKeyDown(event, rowIndex, "remarks", revert("remarks"))}
+                      onKeyDown={(event) => revertOnEscape(event, revert("remarks"))}
                     />
                   </div>
                 ) : null}

@@ -7,8 +7,12 @@ import type { InstrumentColumn } from "@/modules/lab/components/assay/results-gr
 import { ASSAY_ENTRY_FIELDS, ASSAY_FIELDS, INSTRUMENT_FIELDS } from "@/modules/lab/lib/records/assay";
 import { ALL_COLUMNS, type Column } from "@/modules/lab/components/assay/results-entry-utils";
 
-/** The columns the entry screen shows, remembered per browser. */
-export function useResultsColumns() {
+/**
+ * The columns the entry screen shows, remembered per browser. The paste sheet
+ * keeps its own choice (a different `storageKey`): a narrow sheet for pasting
+ * three columns is not the grid somebody types eighteen into.
+ */
+export function useResultsColumns(storageKey = "atara.columns.assay.v2") {
   const tDatabase = useTranslations("database");
 
   /**
@@ -23,7 +27,7 @@ export function useResultsColumns() {
    * who wants fewer columns can narrow them again from the picker.
    */
   const [visible, setVisible] = usePersistedColumns<Column>(
-    "atara.columns.assay.v2",
+    storageKey,
     ASSAY_ENTRY_FIELDS,
     ALL_COLUMNS
   );
