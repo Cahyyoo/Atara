@@ -117,7 +117,12 @@ export function PasteSheetDialog({
       <DialogContent
         // A big surface rises and fades in rather than zooming from 95%: only
         // transform and opacity move, and slowly enough to read as one motion.
-        className="flex h-[92dvh] max-w-none flex-col gap-4 duration-200! ease-out will-change-transform data-open:slide-in-from-bottom-2 data-open:zoom-in-98! data-closed:zoom-out-98! sm:max-w-[min(96vw,1400px)]"
+        //
+        // Centred by its margins, not by the dialog's usual -50% translate: half
+        // of a box this size is nearly always a fraction of a pixel, and text
+        // shifted by a fraction is drawn blurred. No will-change either -- it
+        // kept the box on its own layer after the animation, blur and all.
+        className="inset-0 m-auto flex h-[92dvh] max-w-none translate-x-0 translate-y-0 flex-col gap-4 duration-200! ease-out data-open:slide-in-from-bottom-2 data-open:zoom-in-98! data-closed:zoom-out-98! sm:max-w-[min(96vw,1400px)]"
         overlayClassName="backdrop-blur-none"
       >
         <DialogHeader className="shrink-0">
