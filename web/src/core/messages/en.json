@@ -95,7 +95,8 @@
     "currentApp": "Open now",
     "collapseMenu": "Collapse menu",
     "expandMenu": "Expand menu",
-    "breadcrumb": "Breadcrumb"
+    "breadcrumb": "Breadcrumb",
+    "collapseShortcut": "Ctrl B"
   },
   "auth": {
     "title": "Super App",

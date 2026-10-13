@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 
@@ -96,6 +96,30 @@ describe("the sidebar inside a module", () => {
     expect(toggle.getAttribute("aria-expanded")).toBe("false");
     await userEvent.click(toggle);
     expect(onToggle).toHaveBeenCalledOnce();
+  });
+
+  it("narrows and widens on Ctrl+B or Cmd+B", () => {
+    const onToggle = vi.fn();
+    renderSidebar("/lab/database", { onToggle });
+
+    fireEvent.keyDown(window, { key: "b", ctrlKey: true });
+    fireEvent.keyDown(window, { key: "B", metaKey: true });
+    expect(onToggle).toHaveBeenCalledTimes(2);
+    // A plain b, or one with Shift, is somebody typing.
+    fireEvent.keyDown(window, { key: "b" });
+    fireEvent.keyDown(window, { key: "b", ctrlKey: true, shiftKey: true });
+    expect(onToggle).toHaveBeenCalledTimes(2);
+  });
+
+  it("leaves Ctrl+B to a text box being typed in", () => {
+    const onToggle = vi.fn();
+    renderSidebar("/lab/database", { onToggle });
+    const field = document.createElement("input");
+    document.body.appendChild(field);
+
+    fireEvent.keyDown(field, { key: "b", ctrlKey: true });
+    expect(onToggle).not.toHaveBeenCalled();
+    field.remove();
   });
 
   it("offers no toggle where there is nothing to narrow (the phone drawer)", () => {

@@ -16,7 +16,9 @@ export function ModuleIdentity({ module: appModule, iconOnly = false }: { module
 
   return (
     <span className={cn("flex min-w-0 items-center gap-2.5", iconOnly && "justify-center")}>
-      <span className="surface-hero flex size-9 shrink-0 items-center justify-center rounded-xl text-white">
+      {/* A soft tile, as on the launcher's cards: the brand gradient is for
+          the app's own mark, not for every module in it. */}
+      <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/15">
         <Icon aria-hidden className="size-4" />
       </span>
       {iconOnly ? null : (

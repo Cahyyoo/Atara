@@ -71,8 +71,8 @@ export function AppShell({
       {currentModule ? (
         <aside
           className={cn(
-            "sticky top-0 hidden h-screen shrink-0 flex-col bg-background transition-[width] duration-200 ease-out lg:flex",
-            isCollapsed ? "w-[4.5rem]" : "w-64"
+            "sticky top-0 hidden h-screen shrink-0 flex-col border-r border-border/60 bg-background transition-[width] duration-200 ease-out lg:flex",
+            isCollapsed ? "w-16" : "w-64"
           )}
         >
           <ModuleSidebar module={currentModule} user={user} collapsed={isCollapsed} onToggle={toggleSidebar} />
