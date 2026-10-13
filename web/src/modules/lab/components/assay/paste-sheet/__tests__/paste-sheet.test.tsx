@@ -8,6 +8,7 @@ import { en } from "@/core/i18n/test-messages";
 import { resetPersistedColumns } from "@/core/hooks/use-persisted-columns";
 import { PasteSheetDialog } from "@/modules/lab/components/assay/paste-sheet/paste-sheet-dialog";
 import { sheetToImportText } from "@/modules/lab/components/assay/paste-sheet/sheet-text";
+import { SheetSkeleton } from "@/modules/lab/components/assay/paste-sheet/sheet-busy";
 import type { ImportPreviewRow } from "@/modules/lab/types";
 
 /**
@@ -64,12 +65,19 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-function show(onApplied = vi.fn()) {
+function render_(onApplied = vi.fn()) {
   render(
     <NextIntlClientProvider locale="en" messages={en} timeZone="Asia/Makassar" onError={() => {}}>
       <PasteSheetDialog open onClose={vi.fn()} onApplied={onApplied} />
     </NextIntlClientProvider>
   );
+  return onApplied;
+}
+
+/** Opens the sheet and waits for its grid, which follows the opening animation. */
+async function show(onApplied = vi.fn()) {
+  render_(onApplied);
+  await screen.findByRole("textbox", { name: "Row 1 Sample ID" }, { timeout: 3000 });
   return onApplied;
 }
 
@@ -79,8 +87,16 @@ const paste = (text: string) => fireEvent.paste(box(1, "Sample ID"), { clipboard
 const LONG = { timeout: 8000 };
 
 describe("the paste sheet", () => {
-  it("is headed exactly as the instrument's export, with the Sample ID in front", () => {
-    show();
+  it("has an outline to show while it opens: the real headings, and not one input", () => {
+    // jsdom runs no animation, so the dialog is ready at once there; the
+    // outline itself is what the opening frames draw in a browser.
+    const { container } = render(<SheetSkeleton columns={["Sample ID", "Measurement Finished", "Ni (%)"]} />);
+    expect(container.textContent).toContain("Measurement Finished");
+    expect(container.querySelector("input")).toBeNull();
+  });
+
+  it("is headed exactly as the instrument's export, with the Sample ID in front", async () => {
+    await show();
     const headings = screen.getAllByRole("columnheader").map((cell) => cell.textContent);
     expect(headings.slice(1, 6)).toEqual(["Sample ID", "Measurement Finished", "Ni (%)", "Fe (%)", "Co (%)"]);
     expect(headings).toContain("SiO2 (%)");
@@ -99,7 +115,7 @@ describe("the paste sheet", () => {
   });
 
   it("spreads a pasted block and paints the verdict on each row", async () => {
-    show();
+    await show();
     paste("Sample ID\tNi (%)\nA-1\t1.5\nA-2\tx\nNOPE\t1");
     expect(box(1, "Sample ID").value).toBe("A-1");
     expect(box(3, "Sample ID").value).toBe("NOPE");
@@ -115,7 +131,7 @@ describe("the paste sheet", () => {
   });
 
   it("checks only the row that changed, then saves the whole sheet", async () => {
-    const onApplied = show();
+    const onApplied = await show();
     paste("Sample ID\tNi (%)\nA-1\t1.5\nA-2\tx\nA-3\t1.7");
     await waitFor(() => expect(screen.getByRole("img", { name: /Not valid/ })).toBeTruthy(), LONG);
     const before = requests.length;
@@ -133,8 +149,8 @@ describe("the paste sheet", () => {
     expect(dataLines(requests.at(-1)!.csv)).toHaveLength(3);
   });
 
-  it("takes the date as the instrument's sheet writes it, and says how it was read", () => {
-    show();
+  it("takes the date as the instrument's sheet writes it, and says how it was read", async () => {
+    await show();
     fireEvent.change(box(1, "Measurement Finished"), { target: { value: "9/1/2026 8:54" } });
     expect(box(1, "Measurement Finished").value).toBe("9/1/2026 8:54");
     expect(box(1, "Measurement Finished").title).toMatch(/Sep 1, 2026.*8:54.*WITA/);
@@ -146,8 +162,8 @@ describe("the paste sheet", () => {
     expect(box(1, "Measurement Finished").title).toContain("cannot be read");
   });
 
-  it("lays a block from the instrument's export down from the date box, column for column", () => {
-    show();
+  it("lays a block from the instrument's export down from the date box, column for column", async () => {
+    await show();
     fireEvent.paste(box(1, "Measurement Finished"), { clipboardData: { getData: () => "9/1/2026 8:54\t1.86\t42.2\n9/1/2026 9:10\t1.9\t41" } });
     expect(box(1, "Measurement Finished").value).toBe("9/1/2026 8:54");
     expect(box(1, "Ni (%)").value).toBe("1.86");
@@ -157,7 +173,7 @@ describe("the paste sheet", () => {
   it("shows how far the check has got while it runs, and says so while it saves", async () => {
     let release = () => {};
     gate = new Promise<void>((resolve) => (release = resolve));
-    show();
+    await show();
     paste("Sample ID\tNi (%)\nA-1\t1.5\nA-2\t1.6");
 
     await waitFor(() => expect(screen.getByRole("progressbar")).toBeTruthy(), LONG);
@@ -171,8 +187,8 @@ describe("the paste sheet", () => {
     release();
   });
 
-  it("copies selected boxes out as rows and columns for Excel", () => {
-    show();
+  it("copies selected boxes out as rows and columns for Excel", async () => {
+    await show();
     paste("A-1\t9/1/2026 8:54\t1.5\nA-2\t\t1.6");
 
     fireEvent.mouseDown(box(1, "Sample ID"), { button: 0 });

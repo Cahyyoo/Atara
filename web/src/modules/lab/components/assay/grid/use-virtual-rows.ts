@@ -39,13 +39,21 @@ export function useVirtualRows({
   overscan?: number;
   headerHeight?: number;
 }) {
-  const scrollerRef = useRef<HTMLDivElement>(null);
+  // A callback ref, not useRef: the scroller may appear after this hook first
+  // runs (the paste sheet mounts its grid once the dialog has finished
+  // opening), and it has to be measured then, not never.
+  const [scroller, setScroller] = useState<HTMLDivElement | null>(null);
+  // The same element for the handlers, which scroll it: state is only read.
+  const element = useRef<HTMLDivElement | null>(null);
+  const scrollerRef = useCallback((node: HTMLDivElement | null) => {
+    element.current = node;
+    setScroller(node);
+  }, []);
   const [scrollTop, setScrollTop] = useState(0);
   // A first guess, corrected as soon as the box is measured.
   const [viewport, setViewport] = useState(600);
 
   useEffect(() => {
-    const scroller = scrollerRef.current;
     if (!scroller) return;
     const measure = () => setViewport(scroller.clientHeight || 600);
     measure();
@@ -53,20 +61,20 @@ export function useVirtualRows({
     const observer = new ResizeObserver(measure);
     observer.observe(scroller);
     return () => observer.disconnect();
-  }, []);
+  }, [scroller]);
 
-  const onScroll = useCallback(() => setScrollTop(scrollerRef.current?.scrollTop ?? 0), []);
+  const onScroll = useCallback(() => setScrollTop(element.current?.scrollTop ?? 0), []);
 
   /** Brings a row into view: for moving to a box that is not rendered yet. */
   const scrollToRow = useCallback(
     (row: number) => {
-      const scroller = scrollerRef.current;
-      if (!scroller) return;
+      const node = element.current;
+      if (!node) return;
       const top = row * rowHeight;
       const bottom = top + rowHeight + headerHeight;
-      if (top < scroller.scrollTop) scroller.scrollTop = top;
-      else if (bottom > scroller.scrollTop + scroller.clientHeight) scroller.scrollTop = bottom - scroller.clientHeight;
-      setScrollTop(scroller.scrollTop);
+      if (top < node.scrollTop) node.scrollTop = top;
+      else if (bottom > node.scrollTop + node.clientHeight) node.scrollTop = bottom - node.clientHeight;
+      setScrollTop(node.scrollTop);
     },
     [rowHeight, headerHeight]
   );

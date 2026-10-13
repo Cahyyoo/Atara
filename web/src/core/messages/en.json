@@ -110,7 +110,21 @@
     "passwordChangedNotice": "Your password was changed, so you were signed out here. Sign in with the new password.",
     "welcomeTitle": "Welcome back",
     "panelTitle": "One app for every department.",
-    "panelSubtitle": "Lab, exploration and settings in one place — everyone sees only the apps that are theirs."
+    "panelSubtitle": "Every work app in one place — everyone sees only what is theirs to use.",
+    "points": {
+      "access": {
+        "title": "Role-based access",
+        "body": "Everyone opens only the apps that are theirs."
+      },
+      "data": {
+        "title": "One source of truth",
+        "body": "One set of data, with a record of every change."
+      },
+      "account": {
+        "title": "One account, many apps",
+        "body": "Sign in once, switch apps any time."
+      }
+    }
   },
   "users": {
     "dialog": {

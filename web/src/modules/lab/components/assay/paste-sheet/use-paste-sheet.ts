@@ -150,7 +150,9 @@ export function usePasteSheet(onApplied: (count: number) => void) {
     });
   }, []);
 
-  const virtual = useVirtualRows({ rowCount: rows.length, rowHeight: SHEET_ROW_HEIGHT, headerHeight: 48 });
+  // Four rows past each edge: enough that a scroll never shows a gap, few
+  // enough that opening the sheet draws little more than the screen holds.
+  const virtual = useVirtualRows({ rowCount: rows.length, rowHeight: SHEET_ROW_HEIGHT, headerHeight: 48, overscan: 4 });
 
   function pasteBlock(block: string, range: GridRange) {
     // Dates stay as the sheet wrote them ("9/1/2026 8:54"): the box is text here.

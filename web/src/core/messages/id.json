@@ -110,7 +110,21 @@
     "passwordChangedNotice": "Password Anda diubah, sehingga Anda dikeluarkan dari perangkat ini. Masuk dengan password baru.",
     "welcomeTitle": "Selamat datang kembali",
     "panelTitle": "Satu aplikasi untuk setiap departemen.",
-    "panelSubtitle": "Lab, eksplorasi, dan pengaturan dalam satu tempat — setiap orang hanya melihat aplikasi miliknya."
+    "panelSubtitle": "Semua aplikasi kerja perusahaan dalam satu tempat — setiap orang hanya melihat yang menjadi bagiannya.",
+    "points": {
+      "access": {
+        "title": "Akses sesuai peran",
+        "body": "Setiap orang hanya membuka aplikasi yang menjadi bagiannya."
+      },
+      "data": {
+        "title": "Data terpusat & tercatat",
+        "body": "Satu sumber data, setiap perubahan tersimpan riwayatnya."
+      },
+      "account": {
+        "title": "Satu akun, banyak aplikasi",
+        "body": "Masuk sekali, pindah aplikasi kapan saja."
+      }
+    }
   },
   "users": {
     "dialog": {

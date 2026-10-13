@@ -2,18 +2,20 @@ import type { IconType } from "react-icons";
 import { APP_NAME } from "@/core/lib/app/brand";
 import { IoPrismOutline } from "react-icons/io5";
 
-export interface BrandPanelModule {
+export interface BrandPanelPoint {
   key: string;
   icon: IconType;
-  name: string;
-  description: string;
+  title: string;
+  body: string;
 }
 
 /**
- * The left half of the sign-in page from lg up: what Atara is, and the apps
- * inside it, before anybody has an account open. The brand gradient the rest
- * of the app uses for its hero surfaces, with a faint grid of dots fading
- * down it -- a surface, not a picture, so it reads the same in both themes.
+ * The left half of the sign-in page from lg up: what Atara is, before anybody
+ * has an account open. It speaks of the platform -- access by role, one set of
+ * data, one account -- rather than naming its modules, so it stays true as
+ * modules are added. The brand gradient the rest of the app uses for its hero
+ * surfaces, with a faint grid of dots fading down it -- a surface, not a
+ * picture, so it reads the same in both themes.
  *
  * Plain and synchronous: the page passes the words already translated.
  */
@@ -21,13 +23,13 @@ export function AuthBrandPanel({
   brandSubtitle,
   title,
   subtitle,
-  modules,
+  points,
   footer,
 }: {
   brandSubtitle: string;
   title: string;
   subtitle: string;
-  modules: readonly BrandPanelModule[];
+  points: readonly BrandPanelPoint[];
   footer: string;
 }) {
   return (
@@ -55,15 +57,15 @@ export function AuthBrandPanel({
         </div>
 
         <div className="flex flex-col gap-6">
-          <ul className="flex max-w-md flex-col gap-3">
-            {modules.map(({ key, icon: Icon, name, description }) => (
+          <ul className="flex max-w-md flex-col gap-4">
+            {points.map(({ key, icon: Icon, title: pointTitle, body }) => (
               <li key={key} className="flex items-start gap-3">
                 <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/15">
                   <Icon aria-hidden className="size-4" />
                 </span>
                 <span className="min-w-0 leading-snug">
-                  <span className="block text-sm font-medium">{name}</span>
-                  <span className="block truncate text-xs text-white/70">{description}</span>
+                  <span className="block text-sm font-medium">{pointTitle}</span>
+                  <span className="block text-xs text-white/70">{body}</span>
                 </span>
               </li>
             ))}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { startTransition, useEffect, useMemo, useState } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { Button } from "@/core/components/ui/button";
 import { InlineNotice } from "@/core/components/ui/inline-notice";
@@ -10,7 +10,7 @@ import { PasteImportSaveBar } from "@/modules/lab/components/assay/paste-import-
 import { numberProblem } from "@/modules/lab/components/assay/results-grid";
 import { SheetGrid, type CellCheck, type SheetColumn } from "@/modules/lab/components/assay/paste-sheet/sheet-grid";
 import { SheetSummary } from "@/modules/lab/components/assay/paste-sheet/sheet-status";
-import { SheetBusy, SheetProgressBar } from "@/modules/lab/components/assay/paste-sheet/sheet-busy";
+import { SheetBusy, SheetProgressBar, SheetSkeleton } from "@/modules/lab/components/assay/paste-sheet/sheet-busy";
 import { usePasteSheet } from "@/modules/lab/components/assay/paste-sheet/use-paste-sheet";
 import { SHEET_MAX_ROWS, sheetLabel } from "@/modules/lab/components/assay/paste-sheet/sheet-text";
 import { ASSAY_FIELDS } from "@/modules/lab/lib/records/assay";
@@ -80,20 +80,46 @@ export function PasteSheetDialog({
     [t, tAssay, format]
   );
 
-  // Straight into the first box, so Ctrl+V works the moment the sheet opens.
+  // The grid waits for the dialog to finish opening. Hundreds of boxes drawn
+  // in the same frames as the opening animation made it stutter; a light
+  // outline of the sheet is drawn meanwhile, and the real one follows within
+  // a fifth of a second. The timer is the fallback for when no animation runs
+  // (reduced motion, tests), so the sheet is never left waiting.
+  const [ready, setReady] = useState(false);
+  // As a transition, so React draws the grid in small slices between frames
+  // instead of one long block the browser cannot paint through.
+  const settle = (isOpen: boolean) => startTransition(() => setReady(isOpen));
   useEffect(() => {
     if (!open) return;
+    const timer = setTimeout(() => startTransition(() => setReady(true)), 320);
+    return () => clearTimeout(timer);
+  }, [open]);
+
+  // Then straight into the first box, so Ctrl+V works the moment it is there.
+  useEffect(() => {
+    if (!open || !ready) return;
     const frame = requestAnimationFrame(() =>
       document.querySelector<HTMLInputElement>('[data-cell-row="0"][data-cell-col="0"]')?.focus()
     );
     return () => cancelAnimationFrame(frame);
-  }, [open]);
+  }, [open, ready]);
 
   const { filled, checked } = sheet.progress;
 
   return (
-    <Dialog open={open} onOpenChange={(next) => (!next && !sheet.isSaving ? onClose() : undefined)}>
-      <DialogContent className="flex h-[92dvh] max-w-none flex-col gap-4 sm:max-w-[min(96vw,1400px)]" overlayClassName="backdrop-blur-none">
+    <Dialog
+      open={open}
+      onOpenChange={(next) => (!next && !sheet.isSaving ? onClose() : undefined)}
+      // Ready once it has finished opening; back to the outline once it has
+      // closed, so opening it again is as smooth as the first time.
+      onOpenChangeComplete={settle}
+    >
+      <DialogContent
+        // A big surface rises and fades in rather than zooming from 95%: only
+        // transform and opacity move, and slowly enough to read as one motion.
+        className="flex h-[92dvh] max-w-none flex-col gap-4 duration-200! ease-out will-change-transform data-open:slide-in-from-bottom-2 data-open:zoom-in-98! data-closed:zoom-out-98! sm:max-w-[min(96vw,1400px)]"
+        overlayClassName="backdrop-blur-none"
+      >
         <DialogHeader className="shrink-0">
           <DialogTitle>{t("title")}</DialogTitle>
           <DialogDescription className="flex items-start gap-2">
@@ -126,23 +152,27 @@ export function PasteSheetDialog({
         ) : null}
 
         <div className="relative flex min-h-0 flex-1 flex-col">
-          <SheetGrid
-            columns={columns}
-            rows={sheet.rows}
-            verdictFor={sheet.verdictFor}
-            pending={sheet.isChecking}
-            locked={sheet.isSaving}
-            checkCell={checkCell}
-            selectionFor={sheet.clipboard.selectionFor}
-            scrollerRef={sheet.virtual.scrollerRef}
-            onScroll={sheet.virtual.onScroll}
-            start={sheet.virtual.start}
-            end={sheet.virtual.end}
-            padTop={sheet.virtual.padTop}
-            padBottom={sheet.virtual.padBottom}
-            containerProps={sheet.clipboard.containerProps}
-            onCellChange={sheet.setCell}
-          />
+          {ready ? (
+            <SheetGrid
+              columns={columns}
+              rows={sheet.rows}
+              verdictFor={sheet.verdictFor}
+              pending={sheet.isChecking}
+              locked={sheet.isSaving}
+              checkCell={checkCell}
+              selectionFor={sheet.clipboard.selectionFor}
+              scrollerRef={sheet.virtual.scrollerRef}
+              onScroll={sheet.virtual.onScroll}
+              start={sheet.virtual.start}
+              end={sheet.virtual.end}
+              padTop={sheet.virtual.padTop}
+              padBottom={sheet.virtual.padBottom}
+              containerProps={sheet.clipboard.containerProps}
+              onCellChange={sheet.setCell}
+            />
+          ) : (
+            <SheetSkeleton columns={columns.map((column) => column.label)} />
+          )}
           {sheet.pasting > 0 ? <SheetBusy label={t("pasting", { count: sheet.pasting })} /> : null}
           {sheet.isSaving ? <SheetBusy label={t("saving", { count: sheet.writes })} /> : null}
         </div>

@@ -5,15 +5,16 @@ import { AuthBrandPanel } from "@/core/components/auth/auth-brand-panel";
 import { LoginForm } from "@/core/components/auth/login-form";
 import { LoginLocaleSwitch } from "@/core/components/auth/login-locale-switch";
 import { APP_NAME } from "@/core/lib/app/brand";
-import { MODULES } from "@/modules/registry";
-import { IoPrismOutline } from "react-icons/io5";
+import { IoAppsOutline, IoPrismOutline, IoServerOutline, IoShieldCheckmarkOutline } from "react-icons/io5";
 
 export default async function LoginPage() {
-  const [t, tNav, tHome] = await Promise.all([
-    getTranslations("auth"),
-    getTranslations("nav"),
-    getTranslations("home"),
-  ]);
+  const [t, tNav] = await Promise.all([getTranslations("auth"), getTranslations("nav")]);
+  // What the platform offers, not which modules it has: true as modules are added.
+  const points = [
+    { key: "access", icon: IoShieldCheckmarkOutline },
+    { key: "data", icon: IoServerOutline },
+    { key: "account", icon: IoAppsOutline },
+  ].map(({ key, icon }) => ({ key, icon, title: t(`points.${key}.title`), body: t(`points.${key}.body`) }));
 
   return (
     /*
@@ -31,20 +32,16 @@ export default async function LoginPage() {
       card tightens too, so the authenticator setup still fits without the
       card having to scroll.
 
-      Split from lg up: the brand and the apps on the left, the form on the
-      right. Below lg the panel goes and the form keeps the whole screen.
+      Split from lg up: the brand and what the platform offers on the left,
+      the form on the right. Below lg the panel goes and the form keeps the
+      whole screen.
     */
     <div className="grid h-dvh overflow-hidden lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
       <AuthBrandPanel
         brandSubtitle={tNav("brandSubtitle")}
         title={t("panelTitle")}
         subtitle={t("panelSubtitle")}
-        modules={MODULES.map((appModule) => ({
-          key: appModule.key,
-          icon: appModule.icon,
-          name: tHome(`modules.${appModule.key}.name`),
-          description: tHome(`modules.${appModule.key}.description`),
-        }))}
+        points={points}
         footer={`© ${new Date().getFullYear()} ${APP_NAME} · ${tNav("brandSubtitle")}`}
       />
 

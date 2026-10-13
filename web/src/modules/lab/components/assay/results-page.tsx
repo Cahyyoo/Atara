@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import {
@@ -20,10 +20,9 @@ const ASSAY_ACCESS: LabRecordsAccess = { canEdit: false, canExport: false, canVi
  * The paste dialog, the grid and the whole-sheet import each arrive the first
  * time they are used. The list is what every visit opens on.
  */
-const PasteSheetDialog = dynamic(
-  () => import("@/modules/lab/components/assay/paste-sheet/paste-sheet-dialog").then((m) => m.PasteSheetDialog),
-  { ssr: false }
-);
+const loadPasteSheet = () =>
+  import("@/modules/lab/components/assay/paste-sheet/paste-sheet-dialog").then((m) => m.PasteSheetDialog);
+const PasteSheetDialog = dynamic(loadPasteSheet, { ssr: false });
 const ResultsEntry = dynamic(
   () => import("@/modules/lab/components/assay/results-entry").then((m) => m.ResultsEntry),
   { ssr: false, loading: () => <div className="h-96 animate-pulse rounded-xl bg-muted/40" /> }
@@ -55,20 +54,23 @@ export function ResultsPage() {
   /** Remounts the list after a save, to re-read the rows and clear the ticks. */
   const [listKey, setListKey] = useState(0);
 
-  if (editing) {
-    return (
-      <ResultsEntry
-        records={editing}
-        onDone={(changed) => {
-          setEditing(null);
-          if (changed) setListKey((key) => key + 1);
-        }}
-      />
-    );
-  }
+  // The paste sheet's code is fetched once the page has settled, while the
+  // browser has nothing better to do: by the time "Paste by Sample ID" is
+  // pressed it is already here, and the sheet opens at once instead of after
+  // a pause with nothing on screen.
+  useEffect(() => {
+    const idle = window.requestIdleCallback ?? ((run: () => void) => window.setTimeout(run, 1200));
+    const cancel = window.cancelIdleCallback ?? window.clearTimeout;
+    const handle = idle(() => void loadPasteSheet());
+    return () => cancel(handle);
+  }, []);
 
-  return (
-    <>
+  // The list, made once per reload: opening or closing the paste sheet
+  // changes this page's state, and the fifty-row table behind it would
+  // otherwise be drawn again for nothing in the very frames the sheet opens in.
+  // Every handler here only calls a state setter, which never changes.
+  const list = useMemo(
+    () => (
       <LabRecordsTable
         key={listKey}
         // Entering results is this page's whole job, and only the roles with
@@ -85,6 +87,25 @@ export function ResultsPage() {
         onEnterResults={setEditing}
         onImport={() => setIsImporting(true)}
       />
+    ),
+    [listKey]
+  );
+
+  if (editing) {
+    return (
+      <ResultsEntry
+        records={editing}
+        onDone={(changed) => {
+          setEditing(null);
+          if (changed) setListKey((key) => key + 1);
+        }}
+      />
+    );
+  }
+
+  return (
+    <>
+      {list}
 
       {pasteMounted ? (
         <PasteSheetDialog

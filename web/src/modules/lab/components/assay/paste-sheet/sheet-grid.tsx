@@ -2,7 +2,6 @@
 
 import { memo, type HTMLAttributes, type Ref } from "react";
 import { useTranslations } from "next-intl";
-import { Input } from "@/core/components/ui/input";
 import { cn } from "@/core/lib/utils";
 import { inSelection } from "@/modules/lab/components/assay/grid/use-grid-selection";
 import { StatusMark } from "@/modules/lab/components/assay/paste-sheet/sheet-status";
@@ -27,6 +26,28 @@ const WIDTH: Record<SheetColumn["kind"], string> = {
   number: "w-24 min-w-24",
   text: "w-40 min-w-40",
   date: "w-40 min-w-40",
+};
+
+/**
+ * A box's classes, put together once per kind of column rather than merged
+ * per box: a sheet draws hundreds of boxes at a time, and merging class lists
+ * (tailwind-merge, inside cn) for each was most of what it cost to open. Plain
+ * strings, in the field style the app's Input uses.
+ */
+const BOX =
+  "h-8 w-full min-w-0 rounded-md border border-transparent bg-transparent px-2 text-sm outline-none transition-colors placeholder:text-muted-foreground/40 focus-visible:bg-background focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-[selected]:bg-primary/15 data-[selected]:ring-1 data-[selected]:ring-primary/50";
+const BOX_KIND: Record<SheetColumn["kind"], string> = {
+  key: `${BOX} font-mono text-xs`,
+  number: `${BOX} text-right tabular-nums [appearance:textfield]`,
+  text: BOX,
+  date: `${BOX} tabular-nums`,
+};
+const REPLACED = " bg-amber-100/70 dark:bg-amber-500/15";
+const CELL_KIND: Record<SheetColumn["kind"], string> = {
+  key: `p-0.5 ${WIDTH.key} sticky left-16 z-10 bg-background`,
+  number: `p-0.5 ${WIDTH.number}`,
+  text: `p-0.5 ${WIDTH.text}`,
+  date: `p-0.5 ${WIDTH.date}`,
 };
 
 interface RowProps {
@@ -91,8 +112,8 @@ const SheetRowView = memo(function SheetRowView({
               ? `${String(replaced.from)} → ${replaced.to === null ? "—" : String(replaced.to)}`
               : local.hint);
         return (
-          <td key={column.key} className={cn("p-0.5", WIDTH[column.kind], column.kind === "key" && "sticky left-16 z-10 bg-background")}>
-            <Input
+          <td key={column.key} className={CELL_KIND[column.kind]}>
+            <input
               aria-label={`${rowLabel} ${column.label}`}
               inputMode={column.kind === "number" ? "decimal" : undefined}
               placeholder={column.kind === "date" ? datePlaceholder : undefined}
@@ -105,14 +126,7 @@ const SheetRowView = memo(function SheetRowView({
               title={title}
               value={value}
               onChange={(event) => onCellChange(index, column.key, event.target.value)}
-              className={cn(
-                "h-8 rounded-md border-transparent bg-transparent px-2 text-sm shadow-none placeholder:text-muted-foreground/40 focus-visible:bg-background",
-                column.kind === "number" && "text-right tabular-nums",
-                column.kind === "date" && "tabular-nums",
-                column.kind === "key" && "font-mono text-xs",
-                replaced && !faulty && "bg-amber-100/70 dark:bg-amber-500/15",
-                "data-[selected]:bg-primary/15 data-[selected]:ring-1 data-[selected]:ring-primary/50"
-              )}
+              className={replaced && !faulty ? BOX_KIND[column.kind] + REPLACED : BOX_KIND[column.kind]}
             />
           </td>
         );

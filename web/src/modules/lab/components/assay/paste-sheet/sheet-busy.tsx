@@ -48,3 +48,36 @@ export function SheetProgressBar({ done, total, label }: { done: number; total: 
     </div>
   );
 }
+
+/** Rows the outline draws: about a screenful, all of them plain blocks. */
+const SKELETON_ROWS = 12;
+
+/**
+ * The sheet's outline, drawn while the dialog opens: its real headings over a
+ * dozen shimmering rows, and not one input. Light enough not to cost the
+ * opening animation a frame; shaped like the sheet, so the real one takes its
+ * place without anything moving.
+ */
+export function SheetSkeleton({ columns }: { columns: readonly string[] }) {
+  return (
+    <div aria-hidden className="min-h-0 flex-1 overflow-hidden rounded-xl border bg-background">
+      <div className="flex h-12 items-center gap-4 border-b bg-muted px-3 text-xs font-semibold whitespace-nowrap text-foreground/70">
+        <span className="w-12 shrink-0">No.</span>
+        {columns.slice(0, 10).map((label, index) => (
+          <span key={label} className={index === 0 ? "w-60 shrink-0 text-center" : "w-24 shrink-0 text-center"}>
+            {label}
+          </span>
+        ))}
+      </div>
+      {Array.from({ length: SKELETON_ROWS }, (_, row) => (
+        <div key={row} className="flex h-9 items-center gap-4 border-b border-border/50 px-3">
+          <span className="w-12 shrink-0 text-xs tabular-nums text-muted-foreground/60">{row + 1}</span>
+          <span className="skeleton-sheen h-3 w-56 shrink-0 rounded-full bg-muted" />
+          <span className="skeleton-sheen h-3 w-24 shrink-0 rounded-full bg-muted/70" />
+          <span className="skeleton-sheen h-3 w-20 shrink-0 rounded-full bg-muted/60" />
+          <span className="skeleton-sheen h-3 w-20 shrink-0 rounded-full bg-muted/50" />
+        </div>
+      ))}
+    </div>
+  );
+}
