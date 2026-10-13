@@ -27,7 +27,7 @@ describe("where it is enforced", () => {
 
   it("has no stage board page any more; its data serves the TV view", () => {
     expect(existsSync(join(process.cwd(), "src", "app", "(app)", "board", "page.tsx"))).toBe(false);
-    expect(read("core", "components", "layout", "sidebar-nav.tsx")).not.toContain('"/board"');
+    expect(read("core", "components", "layout", "module-nav.tsx")).not.toContain('"/board"');
     expect(read("app", "(tv)", "lab", "tv", "page.tsx")).toContain("loadStageBoard()");
   });
 

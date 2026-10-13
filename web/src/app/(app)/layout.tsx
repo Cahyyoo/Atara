@@ -1,4 +1,3 @@
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
@@ -8,7 +7,6 @@ import { prisma } from "@/core/lib/prisma";
 import { loadActiveAnnouncements } from "@/modules/system/lib/announcements";
 import { DEFAULT_LOCALE, isLocale } from "@/core/i18n/config";
 import { messagesFor, moduleKeysFor } from "@/core/i18n/catalogue";
-import { SIDEBAR_COOKIE, isSidebarCollapsed } from "@/core/lib/ui/sidebar";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await getActiveSession();
@@ -21,11 +19,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   }
 
   // Both small: a cached list of a few banners, and one column by primary key.
-  const [announcements, account, locale, cookieStore] = await Promise.all([
+  const [announcements, account, locale] = await Promise.all([
     loadActiveAnnouncements(session.role),
     prisma.user.findUnique({ where: { id: session.userId }, select: { guideSeenAt: true } }),
     getLocale(),
-    cookies(),
   ]);
 
   // The words of the modules this person works in, and no others.
@@ -37,7 +34,6 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         user={session}
         announcements={announcements}
         showWelcome={account !== null && account.guideSeenAt === null}
-        sidebarCollapsed={isSidebarCollapsed(cookieStore.get(SIDEBAR_COOKIE)?.value)}
       >
         {children}
       </AppShell>

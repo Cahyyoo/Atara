@@ -19,20 +19,22 @@ import { cn } from "@/core/lib/utils";
 import { IoCheckmark, IoChevronDown, IoGridOutline } from "react-icons/io5";
 
 /**
- * The head of the module sidebar: which module is open, and -- one click away,
- * as in Linear, Slack or Atlassian -- every other module this person may
- * open, without going back to the launcher first. The launcher itself is the
- * last item.
+ * Which module is open, and -- one click away, as in Linear, Slack or
+ * Atlassian -- every other module this person may open, without going back to
+ * the launcher first. The launcher itself is the last item.
+ *
+ * `bar` sits in the top bar beside the app's mark, so it is just the module's
+ * tile and name; `menu` heads the phone drawer, with the app's name beneath.
  */
 export function AppSwitcher({
   current,
   user,
-  collapsed = false,
+  variant = "bar",
   onNavigate,
 }: {
   current: AppModule;
   user: SessionPayload;
-  collapsed?: boolean;
+  variant?: "bar" | "menu";
   onNavigate?: () => void;
 }) {
   const t = useTranslations("nav");
@@ -47,14 +49,22 @@ export function AppSwitcher({
       <DropdownMenuTrigger
         data-tour="app-switcher"
         aria-label={t("switchApp")}
-        title={collapsed ? t(`groups.${current.key}`) : undefined}
         className={cn(
-          "flex w-full items-center gap-2 rounded-xl px-2 py-2 text-left transition-colors outline-none hover:bg-muted/70 focus-visible:ring-3 focus-visible:ring-ring/50 data-popup-open:bg-muted/70",
-          collapsed && "justify-center px-0"
+          "flex min-w-0 items-center gap-2 text-left transition-colors outline-none hover:bg-muted/70 focus-visible:ring-3 focus-visible:ring-ring/50 data-popup-open:bg-muted/70",
+          variant === "bar" ? "rounded-lg px-1.5 py-1" : "w-full rounded-xl px-2 py-2"
         )}
       >
-        <ModuleIdentity module={current} iconOnly={collapsed} />
-        {collapsed ? null : <IoChevronDown aria-hidden className="ml-auto size-3.5 shrink-0 text-muted-foreground" />}
+        {variant === "bar" ? (
+          <>
+            <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/15">
+              <current.icon aria-hidden className="size-3.5" />
+            </span>
+            <span className="truncate text-sm font-semibold">{t(`groups.${current.key}`)}</span>
+          </>
+        ) : (
+          <ModuleIdentity module={current} />
+        )}
+        <IoChevronDown aria-hidden className={cn("size-3.5 shrink-0 text-muted-foreground", variant === "menu" && "ml-auto")} />
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="start" className="w-64">

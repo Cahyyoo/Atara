@@ -12,13 +12,13 @@ Backend REST API dan web untuk **Atara Super App**. Atara adalah satu aplikasi d
 
 Tampilannya dibagi dua, seperti Odoo:
 
-- **Pemilih aplikasi (`/home`).** Semua orang mendarat di sini setelah masuk. Layarnya tanpa sidebar dan berisi kartu untuk setiap modul yang boleh dibuka. Setiap kartu memuat deskripsi singkat dan pintasan yang bisa diklik langsung ke halaman-halaman modul yang boleh dibuka akun tersebut.
-- **Tampilan modul.** Setelah sebuah kartu dibuka, sidebar hanya berisi menu modul itu.
-  - Nama modul di puncak sidebar adalah **app switcher** untuk pindah ke modul lain atau kembali ke semua aplikasi.
-  - Header desktop menampilkan **breadcrumb** (misalnya Lab › Database Sampel).
-  - Sidebar bisa **diciutkan** menjadi ikon saja agar tabel lebar punya ruang.
+- **Pemilih aplikasi (`/home`).** Semua orang mendarat di sini setelah masuk. Layarnya berisi kartu untuk setiap modul yang boleh dibuka. Setiap kartu memuat deskripsi singkat dan pintasan yang bisa diklik langsung ke halaman-halaman modul yang boleh dibuka akun tersebut.
+- **Tampilan modul.** Setelah sebuah kartu dibuka, navbar menampilkan menu modul itu saja, dan konten memakai lebar penuh.
+  - **Bilah atas:** logo Atara / nama modul. Nama modul adalah **app switcher** untuk pindah ke modul lain atau kembali ke semua aplikasi.
+  - **Baris tab** di bawahnya berisi semua halaman modul. Tab halaman yang terbuka bergaris bawah.
+  - **Di HP,** tombol ☰ membuka menu modul.
 
-Halaman Panduan (`/help`) bukan milik modul mana pun, jadi tampil seperti pemilih, tanpa sidebar.
+Halaman Panduan (`/help`) bukan milik modul mana pun, jadi tampil seperti pemilih, tanpa baris tab.
 
 Aturan akses:
 
@@ -171,7 +171,7 @@ Akun baru dan akun yang kata sandinya direset memakai kata sandi default per per
 | ----------------------------------- | --- |
 | `/login`                            | Masuk dengan kata sandi, lalu wajah atau TOTP bila akun memilikinya. |
 | `/change-password`                  | Ganti kata sandi (wajib setelah kata sandi default). |
-| `/home`                             | Pemilih aplikasi (tanpa sidebar): kartu modul yang boleh dibuka akun ini, dengan menu yang tersedia di dalamnya. Tujuan setelah login. |
+| `/home`                             | Pemilih aplikasi: kartu modul yang boleh dibuka akun ini, dengan menu yang tersedia di dalamnya. Tujuan setelah login. |
 | **Modul Lab**                       | |
 | `/lab/dashboard`                    | KPI, progres per tahap, waktu siklus, sampel yang lewat SLA, tabel monitoring, export laporan. |
 | `/lab/samples/generate`             | Generate sampel (satu/massal) + preview & cetak label QR grid A4. |

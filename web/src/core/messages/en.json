@@ -92,11 +92,7 @@
     "allApps": "All apps",
     "switchApp": "Switch app",
     "apps": "Apps",
-    "currentApp": "Open now",
-    "collapseMenu": "Collapse menu",
-    "expandMenu": "Expand menu",
-    "breadcrumb": "Breadcrumb",
-    "collapseShortcut": "Ctrl B"
+    "currentApp": "Open now"
   },
   "auth": {
     "title": "Super App",
@@ -321,7 +317,7 @@
       },
       "2": {
         "title": "Your apps",
-        "body": "Choose an app here. Inside an app, \"All apps\" at the top of the side menu brings you back to this page."
+        "body": "Choose an app here. Inside an app, click its name in the top bar to switch apps or come back to this page."
       }
     }
   },

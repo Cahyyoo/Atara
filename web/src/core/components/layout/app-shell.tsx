@@ -1,14 +1,13 @@
 "use client";
 
-import { Suspense, useCallback, useMemo, useState, type ReactNode } from "react";
+import { Suspense, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button, buttonVariants } from "@/core/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/core/components/ui/dialog";
-import { Brand, ModuleSidebar } from "@/core/components/layout/sidebar-nav";
-import { ModuleIdentity } from "@/core/components/layout/module-identity";
-import { Breadcrumb } from "@/core/components/layout/breadcrumb";
+import { Brand, ModuleMenu, ModuleTabs } from "@/core/components/layout/module-nav";
+import { AppSwitcher } from "@/core/components/layout/app-switcher";
 import { VersionFooter } from "@/core/components/layout/version-footer";
 import { UserMenu } from "@/core/components/layout/user-menu";
 import { MotionProvider, PageTransition } from "@/core/components/layout/motion-provider";
@@ -22,7 +21,6 @@ import { helpSectionForPath } from "@/core/lib/app/help-sections";
 import { personaOf } from "@/core/lib/auth/permissions";
 import { moduleForPath, modulesFor } from "@/core/lib/app/modules";
 import { cn } from "@/core/lib/utils";
-import { rememberSidebarCollapsed } from "@/core/lib/ui/sidebar";
 import type { BannerDTO } from "@/core/types";
 import { IoHelpCircleOutline, IoMenuOutline } from "react-icons/io5";
 
@@ -30,7 +28,6 @@ export function AppShell({
   user,
   announcements = [],
   showWelcome = false,
-  sidebarCollapsed = false,
   children,
 }: {
   user: SessionPayload;
@@ -38,23 +35,15 @@ export function AppShell({
   announcements?: BannerDTO[];
   /** True until this account has seen the welcome guide once. */
   showWelcome?: boolean;
-  /** The module sidebar narrowed to icons, as last left (cookie, read by the layout). */
-  sidebarCollapsed?: boolean;
   children: ReactNode;
 }) {
   const t = useTranslations("nav");
   const pathname = usePathname();
   const [isNavOpen, setIsNavOpen] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(sidebarCollapsed);
-  const toggleSidebar = useCallback(() => {
-    const next = !isCollapsed;
-    setIsCollapsed(next);
-    rememberSidebarCollapsed(next);
-  }, [isCollapsed]);
   const helpSection = helpSectionForPath(pathname);
   const persona = personaOf(user);
   // Two faces, as in Odoo: the launcher and the guide belong to no module
-  // and show no sidebar; inside a module the sidebar holds that module's menu
+  // and show one bar; inside a module a second row holds that module's menu
   // only. One shell for both, so moving between them remounts nothing.
   const currentModule = useMemo(() => moduleForPath(pathname), [pathname]);
   const HeaderExtra = currentModule?.shell?.header;
@@ -66,23 +55,13 @@ export function AppShell({
     <MotionProvider>
     {/* Cards are separated from the page by depth rather than by lines, which
         is what makes the whole thing read as iOS rather than as a web table. */}
-    <div className="flex min-h-screen bg-canvas">
-      {/* Desktop: sticky, so the menu stays put while the page scrolls. */}
-      {currentModule ? (
-        <aside
-          className={cn(
-            "sticky top-0 hidden h-screen shrink-0 flex-col border-r border-border/60 bg-background transition-[width] duration-200 ease-out lg:flex",
-            isCollapsed ? "w-16" : "w-64"
-          )}
-        >
-          <ModuleSidebar module={currentModule} user={user} collapsed={isCollapsed} onToggle={toggleSidebar} />
-        </aside>
-      ) : null}
-
-      <div className="flex min-w-0 flex-1 flex-col">
-        {/* Translucent and blurred, so content passing underneath is felt
-            rather than hidden behind a solid bar. */}
-        <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center justify-between gap-2 bg-canvas/80 px-3 backdrop-blur-sm sm:px-6">
+    <div className="flex min-h-screen flex-col bg-canvas">
+      {/* Translucent and blurred, so content passing underneath is felt
+          rather than hidden behind a solid bar. Two rows inside a module --
+          the bar, then the module's pages as tabs -- lined up with the page
+          below, which keeps the whole width (no sidebar to squeeze a table). */}
+      <header className="sticky top-0 z-30 shrink-0 border-b border-border/60 bg-canvas/80 backdrop-blur-sm">
+        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-2 px-3 sm:px-6">
           <div className="flex min-w-0 items-center gap-1">
             {currentModule ? (
               <Button
@@ -95,23 +74,17 @@ export function AppShell({
                 <IoMenuOutline className="size-5" />
               </Button>
             ) : null}
-            {/* Inside a module, below lg, the header says which module is
-                open (the sidebar does from lg up). The launcher has no
-                sidebar, so the app's own name is always here. */}
+            {/* The app's mark always leads back to every app; inside a
+                module its name follows, as the switcher to the others. */}
+            <Brand compact={currentModule !== null} />
             {currentModule ? (
               <>
-                <div className="min-w-0 lg:hidden">
-                  <ModuleIdentity module={currentModule} />
-                </div>
-                {/* From lg up the sidebar names the module, so the header
-                    says where in it this page is. */}
-                <div className="hidden min-w-0 lg:block">
-                  <Breadcrumb module={currentModule} user={user} pathname={pathname} />
-                </div>
+                <span aria-hidden className="px-0.5 text-lg font-light text-border">
+                  /
+                </span>
+                <AppSwitcher current={currentModule} user={user} />
               </>
-            ) : (
-              <Brand />
-            )}
+            ) : null}
           </div>
 
           <div className="flex items-center gap-2">
@@ -129,12 +102,20 @@ export function AppShell({
             {HeaderExtra ? <HeaderExtra /> : null}
             <UserMenu user={user} />
           </div>
-        </header>
+        </div>
 
+        {currentModule ? (
+          <div className="mx-auto hidden max-w-7xl px-3 sm:px-6 lg:block">
+            <ModuleTabs module={currentModule} user={user} />
+          </div>
+        ) : null}
+      </header>
+
+      <div className="flex min-w-0 flex-1 flex-col">
         <AnnouncementBanner announcements={announcements} />
 
         <main className="flex-1 overflow-x-clip">
-          <div className="mx-auto max-w-7xl px-4 pb-8 pt-2 sm:px-6">
+          <div className="mx-auto max-w-7xl px-4 pb-8 pt-4 sm:px-6">
             <PageTransition>{children}</PageTransition>
             {/* Outside the transition, so it does not animate on every move. */}
             <VersionFooter />
@@ -164,7 +145,7 @@ export function AppShell({
         >
           <DialogTitle className="sr-only">{t("menu")}</DialogTitle>
           {currentModule ? (
-            <ModuleSidebar module={currentModule} user={user} onNavigate={() => setIsNavOpen(false)} />
+            <ModuleMenu module={currentModule} user={user} onNavigate={() => setIsNavOpen(false)} />
           ) : null}
         </DialogContent>
       </Dialog>

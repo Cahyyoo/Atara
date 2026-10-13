@@ -24,13 +24,13 @@ Aturan di sini **ditegakkan otomatis**:
 
 **Dua tampilan, seperti Odoo:**
 
-- **Pemilih aplikasi (`/home`).** Layar tanpa sidebar yang berisi satu kartu per modul milik persona.
-- **Tampilan modul.** Sidebar hanya berisi menu modul yang sedang dibuka. Elemen pendukungnya:
-  - **App switcher** di puncak sidebar (nama modul + panah): pindah langsung ke modul lain atau ke "Semua aplikasi". Polanya seperti workspace switcher di Linear, Slack, dan Atlassian.
-  - **Breadcrumb** di header desktop, misalnya "⌂ › Lab › Database Sampel", seperti shell bar SAP Fiori. Halaman yang punya item `nav` otomatis tampil di sini. Halaman tanpa item menu (misalnya detail sampel) berhenti di nama modul.
-  - **Sidebar bisa diciutkan** menjadi ikon saja. Pilihannya disimpan di cookie `atara-sidebar`, sehingga server langsung merender lebar yang benar.
+- **Pemilih aplikasi (`/home`).** Layar dengan bilah atas satu baris yang berisi satu kartu per modul milik persona.
+- **Tampilan modul.** Navbar dua baris, seperti Vercel dan GitHub. Konten mendapat lebar penuh karena tidak ada sidebar.
+  - **Baris atas:** logo Atara (kembali ke pemilih) / **app switcher**, yaitu nama modul dengan panah untuk pindah langsung ke modul lain atau ke "Semua aplikasi". Di sisi kanan ada bantuan, kotak cari modul (`shell.header`), dan akun.
+  - **Baris kedua:** setiap item `nav` modul menjadi **tab**. Tab halaman yang terbuka bergaris bawah. Bila tab tidak muat, baris ini bisa digeser.
+  - **Di bawah `lg` (HP/tablet):** tab disembunyikan, dan tombol ☰ membuka drawer berisi menu modul.
 
-Satu `AppShell` yang sama memilih tampilannya dari URL lewat `moduleForPath()` di `core/lib/app/modules.ts`. Sebuah halaman milik sebuah modul bila berada di bawah `basePath`-nya **atau** tercantum di `nav`-nya (contoh: `/users` milik modul Pengaturan). Halaman yang bukan milik modul mana pun, seperti `/home` dan `/help`, tampil tanpa sidebar.
+Satu `AppShell` yang sama memilih tampilannya dari URL lewat `moduleForPath()` di `core/lib/app/modules.ts`. Sebuah halaman milik sebuah modul bila berada di bawah `basePath`-nya **atau** tercantum di `nav`-nya (contoh: `/users` milik modul Pengaturan). Halaman yang bukan milik modul mana pun, seperti `/home` dan `/help`, tampil tanpa baris tab.
 
 **Tiga lapisan kode:**
 
@@ -254,7 +254,7 @@ Hasil uji: 34.000 baris tersimpan dalam ±10 detik.
 - Kunci `id.json` dan `en.json` harus sama; ini dicek test.
 - Namespace utama adalah nama fitur, misalnya `drilling`.
 - Modul boleh menambah bagian ke namespace bersama. Contoh:
-  - `nav.<itemKey>` untuk item menu, dan `nav.groups.<modul>` untuk nama modul di atas sidebar;
+  - `nav.<itemKey>` untuk item menu, dan `nav.groups.<modul>` untuk nama modul di app switcher;
   - `home.modules.<modul>` (`name`, `description`) untuk kartu di pemilih aplikasi. Kartu juga menautkan langsung ke setiap halaman `nav` yang boleh dibuka persona (maksimal 6, sisanya "+n"). Kartu membuka `homePath`; bila persona tidak boleh membukanya, kartu membuka menu pertama yang boleh (`moduleEntryPath`);
   - `help.sections.<key>`, `tours.<key>`, dan `help.welcome.<PERSONA>`.
 

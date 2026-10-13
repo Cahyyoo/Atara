@@ -142,7 +142,7 @@ describe("where the table is enforced", () => {
       ["core", "lib", "http", "api-auth.ts"],
       ["core", "lib", "http", "page-auth.ts"],
       ["modules", "lab", "lib", "stages", "stage-transition.ts"],
-      ["core", "components", "layout", "sidebar-nav.tsx"],
+      ["core", "components", "layout", "module-nav.tsx"],
       ["app", "api", "(lab)", "lab-records", "route.ts"],
       ["app", "api", "(system)", "users", "[id]", "route.ts"],
       ["app", "(app)", "lab", "dashboard", "page.tsx"],

@@ -92,11 +92,7 @@
     "allApps": "Semua aplikasi",
     "switchApp": "Ganti aplikasi",
     "apps": "Aplikasi",
-    "currentApp": "Sedang dibuka",
-    "collapseMenu": "Ciutkan menu",
-    "expandMenu": "Lebarkan menu",
-    "breadcrumb": "Lokasi halaman",
-    "collapseShortcut": "Ctrl B"
+    "currentApp": "Sedang dibuka"
   },
   "auth": {
     "title": "Super App",
@@ -321,7 +317,7 @@
       },
       "2": {
         "title": "Aplikasi Anda",
-        "body": "Pilih aplikasi di sini. Di dalam aplikasi, tombol \"Semua aplikasi\" di menu samping membawa Anda kembali ke halaman ini."
+        "body": "Pilih aplikasi di sini. Di dalam aplikasi, klik nama aplikasi di bilah atas untuk pindah aplikasi atau kembali ke halaman ini."
       }
     }
   },
