@@ -1,12 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:atara/l10n/app_localizations.dart';
 import 'package:atara/models/sample_model.dart';
-import 'package:atara/screens/sample_detail_screen.dart';
+import 'package:atara/models/stage_model.dart';
+import 'package:atara/providers/stages_provider.dart';
+import 'package:atara/screens/update_status_screen.dart';
 import 'package:atara/services/api_exception.dart';
 import 'package:atara/services/sample_cache_service.dart';
 import 'package:atara/theme/app_theme.dart';
@@ -15,11 +18,11 @@ import 'package:atara/widgets/status_view.dart';
 
 import 'support/sample_fixtures.dart';
 
-/// The gap that let a red slab ship.
+/// The one sample page — "Detail Sampel" — built in every state it can be in.
 ///
-/// `grep -rn "SampleDetailScreen" test/` was empty: the screen a preparator
-/// reaches by tapping any recorded row had no widget test at all, so nothing
-/// ever built it. That is the same gap documented at the top of
+/// It replaced a read-only detail page whose tests these were. That page had
+/// once gone without a widget test at all: the screen a preparator reaches by
+/// tapping any recorded row, and nothing ever built it. That is the same gap documented at the top of
 /// scan_history_screen_test.dart, which is how an ErrorWidget once shipped on
 /// the history screen — and a user then reported a brief red box with text at
 /// the top of THIS screen, which is Flutter's RenderErrorBox in a debug build.
@@ -48,28 +51,41 @@ Future<void> pumpDetail(
   if (cached != null) await SampleCacheService.save(cached);
 
   await tester.pumpWidget(
-    MaterialApp(
-      locale: locale,
-      theme: theme ?? AppTheme.light,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: Builder(
-        // The skeleton's pulse repeats for ever, so pumpAndSettle would hang
-        // here — the same reason the history screen's harness does this.
-        builder: (context) => MediaQuery(
-          data: MediaQuery.of(context).copyWith(disableAnimations: true),
-          child: SampleDetailScreen(
-            sampleCode: sampleCode,
-            // `hold` parks the screen in its loading branch for good. A real
-            // request cannot be used here at all: dio leaves a pending timer
-            // that fails the binding at teardown, and waiting its timeout out
-            // would land the screen in the error branch, which replaces
-            // whatever the cache had already put on screen.
-            fetchSample: (code) {
-              if (hold) return Completer<SampleModel>().future;
-              if (failWith != null) return Future.error(failWith);
-              return Future.value(served ?? cached ?? sampleFixture());
-            },
+    ProviderScope(
+      // A fixed workflow: the stage list is a second request, and this page
+      // asks for it too.
+      overrides: [
+        stagesProvider.overrideWith(
+          (ref) async => const [
+            StageModel(id: 'stage-1', name: 'Received', sequenceOrder: 1),
+            StageModel(id: 'stage-2', name: 'Drying', sequenceOrder: 2),
+            StageModel(id: 'stage-3', name: 'Analysis', sequenceOrder: 3),
+          ],
+        ),
+      ],
+      child: MaterialApp(
+        locale: locale,
+        theme: theme ?? AppTheme.light,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Builder(
+          // The skeleton's pulse repeats for ever, so pumpAndSettle would hang
+          // here — the same reason the history screen's harness does this.
+          builder: (context) => MediaQuery(
+            data: MediaQuery.of(context).copyWith(disableAnimations: true),
+            child: UpdateStatusScreen(
+              sampleCode: sampleCode,
+              // `hold` parks the screen in its loading branch for good. A real
+              // request cannot be used here at all: dio leaves a pending timer
+              // that fails the binding at teardown, and waiting its timeout out
+              // would land the screen in the error branch, which replaces
+              // whatever the cache had already put on screen.
+              fetchSample: (code) {
+                if (hold) return Completer<SampleModel>().future;
+                if (failWith != null) return Future.error(failWith);
+                return Future.value(served ?? cached ?? sampleFixture());
+              },
+            ),
           ),
         ),
       ),
@@ -87,7 +103,8 @@ void expectNoRenderError(WidgetTester tester, {required String reason}) {
   expect(
     find.byType(ErrorWidget),
     findsNothing,
-    reason: 'a throw on an earlier frame leaves a healed red box behind, which '
+    reason:
+        'a throw on an earlier frame leaves a healed red box behind, which '
         'takeException does not see',
   );
 }
@@ -102,16 +119,18 @@ void main() {
     expectNoRenderError(tester, reason: 'the first frame must build clean');
   });
 
-  testWidgets('builds a full page from the cache without throwing',
-      (tester) async {
+  testWidgets('builds a full page from the cache without throwing', (
+    tester,
+  ) async {
     await pumpDetail(tester, cached: sampleFixture());
 
     expectNoRenderError(tester, reason: 'the loaded branch must build clean');
     expect(find.text('SMPL-2026-00001'), findsWidgets);
   });
 
-  testWidgets('shows the stored-on-the-phone notice for a cached sample',
-      (tester) async {
+  testWidgets('shows the stored-on-the-phone notice for a cached sample', (
+    tester,
+  ) async {
     // SampleCacheService.load returns asCached(), so isFromCache is set and the
     // dense ToneBanner renders at the top of the body.
     //
@@ -125,8 +144,9 @@ void main() {
     expect(find.byType(ToneBanner), findsOneWidget);
   });
 
-  testWidgets('builds a sample with no history without throwing',
-      (tester) async {
+  testWidgets('builds a sample with no history without throwing', (
+    tester,
+  ) async {
     // The other sliver in that slot: a SliverToBoxAdapter rather than an
     // InsetSectionSliver. A box in a sliver slot is exactly the mistake that
     // produced the last red slab, so both branches get pumped.
@@ -137,8 +157,8 @@ void main() {
   });
 
   testWidgets('builds a long history without throwing', (tester) async {
-    // Forces InsetSectionSliver to realise many rows and many InsetHairlines —
-    // the separator that recently replaced Material's Divider.
+    // Thirty rows of history, of which the page shows the latest three and a
+    // way to the rest: the stage to record must not drop below the fold.
     tester.view.physicalSize = const Size(400 * 3, 2400 * 3);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
@@ -146,11 +166,12 @@ void main() {
     await pumpDetail(tester, cached: sampleFixture(logs: 30));
 
     expectNoRenderError(tester, reason: 'thirty history rows');
-    expect(find.byType(InsetSectionSliver), findsOneWidget);
+    expect(find.text('Lihat semua (30)'), findsOneWidget);
   });
 
-  testWidgets('builds a sample with no current stage and no ident',
-      (tester) async {
+  testWidgets('builds a sample with no current stage and no ident', (
+    tester,
+  ) async {
     // Both nullable fields at once: a barcode printed before anyone knew what
     // it was for.
     await pumpDetail(
@@ -184,27 +205,43 @@ void main() {
   });
 
   testWidgets('builds its error state without throwing', (tester) async {
+    // A refusal from the server, not a missing one: with no signal the page
+    // carries on so a stage can still be queued, and only a real answer from
+    // the server is an error.
     await pumpDetail(
       tester,
-      failWith: const ApiException('offline', kind: ApiErrorKind.unreachable),
+      failWith: const ApiException(
+        'boom',
+        statusCode: 500,
+        kind: ApiErrorKind.server,
+      ),
     );
 
-    expectNoRenderError(tester, reason: 'the error branch swaps the scaffold '
-        'from AppPage to AppModalPage, which rebuilds the whole nav bar');
+    expectNoRenderError(
+      tester,
+      reason:
+          'the error branch keeps the same '
+          'AppPage bar as every other state',
+    );
     expect(find.text('Coba Lagi'), findsOneWidget);
   });
 
   testWidgets('builds its not-found state without throwing', (tester) async {
     await pumpDetail(
       tester,
-      failWith: const ApiException('missing', statusCode: 404, kind: ApiErrorKind.server),
+      failWith: const ApiException(
+        'missing',
+        statusCode: 404,
+        kind: ApiErrorKind.server,
+      ),
     );
 
     expectNoRenderError(tester, reason: 'the notFound branch');
   });
 
-  testWidgets('an unexpected error is still a page, not a crash',
-      (tester) async {
+  testWidgets('an unexpected error is still a page, not a crash', (
+    tester,
+  ) async {
     // The bare `catch` at the end of _fetch. A TypeError out of model parsing
     // lands here, and it must read as a page rather than a red slab.
     await pumpDetail(tester, failWith: StateError('parsing went wrong'));
@@ -212,16 +249,10 @@ void main() {
     expectNoRenderError(tester, reason: 'the catch-all branch');
   });
 
-  testWidgets('a failed fetch today discards a good cached page',
-      (tester) async {
-    // Not a render error — a behaviour one, recorded here because it is the
-    // thing a preparator loses by going offline. The cache puts a full page up,
-    // then the failed request replaces it with a full-screen error. The comment
-    // on _fetch explains at length why pull-to-refresh must NOT empty the
-    // screen; the error branch does not follow the same rule.
-    //
-    // This test documents what happens now. If the branch is changed to keep the
-    // cached page, this expectation is the one to invert.
+  testWidgets('no signal keeps a good cached page on screen', (tester) async {
+    // The cache puts a full page up, then the request fails because the server
+    // cannot be reached. Nothing was decided, so the cached page stays — with
+    // its notice — and a stage can still be recorded and queued.
     await pumpDetail(
       tester,
       cached: sampleFixture(),
@@ -229,10 +260,7 @@ void main() {
     );
 
     expectNoRenderError(tester, reason: 'still no render error either way');
-    expect(
-      find.text('Coba Lagi'),
-      findsOneWidget,
-      reason: 'the cached page was thrown away by the failure',
-    );
+    expect(find.text('Coba Lagi'), findsNothing);
+    expect(find.text('SMPL-2026-00001'), findsWidgets);
   });
 }

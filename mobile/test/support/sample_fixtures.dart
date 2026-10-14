@@ -5,7 +5,7 @@ import 'package:atara/models/stage_model.dart';
 /// A sample the way the detail screen renders one.
 ///
 /// Built here rather than in each test because the cache is the only seam into
-/// that screen that is not a network call: `SampleDetailScreen.initState` reads
+/// that screen that is not a network call: `UpdateStatusScreen.initState` reads
 /// `SampleCacheService.load`, which is nothing but SharedPreferences, so seeding
 /// the cache renders the whole loaded page without a server and without adding
 /// an injection point to production code.

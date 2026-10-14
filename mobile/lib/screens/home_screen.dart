@@ -24,15 +24,12 @@ import 'update_status_screen.dart';
 /// The preparator's own page: who they are, the way to a scan, and what they
 /// still owe the server.
 class HomeScreen extends ConsumerStatefulWidget {
-  const HomeScreen({super.key, required this.onScan, required this.onCheck});
+  const HomeScreen({super.key, required this.onScan});
 
   /// Raising the scanner is the shell's job — it presents it over the tab bar
   /// rather than inside a tab, so the camera is not kept alive in the
   /// background. See `HomeShell`.
   final VoidCallback onScan;
-
-  /// The scanner again, opened to look at a barcode rather than move it.
-  final VoidCallback onCheck;
 
   @override
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
@@ -124,12 +121,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 icon: CupertinoIcons.keyboard,
                 style: AppButtonStyle.plain,
                 onPressed: () => _openManualEntry(context),
-              ),
-              AppButton(
-                label: l10n.checkBarcode,
-                icon: CupertinoIcons.info_circle,
-                style: AppButtonStyle.plain,
-                onPressed: widget.onCheck,
               ),
               const SizedBox(height: AppSpacing.xl),
               const PendingScanSection(),

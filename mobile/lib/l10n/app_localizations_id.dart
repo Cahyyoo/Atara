@@ -104,9 +104,6 @@ class AppLocalizationsId extends AppLocalizations {
   String get detailTitle => 'Detail Sampel';
 
   @override
-  String get detailUpdateStage => 'Perbarui tahap';
-
-  @override
   String seeAll(Object count) {
     return 'Lihat semua ($count)';
   }
@@ -167,9 +164,6 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get scanHint => 'Arahkan kamera ke barcode/QR pada label sampel';
-
-  @override
-  String get updateStageTitle => 'Perbarui Tahap';
 
   @override
   String get selectNextStage => 'Pilih Tahap Berikutnya';
@@ -826,15 +820,6 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get announcementDismiss => 'Tutup pengumuman';
-
-  @override
-  String get checkBarcode => 'Cek Barcode';
-
-  @override
-  String get scanModeUpdate => 'Update Tahap';
-
-  @override
-  String get scanModeCheck => 'Cek Barcode';
 
   @override
   String get barcodeInfoTitle => 'Info Barcode';

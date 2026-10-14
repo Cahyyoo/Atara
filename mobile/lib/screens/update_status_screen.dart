@@ -36,10 +36,26 @@ import '../widgets/skeletons.dart';
 import 'sample_identity_screen.dart';
 import 'settings_screen.dart';
 
+/// A sample, in one page: what the barcode says, its Sample ID and history,
+/// and the stage to move it to next.
+///
+/// There used to be a read-only detail page beside this one, reached from
+/// past work and the scanner's "check" mode, with nearly the same cards on it.
+/// Looking and acting are one visit now: whoever only wanted to look goes
+/// back without saving, and the scanner carries on where it was.
 class UpdateStatusScreen extends ConsumerStatefulWidget {
-  const UpdateStatusScreen({super.key, required this.sampleCode});
+  const UpdateStatusScreen({
+    super.key,
+    required this.sampleCode,
+    @visibleForTesting this.fetchSample,
+  });
 
   final String sampleCode;
+
+  /// The sample lookup, isolated so a test can answer it; null in every
+  /// production call site. ApiService is a singleton with no other way in, and
+  /// a real request leaves dio's timer pending past a widget test's teardown.
+  final Future<SampleModel> Function(String sampleCode)? fetchSample;
 
   @override
   ConsumerState<UpdateStatusScreen> createState() => _UpdateStatusScreenState();
@@ -144,9 +160,7 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
     }
 
     try {
-      final sample = await ApiService.instance.getSampleByCode(
-        widget.sampleCode,
-      );
+      final sample = await _lookup(widget.sampleCode);
       if (!mounted) return;
       setState(() {
         final movedOn = _sample?.currentStage?.id != sample.currentStage?.id;
@@ -184,6 +198,28 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
         _errorMessage = l10n.unexpectedError;
         _loadState = _LoadState.error;
       });
+    }
+  }
+
+  Future<SampleModel> _lookup(String code) =>
+      (widget.fetchSample ?? ApiService.instance.getSampleByCode)(code);
+
+  /// Fetches the sample again without emptying the page: for the pull, and
+  /// for coming back from the identity form. The stage being picked stays
+  /// picked, and a failure leaves what is on screen alone.
+  Future<void> _refreshInPlace() async {
+    try {
+      final sample = await _lookup(widget.sampleCode);
+      if (!mounted) return;
+      setState(() {
+        final movedOn = _sample?.currentStage?.id != sample.currentStage?.id;
+        _sample = sample;
+        _loadState = _LoadState.loaded;
+        if (movedOn && !_stageChosenByPreparator) _selectedStage = null;
+      });
+    } catch (_) {
+      // The page already shows the last good answer; the pull was a request
+      // to try, not a promise.
     }
   }
 
@@ -357,13 +393,7 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
         builder: (context) => SampleIdentityScreen(sampleCode: widget.sampleCode),
       ),
     );
-    if (saved != true || !mounted) return;
-    try {
-      final sample = await ApiService.instance.getSampleByCode(widget.sampleCode);
-      if (mounted) setState(() => _sample = sample);
-    } catch (_) {
-      // The save went through; what is on screen catches up on the next open.
-    }
+    if (saved == true && mounted) await _refreshInPlace();
   }
 
   void _openSettings() {
@@ -376,15 +406,22 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    // The outcomes take the plain bar: a large collapsing title over a centred
-    // message would leave the message stranded in the middle of an empty page.
+    final title = l10n.detailTitle;
+
+    // AppPage in every state, never AppModalPage. CupertinoSliverNavigationBar
+    // and CupertinoNavigationBar each register their own Hero for the bar's
+    // flight between routes, so a route that swaps one for the other mid-life
+    // breaks the chain, and popping afterwards trips
+    //
+    //   heroes.dart: 'manifest.toHero == newManifest.fromHero' is not true
+    //
+    // which paints an ErrorWidget over the bar in debug. This page is pushed
+    // from past work as well as from the scanner, and "open it with no signal,
+    // let it fail, go back" is an ordinary thing to do.
     switch (_loadState) {
       case _LoadState.loading:
-        // AppPage, not AppModalPage: the loaded branch is an AppPage, and
-        // switching between the two made the navigation bar change shape the
-        // moment the data landed.
         return AppPage(
-          title: l10n.updateStageTitle,
+          title: title,
           slivers: [
             SliverToBoxAdapter(
               child: SampleDetailSkeleton(historyHeader: l10n.historyTitle),
@@ -392,28 +429,26 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
           ],
         );
       case _LoadState.notFound:
-        return AppModalPage(
-          title: l10n.updateStageTitle,
-          child: _buildNotFound(l10n),
-        );
+        return _statusPage(title, _buildNotFound(l10n));
       case _LoadState.error:
-        return AppModalPage(
-          title: l10n.updateStageTitle,
-          child: _buildError(l10n),
-        );
+        return _statusPage(title, _buildError(l10n));
       case _LoadState.offlineUnknown:
       case _LoadState.loaded:
-        if (_isSubmitted) {
-          return AppModalPage(
-            title: l10n.updateStageTitle,
-            child: _buildSuccess(l10n),
-          );
-        }
+        if (_isSubmitted) return _statusPage(title, _buildSuccess(l10n));
         return AppPage.list(
-          title: l10n.updateStageTitle,
+          title: title,
+          onRefresh: _sample == null ? null : _refreshInPlace,
           children: _buildForm(l10n),
         );
     }
+  }
+
+  /// An outcome, centred in what is left below the bar.
+  Widget _statusPage(String title, Widget child) {
+    return AppPage(
+      title: title,
+      slivers: [SliverFillRemaining(hasScrollBody: false, child: child)],
+    );
   }
 
   Widget _buildNotFound(AppLocalizations l10n) {

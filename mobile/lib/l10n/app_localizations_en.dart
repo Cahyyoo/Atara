@@ -105,9 +105,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get detailTitle => 'Sample Detail';
 
   @override
-  String get detailUpdateStage => 'Update stage';
-
-  @override
   String seeAll(Object count) {
     return 'See all ($count)';
   }
@@ -169,9 +166,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get scanHint =>
       'Point the camera at the barcode/QR on the sample label';
-
-  @override
-  String get updateStageTitle => 'Update Sample Stage';
 
   @override
   String get selectNextStage => 'Select Next Stage';
@@ -824,15 +818,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get announcementDismiss => 'Dismiss announcement';
-
-  @override
-  String get checkBarcode => 'Check Barcode';
-
-  @override
-  String get scanModeUpdate => 'Update Stage';
-
-  @override
-  String get scanModeCheck => 'Check Barcode';
 
   @override
   String get barcodeInfoTitle => 'Barcode Info';

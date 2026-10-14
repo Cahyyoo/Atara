@@ -5,7 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../models/work_summary.dart';
 import '../providers/my_work_provider.dart';
 import '../screens/scan_history_screen.dart';
-import '../screens/sample_detail_screen.dart';
+import '../screens/update_status_screen.dart';
 import '../services/time_text.dart';
 import '../theme/app_theme.dart';
 import 'skeletons.dart';
@@ -168,7 +168,7 @@ class _StageTallies extends StatelessWidget {
 /// stage but had no way to look at what they had recorded — who else had moved
 /// the sample, when, or what anyone wrote down. A [WorkEntry] carries four
 /// fields and no id of any kind, so the only thing to navigate by is the sample
-/// code, which is all [SampleDetailScreen] needs.
+/// code, which is all [UpdateStatusScreen] needs.
 class WorkRow extends StatefulWidget {
   const WorkRow({super.key, required this.entry, this.tintRadius});
 
@@ -219,7 +219,7 @@ class _WorkRowState extends State<WorkRow> {
     Navigator.of(context).push(
       CupertinoPageRoute(
         builder: (context) =>
-            SampleDetailScreen(sampleCode: widget.entry.sampleCode),
+            UpdateStatusScreen(sampleCode: widget.entry.sampleCode),
       ),
     );
   }

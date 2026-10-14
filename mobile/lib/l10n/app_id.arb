@@ -39,7 +39,6 @@
   },
   "workflowComplete": "Sampel ini sudah menyelesaikan seluruh tahap.",
   "detailTitle": "Detail Sampel",
-  "detailUpdateStage": "Perbarui tahap",
   "seeAll": "Lihat semua ({count})",
   "@seeAll": {
     "placeholders": {
@@ -69,7 +68,6 @@
   "save": "Simpan",
   "scanButton": "Pindai Barcode Sampel",
   "scanHint": "Arahkan kamera ke barcode/QR pada label sampel",
-  "updateStageTitle": "Perbarui Tahap",
   "selectNextStage": "Pilih Tahap Berikutnya",
   "fieldNotes": "Catatan Lapangan (Opsional)",
   "fieldNotesHint": "mis. Sampel dalam kondisi baik, kadar air normal.",
@@ -385,9 +383,6 @@
     }
   },
   "announcementDismiss": "Tutup pengumuman",
-  "checkBarcode": "Cek Barcode",
-  "scanModeUpdate": "Update Tahap",
-  "scanModeCheck": "Cek Barcode",
   "barcodeInfoTitle": "Info Barcode",
   "labCodeLabel": "Lab Code",
   "identityPlace": "Tempat",

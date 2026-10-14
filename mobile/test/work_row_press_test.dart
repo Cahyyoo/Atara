@@ -24,7 +24,7 @@ import 'package:atara/widgets/my_work_section.dart';
 ///
 /// Every gesture here ends in `cancel()` rather than `up()`, and that is not
 /// laziness. A completed tap runs WorkRow's onTap, which pushes
-/// SampleDetailScreen, whose initState fires a request — leaving a pending
+/// UpdateStatusScreen, whose initState fires a request — leaving a pending
 /// timer that fails the test binding at teardown for reasons that have nothing
 /// to do with the tint. Cancel is also the case that matters most here: it is
 /// what a scroll does after the finger has already gone down. onTapUp assigns

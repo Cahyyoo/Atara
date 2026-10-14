@@ -272,12 +272,6 @@ abstract class AppLocalizations {
   /// **'Detail Sampel'**
   String get detailTitle;
 
-  /// No description provided for @detailUpdateStage.
-  ///
-  /// In id, this message translates to:
-  /// **'Perbarui tahap'**
-  String get detailUpdateStage;
-
   /// No description provided for @seeAll.
   ///
   /// In id, this message translates to:
@@ -391,12 +385,6 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Arahkan kamera ke barcode/QR pada label sampel'**
   String get scanHint;
-
-  /// No description provided for @updateStageTitle.
-  ///
-  /// In id, this message translates to:
-  /// **'Perbarui Tahap'**
-  String get updateStageTitle;
 
   /// No description provided for @selectNextStage.
   ///
@@ -1519,24 +1507,6 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Tutup pengumuman'**
   String get announcementDismiss;
-
-  /// No description provided for @checkBarcode.
-  ///
-  /// In id, this message translates to:
-  /// **'Cek Barcode'**
-  String get checkBarcode;
-
-  /// No description provided for @scanModeUpdate.
-  ///
-  /// In id, this message translates to:
-  /// **'Update Tahap'**
-  String get scanModeUpdate;
-
-  /// No description provided for @scanModeCheck.
-  ///
-  /// In id, this message translates to:
-  /// **'Cek Barcode'**
-  String get scanModeCheck;
 
   /// No description provided for @barcodeInfoTitle.
   ///

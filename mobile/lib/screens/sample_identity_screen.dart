@@ -44,7 +44,7 @@ class SampleIdentityScreen extends ConsumerStatefulWidget {
   final String sampleCode;
 
   /// The two network calls, isolated so a test can answer them; null in every
-  /// production call site. The same seam SampleDetailScreen has, for the same
+  /// production call site. The same seam UpdateStatusScreen has, for the same
   /// reason: ApiService is a singleton with no other way in.
   final Future<SampleModel> Function(String sampleCode)? fetchSample;
   final Future<IdentityCheck> Function(
@@ -326,7 +326,7 @@ class _SampleIdentityScreenState extends ConsumerState<SampleIdentityScreen> {
     final title = _initialIdent == null ? l10n.fillSampleId : l10n.editSampleId;
 
     // AppModalPage in every state, so the bar never changes kind mid-life;
-    // see SampleDetailScreen for what swapping bar types costs.
+    // see UpdateStatusScreen for what swapping bar types costs.
     switch (_loadState) {
       case _LoadState.loading:
         return AppModalPage(

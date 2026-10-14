@@ -39,7 +39,6 @@
   },
   "workflowComplete": "This sample has completed every stage.",
   "detailTitle": "Sample Detail",
-  "detailUpdateStage": "Update stage",
   "seeAll": "See all ({count})",
   "@seeAll": {
     "placeholders": {
@@ -69,7 +68,6 @@
   "save": "Save",
   "scanButton": "Scan Sample Barcode",
   "scanHint": "Point the camera at the barcode/QR on the sample label",
-  "updateStageTitle": "Update Sample Stage",
   "selectNextStage": "Select Next Stage",
   "fieldNotes": "Field Notes (Optional)",
   "fieldNotesHint": "e.g. Sample is in good condition, normal moisture level.",
@@ -359,9 +357,6 @@
     }
   },
   "announcementDismiss": "Dismiss announcement",
-  "checkBarcode": "Check Barcode",
-  "scanModeUpdate": "Update Stage",
-  "scanModeCheck": "Check Barcode",
   "barcodeInfoTitle": "Barcode Info",
   "labCodeLabel": "Lab Code",
   "identityPlace": "Place",

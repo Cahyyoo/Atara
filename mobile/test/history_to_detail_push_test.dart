@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:atara/l10n/app_localizations.dart';
 import 'package:atara/providers/scan_history_provider.dart';
-import 'package:atara/screens/sample_detail_screen.dart';
+import 'package:atara/screens/update_status_screen.dart';
 import 'package:atara/screens/scan_history_screen.dart';
 import 'package:atara/theme/app_theme.dart';
 import 'package:atara/widgets/my_work_section.dart';
@@ -78,7 +78,7 @@ Future<void> expectCleanFrames(
 void main() {
   tearDown(SharedPreferences.resetStatic);
 
-  testWidgets('pushing the detail screen from a history row stays clean',
+  testWidgets('pushing the sample page from a history row stays clean',
       (tester) async {
     final notifier = ScriptedHistory({
       1: page(1, codes: ['A', 'B'], totalPages: 1),
@@ -92,9 +92,9 @@ void main() {
     // Every frame of the Cupertino slide, which runs about 400ms.
     await expectCleanFrames(tester);
 
-    expect(find.byType(SampleDetailScreen), findsOneWidget);
+    expect(find.byType(UpdateStatusScreen), findsOneWidget);
 
-    // Let the detail screen's own request fail and settle, so nothing is left
+    // Let the sample page's own request fail and settle, so nothing is left
     // pending at teardown. flutter_test blocks real HTTP, so this resolves
     // quickly rather than waiting out dio's ten-second timeout.
     await tester.pump(const Duration(seconds: 15));
