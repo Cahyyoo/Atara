@@ -29,9 +29,9 @@ class _FailingSession extends SessionNotifier {
 }
 
 /// A password that asks for a code, and a code that passes — for an account
-/// that is not an operator. The refusal happens after the second factor, on a
+/// that is not a preparator. The refusal happens after the second factor, on a
 /// different route from the one that has to say it.
-class _NonOperatorAfterCode extends SessionNotifier {
+class _NonPreparatorAfterCode extends SessionNotifier {
   @override
   Future<LoginResult> login(String email, String password) async {
     return const LoginSecondFactor(
@@ -86,7 +86,7 @@ Future<void> pumpLogin(
 Future<void> submit(WidgetTester tester) async {
   await tester.enterText(
     find.byType(CupertinoTextField).first,
-    'operator@atara.local',
+    'preparator@atara.local',
   );
   await tester.enterText(find.byType(CupertinoTextField).last, 'secret');
   // The sign-in button leads; the settings shortcut sits under it.
@@ -193,7 +193,9 @@ void main() {
     expect(serverHeading, findsOneWidget);
   });
 
-  testWidgets('turns away an account that is not an operator', (tester) async {
+  testWidgets('turns away an account that is not a preparator', (
+    tester,
+  ) async {
     await pumpLogin(tester, loginError: const PreparatorOnlyException());
     await submit(tester);
 
@@ -207,7 +209,7 @@ void main() {
   testWidgets('says the same after a second factor, back on this screen', (
     tester,
   ) async {
-    await pumpLogin(tester, session: _NonOperatorAfterCode());
+    await pumpLogin(tester, session: _NonPreparatorAfterCode());
     await submit(tester);
     expect(find.byType(SecondFactorScreen), findsOneWidget);
 

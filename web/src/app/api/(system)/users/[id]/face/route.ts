@@ -60,7 +60,7 @@ export const POST = route<{ id: string }>({ capability: "manageUsers" }, async (
  * Remove someone's face data.
  *
  * A real delete, not a flag. This is the erasure route for specific personal
- * data, and it is also the way an operator who cannot get past the camera --
+ * data, and it is also the way a preparator who cannot get past the camera --
  * a dust mask, safety glasses, a bad light over the bench -- is let back in.
  * There is deliberately no self-service version of this: any automatic way
  * around a second factor becomes its weakest point.

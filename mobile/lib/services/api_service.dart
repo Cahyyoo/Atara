@@ -42,7 +42,7 @@ class ApiService {
           // request that carries no token. The client header is what files a
           // session in the account's one PHONE slot — without it the server
           // takes the caller for a web browser, and signing in here would end
-          // the operator's desk session instead of their old phone's.
+          // the preparator's desk session instead of their old phone's.
           options.headers['X-Atara-Client'] = 'mobile';
           final device = deviceHeader;
           if (device != null) options.headers['X-Atara-Device'] = device;
@@ -117,7 +117,7 @@ class ApiService {
             final isSignOut = path.contains('/auth/logout');
             // A refusal of a token this phone no longer holds says nothing
             // about the session it holds now. A request that left before the
-            // operator signed in again, and came back 401 after, used to wipe
+            // preparator signed in again, and came back 401 after, used to wipe
             // the fresh session and send them straight back to sign-in.
             final sentWith = error.requestOptions.headers['Authorization'];
             final current = await SessionService.getToken();
@@ -175,7 +175,7 @@ class ApiService {
   ///
   /// This exists because the sign-in reply parsing had NO test at all, and that
   /// is how a crash on a shape the server had started sending reached an
-  /// operator's hands. The interceptors, the error mapping and the parser all
+  /// preparator's hands. The interceptors, the error mapping and the parser all
   /// live on this side of the socket, and none of them was reachable from
   /// `flutter test` while the Dio was sealed in.
   ///
@@ -191,7 +191,7 @@ class ApiService {
   /// the sign-in screen instead of retrying with credentials that are gone.
   ///
   /// The argument is non-null only when another phone took the account over,
-  /// which is the one sign-out the operator did not cause and needs telling
+  /// which is the one sign-out the preparator did not cause and needs telling
   /// about.
   void Function(SignedOutNotice? notice)? onUnauthorized;
 
@@ -339,7 +339,7 @@ class ApiService {
   ///
   /// A wrong code comes back 401 with `code: 'totp-mismatch'` and leaves the
   /// challenge unspent, so the caller may offer another go without sending the
-  /// operator back to the password field. See `secondFactorRefusal`.
+  /// preparator back to the password field. See `secondFactorRefusal`.
   Future<LoginResult> verifyTotp({
     required String challenge,
     required String code,
@@ -418,7 +418,7 @@ class ApiService {
   /// Starts an authenticator enrolment the administrator has already requested.
   ///
   /// Call this **once** per sign-in attempt. Every call mints a fresh secret
-  /// server-side, so a second one silently invalidates a key the operator may
+  /// server-side, so a second one silently invalidates a key the preparator may
   /// already have typed into their authenticator. The reply carries a
   /// REPLACEMENT challenge, because reading a key across takes longer than the
   /// two minutes the first one had left.
@@ -446,7 +446,7 @@ class ApiService {
     } on DioException catch (error) {
       final mapped = _mapError(error);
       // Offline: the stage picker is useless without this list, so fall back
-      // to the last one we saw rather than blocking the operator.
+      // to the last one we saw rather than blocking the preparator.
       if (mapped.isOffline) {
         final cached = await StageCacheService.load();
         if (cached.isNotEmpty) return cached;
@@ -460,7 +460,7 @@ class ApiService {
   /// The current one is asked for even though the session is good: an
   /// unlocked phone left on a bench should not be enough to take an account
   /// over. The server ends every OTHER session on success and keeps this one,
-  /// so the operator carries on working here.
+  /// so the preparator carries on working here.
   Future<void> changePassword({
     required String currentPassword,
     required String newPassword,
@@ -478,7 +478,7 @@ class ApiService {
   /// The banner for this account's role, or an empty list.
   ///
   /// Never throws. An announcement is something extra on top of Home; a
-  /// server that will not answer must cost the operator nothing, least of
+  /// server that will not answer must cost the preparator nothing, least of
   /// all the screen they scan from.
   Future<List<Announcement>> fetchAnnouncements() async {
     try {
@@ -516,7 +516,7 @@ class ApiService {
     }
   }
 
-  /// The signed-in operator's own work for the current shift day.
+  /// The signed-in preparator's own work for the current shift day.
   Future<WorkSummary> getMyWork() async {
     try {
       final response = await _dio.get('/samples/scan/mine');
@@ -535,7 +535,7 @@ class ApiService {
     }
   }
 
-  /// The signed-in operator's own scans, one page at a time, across days.
+  /// The signed-in preparator's own scans, one page at a time, across days.
   ///
   /// Never writes WorkSummaryCacheService. That cache is Home's shift tally,
   /// and a ninety-day total written into it would leave the Home card claiming
@@ -567,8 +567,8 @@ class ApiService {
     }
   }
 
-  /// The server takes the operator from the auth token, so none is sent here.
-  /// [force] and [reason] are the operator's override of the stage order.
+  /// The server takes the preparator from the auth token, so none is sent here.
+  /// [force] and [reason] are the preparator's override of the stage order.
   ///
   /// `evaluateStageTransition` honours them for PREPARATOR and refuses them
   /// without a reason, so a mis-scan is fixed at the rack instead of at a desk.

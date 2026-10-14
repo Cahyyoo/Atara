@@ -21,7 +21,7 @@ import '../widgets/pending_scan_section.dart';
 import '../widgets/todo_section.dart';
 import 'update_status_screen.dart';
 
-/// The operator's own page: who they are, the way to a scan, and what they
+/// The preparator's own page: who they are, the way to a scan, and what they
 /// still owe the server.
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key, required this.onScan, required this.onCheck});
@@ -86,7 +86,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       automaticallyImplyLeading: false,
       onRefresh: () => _refresh(showInBar: false),
       // A pull gesture announces itself to nobody. The button is how an
-      // operator who has never been told about it finds the same thing.
+      // preparator who has never been told about it finds the same thing.
       trailing: _isRefreshing
           ? const Padding(
               padding: EdgeInsets.symmetric(horizontal: AppSpacing.sm),
@@ -107,7 +107,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           sliver: SliverList(
             delegate: SliverChildListDelegate([
               // Above everything: it is the one thing on this screen that
-              // might change what the operator is about to do.
+              // might change what the preparator is about to do.
               const AnnouncementBanner(),
               if (user != null) _ProfileSection(user: user),
               AppButton(
@@ -184,7 +184,7 @@ class _ProfileSection extends StatelessWidget {
               style: AppText.headline.copyWith(color: palette.accent),
             ),
           ),
-          // The role used to be shown as the raw Dart enum name — OPERATOR —
+          // The role used to be shown as the raw Dart enum name — PREPARATOR —
           // which is a detail of how the app is written, not a word anyone
           // chose to put in front of someone.
           trailing: AppBadge(

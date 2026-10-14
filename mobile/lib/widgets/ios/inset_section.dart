@@ -202,7 +202,7 @@ class _InsetRowState extends State<InsetRow> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Bounded on purpose. Nothing in this app used to cap a
-                // Text showing data, so a long operator name or a server-worded
+                // Text showing data, so a long preparator name or a server-worded
                 // stage description grew a row to four or five lines. Two lines
                 // is enough to read; past that an ellipsis says more than a
                 // wall of text.

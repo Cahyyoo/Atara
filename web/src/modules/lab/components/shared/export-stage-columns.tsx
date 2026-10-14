@@ -26,7 +26,7 @@ export function StageColumns({
   const t = useTranslations("exportDialog");
   const tCommon = useTranslations("common");
   const tStages = useTranslations("stages");
-  const partLabel: Record<StagePart, string> = { at: t("entered"), duration: t("hours"), by: t("operator") };
+  const partLabel: Record<StagePart, string> = { at: t("entered"), duration: t("hours"), by: t("preparator") };
   const stageIds = (stages ?? []).map((stage) => stage.id);
 
   return (

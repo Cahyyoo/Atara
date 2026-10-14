@@ -65,7 +65,7 @@ describe("composeIdentity", () => {
     );
   });
 
-  it("leaves out a part the operator has not filled in", () => {
+  it("leaves out a part the preparator has not filled in", () => {
     expect(composeIdentity({ ...FULL, sackCount: "" }, OPTIONS)).toBe(
       "MOL LIM S3/PA4/B42/919.1"
     );

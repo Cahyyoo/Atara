@@ -7,10 +7,10 @@ import '../theme/app_theme.dart';
 import 'app_primitives.dart';
 import 'ios/inset_section.dart';
 
-/// What the operator is holding: the code, its identity, where it has reached.
+/// What the preparator is holding: the code, its identity, where it has reached.
 ///
 /// The barcode leads, because it is the one thing being checked against the
-/// label in the operator's hand. Everything else is context under it.
+/// label in the preparator's hand. Everything else is context under it.
 class SampleSummaryCard extends StatelessWidget {
   const SampleSummaryCard({
     super.key,

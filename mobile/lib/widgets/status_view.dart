@@ -89,7 +89,7 @@ class StatusView extends StatelessWidget {
 /// An inline strip of context above or below the thing it qualifies — the
 /// sample came off the phone, the server could not be asked.
 ///
-/// Unlike [StatusView] this does not take over the screen: the operator can
+/// Unlike [StatusView] this does not take over the screen: the preparator can
 /// still act, and the banner only says what they should know while doing so.
 class ToneBanner extends StatelessWidget {
   const ToneBanner({

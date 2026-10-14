@@ -10,8 +10,8 @@ import { applyStageMove } from "@/modules/lab/lib/stages/stage-move";
 
 export async function POST(request: NextRequest) {
   try {
-    // The operator is whoever holds the token — never whoever the body claims.
-    // Moving samples between stages is the operator's job alone; the other
+    // The preparator is whoever holds the token — never whoever the body claims.
+    // Moving samples between stages is the preparator's job alone; the other
     // roles work on the website.
     const session = await requireCapability(request, "scanSamples");
     const body = scanSampleSchema.parse(await readJsonBody(request, BODY_LIMIT.scan));
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
       throw new ApiError("Sample Not Registered", 404);
     }
     // Named for what it is. The label is still on the container, so the
-    // operator will scan it again and again unless the answer says why.
+    // preparator will scan it again and again unless the answer says why.
     if (sample.deletedAt !== null) {
       throw new ApiError("This sample was removed from the database.", 410);
     }

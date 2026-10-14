@@ -47,7 +47,7 @@ if (!reachable) {
   console.warn("[force-password-routes] skipped: no database reachable");
 }
 
-const DEFAULT = "OperatorDefault1!";
+const DEFAULT = "PreparatorDefault1!";
 
 describe.skipIf(!reachable)("role default passwords and the duty to change them", () => {
   const tag = `fr${Date.now().toString(36)}`;

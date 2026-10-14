@@ -3,7 +3,7 @@
  *
  * The capture used to keep whichever frame scored highest with no floor at
  * all, so a small, dim, half-turned face was stored as a valid reading. The
- * cost of that lands the next morning and every morning after, on the operator
+ * cost of that lands the next morning and every morning after, on the preparator
  * who cannot sign in — not on the admin who took it.
  *
  * This file is the single source of those numbers. The guide drawn over the

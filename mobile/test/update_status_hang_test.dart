@@ -129,7 +129,7 @@ void main() {
     );
 
     // `stages.first` on an empty list is a StateError, and an exception thrown
-    // while rendering reaches the operator as a dead screen, not a message.
+    // while rendering reaches the preparator as a dead screen, not a message.
     expect(tester.takeException(), isNull, reason: 'an empty stage list must not throw');
     expect(
       find.text('Belum ada tahap yang dikonfigurasi di server. Hubungi administrator.'),

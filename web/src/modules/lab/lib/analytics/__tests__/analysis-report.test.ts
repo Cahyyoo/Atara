@@ -90,7 +90,7 @@ describe("buildAnalysisReport", () => {
     { key: "smRatio", header: "SM Ratio", band: "results" },
     { key: "mc", header: "MC", band: "results" },
     { key: "measurementMethod", header: "Application", band: "instrument" },
-    { key: "operator", header: "Operator", band: "instrument" },
+    { key: "preparator", header: "Preparator", band: "instrument" },
     { key: "xrayInstrument", header: "Xray Instrument", band: "instrument" },
     { key: "mcDate", header: "Tanggal", band: "mc" },
     { key: "wp", header: "Wp", band: "mc" },
@@ -107,7 +107,7 @@ describe("buildAnalysisReport", () => {
     smRatio: sio2 / mgo,
     mc: ((w0 - wd) * 100) / (w0 - wp),
     measurementMethod: "STARGATE_LG-GEO",
-    operator: "Lab Analyst",
+    preparator: "Lab Analyst",
     xrayInstrument: "S2 PUMA",
     mcDate: new Date(Date.UTC(2025, 11, 17)),
     wp,
@@ -133,7 +133,7 @@ describe("buildAnalysisReport", () => {
     expect(sheet.getCell("J1").value).toBe("No. Dokumen");
     expect(sheet.getCell("M1").value).toBe("TABEL MC");
     expect(sheet.getRow(5).values).toEqual(
-      expect.arrayContaining(["No.", "Sample", "SM Ratio", "MC", "Application", "Operator", "Xray Instrument", "Wp", "W0", "Wd"])
+      expect.arrayContaining(["No.", "Sample", "SM Ratio", "MC", "Application", "Preparator", "Xray Instrument", "Wp", "W0", "Wd"])
     );
   });
 
@@ -187,12 +187,12 @@ describe("buildAnalysisReport", () => {
   });
 
   it("leaves out what was not chosen, and falls back to values when a formula's cells are missing", async () => {
-    const chosen = columns.filter((column) => !["wp", "w0", "wd", "mgo", "operator"].includes(column.key));
+    const chosen = columns.filter((column) => !["wp", "w0", "wd", "mgo", "preparator"].includes(column.key));
     const workbook = await readBack([record("a", { cells: cells(33.02, 8.37, 579, 2810, 1922) })], chosen);
     const sheet = workbook.getWorksheet("MOL. Prod.")!;
     const headers = (sheet.getRow(5).values as unknown[]).filter(Boolean);
     expect(headers).not.toContain("Wp");
-    expect(headers).not.toContain("Operator");
+    expect(headers).not.toContain("Preparator");
     const mcColumn = headers.indexOf("MC") + 1;
     expect(typeof sheet.getCell(6, mcColumn).value).toBe("number");
   });

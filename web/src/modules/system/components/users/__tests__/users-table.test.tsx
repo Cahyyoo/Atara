@@ -30,7 +30,7 @@ const USERS: UserDTO[] = [
     totpRequestedAt: "2026-09-01T00:00:00.000Z",
     totpEnabledAt: "2026-09-02T00:00:00.000Z",
   },
-  { ...BASE, id: "op", name: "Field Operator", email: "operator@atara.local" },
+  { ...BASE, id: "op", name: "Field Preparator", email: "preparator@atara.local" },
   {
     ...BASE,
     id: "pending",
@@ -112,14 +112,14 @@ describe("UsersTable", () => {
 
   it("shows the email with the name instead of in a column of its own", async () => {
     renderTable();
-    expect(within(await row("Field Operator")).getByText("operator@atara.local")).toBeTruthy();
+    expect(within(await row("Field Preparator")).getByText("preparator@atara.local")).toBeTruthy();
     expect(screen.queryByRole("columnheader", { name: "Email" })).toBeNull();
   });
 
   it("names the role instead of printing the enum", async () => {
     renderTable();
     expect(within(await row("Main Admin")).getByText("Admin Lab")).toBeTruthy();
-    expect(within(await row("Field Operator")).getByText("Preparator")).toBeTruthy();
+    expect(within(await row("Field Preparator")).getByText("Preparator")).toBeTruthy();
     expect(screen.queryByText("ADMIN")).toBeNull();
   });
 
@@ -128,7 +128,7 @@ describe("UsersTable", () => {
     const admin = within(await row("Main Admin"));
     expect(admin.getByText("Wajah")).toBeTruthy();
     expect(admin.getByText("Authenticator")).toBeTruthy();
-    expect(within(await row("Field Operator")).getByText("Kata sandi saja")).toBeTruthy();
+    expect(within(await row("Field Preparator")).getByText("Kata sandi saja")).toBeTruthy();
     expect(within(await row("QA Pending")).getByText("Authenticator (menunggu)")).toBeTruthy();
   });
 
@@ -145,7 +145,7 @@ describe("UsersTable", () => {
   it("offers only enrolment where there is no face to remove", async () => {
     const user = userEvent.setup();
     renderTable();
-    await user.click(await screen.findByRole("button", { name: "Aksi lain untuk Field Operator" }));
+    await user.click(await screen.findByRole("button", { name: "Aksi lain untuk Field Preparator" }));
 
     expect(await screen.findByRole("menuitem", { name: "Daftarkan wajah" })).toBeTruthy();
     expect(screen.queryByRole("menuitem", { name: "Hapus data wajah" })).toBeNull();
@@ -154,7 +154,7 @@ describe("UsersTable", () => {
   it("opens the authenticator dialog from the menu", async () => {
     const user = userEvent.setup();
     renderTable();
-    await user.click(await screen.findByRole("button", { name: "Aksi lain untuk Field Operator" }));
+    await user.click(await screen.findByRole("button", { name: "Aksi lain untuk Field Preparator" }));
     await user.click(await screen.findByRole("menuitem", { name: "Kelola Authenticator…" }));
 
     const dialog = await screen.findByRole("dialog");
@@ -165,15 +165,15 @@ describe("UsersTable", () => {
   it("resets somebody else's password to the role default, after a confirmation", async () => {
     const user = userEvent.setup();
     renderTable();
-    await user.click(await screen.findByRole("button", { name: "Aksi lain untuk Field Operator" }));
+    await user.click(await screen.findByRole("button", { name: "Aksi lain untuk Field Preparator" }));
     await user.click(await screen.findByRole("menuitem", { name: "Reset ke password default" }));
 
     const dialog = await screen.findByRole("dialog");
-    expect(within(dialog).getByText(/Field Operator dikembalikan ke password default role Preparator/)).toBeTruthy();
+    expect(within(dialog).getByText(/Field Preparator dikembalikan ke password default role Preparator/)).toBeTruthy();
     await user.click(within(dialog).getByRole("button", { name: "Reset password" }));
 
     expect(fetch).toHaveBeenCalledWith("/api/users/op/reset-password", { method: "POST" });
-    expect(await within(await row("Field Operator")).findByText("Wajib ganti password")).toBeTruthy();
+    expect(await within(await row("Field Preparator")).findByText("Wajib ganti password")).toBeTruthy();
   });
 
   it("does not offer a reset on one's own account", async () => {

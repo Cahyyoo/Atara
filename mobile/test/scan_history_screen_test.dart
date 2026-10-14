@@ -20,7 +20,7 @@ import 'support/scan_history_fixtures.dart';
 /// resolves to `SliverMainAxisGroup` — to `LoadingSwap`, whose `AnimatedSwitcher`
 /// wraps its child in a `Stack` and a `FadeTransition`. `RenderAnimatedOpacity`
 /// only takes a `RenderBox`, so the tree threw at mount, Flutter healed it with
-/// an `ErrorWidget`, and the operator got a grey slab a hundred thousand pixels
+/// an `ErrorWidget`, and the preparator got a grey slab a hundred thousand pixels
 /// tall for as long as the request took.
 ///
 /// Any test that merely pumps this screen catches that: the exception reaches
@@ -221,7 +221,7 @@ void main() {
     // A twenty-row page is about 1300 logical pixels, so a tall phone or a
     // tablet can hold the whole first page with nothing left to scroll -- and the
     // auto-load budget now stops fetching on purpose, which is a state the
-    // operator is MEANT to leave by tapping. Neither was reachable before,
+    // preparator is MEANT to leave by tapping. Neither was reachable before,
     // because the footer only ever offered its button after a failure.
 
     testWidgets('offers the button when the list is shorter than the viewport',
@@ -430,7 +430,7 @@ void main() {
 
     testWidgets('scrolling part of the way asks for nothing', (tester) async {
       // The property the whole change exists for: nothing is fetched until the
-      // operator has arrived.
+      // preparator has arrived.
       //
       // 250 is chosen to sit inside the old 400px lead and outside the new 64px
       // one, which is what makes this catch a regression rather than restate the
@@ -458,7 +458,7 @@ void main() {
       expect(
         notifier.requested,
         [1],
-        reason: 'the operator has not arrived, so nothing should have been asked '
+        reason: 'the preparator has not arrived, so nothing should have been asked '
             'for',
       );
 

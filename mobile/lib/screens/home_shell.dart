@@ -35,7 +35,7 @@ class _HomeShellState extends ConsumerState<HomeShell> {
   void initState() {
     super.initState();
     // The stage list never changes during a shift and every scan needs it, so
-    // fetch it while the operator is still looking at Home rather than making
+    // fetch it while the preparator is still looking at Home rather than making
     // the first scan of the day wait for it.
     ref.read(stagesProvider);
   }

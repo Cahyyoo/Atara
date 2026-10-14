@@ -8,7 +8,7 @@ import type { StageTransition } from "@/modules/lab/lib/stages/stage-transition"
  * Writes a stage move that `evaluateStageTransition` has allowed: the
  * sample's stage and status, and the log line saying who did it.
  *
- * Shared by the operator's scan and the administrator's correction on the
+ * Shared by the preparator's scan and the administrator's correction on the
  * website, so both are written the same way and race the same way.
  */
 export async function applyStageMove({
@@ -52,7 +52,7 @@ export async function applyStageMove({
           // Tagged because this 409 is transient — two scans raced and one lost
           // — while every other 409 here is a real refusal of the stage order.
           // A queued scan that hits this deserves another attempt, not a
-          // permanent rejection the operator has to clear by hand.
+          // permanent rejection the preparator has to clear by hand.
           "STAGE_MOVED"
         );
       }
@@ -61,7 +61,7 @@ export async function applyStageMove({
         data: {
           sampleId: sample.id,
           stageId: stage.id,
-          operatorId: userId,
+          preparatorId: userId,
           isCorrection,
           notes,
           scannedAt,
@@ -73,7 +73,7 @@ export async function applyStageMove({
         include: {
           currentStage: true,
           createdBy: { select: { id: true, name: true } },
-          // The operator is standing in front of the container, and the Sample
+          // The preparator is standing in front of the container, and the Sample
           // ID is what the lab sheet calls it. Same two columns the sample
           // lists carry, so the scan answer and a list row say the same thing.
           labRecord: { select: { labCode: true, sampleIdent: true } },
@@ -83,7 +83,7 @@ export async function applyStageMove({
     {
       // Explicit rather than Prisma's 2-second default: a scan that queues
       // for a connection at shift change should wait a moment, not fail at
-      // once with P2028 and be shown to the operator as an error.
+      // once with P2028 and be shown to the preparator as an error.
       maxWait: 3000,
       timeout: 8000,
     }

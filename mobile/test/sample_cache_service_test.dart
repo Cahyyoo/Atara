@@ -67,7 +67,7 @@ void main() {
 
   test('carries an older single-blob cache across', () async {
     // What the previous version of the app left on disk. Updating mid-shift
-    // must not burn the samples an operator saved for going offline.
+    // must not burn the samples a preparator saved for going offline.
     SharedPreferences.setMockInitialValues({
       'atara_sample_cache': <String>[
         jsonEncode(makeSample('NKL-2026-00031', stage: 'Weighing').toJson()),

@@ -3,7 +3,7 @@ import { Skeleton } from "@/core/components/ui/skeleton";
 
 /**
  * Reached by a client navigation more often than it looks: logging out pushes
- * here, and without a boundary that push leaves the operator staring at the
+ * here, and without a boundary that push leaves the preparator staring at the
  * page they just left. The page's own shape: the brand half from lg up, the
  * form on the other.
  */

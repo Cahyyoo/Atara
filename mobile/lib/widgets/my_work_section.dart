@@ -16,11 +16,11 @@ import '../services/stage_label.dart';
 /// How many entries Home shows before handing the rest to [MyWorkScreen].
 ///
 /// The server sends up to a hundred, and rendering all of them on the screen an
-/// operator opens most often is work for nothing: the ones that matter are the
+/// preparator opens most often is work for nothing: the ones that matter are the
 /// ones just recorded. The rest are one tap away.
 const int kMyWorkInlineLimit = 10;
 
-/// What this operator has recorded during the current shift, as the server has
+/// What this preparator has recorded during the current shift, as the server has
 /// it — so it survives a reinstall and covers work done from another phone.
 ///
 /// Only sent work appears here. Anything still queued is shown by
@@ -116,7 +116,7 @@ class MyWorkSection extends ConsumerWidget {
 /// It replaced a "See all (N)" row that opened a screen showing the same
 /// entries again under a different title. The history screen's first group is
 /// this card, with "Today" above it — two near-identical screens meant an
-/// operator had to guess which one held their week.
+/// preparator had to guess which one held their week.
 class _HistoryRow extends StatelessWidget {
   const _HistoryRow();
 
@@ -164,7 +164,7 @@ class _StageTallies extends StatelessWidget {
 
 /// One recorded stage, and the way into the sample behind it.
 ///
-/// These rows used to be inert: an operator could see that they had recorded a
+/// These rows used to be inert: a preparator could see that they had recorded a
 /// stage but had no way to look at what they had recorded — who else had moved
 /// the sample, when, or what anyone wrote down. A [WorkEntry] carries four
 /// fields and no id of any kind, so the only thing to navigate by is the sample
@@ -196,7 +196,7 @@ class _WorkRowState extends State<WorkRow> {
   /// still for kPressTimeout before dragging and the sequence is onTapDown →
   /// rebuild → onTapCancel → rebuild, so every slow drag start paid two full
   /// row rebuilds. A long list is scrolled in flicks, so that was once per
-  /// flick, for as long as the operator kept going.
+  /// flick, for as long as the preparator kept going.
   ///
   /// The content is built in build() and handed to ValueListenableBuilder as
   /// its `child`, which is the part that does the work: `child` is passed

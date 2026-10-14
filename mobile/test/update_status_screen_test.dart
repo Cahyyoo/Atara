@@ -39,7 +39,7 @@ void main() {
     expect(
       anyBusyIndicator,
       findsNothing,
-      reason: 'the spinner must resolve into something the operator can act on',
+      reason: 'the spinner must resolve into something the preparator can act on',
     );
   });
 }

@@ -102,7 +102,7 @@ void main() {
       (tester) async {
     // The scrolling case: the finger goes down, then the gesture is taken over
     // by the scrollable. A tint left behind would stay lit on a row the
-    // operator never tapped.
+    // preparator never tapped.
     await pumpRow(tester);
     expect(tintOf(tester).color!.a, 0.0);
 

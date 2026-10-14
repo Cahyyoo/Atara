@@ -114,7 +114,7 @@ async function exportLabRecords(request: NextRequest) {
       wetPrepId: stages.find((stage) => stage.key === "WET_PREP")?.id,
       reportId: stages.find((stage) => stage.key === "REPORT")?.id,
     };
-    const wantsOperator = keys.includes("operator");
+    const wantsPreparator = keys.includes("preparator");
     const codeOf = new Map(
       (await prisma.masterOption.findMany({ select: { id: true, code: true } })).map((option) => [option.id, option.code])
     );
@@ -137,7 +137,7 @@ async function exportLabRecords(request: NextRequest) {
             select: {
               ...labRecordInclude.sample.select,
               logs: {
-                select: { stageId: true, scannedAt: true, operator: { select: { name: true } } },
+                select: { stageId: true, scannedAt: true, preparator: { select: { name: true } } },
                 orderBy: { scannedAt: "asc" as const },
               },
             },
@@ -152,7 +152,7 @@ async function exportLabRecords(request: NextRequest) {
         const sample = row.sample!;
         // One container, one timeline: its sub-samples share it.
         const visits = stageTimeline(
-          sample.logs.map((log) => ({ stageId: log.stageId, scannedAt: log.scannedAt, operator: log.operator.name })),
+          sample.logs.map((log) => ({ stageId: log.stageId, scannedAt: log.scannedAt, preparator: log.preparator.name })),
           { now, completed: sample.status === "COMPLETED" }
         );
         const moments = stageMoments(sample.logs, momentIds);
@@ -240,7 +240,7 @@ async function exportLabRecords(request: NextRequest) {
         }
       }
       // Who entered the results is a query of its own: asked only for the rows shown.
-      const analysts = wantsOperator ? await analystsOf(shown.map(({ record }) => record.id)) : null;
+      const analysts = wantsPreparator ? await analystsOf(shown.map(({ record }) => record.id)) : null;
       let number = 0;
       const rows = shown.map(({ sheet, record }) => {
         const isSub = Boolean(record.parentId);
@@ -252,7 +252,7 @@ async function exportLabRecords(request: NextRequest) {
                 ? isSub
                   ? null
                   : number
-                : column.key === "operator"
+                : column.key === "preparator"
                   ? (analysts?.get(record.id) ?? null)
                   : (record.cells[column.key] ?? null);
             return [column.key, value instanceof Date ? formatWitaDateTime(value) : value];
@@ -267,9 +267,9 @@ async function exportLabRecords(request: NextRequest) {
       });
     }
 
-    if (wantsOperator) {
+    if (wantsPreparator) {
       const analysts = await analystsOf(records.map((record) => record.id));
-      for (const record of records) record.cells.operator = analysts.get(record.id) ?? null;
+      for (const record of records) record.cells.preparator = analysts.get(record.id) ?? null;
     }
 
     if (!xlsx) {

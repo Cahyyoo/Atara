@@ -22,16 +22,16 @@ import 'package:atara/services/session_service.dart';
 /// and signed in, at once on a return to the foreground, never otherwise, and
 /// never two at a time.
 
-const _operator = UserModel(
+const _preparator = UserModel(
   id: 'u1',
-  name: 'Siti Operator',
-  email: 'operator@atara.local',
+  name: 'Siti Preparator',
+  email: 'preparator@atara.local',
   role: UserRole.preparator,
 );
 
 /// A session the test signs in and out by hand.
 class _HandSession extends SessionNotifier {
-  void signIn() => state = const AsyncValue.data(_operator);
+  void signIn() => state = const AsyncValue.data(_preparator);
   void signOut() => state = const AsyncValue.data(null);
 }
 
@@ -122,7 +122,7 @@ Future<FixedAnswer> pumpSignedInApp(
   // under the fake clock: every request would wait on it.
   ApiService.clientDeviceReader = () async => null;
   addTearDown(() => ApiService.clientDeviceReader = null);
-  await SessionService.saveSession('stored.jwt', _operator);
+  await SessionService.saveSession('stored.jwt', _preparator);
 
   await tester.pumpWidget(
     ProviderScope(
@@ -244,7 +244,7 @@ void main() {
     tester,
   ) async {
     // It may have been replaced while the app was closed.
-    await SessionService.saveSession('stored.jwt', _operator);
+    await SessionService.saveSession('stored.jwt', _preparator);
     final checks = CheckCounter();
 
     await pumpScope(tester, checks: checks);

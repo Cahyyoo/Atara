@@ -57,8 +57,8 @@ class _Recorder implements HttpClientAdapter {
 const _sessionBody = '''
 {"success": true,
  "data": {"mfaRequired": false, "token": "new.jwt",
-          "user": {"id": "u1", "name": "Siti Operator",
-                   "email": "operator@atara.local", "role": "PREPARATOR"}}}
+          "user": {"id": "u1", "name": "Siti Preparator",
+                   "email": "preparator@atara.local", "role": "PREPARATOR"}}}
 ''';
 
 const _replacedBody = '''
@@ -83,10 +83,10 @@ const _plain401 = '{"success": false, "error": "Session expired."}';
 
 const _okBody = '{"success": true, "data": {"ok": true}}';
 
-const _operator = UserModel(
+const _preparator = UserModel(
   id: 'u1',
-  name: 'Siti Operator',
-  email: 'operator@atara.local',
+  name: 'Siti Preparator',
+  email: 'preparator@atara.local',
   role: UserRole.preparator,
 );
 
@@ -249,7 +249,7 @@ void main() {
 
       final result = await container
           .read(sessionProvider.notifier)
-          .login('operator@atara.local', 'secret');
+          .login('preparator@atara.local', 'secret');
 
       expect(result, isA<LoginSession>());
       expect(await SessionService.getToken(), 'new.jwt');
@@ -259,7 +259,7 @@ void main() {
 
   group('being signed out by another device', () {
     test('a 401 session-replaced signs out and says why', () async {
-      await SessionService.saveSession('old.jwt', _operator);
+      await SessionService.saveSession('old.jwt', _preparator);
       ApiService.instance.httpClientAdapter = _Recorder(
         (_) => (status: 401, body: _replacedBody),
       );
@@ -280,7 +280,7 @@ void main() {
     });
 
     test('the other device arrives described, field by field', () async {
-      await SessionService.saveSession('old.jwt', _operator);
+      await SessionService.saveSession('old.jwt', _preparator);
       ApiService.instance.httpClientAdapter = _Recorder(
         (_) => (status: 401, body: _replacedDescribedBody),
       );
@@ -302,7 +302,7 @@ void main() {
     });
 
     test('a plain 401 signs out without a story', () async {
-      await SessionService.saveSession('old.jwt', _operator);
+      await SessionService.saveSession('old.jwt', _preparator);
       ApiService.instance.httpClientAdapter = _Recorder(
         (_) => (status: 401, body: _plain401),
       );
@@ -316,7 +316,7 @@ void main() {
     });
 
     test('a current session is left alone', () async {
-      await SessionService.saveSession('old.jwt', _operator);
+      await SessionService.saveSession('old.jwt', _preparator);
       final transport = _Recorder((_) => (status: 200, body: _okBody));
       ApiService.instance.httpClientAdapter = transport;
       final container = await restoredContainer();
@@ -333,7 +333,7 @@ void main() {
     });
 
     test('no network is not a sign-out', () async {
-      await SessionService.saveSession('old.jwt', _operator);
+      await SessionService.saveSession('old.jwt', _preparator);
       ApiService.instance.httpClientAdapter = _Recorder(
         (options) => throw DioException.connectionError(
           requestOptions: options,
@@ -352,7 +352,7 @@ void main() {
 
   group('signing out frees the slot', () {
     test('logout tells the server, with the token, then clears', () async {
-      await SessionService.saveSession('old.jwt', _operator);
+      await SessionService.saveSession('old.jwt', _preparator);
       final transport = _Recorder((_) => (status: 200, body: _okBody));
       ApiService.instance.httpClientAdapter = transport;
       final container = await restoredContainer();
@@ -373,7 +373,7 @@ void main() {
       ('already let go', (status: 401, body: _replacedBody)),
     ]) {
       test('a server that $label still leaves the phone signed out', () async {
-        await SessionService.saveSession('old.jwt', _operator);
+        await SessionService.saveSession('old.jwt', _preparator);
         ApiService.instance.httpClientAdapter = _Recorder((_) => answer);
         final container = await restoredContainer();
         addTearDown(container.dispose);
@@ -388,7 +388,7 @@ void main() {
     }
 
     test('no network still signs out, and does not wait long', () async {
-      await SessionService.saveSession('old.jwt', _operator);
+      await SessionService.saveSession('old.jwt', _preparator);
       ApiService.instance.httpClientAdapter = _Recorder(
         (options) => throw DioException.connectionError(
           requestOptions: options,
@@ -408,7 +408,7 @@ void main() {
     });
 
     test('a server that never answers is waited on only so long', () async {
-      await SessionService.saveSession('old.jwt', _operator);
+      await SessionService.saveSession('old.jwt', _preparator);
       ApiService.instance.httpClientAdapter = _Recorder((_) => null);
       final notifier = SessionNotifier(
         logoutWait: const Duration(milliseconds: 50),

@@ -19,7 +19,7 @@ import { createRandom, dummyInstrument, dummyResults, dummyWeights } from "./dum
  *
  * Each change is recorded in the record's history under the account that
  * would have made it -- the Database staff for the identity and the weighing,
- * the analyst for the results -- so the form's Operator column is filled too.
+ * the analyst for the results -- so the form's Preparator column is filled too.
  *
  *     npm run db:fill-dummy
  */

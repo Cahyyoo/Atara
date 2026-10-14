@@ -6,7 +6,7 @@ import { ACTIVE_SAMPLE } from "@/modules/lab/lib/samples/soft-delete";
 /** The filters a stage-activity question can carry, already parsed. */
 export interface StageActivityFilters {
   search?: string;
-  operatorId?: string;
+  preparatorId?: string;
   stageId?: string;
   shiftDate?: string;
   corrections?: "only" | "exclude";
@@ -32,8 +32,8 @@ export function stageActivityWhere(filters: StageActivityFilters): Prisma.Sample
   }
 
   const where: Prisma.SampleLogWhereInput = { sample: { is: sample } };
-  if (filters.operatorId) {
-    where.operatorId = filters.operatorId;
+  if (filters.preparatorId) {
+    where.preparatorId = filters.preparatorId;
   }
   if (filters.stageId) {
     where.stageId = filters.stageId;
@@ -64,7 +64,7 @@ export const stageActivitySelect = {
   isCorrection: true,
   notes: true,
   stage: { select: { id: true, key: true, name: true } },
-  operator: { select: { id: true, name: true } },
+  preparator: { select: { id: true, name: true } },
   sample: { select: { id: true, sampleCode: true } },
 } satisfies Prisma.SampleLogSelect;
 
@@ -72,8 +72,8 @@ export const stageActivitySelect = {
  * Who moved which sample to which stage, and when.
  *
  * The data has been recorded since the first scan -- SampleLog carries
- * operatorId, and there is already an index on [operatorId, scannedAt]
- * described as "what did this operator record this shift". What was missing
+ * preparatorId, and there is already an index on [preparatorId, scannedAt]
+ * described as "what did this preparator record this shift". What was missing
  * was any way to ask the question across more than one sample.
  *
  * `shiftDate` is a lab day, not a calendar day: the shift boundary is 07:00
@@ -83,9 +83,9 @@ export const stageActivitySelect = {
 export const STAGE_ACTIVITY_SORT_FIELDS = ["scannedAt"] as const;
 
 export const listStageActivityQuerySchema = z.object({
-  /** Matches a sample code; the operator is chosen by id, not typed. */
+  /** Matches a sample code; the preparator is chosen by id, not typed. */
   search: z.string().trim().optional(),
-  operatorId: z.string().trim().optional(),
+  preparatorId: z.string().trim().optional(),
   stageId: z.string().trim().optional(),
   /** A single lab day, as yyyy-mm-dd. Blank means every day. */
   shiftDate: z.string().trim().optional(),

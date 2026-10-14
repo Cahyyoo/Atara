@@ -41,7 +41,7 @@ void main() {
     expect(await WorkSummaryCacheService.load(), isNull);
   });
 
-  test('clearing removes it, so one operator does not see another tally', () async {
+  test('clearing removes it, so one preparator does not see another tally', () async {
     await WorkSummaryCacheService.save(makeSummary(total: 42));
     expect(await WorkSummaryCacheService.load(), isNotNull);
 

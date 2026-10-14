@@ -6,7 +6,7 @@ import '../theme/app_theme.dart';
 import 'ios/inset_section.dart';
 import '../services/stage_label.dart';
 
-/// The list of stages the operator chooses from.
+/// The list of stages the preparator chooses from.
 ///
 /// iOS states a single choice with a tick against the chosen row, not with a
 /// column of radio circles: the unchosen rows carry no control at all, so the

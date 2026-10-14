@@ -76,7 +76,7 @@ class _SecondFactorScreenState extends ConsumerState<SecondFactorScreen>
   /// Guards `/auth/totp/setup` to one call per sitting.
   ///
   /// Every call mints a fresh secret server-side, so a second one silently
-  /// invalidates a key the operator may already have typed into their
+  /// invalidates a key the preparator may already have typed into their
   /// authenticator — and they would then be entering correct codes for a secret
   /// the server has thrown away.
   bool _setupStarted = false;
@@ -303,7 +303,7 @@ class _SecondFactorScreenState extends ConsumerState<SecondFactorScreen>
         case SecondFactorDisposition.retrySameChallenge:
           // The challenge is untouched and another attempt costs nothing, so
           // stay put. Only the field is cleared, and the keyboard keeps its
-          // place — sending the operator back to the password screen would throw
+          // place — sending the preparator back to the password screen would throw
           // away a credential the server was willing to keep.
           _codeController.clear();
           _codeFocus.requestFocus();
@@ -331,7 +331,7 @@ class _SecondFactorScreenState extends ConsumerState<SecondFactorScreen>
     final l10n = AppLocalizations.of(context)!;
     // A TOTP seed on the clipboard is readable by other apps. It is the
     // least-bad way to move a secret between two apps on one phone, it happens
-    // only because the operator asked, and it is never logged.
+    // only because the preparator asked, and it is never logged.
     await Clipboard.setData(ClipboardData(text: key));
     if (mounted) AppToast.show(context, l10n.mfaSetupKeyCopied);
   }
@@ -519,7 +519,7 @@ class _SecondFactorScreenState extends ConsumerState<SecondFactorScreen>
                           LengthLimitingTextInputFormatter(6),
                         ],
                         // Submits on the sixth digit AND on the button: an
-                        // operator wearing gloves will reach for the button.
+                        // preparator wearing gloves will reach for the button.
                         onChanged: (value) {
                           if (value.length == 6) _submitCode();
                         },

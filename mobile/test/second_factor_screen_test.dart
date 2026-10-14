@@ -202,7 +202,7 @@ void main() {
     tester,
   ) async {
     // The assertion this file exists for. A wrong code deliberately does not
-    // spend the challenge server-side, so the operator must not be sent back to
+    // spend the challenge server-side, so the preparator must not be sent back to
     // the password field — and the retry must reuse the challenge rather than a
     // replacement.
     final session = ScriptedSession(

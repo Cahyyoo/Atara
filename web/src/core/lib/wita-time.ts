@@ -19,7 +19,7 @@ export const WORKDAY_START_HOUR = 7;
 /**
  * The instant a wall-clock reading in the lab refers to.
  *
- * The instrument, the sheet and the operator all read the same clock, and that
+ * The instrument, the sheet and the preparator all read the same clock, and that
  * clock is WITA — the same one the shift boundary is pinned to. Building the
  * Date from the browser's own timezone instead would store a time eight hours
  * out on a laptop set to UTC, and nothing on screen would say so.

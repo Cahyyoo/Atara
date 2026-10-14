@@ -1,13 +1,13 @@
-/// Tidies a sample code an operator typed by hand.
+/// Tidies a sample code a preparator typed by hand.
 ///
 /// Codes have the fixed shape `SMPL-<year>-<5 digits>`, and typing one on a
 /// phone — in gloves, in a dusty room, off a label that may be scuffed — goes
-/// wrong in predictable ways. Each of those is corrected here so the operator
+/// wrong in predictable ways. Each of those is corrected here so the preparator
 /// is not bounced to a "not registered" screen over a missing hyphen.
 ///
 /// `NKL` is accepted just as readily. It is the prefix this app used to issue,
 /// and those labels are stuck to containers already out in the field; refusing
-/// to tidy them would leave the operator unable to type in a code they can
+/// to tidy them would leave the preparator unable to type in a code they can
 /// plainly read off the bucket in front of them.
 ///
 /// Every correction is deterministic. Nothing is guessed: a year is never
@@ -26,7 +26,7 @@ String normaliseSampleCode(String input) {
     return '${unhyphenated.group(1)}-${unhyphenated.group(2)}-${unhyphenated.group(3)}';
   }
 
-  // Operators read the tail of the code off the label and skip the leading
+  // Preparators read the tail of the code off the label and skip the leading
   // zeroes: SMPL-2026-31 means SMPL-2026-00031.
   final short = RegExp(r'^(SMPL|NKL)-(\d{4})-(\d{1,5})$').firstMatch(compact);
   if (short != null) {

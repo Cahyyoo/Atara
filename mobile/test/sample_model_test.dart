@@ -68,7 +68,7 @@ void main() {
     });
 
     /**
-     * The one that would hurt. An operator updating the app mid-shift has a
+     * The one that would hurt. A preparator updating the app mid-shift has a
      * cache full of entries written by the old build, and none of them carry
      * this key. Throwing here would empty the cache they rely on for going
      * offline — which is the moment they need it most.

@@ -21,7 +21,7 @@ import { withBasePath } from "@/core/lib/http/base-path";
  *
  * Two jobs at once, and both matter. It is the erasure route for specific
  * personal data, which UU PDP No. 27/2022 requires be possible. And it is the
- * way back in for an operator the camera will not recognise — behind a dust
+ * way back in for a preparator the camera will not recognise — behind a dust
  * mask, behind safety glasses, under a bad light over the bench.
  *
  * Confirmed by name rather than by a bare "are you sure": the rows are gone

@@ -44,7 +44,7 @@ SecondFactorRefusal secondFactorRefusal(
   ApiException error,
 ) {
   // The reading failures. Every one of these leaves the challenge unspent and
-  // costs nothing against the five-strike lock, so the operator may simply try
+  // costs nothing against the five-strike lock, so the preparator may simply try
   // again — which is the whole reason they are 400s and not 401s.
   switch (error.code) {
     case 'totp-mismatch':
@@ -117,7 +117,7 @@ SecondFactorRefusal secondFactorRefusal(
   }
 
   // Timeouts and an unreachable server leave the challenge alive, and its own
-  // countdown will retire it if the operator runs out of time.
+  // countdown will retire it if the preparator runs out of time.
   if (error.kind == ApiErrorKind.timeout ||
       error.kind == ApiErrorKind.unreachable) {
     return SecondFactorRefusal(

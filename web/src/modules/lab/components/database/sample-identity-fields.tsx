@@ -80,7 +80,7 @@ export function identityPayload(values: IdentityValues) {
  * A run of samples off one pit differs in the sample number and nothing else,
  * so a new block starts as a copy of the last with that number advanced. This
  * is what the old running-number rule did on the server, moved to where the
- * operator can see it and change it.
+ * preparator can see it and change it.
  *
  * A blank sample number stays blank: inventing a 1 would put a Sample ID on a
  * barcode nobody has identified yet, which is the one thing that rule was
@@ -198,7 +198,7 @@ export function SampleIdentityFields({
         ))}
       </div>
 
-      {/* Shown as it is typed: the operator sees exactly what will be stored
+      {/* Shown as it is typed: the preparator sees exactly what will be stored
           before committing to it. */}
       {showPreview ? (
         <div className="rounded-md bg-muted/50 px-3 py-2">

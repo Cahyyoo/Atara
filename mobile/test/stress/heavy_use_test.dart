@@ -24,7 +24,7 @@ import 'package:atara/services/session_service.dart';
 /// Heavy use, from the phone's side: long offline shifts, a server slow enough
 /// to time out, thumbs faster than a frame, and answers arriving out of order.
 ///
-/// Each test states the behaviour the operator is owed. Where the app falls
+/// Each test states the behaviour the preparator is owed. Where the app falls
 /// short, the test fails and names the finding (H6-H9 in load-tests/REPORT.md).
 
 /// Answers each request with whatever [answer] decides: a reply, a thrown
@@ -59,9 +59,9 @@ ResponseBody _json(int status, Object body) => ResponseBody.fromString(
       },
     );
 
-const _operator = UserModel(
+const _preparator = UserModel(
   id: 'op-1',
-  name: 'Operator Satu',
+  name: 'Preparator Satu',
   email: 'op@atara.local',
   role: UserRole.preparator,
 );
@@ -93,7 +93,7 @@ PendingScan _queued(int i, {String? stageId}) => PendingScan(
       stageId: stageId ?? 'st-1',
       stageName: 'DITERIMA',
       queuedAt: DateTime(2026, 10, 9, 8).add(Duration(seconds: i)),
-      operatorId: _operator.id,
+      preparatorId: _preparator.id,
     );
 
 late HttpClientAdapter _realAdapter;
@@ -103,7 +103,7 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     ApiService.clientDeviceReader = () async => null;
-    await SessionService.saveSession('token-1', _operator);
+    await SessionService.saveSession('token-1', _preparator);
   });
   tearDown(() {
     ApiService.instance.httpClientAdapter = _realAdapter;
@@ -127,7 +127,7 @@ void main() {
         }
         perAdd[target] = watch.elapsedMicroseconds / 20 / 1000;
       }
-      final all = await PendingScanService.getFor(_operator.id);
+      final all = await PendingScanService.getFor(_preparator.id);
       // ignore: avoid_print
       print('M1: ms per add by queue size $perAdd');
       expect(all, hasLength(2000));
@@ -138,7 +138,7 @@ void main() {
       for (var i = 0; i < 10; i++) {
         await PendingScanService.add(_queued(i));
       }
-      // The drain removes what it sent while the operator queues a new scan.
+      // The drain removes what it sent while the preparator queues a new scan.
       await Future.wait([
         PendingScanService.remove('q-0'),
         PendingScanService.add(_queued(100)),
@@ -223,7 +223,7 @@ void main() {
       final outcome = await ScanSyncService.drain();
       final left = await PendingScanService.getAll();
 
-      expect(outcome.rejected, 0, reason: 'the operator is told a saved scan was refused');
+      expect(outcome.rejected, 0, reason: 'the preparator is told a saved scan was refused');
       expect(left.where((s) => s.hasFailed), isEmpty);
     });
   });
@@ -317,8 +317,8 @@ void main() {
       while (server.requests.isEmpty) {
         await Future<void>.delayed(const Duration(milliseconds: 1));
       }
-      // ...the operator signs in again meanwhile...
-      await SessionService.saveSession('token-2', _operator);
+      // ...the preparator signs in again meanwhile...
+      await SessionService.saveSession('token-2', _preparator);
       // ...and the old request comes back 401.
       pending.complete(_json(401, {'success': false, 'error': 'Session expired.', 'code': 'session-replaced'}));
       await inFlight;

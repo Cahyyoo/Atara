@@ -53,7 +53,7 @@ export const BUSY_CODE = "BUSY";
  *
  * None of these is the caller's fault and none is a bug here; they are what
  * saturation looks like. They used to fall through to the 500 below, which
- * told the mobile queue "do not retry" and told an operator "something broke"
+ * told the mobile queue "do not retry" and told a preparator "something broke"
  * about a scan that would have succeeded two seconds later.
  */
 const TRANSIENT_DB_CODES = new Set(["P2024", "P2028", "P1001", "P1008", "P1017", "P2034"]);

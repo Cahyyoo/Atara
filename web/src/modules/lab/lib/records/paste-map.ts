@@ -1,5 +1,5 @@
 /**
- * Maps a block copied out of a spreadsheet onto the lab records the operator
+ * Maps a block copied out of a spreadsheet onto the lab records the preparator
  * selected first.
  *
  * Kept a pure function, like `composeSampleIdent`, so the rules that decide
@@ -39,7 +39,7 @@ export interface PasteChange {
 }
 
 export interface PasteRow {
-  /** 1-based position in the pasted block, as the operator sees it. */
+  /** 1-based position in the pasted block, as the preparator sees it. */
   line: number;
   /** What identifies the record this row landed on, or the raw cell if none did. */
   label: string;
@@ -174,7 +174,7 @@ export function mapPastedRows(
     };
   }
 
-  // Matching on an id beats matching on position: the operator can select rows
+  // Matching on an id beats matching on position: the preparator can select rows
   // in any order, and a sheet sorted differently would otherwise write every
   // result onto the wrong sample.
   const keyColumn = keyColumnOf(columns);

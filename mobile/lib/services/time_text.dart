@@ -13,7 +13,7 @@ bool _warmed = false;
 /// the tables "on first use, after a network round trip" put the cost somewhere
 /// "nobody is waiting". That has the causality backwards. The round trip has
 /// already FINISHED by first use — first use is inside the build phase of the
-/// frame that paints its result, which is the one frame the operator is actually
+/// frame that paints its result, which is the one frame the preparator is actually
 /// watching. `initializeDateFormatting` ignores its locale argument and builds
 /// symbols and patterns for every locale intl knows, around a hundred and
 /// twenty: tens of milliseconds on a mid-range handset, so one to a few dropped
@@ -30,7 +30,7 @@ bool _warmed = false;
 /// formats the first date pays for it, and on the ordinary path that is Home's
 /// first [WorkRow]. But when the shift has recorded nothing, MyWorkSection takes
 /// its empty branch and renders no row, so Home formats no date at all — and
-/// "nothing recorded yet" is precisely when an operator goes looking for
+/// "nothing recorded yet" is precisely when a preparator goes looking for
 /// yesterday. Warming once, from main, covers Home and the history screen both.
 ///
 /// It formats a date rather than only constructing the formatter, because
@@ -120,7 +120,7 @@ String shiftDayText(
 
 final _dateFormats = <String, DateFormat>{};
 
-/// A moment the operator is told about: "14:05" today, "29 Sep 14:05" before.
+/// A moment the preparator is told about: "14:05" today, "29 Sep 14:05" before.
 ///
 /// Built for the one-phone-per-account messages, where the time is the whole
 /// point — "since 14:05" says whether the other phone is this morning's shift

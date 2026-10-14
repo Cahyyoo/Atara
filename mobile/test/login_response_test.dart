@@ -6,7 +6,7 @@ import 'package:atara/models/login_result.dart';
 import 'package:atara/models/user_model.dart';
 import 'package:atara/services/api_exception.dart';
 
-/// The layer that had no test, which is why the bug reached an operator.
+/// The layer that had no test, which is why the bug reached a preparator.
 ///
 /// `ApiService.login` used to read the reply with four hard casts in a row. When
 /// an account has a second factor the server withholds the token, so
@@ -54,7 +54,7 @@ void main() {
          "data": {"mfaRequired": false,
                   "token": "session.jwt.value",
                   "user": {"id": "u1", "name": "Main Admin",
-                           "email": "operator@atara.local", "role": "PREPARATOR"}}}
+                           "email": "preparator@atara.local", "role": "PREPARATOR"}}}
       '''),
       );
 
@@ -62,7 +62,7 @@ void main() {
       final session = result as LoginSession;
       expect(session.token, 'session.jwt.value');
       expect(session.user.role, UserRole.preparator);
-      expect(session.user.email, 'operator@atara.local');
+      expect(session.user.email, 'preparator@atara.local');
     });
 
     test('reads a session that carries no mfaRequired key at all', () {
@@ -76,7 +76,7 @@ void main() {
         {"success": true,
          "data": {"token": "session.jwt.value",
                   "user": {"id": "u1", "name": "Main Admin",
-                           "email": "operator@atara.local", "role": "PREPARATOR"}}}
+                           "email": "preparator@atara.local", "role": "PREPARATOR"}}}
       '''),
       );
 

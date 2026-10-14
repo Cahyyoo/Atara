@@ -6,7 +6,7 @@ import type { ShiftScanSummary } from "@/modules/lab/lib/stages/my-scans";
 import { IoScanOutline } from "react-icons/io5";
 
 /**
- * An operator's own shift, at the top of their dashboard.
+ * A preparator's own shift, at the top of their dashboard.
  *
  * The rest of the dashboard is about the samples; this is about the person
  * reading it -- what they have recorded since the shift began, stage by stage,

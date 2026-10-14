@@ -11,12 +11,12 @@ class PendingScansNotifier extends StateNotifier<List<PendingScan>> {
   }
 
   Future<void> refresh() async {
-    // Scoped to the signed-in operator, matching what ScanSyncService will
+    // Scoped to the signed-in preparator, matching what ScanSyncService will
     // actually send. Showing another account's queued scans in a list with
     // Retry and Discard on it would offer actions that do not belong to
     // whoever is holding the phone.
-    final operatorId = (await SessionService.getUser())?.id;
-    state = await PendingScanService.getFor(operatorId);
+    final preparatorId = (await SessionService.getUser())?.id;
+    state = await PendingScanService.getFor(preparatorId);
   }
 
   /// Sends whatever it can and returns what happened, for the UI to report.

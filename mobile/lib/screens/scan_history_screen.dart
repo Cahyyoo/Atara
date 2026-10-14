@@ -16,7 +16,7 @@ import '../widgets/my_work_section.dart';
 import '../widgets/skeletons.dart';
 import '../widgets/status_view.dart';
 
-/// Every scan this operator has sent, grouped by the shift day the server
+/// Every scan this preparator has sent, grouped by the shift day the server
 /// filed it under.
 ///
 /// Home only ever showed the current shift, and the phone's copy of it is a
@@ -28,7 +28,7 @@ import '../widgets/status_view.dart';
 /// `InsetSectionSliver`, which put ninety top-level slivers in one viewport —
 /// and a viewport lays out every sliver above the fold on every frame. Scrolled
 /// to day sixty, that was some three hundred and sixty `performLayout` calls
-/// and sixty build scopes per frame, growing with how far down the operator
+/// and sixty build scopes per frame, growing with how far down the preparator
 /// had got. The day cards are painted per row instead; the list below does
 /// work proportional to what is on screen.
 class ScanHistoryScreen extends ConsumerWidget {
@@ -39,17 +39,17 @@ class ScanHistoryScreen extends ConsumerWidget {
   ///
   /// This number does not set the cadence. When a page lands, `maxScrollExtent`
   /// grows by that page's height and the threshold moves down with it, so from
-  /// wherever the operator is standing the distance to the next threshold is
+  /// wherever the preparator is standing the distance to the next threshold is
   /// always one page, whatever the lead. What it sets is the runway: how much
   /// content is still below when the request fires, and therefore whether the
   /// spinner shows.
   ///
   /// It was 600, then 400 on the reasoning that a visible spinner is a cost.
   /// That was the wrong trade for this screen. At 400 the list grew about six
-  /// rows before the operator arrived, so the bottom was never actually reached
+  /// rows before the preparator arrived, so the bottom was never actually reached
   /// and rows kept appearing underneath unasked — which is the weight complained
   /// about, not a nicety. **The visible spinner is now the intended outcome**, not
-  /// something tolerated: nothing is fetched until the operator has asked for it
+  /// something tolerated: nothing is fetched until the preparator has asked for it
   /// by arriving.
   ///
   /// Why not zero, which is what "only at the bottom" sounds like. AppPage runs
@@ -67,7 +67,7 @@ class ScanHistoryScreen extends ConsumerWidget {
   ///
   /// The consequence, which is deliberate and is covered: a drag that stops a few
   /// hundred pixels short now fetches nothing. The footer's "Muat lagi" button is
-  /// what carries the operator on from there, so it is load-bearing rather than a
+  /// what carries the preparator on from there, so it is load-bearing rather than a
   /// safety net — see the note on that branch.
   static const double _loadMoreLead = 64;
 
@@ -141,7 +141,7 @@ class ScanHistoryScreen extends ConsumerWidget {
       // A sliver, handed straight to a sliver slot. It used to go through
       // LoadingSwap, whose AnimatedSwitcher wraps its child in a Stack and a
       // FadeTransition — both box widgets — so this sliver was rejected at
-      // mount and the operator watched an ErrorWidget for the length of the
+      // mount and the preparator watched an ErrorWidget for the length of the
       // request.
       return const [
         SliverPadding(
@@ -210,7 +210,7 @@ class ScanHistoryScreen extends ConsumerWidget {
           delegate: SliverChildBuilderDelegate(
             childCount: body.rows.length,
             // Neither is wanted here and both cost per realised child. Keep
-            // alives would pin rows the operator has scrolled past; the
+            // alives would pin rows the preparator has scrolled past; the
             // semantic index is for a list whose position means something,
             // which a dated log's does not.
             addAutomaticKeepAlives: false,
@@ -389,7 +389,7 @@ class _Footer extends StatelessWidget {
       //      drag hits the refresh control instead. Reachable and undiscoverable
       //      is the same as absent.
       //   2. The auto-load budget stopping on purpose, which is a state the
-      //      operator is MEANT to leave by tapping.
+      //      preparator is MEANT to leave by tapping.
       //   3. A drag that eases to a stop short of the bottom. `_loadMoreLead` is
       //      one row now, so unlike at 400 there is no prefetch to cover that;
       //      this is the only thing that carries them on.

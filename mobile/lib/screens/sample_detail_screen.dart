@@ -21,13 +21,13 @@ import 'update_status_screen.dart';
 /// A sample, read rather than changed: what it is, where it has been, and who
 /// moved it there.
 ///
-/// Reached by tapping a row in My Work, which until now was inert — an operator
+/// Reached by tapping a row in My Work, which until now was inert — a preparator
 /// could see that they had recorded a stage but had no way to look at what they
 /// had recorded. It takes a **code** rather than a loaded sample, so it can be
 /// opened from anywhere that knows one.
 ///
 /// Nothing here writes. The one action offered is the update screen, because
-/// looking and then acting is the natural order and sending the operator back
+/// looking and then acting is the natural order and sending the preparator back
 /// to Home to do it is not.
 class SampleDetailScreen extends StatefulWidget {
   const SampleDetailScreen({
@@ -51,7 +51,7 @@ class SampleDetailScreen extends StatefulWidget {
   /// production call site, so the default below is what ships.
   ///
   /// It exists because this screen had NO widget test at all — the gap that let
-  /// a render error reach an operator's hands once already — and it could not
+  /// a render error reach a preparator's hands once already — and it could not
   /// get one: initState fires a real dio request, which leaves a pending timer
   /// that fails the test binding at teardown. Waiting the timeout out instead
   /// is no good either, because a failed fetch replaces whatever the cache had
@@ -118,7 +118,7 @@ class _SampleDetailScreenState extends State<SampleDetailScreen> {
       setState(() {
         _errorMessage = apiErrorText(l10n, error);
         // Offline with nothing cached is an error here, unlike on the update
-        // screen — there, the operator still has a stage to record; here there
+        // screen — there, the preparator still has a stage to record; here there
         // is simply nothing to show.
         _loadState =
             error.isNotFound ? _LoadState.notFound : _LoadState.error;

@@ -44,7 +44,7 @@ export const updateSampleIdentitySchema = z
  *
  * Deliberately not accepting the old `{ quantity, ...identity }` shape as well.
  * It would still parse against nothing and create a single sample, which is the
- * worst possible answer for an operator who believed they had asked for fifty.
+ * worst possible answer for a preparator who believed they had asked for fifty.
  */
 export const generateSamplesSchema = z.object({
   identities: z
@@ -63,10 +63,10 @@ export const scanSampleSchema = z.object({
   sample_code: z.string().trim().min(1, "Sample code is required."),
   stage_id: z.string().trim().min(1, "Stage must be selected."),
   // Accepted for backwards compatibility with the mobile app, but ignored:
-  // the operator is always taken from the authenticated session.
-  operator_id: z.string().trim().optional(),
+  // the preparator is always taken from the authenticated session.
+  preparator_id: z.string().trim().optional(),
   notes: z.string().trim().max(1000).optional().nullable(),
-  // Operators only (overrideStage): overrides the stage order, and requires a reason.
+  // Preparators only (overrideStage): overrides the stage order, and requires a reason.
   force: z.boolean().optional(),
   reason: z.string().trim().min(5, "Please explain the correction.").max(1000).optional(),
 });
@@ -170,7 +170,7 @@ export const deleteSamplesSchema = z.object({
 });
 
 /**
- * The signed-in operator asking for their own scans.
+ * The signed-in preparator asking for their own scans.
  *
  * Every field is optional with a default that reproduces this endpoint's
  * original behaviour exactly, so the route needs no legacy branch: the

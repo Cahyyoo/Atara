@@ -132,7 +132,7 @@ describe("LoginForm", () => {
 
     async function signIn(user: ReturnType<typeof userEvent.setup>) {
       await user.type(screen.getByLabelText("Email"), "sari@atara.local");
-      await user.type(screen.getByLabelText("Kata Sandi"), "Operator123!");
+      await user.type(screen.getByLabelText("Kata Sandi"), "Preparator123!");
       await user.click(screen.getByRole("button", { name: "Masuk" }));
     }
 

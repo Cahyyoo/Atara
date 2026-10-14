@@ -42,7 +42,7 @@ describe("composeSampleIdent", () => {
   });
 
   it("accepts the barging run with or without its B prefix", () => {
-    // Operators write B.48, B48 or 48 depending on where they copied it from.
+    // Preparators write B.48, B48 or 48 depending on where they copied it from.
     for (const written of ["B.42", "B42", "42", "b.42"]) {
       expect(composeSampleIdent({ ...COMPLETE, bargingNo: written })).toBe(
         "MOL LIM S3/PA4/B42/919.3/12"

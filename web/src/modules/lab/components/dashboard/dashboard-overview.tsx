@@ -47,7 +47,7 @@ interface DashboardOverviewProps {
   /** The default window, already computed on the server. */
   initialAnalytics: AnalyticsResult;
   /**
-   * The operator's own shift, rendered on the server. Above the date controls
+   * The preparator's own shift, rendered on the server. Above the date controls
    * on purpose: it follows the shift, and nothing below it changes it.
    */
   myScans?: ReactNode;

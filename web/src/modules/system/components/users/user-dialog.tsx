@@ -87,7 +87,7 @@ function UserForm({ target, currentUserId, manager, onClose, onSaved }: UserForm
   // the server accepts: the super admin makes department admins, the lab's
   // admin makes lab staff.
   const roles = assignableRoles(manager);
-  // Most new lab accounts are operators, so that is where the picker starts.
+  // Most new lab accounts are preparators, so that is where the picker starts.
   const [role, setRole] = useState<UserRole>(
     user?.role ?? (roles.includes("PREPARATOR") ? "PREPARATOR" : roles[0] ?? "PREPARATOR")
   );

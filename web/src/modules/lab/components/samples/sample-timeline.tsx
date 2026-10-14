@@ -47,7 +47,7 @@ export async function SampleTimeline({ logs }: { logs: SampleLogDTO[] }) {
               </div>
               <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
                 <IoPersonOutline className="size-3.5" />
-                {log.operator.name}
+                {log.preparator.name}
               </p>
               {log.notes ? (
                 <p className="mt-1 flex items-start gap-1.5 rounded-md bg-muted/50 p-2 text-sm">

@@ -151,8 +151,8 @@ export interface SampleLogDTO {
   sampleId: string;
   stageId: string;
   stage: StageDTO;
-  operatorId: string;
-  operator: { id: string; name: string; email: string };
+  preparatorId: string;
+  preparator: { id: string; name: string; email: string };
   notes: string | null;
   isCorrection: boolean;
   scannedAt: string;

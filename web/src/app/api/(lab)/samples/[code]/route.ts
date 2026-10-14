@@ -16,7 +16,7 @@ export const GET = route<{ code: string }>({ capability: "viewDashboard" }, asyn
         orderBy: { scannedAt: "asc" },
         include: {
           stage: true,
-          operator: { select: { id: true, name: true, email: true } },
+          preparator: { select: { id: true, name: true, email: true } },
         },
       },
     },

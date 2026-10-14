@@ -128,7 +128,7 @@ Browser hanya menerima teks UI milik core dan milik modul yang dipegang persona.
 | ADMIN       | LAB        | admin@atara.local        | lihat catatan |
 | DATABASE    | LAB        | database@atara.local     | lihat catatan |
 | ANALISIS    | LAB        | analisis@atara.local     | lihat catatan |
-| PREPARATOR    | LAB        | operator@atara.local     | lihat catatan |
+| PREPARATOR    | LAB        | preparator@atara.local     | lihat catatan |
 | ADMIN       | EKSPLORASI | eksplorasi@atara.local   | lihat catatan |
 
 > **Catatan kata sandi.** Akun ini dibuat oleh `npm run db:seed`. Di lingkungan pengembangan kata sandinya ada di `prisma/seed-policy.ts`. Di produksi seed **menolak** membuat akun kecuali `SEED_ADMIN_PASSWORD` (minimal 12 karakter) diberikan, dan yang dibuat hanya akun **super admin**; akun contoh lainnya tidak dibuat sama sekali. Super admin lalu membuat admin setiap departemen dari halaman Akun Admin. Ganti kata sandi super admin setelah masuk pertama kali.

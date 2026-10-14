@@ -75,7 +75,7 @@ export const GET = route({ capability: "manageDashboard" }, async ({ request }) 
           labRecord: { select: { labCode: true, sampleIdent: true } },
           createdBy: { select: { name: true } },
           logs: {
-            select: { stageId: true, scannedAt: true, operator: { select: { name: true } } },
+            select: { stageId: true, scannedAt: true, preparator: { select: { name: true } } },
             orderBy: { scannedAt: "asc" },
             // Read only when a stage column was asked for.
             ...(wantsStages ? {} : { take: 0 }),
@@ -95,7 +95,7 @@ export const GET = route({ capability: "manageDashboard" }, async ({ request }) 
           sample.logs.map((log) => ({
             stageId: log.stageId,
             scannedAt: log.scannedAt,
-            operator: log.operator.name,
+            preparator: log.preparator.name,
           })),
           { now, completed: sample.status === "COMPLETED" }
         );

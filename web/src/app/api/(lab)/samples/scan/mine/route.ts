@@ -12,10 +12,10 @@ import {
 import { myScanHistoryQuerySchema } from "@/modules/lab/validation/samples";
 
 /**
- * What the signed-in operator has recorded, across shift days.
+ * What the signed-in preparator has recorded, across shift days.
  *
  * Open to everybody in the lab module rather than to an admin: this exists so
- * an operator can see their own work, and it only ever reads their own rows.
+ * a preparator can see their own work, and it only ever reads their own rows.
  *
  * **Phones already in the field call this with no query string at all.** Every
  * parameter defaults to the behaviour this route had before it took any — one
@@ -26,7 +26,7 @@ import { myScanHistoryQuerySchema } from "@/modules/lab/validation/samples";
  *
  * Soft-deleted samples are deliberately NOT filtered out, and this is not an
  * ACTIVE_SAMPLE call site somebody forgot. This is a receipt of work an
- * operator actually did; deleting the sample afterwards does not undo the
+ * preparator actually did; deleting the sample afterwards does not undo the
  * shift they spent on it. Applying the predicate here would quietly erase
  * somebody's record of their own week.
  */
@@ -40,7 +40,7 @@ export const GET = route({ capability: "viewDashboard" }, async ({ request, sess
 
   const window = resolveScanHistoryWindow(query.days);
   const where = {
-    operatorId: session.userId,
+    preparatorId: session.userId,
     scannedAt: { gte: window.from, lt: window.to },
   };
 
@@ -81,7 +81,7 @@ export const GET = route({ capability: "viewDashboard" }, async ({ request, sess
     loadStages(),
     prisma.sampleLog.findMany({
       where,
-      // Exactly the shape of @@index([operatorId, scannedAt]): equality on
+      // Exactly the shape of @@index([preparatorId, scannedAt]): equality on
       // the leading column, range and ordering on the second. MySQL walks
       // that index backwards — no filesort, no temporary table.
       orderBy: { scannedAt: "desc" },

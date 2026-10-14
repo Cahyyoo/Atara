@@ -79,7 +79,7 @@ export const LAB_RECORD_EXPORT_COLUMNS: ExportColumnSpec[] = [
   { key: "mc", group: "results", header: "MC", width: 8, defaultOn: true },
   { key: "measurementMethod", group: "instrument", header: "Application", width: 20, defaultOn: true },
   // The analyst whose account entered the results.
-  { key: "operator", group: "instrument", header: "Operator", width: 14, defaultOn: true },
+  { key: "preparator", group: "instrument", header: "Preparator", width: 14, defaultOn: true },
   { key: "xrayInstrument", group: "instrument", header: "Xray Instrument", width: 16, defaultOn: true },
   { key: "solutionId", group: "instrument", header: "Solution ID", width: 12, defaultOn: false },
   { key: "measurementFinished", group: "instrument", header: "Measurement Finished", width: 20, defaultOn: false },
@@ -123,7 +123,7 @@ export type ExportKind = keyof typeof EXPORT_CATALOGUES;
 
 /**
  * How each export lays out its stage columns. The form puts every stage's
- * date side by side under one heading, then the hours and operators; the
+ * date side by side under one heading, then the hours and preparators; the
  * sample list keeps each stage's three together. And which a reader starts on.
  */
 export interface StageLayout {

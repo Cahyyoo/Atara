@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../services/settings_service.dart';
 
-/// Which appearance the app uses, [ThemeMode.system] unless the operator said
+/// Which appearance the app uses, [ThemeMode.system] unless the preparator said
 /// otherwise.
 ///
 /// Shaped like [LocaleNotifier] beside it, including the lesson that one had

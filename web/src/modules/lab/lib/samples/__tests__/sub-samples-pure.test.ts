@@ -37,7 +37,7 @@ describe("normalizeSampleKey", () => {
 
 /**
  * The hand the id was written in, both ways round. A stored Sample ID writes
- * its leading group with spaces; an operator reading one off an older sheet,
+ * its leading group with spaces; a preparator reading one off an older sheet,
  * or a sheet exported before the change, writes slashes throughout. Either
  * finds the record.
  */

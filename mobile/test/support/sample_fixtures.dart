@@ -29,14 +29,14 @@ SampleModel sampleFixture({
             sequenceOrder: 2,
           )
         : null,
-    createdByName: 'Operator Satu',
+    createdByName: 'Preparator Satu',
     updatedAt: DateTime.utc(2026, 9, 22, 8, 30),
     logs: [
       for (var i = 0; i < logs; i++)
         SampleLogEntry(
           stageKey: i.isEven ? 'RECEIVED' : 'WET_PREP',
           stageName: i.isEven ? 'DITERIMA' : 'PREP BASAH',
-          operatorName: 'Operator ${i + 1}',
+          preparatorName: 'Preparator ${i + 1}',
           scannedAt: DateTime.utc(2026, 9, 20 + (i % 3), 8, i),
           // Every other row carries a note, and one is the full 120 characters
           // the server truncates to — the widest thing a history row can hold.

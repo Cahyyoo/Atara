@@ -1,4 +1,4 @@
-/// One scan the operator recorded, as the server has it.
+/// One scan the preparator recorded, as the server has it.
 class WorkEntry {
   final String sampleCode;
   final String? stageKey;
@@ -19,7 +19,7 @@ class WorkEntry {
   /// The note, or the correction reason, truncated by the server.
   ///
   /// The two are one column: `notes` is the reason whenever [isCorrection] is
-  /// true, which makes it the line an operator scrolling back a week is
+  /// true, which makes it the line a preparator scrolling back a week is
   /// actually looking for.
   final String? notes;
 
@@ -67,7 +67,7 @@ class WorkEntry {
 /// It was 50, and fifty rows is about 3200 logical pixels arriving in one
 /// frame's worth of appended state. Twenty is about 1300, which against a phone
 /// viewport of roughly 700 is still twice what is on screen — enough that the
-/// operator never scrolls into emptiness, little enough that no single landing
+/// preparator never scrolls into emptiness, little enough that no single landing
 /// is a lurch.
 ///
 /// Twenty has one consequence worth knowing before changing it back: 1300
@@ -79,14 +79,14 @@ const int kScanHistoryPageSize = 20;
 /// How many pages may land before the screen stops fetching on its own.
 ///
 /// Ten at [kScanHistoryPageSize] is about two hundred rows — roughly a
-/// fortnight of a busy rack — and then the operator says "Muat lagi" once and
+/// fortnight of a busy rack — and then the preparator says "Muat lagi" once and
 /// gets another ten. The product is what matters, which is why both numbers
 /// live here rather than one of them beside the notifier that reads it.
 ///
 /// An ABSOLUTE ceiling was the other option and is worse. Past it, every
 /// further twenty rows would cost a tap, so working back through a week would
 /// be hundreds of taps. A budget that an explicit ask RENEWS charges one tap
-/// per two hundred rows however far back the operator goes.
+/// per two hundred rows however far back the preparator goes.
 ///
 /// Counted in pages, not rows, and that is not arbitrary — see
 /// `ScanHistoryState.isAutoLoadPaused` for the duplicate-page argument.
@@ -95,7 +95,7 @@ const int kScanHistoryAutoLoadPages = 10;
 /// How far back to ask for. The server refuses more.
 const int kScanHistoryDays = 90;
 
-/// One page of the operator's own scans, across shift days.
+/// One page of the preparator's own scans, across shift days.
 ///
 /// The same endpoint and the same `logs` shape as [WorkSummary] — this is the
 /// paged view of it, so the entries are [WorkEntry] rather than a parallel
@@ -185,7 +185,7 @@ class StageTally {
   }
 }
 
-/// The operator's own work for the current shift day.
+/// The preparator's own work for the current shift day.
 ///
 /// [total] and [byStage] are counted by the server across the whole shift, so
 /// they stay right even though [entries] is capped.

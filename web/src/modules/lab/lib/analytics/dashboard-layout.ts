@@ -5,7 +5,7 @@ import type { LabPersona } from "@/modules/lab/capabilities";
  *
  * Every role lands on the dashboard, and it used to show everybody the same
  * six figures and five charts. Most of them answer somebody else's question:
- * the analyst does not need samples-per-place, the operator does not need the
+ * the analyst does not need samples-per-place, the preparator does not need the
  * Ni distribution. Each role now gets the part of the overview its work asks
  * about, in the order it asks.
  *
@@ -38,7 +38,7 @@ export interface DashboardLayout {
   kpis: readonly KpiKey[];
   /** In display order; throughput, when present, runs the full width. */
   charts: readonly ChartKey[];
-  /** The signed-in operator's own scans this shift. */
+  /** The signed-in preparator's own scans this shift. */
   myScans: boolean;
   /** Samples past their stage SLA, with the table of them. */
   needsAttention: boolean;

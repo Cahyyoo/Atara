@@ -16,20 +16,20 @@ export interface ShiftScanSummary {
 }
 
 /**
- * The signed-in operator's own scans this shift, for their dashboard.
+ * The signed-in preparator's own scans this shift, for their dashboard.
  *
  * The same window as the phone's "my work" (GET /api/samples/scan/mine with no
  * query string: `resolveScanHistoryWindow(1)`), so the web and the phone agree
  * on what "this shift" holds. That route is left as it is -- phones in the
  * field depend on its exact shape -- and this asks the three counts the card
- * needs, all served by @@index([operatorId, scannedAt]).
+ * needs, all served by @@index([preparatorId, scannedAt]).
  *
  * Deleted samples count, as they do on the phone: a sample removed afterwards
  * does not undo the scan somebody made.
  */
 export async function loadShiftScanSummary(userId: string): Promise<ShiftScanSummary> {
   const window = resolveScanHistoryWindow(1);
-  const where = { operatorId: userId, scannedAt: { gte: window.from, lt: window.to } };
+  const where = { preparatorId: userId, scannedAt: { gte: window.from, lt: window.to } };
 
   const [byStageRows, corrections, stages] = await Promise.all([
     prisma.sampleLog.groupBy({ by: ["stageId"], where, _count: { _all: true } }),

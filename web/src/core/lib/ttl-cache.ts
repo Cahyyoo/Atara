@@ -2,7 +2,7 @@
  * A small in-process cache with a lifetime, and one property that matters
  * more than the lifetime: **single flight**.
  *
- * At shift change, fifty operators land on the dashboard within the same
+ * At shift change, fifty preparators land on the dashboard within the same
  * second. Without single flight each of them would find the cache empty and
  * start the same fourteen aggregate statements, and the pool -- nine or
  * twenty-five connections, it does not matter which -- would be gone before

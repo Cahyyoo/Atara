@@ -17,7 +17,7 @@ import 'package:atara/services/session_service.dart';
 
 /// The password an administrator chose has to go before the app is usable.
 ///
-/// It matters most here: an operator is handed the password every Operator
+/// It matters most here: a preparator is handed the password every Preparator
 /// shares, and the phone is where they work. The server refuses this session
 /// everything until it is replaced, so the app must not pretend otherwise.
 
@@ -55,20 +55,21 @@ void main() {
     expect(find.byType(CupertinoNavigationBarBackButton), findsNothing);
   });
 
-  testWidgets('an operator whose password is their own goes straight to work', (
-    tester,
-  ) async {
-    SharedPreferences.setMockInitialValues({
-      'atara_onboarding_seen': true,
-      'atara_token': 'stored.jwt',
-      'atara_user': _storedUser(mustChangePassword: false),
-    });
+  testWidgets(
+    'a preparator whose password is their own goes straight to work',
+    (tester) async {
+      SharedPreferences.setMockInitialValues({
+        'atara_onboarding_seen': true,
+        'atara_token': 'stored.jwt',
+        'atara_user': _storedUser(mustChangePassword: false),
+      });
 
-    await launch(tester);
+      await launch(tester);
 
-    expect(find.byType(HomeShell), findsOneWidget);
-    expect(find.byType(ChangePasswordScreen), findsNothing);
-  });
+      expect(find.byType(HomeShell), findsOneWidget);
+      expect(find.byType(ChangePasswordScreen), findsNothing);
+    },
+  );
 
   testWidgets('no session still goes to sign-in, not the change screen', (
     tester,
@@ -101,7 +102,7 @@ void main() {
       expect((result as LoginSession).user.mustChangePassword, isTrue);
     });
 
-    test('a body without the flag leaves the operator alone', () {
+    test('a body without the flag leaves the preparator alone', () {
       final result = LoginResult.parse({
         'data': {
           'token': 'jwt',
@@ -127,7 +128,7 @@ void main() {
       await SessionService.saveSession('jwt', user);
       expect((await SessionService.getUser())!.mustChangePassword, isTrue);
 
-      // Discharged once the operator picks their own.
+      // Discharged once the preparator picks their own.
       await SessionService.setMustChangePassword(false);
       expect((await SessionService.getUser())!.mustChangePassword, isFalse);
     });

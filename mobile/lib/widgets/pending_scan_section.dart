@@ -21,7 +21,7 @@ import '../services/stage_label.dart';
 const int kQueueInlineLimit = 5;
 
 /// Shows scans still owed to the server: those merely waiting for a network,
-/// and those the server refused, which need the operator to decide.
+/// and those the server refused, which need the preparator to decide.
 class PendingScanSection extends ConsumerWidget {
   const PendingScanSection({super.key});
 
@@ -99,7 +99,7 @@ class PendingScanSection extends ConsumerWidget {
 /// Retry and Discard for one refused scan.
 ///
 /// Shared with [QueueScreen] so the two lists cannot drift apart in what they
-/// let an operator do.
+/// let a preparator do.
 Widget buildQueueActions(BuildContext context, WidgetRef ref, PendingScan scan) {
   final l10n = AppLocalizations.of(context)!;
 

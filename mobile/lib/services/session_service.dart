@@ -21,7 +21,7 @@ class SessionService {
   }
 
   /// A stored user that no longer parses is treated as no user at all, which
-  /// sends the operator to the sign-in screen instead of crashing on launch.
+  /// sends the preparator to the sign-in screen instead of crashing on launch.
   static Future<UserModel?> getUser() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_userKey);
@@ -54,7 +54,7 @@ class SessionService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_tokenKey);
     await prefs.remove(_userKey);
-    // One operator's shift tally must not still be on screen for the next.
+    // One preparator's shift tally must not still be on screen for the next.
     await WorkSummaryCacheService.clear();
   }
 }

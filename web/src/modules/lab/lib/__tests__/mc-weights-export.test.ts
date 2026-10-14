@@ -75,10 +75,10 @@ describe.skipIf(!reachable)("the moisture-content weighing and the analysis form
             create: [
               // Received 08:00 on 17 Dec, wet preparation 09:00 (and again a
               // day later), the report 08:00 on 19 Dec, on the lab's clock.
-              { stageId: received.id, operatorId: database.id, scannedAt: new Date("2000-12-17T00:00:00Z") },
-              { stageId: wetPrep.id, operatorId: database.id, scannedAt: new Date("2000-12-17T01:00:00Z") },
-              { stageId: wetPrep.id, operatorId: database.id, scannedAt: new Date("2000-12-18T01:00:00Z") },
-              { stageId: report.id, operatorId: database.id, scannedAt: new Date("2000-12-19T00:00:00Z") },
+              { stageId: received.id, preparatorId: database.id, scannedAt: new Date("2000-12-17T00:00:00Z") },
+              { stageId: wetPrep.id, preparatorId: database.id, scannedAt: new Date("2000-12-17T01:00:00Z") },
+              { stageId: wetPrep.id, preparatorId: database.id, scannedAt: new Date("2000-12-18T01:00:00Z") },
+              { stageId: report.id, preparatorId: database.id, scannedAt: new Date("2000-12-19T00:00:00Z") },
             ],
           },
         },
@@ -168,7 +168,7 @@ describe.skipIf(!reachable)("the moisture-content weighing and the analysis form
 
     expect(sheet.getRow(6).getCell(column("Sample")).value).toBe(records[0].ident);
     expect(sheet.getRow(7).getCell(column("Sample")).value).toBe(records[1].ident);
-    expect(sheet.getRow(6).getCell(column("Operator")).value).toBe(`${tag} Analyst`);
+    expect(sheet.getRow(6).getCell(column("Preparator")).value).toBe(`${tag} Analyst`);
     expect(sheet.getRow(6).getCell(column("Xray Instrument")).value).toBe("S2 PUMA");
     // Received to the report: 48 hours.
     expect(sheet.getRow(6).getCell(column("Jam")).value).toBe(48);
@@ -182,16 +182,16 @@ describe.skipIf(!reachable)("the moisture-content weighing and the analysis form
 
   it("previews the same rows, in the same order, before the file is made", async () => {
     const response = await exportRecords(
-      new NextRequest(`http://localhost/api/lab-records/export?format=preview&search=${tag}&columns=rowNo,sampleIdent,operator`)
+      new NextRequest(`http://localhost/api/lab-records/export?format=preview&search=${tag}&columns=rowNo,sampleIdent,preparator`)
     );
     expect(response.status).toBe(200);
     const { data } = await response.json();
     expect(data.total).toBe(2);
-    expect(data.columns.map((column: { header: string }) => column.header)).toEqual(["No.", "Sample", "Operator"]);
+    expect(data.columns.map((column: { header: string }) => column.header)).toEqual(["No.", "Sample", "Preparator"]);
     expect(data.rows.map((row: { sheet: string }) => row.sheet)).toEqual(["MOL. Prod.", "MOL. Prod."]);
     expect(data.rows.map((row: { cells: Record<string, unknown> }) => row.cells)).toEqual([
-      { rowNo: 1, sampleIdent: records[0].ident, operator: `${tag} Analyst` },
-      { rowNo: 2, sampleIdent: records[1].ident, operator: `${tag} Analyst` },
+      { rowNo: 1, sampleIdent: records[0].ident, preparator: `${tag} Analyst` },
+      { rowNo: 2, sampleIdent: records[1].ident, preparator: `${tag} Analyst` },
     ]);
   });
 });

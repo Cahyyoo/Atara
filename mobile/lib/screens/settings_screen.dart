@@ -44,7 +44,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Future<void> _load() async {
     // The spinner must come down whatever happens. This is the one screen that
-    // fixes a wrong server address, so freezing it strands the operator on the
+    // fixes a wrong server address, so freezing it strands the preparator on the
     // very problem it exists to solve — and an empty field still means "use the
     // default", which is a usable starting point.
     String? url;
@@ -102,7 +102,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     // An action sheet rather than a dialog: iOS uses these for a choice that
     // leaves somewhere, and it names the destructive option in red instead of
-    // relying on the operator reading the question.
+    // relying on the preparator reading the question.
     final confirmed = await showCupertinoModalPopup<bool>(
       context: context,
       builder: (context) => CupertinoActionSheet(
@@ -217,7 +217,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         InsetSection(
           header: l10n.appearance,
           children: [
-            // System first: it is the default, and it is what most operators
+            // System first: it is the default, and it is what most preparators
             // should stay on.
             _AppearanceRow(
               label: l10n.appearanceSystem,
@@ -243,7 +243,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             // translated.
             //
             // The tick follows the language actually in use, not the stored
-            // preference. Those differ until the operator chooses one — the
+            // preference. Those differ until the preparator chooses one — the
             // setting starts empty and the device decides — and a list with
             // nothing ticked leaves them unable to tell which is in force.
             _LanguageRow(label: 'Bahasa Indonesia', value: 'id', selected: effective),

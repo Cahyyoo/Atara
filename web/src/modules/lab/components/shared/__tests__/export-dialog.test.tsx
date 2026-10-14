@@ -61,10 +61,10 @@ describe("ExportDialog", () => {
 
     expect((dialog.getByRole("checkbox", { name: "Barcode Code" }) as HTMLInputElement).checked).toBe(true);
     expect((dialog.getByRole("checkbox", { name: `${t.entered} Preparation` }) as HTMLInputElement).checked).toBe(true);
-    expect((dialog.getByRole("checkbox", { name: `${t.operator} Preparation` }) as HTMLInputElement).checked).toBe(false);
+    expect((dialog.getByRole("checkbox", { name: `${t.preparator} Preparation` }) as HTMLInputElement).checked).toBe(false);
 
     // Who scanned each stage, all at once; and no creation details.
-    await user.click(dialog.getByRole("checkbox", { name: t.allOf.replace("{part}", t.operator) }));
+    await user.click(dialog.getByRole("checkbox", { name: t.allOf.replace("{part}", t.preparator) }));
     await user.click(dialog.getByRole("checkbox", { name: "Created By" }));
     await user.click(dialog.getByRole("button", { name: /Excel/ }));
 

@@ -21,7 +21,7 @@ import 'package:atara/services/session_service.dart';
 /// `TypeError` — and that is the whole reason the failure was unreadable: a
 /// `TypeError` is not a `DioException`, so the `on DioException` catch one line
 /// below it never fired, and nothing between there and the login screen's bare
-/// `catch (_)` could tell the operator anything useful.
+/// `catch (_)` could tell the preparator anything useful.
 ///
 /// These tests reach the interceptors, the error mapping and the parser together,
 /// which is the seam the pure parser tests cannot cover.
@@ -70,17 +70,17 @@ String sessionBodyFor(String role) =>
     '''
 {"success": true,
  "data": {"mfaRequired": false, "token": "session.jwt",
-          "user": {"id": "u1", "name": "Siti Operator",
-                   "email": "operator@atara.local", "role": "$role"}}}
+          "user": {"id": "u1", "name": "Siti Preparator",
+                   "email": "preparator@atara.local", "role": "$role"}}}
 ''';
 
 final sessionBody = sessionBodyFor('PREPARATOR');
 
-/// The stored account a signed-in operator would have.
-const _operator = UserModel(
+/// The stored account a signed-in preparator would have.
+const _preparator = UserModel(
   id: 'u1',
-  name: 'Siti Operator',
-  email: 'operator@atara.local',
+  name: 'Siti Preparator',
+  email: 'preparator@atara.local',
   role: UserRole.preparator,
 );
 
@@ -146,12 +146,12 @@ void main() {
     expect(await SessionService.getToken(), isNull);
   });
 
-  test('a wrong code on /auth/totp does not sign the operator out', () async {
+  test('a wrong code on /auth/totp does not sign the preparator out', () async {
     // web/src/app/api/auth/totp/route.ts:100-108 answers 401 for a merely WRONG
     // code. With only /auth/login exempt from the auto-signout interceptor, every
     // mistyped digit called clearSession() — which also wipes the cached work
     // summary.
-    await SessionService.saveSession('stored.jwt', _operator);
+    await SessionService.saveSession('stored.jwt', _preparator);
     var signedOut = false;
     ApiService.instance.onUnauthorized = (_) => signedOut = true;
     ApiService.instance.httpClientAdapter = _ScriptedAdapter(
@@ -179,11 +179,11 @@ void main() {
     );
   });
 
-  test('a 401 on an ordinary request does sign the operator out', () async {
+  test('a 401 on an ordinary request does sign the preparator out', () async {
     // The other side of the same exemption list. Widening it to an '/auth/'
     // prefix would break this case for /auth/me, which is exactly what the
     // interceptor is for.
-    await SessionService.saveSession('stored.jwt', _operator);
+    await SessionService.saveSession('stored.jwt', _preparator);
     var signedOut = false;
     ApiService.instance.onUnauthorized = (_) => signedOut = true;
     ApiService.instance.httpClientAdapter = _ScriptedAdapter(
@@ -243,7 +243,7 @@ void main() {
     expect(setup.challenge, 'fresh.jwt');
   });
 
-  group('only an operator is signed in', () {
+  group('only a preparator is signed in', () {
     // The app scans and moves samples, which is a PREPARATOR's job alone. The
     // server signs every role in, so SessionNotifier._adopt is where the others
     // are turned away — once, for the password and both second factors.
@@ -274,7 +274,7 @@ void main() {
     }
 
     test(
-      'a second factor that passes for a non-operator is refused too',
+      'a second factor that passes for a non-preparator is refused too',
       () async {
         ApiService.instance.httpClientAdapter = _ScriptedAdapter(
           (_) => (status: 200, body: sessionBodyFor('ADMIN')),
@@ -310,13 +310,13 @@ void main() {
       notifier.dispose();
     });
 
-    test('an operator is signed in and the session is kept', () async {
+    test('a preparator is signed in and the session is kept', () async {
       ApiService.instance.httpClientAdapter = _ScriptedAdapter(
         (_) => (status: 200, body: sessionBody),
       );
       final notifier = await restoredNotifier();
 
-      final result = await notifier.login('operator@atara.local', 'secret');
+      final result = await notifier.login('preparator@atara.local', 'secret');
 
       expect(result, isA<LoginSession>());
       expect(await SessionService.getToken(), 'session.jwt');
@@ -324,7 +324,7 @@ void main() {
       notifier.dispose();
     });
 
-    test('a stored non-operator session is cleared on start', () async {
+    test('a stored non-preparator session is cleared on start', () async {
       // Saved by an older build, when administrators could use the app. The
       // token is real and unexpired, which is exactly why it cannot be kept.
       SharedPreferences.setMockInitialValues({
@@ -363,8 +363,8 @@ void main() {
       notifier.dispose();
     });
 
-    test('a stored operator session is restored', () async {
-      await SessionService.saveSession('stored.jwt', _operator);
+    test('a stored preparator session is restored', () async {
+      await SessionService.saveSession('stored.jwt', _preparator);
 
       final notifier = await restoredNotifier();
 

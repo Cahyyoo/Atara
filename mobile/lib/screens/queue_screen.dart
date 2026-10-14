@@ -15,7 +15,7 @@ import '../widgets/status_view.dart';
 /// Work cap does: the queue is the one collection in the app with **no upper
 /// bound at all** — `PendingScanService.add` only ever appends, and a whole
 /// shift spent out of signal puts every one of those scans here. Nothing is
-/// dropped to keep it small, because dropping a queued scan loses an operator's
+/// dropped to keep it small, because dropping a queued scan loses a preparator's
 /// work; only the rendering is bounded.
 class QueueScreen extends ConsumerWidget {
   const QueueScreen({super.key});
@@ -32,7 +32,7 @@ class QueueScreen extends ConsumerWidget {
       title: l10n.queueAllTitle,
       onRefresh: () => ref.read(pendingScansProvider.notifier).sync(),
       slivers: [
-        // Reachable, and reached by discarding: the operator clears the last
+        // Reachable, and reached by discarding: the preparator clears the last
         // refused scan from this very screen and would otherwise be left facing
         // a blank page, unsure whether the queue emptied or the list broke.
         if (scans.isEmpty)

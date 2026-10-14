@@ -14,7 +14,7 @@ import 'package:atara/services/sample_cache_service.dart';
 /// Renders the card without a server.
 ///
 /// There is none in a test, so the lookup fails as a connection error and the
-/// screen falls back to the device cache — the same path an operator takes in a
+/// screen falls back to the device cache — the same path a preparator takes in a
 /// shed with no signal, which is exactly where this card is read.
 Future<void> showCachedSample(WidgetTester tester, SampleModel sample) async {
   await SampleCacheService.save(sample);
@@ -53,7 +53,7 @@ void main() {
     // flutter_test answers every request with a stub 400, which the app reads
     // as a refusal from the server — a real answer, never papered over with
     // stale data. Failing the connection instead is what puts the screen on the
-    // offline path, which is where the operator in a shed with no signal is.
+    // offline path, which is where the preparator in a shed with no signal is.
     HttpOverrides.global = _UnreachableServer();
   });
 

@@ -74,7 +74,7 @@ export function UserRowActions({
             {hasFace ? tFace("reEnroll") : tFace("enroll")}
           </DropdownMenuItem>
           {/* Only where there is something to remove. This
-              is also the way back in for an operator the
+              is also the way back in for a preparator the
               camera will not recognise behind a dust mask,
               which is why it sits with the admin. */}
           {hasFace ? (

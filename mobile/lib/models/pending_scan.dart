@@ -5,35 +5,35 @@ class PendingScan {
   final String stageId;
 
   /// Captured when the scan was queued, so the queue can name the stage
-  /// in the operator's language rather than in whichever one was on
+  /// in the preparator's language rather than in whichever one was on
   /// screen at the time.
   final String? stageKey;
   final String stageName;
   final String? notes;
   final DateTime queuedAt;
 
-  /// An operator's override of the stage order, carried so that a correction made with no
+  /// A preparator's override of the stage order, carried so that a correction made with no
   /// signal is still a correction when the queue drains — rather than quietly
   /// becoming an ordinary scan the server then refuses.
   final bool force;
   final String? reason;
 
   /// Set when the server refused the scan on business grounds (wrong stage
-  /// order, unknown sample). Those need the operator to decide, so they are
+  /// order, unknown sample). Those need the preparator to decide, so they are
   /// never retried automatically and never silently dropped.
   final String? failureReason;
 
   /// Who queued it.
   ///
-  /// The server takes the operator from the session, never from the body — so
-  /// a queue drained under a different account files one operator's work as
+  /// The server takes the preparator from the session, never from the body — so
+  /// a queue drained under a different account files one preparator's work as
   /// another's. That is invisible while the app only shows the current shift,
   /// and plainly wrong the moment a dated history exists.
   ///
   /// Null in anything an older build queued. There is no way to find out who
   /// that was, so those are still sent: losing a scan is worse than crediting
   /// it to whoever is signed in, and it was already being credited that way.
-  final String? operatorId;
+  final String? preparatorId;
 
   const PendingScan({
     required this.id,
@@ -46,7 +46,7 @@ class PendingScan {
     this.force = false,
     this.reason,
     this.failureReason,
-    this.operatorId,
+    this.preparatorId,
   });
 
   bool get hasFailed => failureReason != null;
@@ -65,7 +65,7 @@ class PendingScan {
       failureReason: clearFailure
           ? null
           : (failureReason ?? this.failureReason),
-      operatorId: operatorId,
+      preparatorId: preparatorId,
     );
   }
 
@@ -81,7 +81,7 @@ class PendingScan {
       'reason': reason,
       'queuedAt': queuedAt.toIso8601String(),
       'failureReason': failureReason,
-      'operatorId': operatorId,
+      'preparatorId': preparatorId,
     };
   }
 
@@ -99,7 +99,9 @@ class PendingScan {
       reason: json['reason'] as String?,
       queuedAt: DateTime.parse(json['queuedAt'] as String),
       failureReason: json['failureReason'] as String?,
-      operatorId: json['operatorId'] as String?,
+      // `operatorId` is how builds before the rename wrote it: a scan queued
+      // offline before the update must keep the account it belongs to.
+      preparatorId: (json['preparatorId'] ?? json['operatorId']) as String?,
     );
   }
 }

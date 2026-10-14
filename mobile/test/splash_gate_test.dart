@@ -156,7 +156,7 @@ void main() {
   testWidgets('builds the app underneath from the first frame', (tester) async {
     // A Stack, not a replacement. If the child only mounted once the splash
     // left, the providers it watches would not start reading until then and
-    // the operator would meet a spinner immediately afterwards.
+    // the preparator would meet a spinner immediately afterwards.
     var built = false;
     await pumpGate(tester, onBehind: () => built = true);
 

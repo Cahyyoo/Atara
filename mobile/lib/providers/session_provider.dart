@@ -11,7 +11,7 @@ class SessionNotifier extends StateNotifier<AsyncValue<UserModel?>> {
     this.onSignedOut,
     this.logoutWait = const Duration(seconds: 3),
   }) : super(const AsyncValue.loading()) {
-    // A token the server no longer accepts should drop the operator back to the
+    // A token the server no longer accepts should drop the preparator back to the
     // sign-in screen rather than leaving them stuck on a screen that only errors.
     ApiService.instance.onUnauthorized = (notice) {
       if (!mounted) return;
@@ -30,7 +30,7 @@ class SessionNotifier extends StateNotifier<AsyncValue<UserModel?>> {
     _restore();
   }
 
-  /// Hands on why the session ended, when the operator did not end it. The
+  /// Hands on why the session ended, when the preparator did not end it. The
   /// provider wires it to [signedOutNoticeProvider]; this class has no `ref`.
   final void Function(SignedOutNotice notice)? onSignedOut;
 
@@ -41,7 +41,7 @@ class SessionNotifier extends StateNotifier<AsyncValue<UserModel?>> {
     // A throw here used to leave the state on `loading` for ever, and AuthGate
     // holds a spinner for exactly that state — the app would never get past its
     // opening frame. An error routes to the sign-in screen instead, which is
-    // somewhere the operator can act.
+    // somewhere the preparator can act.
     try {
       var user = await SessionService.getUser();
       // A session saved by an older build, when administrators could use the
@@ -57,7 +57,7 @@ class SessionNotifier extends StateNotifier<AsyncValue<UserModel?>> {
     }
   }
 
-  /// The password is the operator's own now, so the gate may let them past.
+  /// The password is the preparator's own now, so the gate may let them past.
   ///
   /// Stored before the state flips: [AuthGate] reads the user it is handed,
   /// and a flip over a user still carrying the duty would bounce straight
@@ -144,7 +144,7 @@ class SessionNotifier extends StateNotifier<AsyncValue<UserModel?>> {
   ///
   /// The server call is a courtesy, never a gate. It goes first because it
   /// needs the token that the local sign-out deletes, but it gets [logoutWait]
-  /// and no more: an operator at a rack with no signal must still be able to
+  /// and no more: a preparator at a rack with no signal must still be able to
   /// hand the phone over. A slot left held is not lost — the next phone to sign
   /// in simply takes it.
   Future<void> logout() async {
@@ -169,12 +169,12 @@ final sessionProvider =
       ),
     );
 
-/// Why the last session ended, when the operator did not end it themselves:
+/// Why the last session ended, when the preparator did not end it themselves:
 /// another phone took the account, or somebody on the website ended it.
 ///
 /// Set on the way out by [SessionNotifier] and read by the sign-in screen,
-/// which clears it once the operator tries again. Null for every other
-/// sign-out, which the operator either did themselves or needs no story for.
+/// which clears it once the preparator tries again. Null for every other
+/// sign-out, which the preparator either did themselves or needs no story for.
 final signedOutNoticeProvider = StateProvider<SignedOutNotice?>((ref) => null);
 
 /// The question the heartbeat asks. A provider only so a test can answer it

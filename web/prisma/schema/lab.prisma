@@ -119,8 +119,8 @@ model SampleLog {
   sample       Sample   @relation(fields: [sampleId], references: [id], onDelete: Cascade)
   stageId      String   @map("stage_id")
   stage        Stage    @relation("SampleLogStage", fields: [stageId], references: [id])
-  operatorId   String   @map("operator_id")
-  operator     User     @relation("SampleLogOperator", fields: [operatorId], references: [id])
+  preparatorId String   @map("preparator_id")
+  preparator   User     @relation("SampleLogPreparator", fields: [preparatorId], references: [id])
   notes        String?  @db.Text
   isCorrection Boolean  @default(false) @map("is_correction")
   scannedAt    DateTime @default(now()) @map("scanned_at")
@@ -128,9 +128,9 @@ model SampleLog {
   // A superset of the plain sampleId index: it also removes the filesort in the
   // stage-duration window function and on the sample timeline.
   @@index([sampleId, scannedAt])
-  // The exact shape of "what did this operator record this shift".
-  @@index([operatorId, scannedAt])
-  /// The stage-activity trail with no operator chosen sorts on this, and its
+  // The exact shape of "what did this preparator record this shift".
+  @@index([preparatorId, scannedAt])
+  /// The stage-activity trail with no preparator chosen sorts on this, and its
   /// shift-day filter ranges on it. Neither index above starts with it.
   @@index([scannedAt])
   @@map("sample_logs")

@@ -50,9 +50,9 @@ export const DEV_EKSPLORASI_ADMIN: SeedAccount = {
   password: "Eksplorasi123!",
 };
 export const DEV_PREPARATOR: SeedAccount = {
-  email: "operator@atara.local",
+  email: "preparator@atara.local",
   name: "Field Preparator",
-  password: "Operator123!",
+  password: "Preparator123!",
 };
 export const DEV_DATABASE: SeedAccount = {
   email: "database@atara.local",

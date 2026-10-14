@@ -102,7 +102,7 @@ export type StageRowCount = { stageId: string; _count: { _all: number } };
  * break down by stage.
  *
  * `total` is a plain count, and that is the whole point. The WHERE it runs
- * against is exactly `@@index([operator_id, scanned_at])`, so InnoDB answers it
+ * against is exactly `@@index([preparator_id, scanned_at])`, so InnoDB answers it
  * from the index without touching a row.
  *
  * A note used to stand in the route saying a separate count() would be "the

@@ -6,7 +6,7 @@ import '../theme/app_theme.dart';
 
 /// Asks for a sample code by hand, for when the camera cannot be used.
 ///
-/// Returns the tidied code, or null if the operator backed out. The caller does
+/// Returns the tidied code, or null if the preparator backed out. The caller does
 /// the same thing with it as the scanner does with a decoded QR: hand it to
 /// [UpdateStatusScreen] and let that screen say whether it exists.
 Future<String?> showManualCodeDialog(BuildContext context) {
@@ -90,7 +90,7 @@ class _ManualCodeDialogState extends State<_ManualCodeDialog> {
                   autocorrect: false,
                   enableSuggestions: false,
                   textCapitalization: TextCapitalization.characters,
-                  // Lets the operator finish from the keyboard without
+                  // Lets the preparator finish from the keyboard without
                   // reaching for a button.
                   textInputAction: TextInputAction.go,
                   onSubmitted: (_) => _submit(),
@@ -124,7 +124,7 @@ class _ManualCodeDialogState extends State<_ManualCodeDialog> {
                 // CupertinoTextField has no errorText of its own, so the
                 // message is a sibling. It also keeps the help line and the
                 // failure in the same slot, which stops the dialog resizing as
-                // the operator types.
+                // the preparator types.
                 Text(
                   _error ?? l10n.manualEntryHelp,
                   textAlign: TextAlign.start,

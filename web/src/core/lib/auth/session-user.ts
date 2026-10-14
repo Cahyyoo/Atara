@@ -19,7 +19,7 @@ export type SessionState =
       department: Department | null;
       /**
        * The password an administrator chose has to be replaced first, on the
-       * web and on the phone alike. It matters most on the phone: operators
+       * web and on the phone alike. It matters most on the phone: preparators
        * are handed their role's shared default, and they are the people who
        * work from a phone all day.
        */

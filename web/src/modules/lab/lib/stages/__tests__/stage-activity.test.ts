@@ -21,11 +21,11 @@ describe("deleted samples", () => {
     const filters = [
       {},
       { search: "SMPL" },
-      { operatorId: "u1" },
+      { preparatorId: "u1" },
       { stageId: "s1" },
       { corrections: "only" as const },
       { shiftDate: "2026-09-22" },
-      { search: "SMPL", operatorId: "u1", stageId: "s1", corrections: "exclude" as const },
+      { search: "SMPL", preparatorId: "u1", stageId: "s1", corrections: "exclude" as const },
     ];
 
     for (const filter of filters) {
@@ -88,10 +88,10 @@ describe("the shift day", () => {
 });
 
 describe("the other filters", () => {
-  it("passes the operator and the stage through untouched", () => {
-    const where = stageActivityWhere({ operatorId: "user-1", stageId: "stage-2" });
+  it("passes the preparator and the stage through untouched", () => {
+    const where = stageActivityWhere({ preparatorId: "user-1", stageId: "stage-2" });
 
-    expect(where.operatorId).toBe("user-1");
+    expect(where.preparatorId).toBe("user-1");
     expect(where.stageId).toBe("stage-2");
   });
 
@@ -105,7 +105,7 @@ describe("the other filters", () => {
   it("adds nothing for a filter that was not asked for", () => {
     const where = stageActivityWhere({});
 
-    expect(where.operatorId).toBeUndefined();
+    expect(where.preparatorId).toBeUndefined();
     expect(where.stageId).toBeUndefined();
     expect(where.isCorrection).toBeUndefined();
     expect(where.scannedAt).toBeUndefined();

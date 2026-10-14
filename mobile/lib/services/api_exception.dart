@@ -1,7 +1,7 @@
 /// What went wrong, independent of how it should read on screen.
 ///
 /// The message alone was always English, so a bilingual app showed English
-/// errors to an Indonesian operator for the two cases that happen most in a lab
+/// errors to an Indonesian preparator for the two cases that happen most in a lab
 /// — a slow link and no link at all. The kind lets the UI pick the right string;
 /// the message stays as a fallback for anywhere a translation is not available,
 /// such as a failure reason stored with a queued scan.

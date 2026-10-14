@@ -30,7 +30,7 @@ export interface LookupCandidate {
  * Case is ignored, as the database's collation ignores it.
  *
  * The Sample ID is compared as a key rather than as text: the stored id
- * separates its leading group with spaces where an operator typing it off an
+ * separates its leading group with spaces where a preparator typing it off an
  * older sheet writes slashes throughout, and a full id typed in either hand
  * has to score as the exact hit that sends the box straight to the sample.
  */

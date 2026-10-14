@@ -4,7 +4,7 @@ import '../models/work_summary.dart';
 import '../services/api_service.dart';
 import '../services/work_summary_cache_service.dart';
 
-/// The operator's own shift tally. Errors are swallowed into an empty summary:
+/// The preparator's own shift tally. Errors are swallowed into an empty summary:
 /// this is a panel on the home screen, not something worth an error state of
 /// its own — being offline is already reported by the queue section below it.
 class MyWorkNotifier extends StateNotifier<WorkSummary?> {

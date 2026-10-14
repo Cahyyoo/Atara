@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
      *
      * Standing too far from the camera is not a guess at somebody's face, and
      * counting it towards a lockout would mean a dim bench could lock an
-     * operator out of their own account five shots into the morning.
+     * preparator out of their own account five shots into the morning.
      */
     if (!reading.ok) {
       await recordSignIn({

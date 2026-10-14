@@ -1,6 +1,6 @@
-# Atara Operator — Aplikasi Mobile
+# Atara Preparator — Aplikasi Mobile
 
-Aplikasi Flutter untuk operator lapangan/laboratorium: memindai barcode/QR pada label sampel dan memperbarui tahapan prosesnya secara real-time ke backend.
+Aplikasi Flutter untuk preparator lapangan/laboratorium: memindai barcode/QR pada label sampel dan memperbarui tahapan prosesnya secara real-time ke backend.
 
 ## Tech Stack
 
@@ -62,19 +62,19 @@ Akun hasil seed backend (`../web/prisma/seed.ts`):
 
 | Peran | Email | Kata sandi |
 |---|---|---|
-| Operator | `operator@atara.local` | lihat catatan |
+| Preparator | `preparator@atara.local` | lihat catatan |
 | Administrator | `admin@atara.local` | lihat catatan |
 
-> **Catatan kata sandi.** Akun ini dibuat oleh `npm run db:seed`. Di lingkungan pengembangan kata sandinya ada di `prisma/seed.ts`. Di produksi seed **menolak** membuat akun kecuali `SEED_ADMIN_PASSWORD` (minimal 12 karakter) diberikan, dan akun operator contoh tidak dibuat sama sekali. Ganti kata sandi admin setelah masuk pertama kali.
+> **Catatan kata sandi.** Akun ini dibuat oleh `npm run db:seed`. Di lingkungan pengembangan kata sandinya ada di `prisma/seed.ts`. Di produksi seed **menolak** membuat akun kecuali `SEED_ADMIN_PASSWORD` (minimal 12 karakter) diberikan, dan akun preparator contoh tidak dibuat sama sekali. Ganti kata sandi admin setelah masuk pertama kali.
 
 Keduanya masuk lewat endpoint yang sama. **Tidak ada pembatasan peran pada
 autentikasi** — admin bukan pintu terpisah.
 
 Yang berbeda setelah masuk hanya satu hal: di layar Perbarui Status, seorang
 administrator yang memilih tahap **bukan urutan berikutnya** mendapat panel
-override dengan alasan wajib, dan scan-nya dikirim sebagai koreksi. Operator
+override dengan alasan wajib, dan scan-nya dikirim sebagai koreksi. Preparator
 tidak melihat apa pun yang baru. Sisa kemampuan admin di web — buat sampel, cetak
-label, entri assay, master data, aktivitas lintas-operator, manajemen pengguna —
+label, entri assay, master data, aktivitas lintas-preparator, manajemen pengguna —
 tidak punya permukaan di aplikasi ini.
 
 ### Verifikasi dua langkah
@@ -112,9 +112,9 @@ Sisi server perlu dua variabel lingkungan atau alurnya gagal dengan 500:
 
 ## Alur Penggunaan
 
-1. **Home** — menampilkan info operator yang login, tombol besar "SCAN BARCODE SAMPEL", dan 5 riwayat scan terakhir di perangkat.
+1. **Home** — menampilkan info preparator yang login, tombol besar "SCAN BARCODE SAMPEL", dan 5 riwayat scan terakhir di perangkat.
 2. **Scanner** — kamera pemindai dengan overlay kotak bidik, kontrol flash & switch kamera; saat barcode terbaca, muncul haptic feedback + bunyi klik, lalu otomatis membuka halaman Update Status.
-3. **Update Status** — mengambil detail sampel dari `GET /api/samples/:code`. Jika kode tidak terdaftar, tampil alert "Sampel Tidak Terdaftar" dengan tombol scan ulang. Jika ditemukan, operator memilih tahapan berikutnya, menambahkan catatan opsional, lalu menekan "Simpan & Update Tahapan" (`POST /api/samples/scan`), lalu kembali ke Home.
+3. **Update Status** — mengambil detail sampel dari `GET /api/samples/:code`. Jika kode tidak terdaftar, tampil alert "Sampel Tidak Terdaftar" dengan tombol scan ulang. Jika ditemukan, preparator memilih tahapan berikutnya, menambahkan catatan opsional, lalu menekan "Simpan & Update Tahapan" (`POST /api/samples/scan`), lalu kembali ke Home.
 
    Bagi administrator, memilih tahap yang **bukan** urutan berikutnya memunculkan
    panel override dengan alasan wajib (minimal 5 karakter). Pada koreksi, server
@@ -124,10 +124,10 @@ Sisi server perlu dua variabel lingkungan atau alurnya gagal dengan 500:
 4. **Tanpa sinyal** — scan tersimpan di antrean di HP dan terkirim sendiri saat
    koneksi kembali; antreannya bisa dilihat dan dicoba ulang dari Beranda.
    Override yang diantre tetap membawa `force` dan alasannya.
-5. **Riwayat Scan** — scan milik operator itu sendiri, dikelompokkan per hari
+5. **Riwayat Scan** — scan milik preparator itu sendiri, dikelompokkan per hari
    shift, dimuat bertahap 20 baris dan berhenti otomatis setelah ~200 baris
    sampai diminta lagi. Endpoint-nya sengaja hanya mengembalikan baris milik
-   pemanggil; rekap lintas-operator ada di situs web.
+   pemanggil; rekap lintas-preparator ada di situs web.
 
 ## Build
 

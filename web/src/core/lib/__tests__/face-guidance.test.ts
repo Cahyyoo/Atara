@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 /**
- * The things a confused operator would have asked about.
+ * The things a confused preparator would have asked about.
  *
  * All of these were silent: a 6.7MB download behind a button that only said
  * "Checking…", a disabled button with no reason, a two-second capture with no

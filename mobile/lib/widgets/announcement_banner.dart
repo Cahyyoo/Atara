@@ -8,7 +8,7 @@ import '../theme/app_theme.dart';
 
 /// What an administrator put above every screen, on the phone too.
 ///
-/// Until this existed a notice written for Operators reached only the people
+/// Until this existed a notice written for Preparators reached only the people
 /// at a desk — "XRF down tomorrow" never got to the ones holding the samples.
 ///
 /// A warning keeps its place until it ends; an INFO notice carries a close

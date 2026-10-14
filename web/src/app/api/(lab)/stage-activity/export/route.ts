@@ -17,7 +17,7 @@ export const GET = route({ capability: "viewActivity" }, async ({ request }) => 
   // rows it was started from is the failure this shares code to avoid.
   const filters: StageActivityFilters = {
     search: searchParams.get("search") ?? undefined,
-    operatorId: searchParams.get("operatorId") ?? undefined,
+    preparatorId: searchParams.get("preparatorId") ?? undefined,
     stageId: searchParams.get("stageId") ?? undefined,
     shiftDate: searchParams.get("shiftDate") ?? undefined,
     corrections: corrections === "only" || corrections === "exclude" ? corrections : undefined,
@@ -38,7 +38,7 @@ export const GET = route({ capability: "viewActivity" }, async ({ request }) => 
     { header: "Recorded At", key: "scannedAt", width: 22 },
     { header: "Barcode Code", key: "sampleCode", width: 18 },
     { header: "Stage", key: "stage", width: 18 },
-    { header: "By", key: "operator", width: 22 },
+    { header: "By", key: "preparator", width: 22 },
     { header: "Correction", key: "isCorrection", width: 12 },
     { header: "Notes", key: "notes", width: 40 },
   ];
@@ -55,7 +55,7 @@ export const GET = route({ capability: "viewActivity" }, async ({ request }) => 
           isCorrection: true,
           notes: true,
           stage: { select: { name: true } },
-          operator: { select: { name: true } },
+          preparator: { select: { name: true } },
           sample: { select: { sampleCode: true } },
         },
         // id breaks ties, so paging cannot skip or repeat a row when several
@@ -73,7 +73,7 @@ export const GET = route({ capability: "viewActivity" }, async ({ request }) => 
           scannedAt: formatWitaDateTime(log.scannedAt),
           sampleCode: log.sample.sampleCode,
           stage: log.stage.name,
-          operator: log.operator.name,
+          preparator: log.preparator.name,
           isCorrection: log.isCorrection ? "Yes" : "",
           notes: log.notes,
         };

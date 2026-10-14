@@ -102,8 +102,8 @@ class SettingsService {
 
   /// Null means "follow the device", the same as [getLocale].
   ///
-  /// The lab is often dim and the phones are the operators' own, so following
-  /// the system remains the default -- this only exists for the operator whose
+  /// The lab is often dim and the phones are the preparators' own, so following
+  /// the system remains the default -- this only exists for the preparator whose
   /// phone is set one way and who wants the app the other.
   static Future<String?> getThemeMode() async {
     final prefs = await SharedPreferences.getInstance();

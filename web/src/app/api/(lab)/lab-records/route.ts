@@ -58,7 +58,7 @@ async function leadTimesOf(sampleIds: string[]): Promise<Map<string, number | nu
 
 export async function GET(request: NextRequest) {
   try {
-    // The Sample Database and Enter Results pages list these; an operator,
+    // The Sample Database and Enter Results pages list these; a preparator,
     // whose work is on the mobile app, has no page that does.
     const session = await requireCapability(request, "readLabRecords");
 
@@ -102,7 +102,7 @@ export async function GET(request: NextRequest) {
     const countsWhere = buildLabRecordWhere({ ...query, results: undefined });
 
     // A text search or a very deep page reads every record; only a few run at
-    // once, so they cannot take every connection from the operators' scans.
+    // once, so they cannot take every connection from the preparators' scans.
     const fullRead = Boolean(query.search) || (query.page - 1) * query.pageSize > DEEP_OFFSET_ROWS;
     const release = fullRead ? listScanGate.acquire() : () => {};
     let total: number;

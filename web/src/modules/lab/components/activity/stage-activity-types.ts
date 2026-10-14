@@ -9,22 +9,22 @@ export interface ActivityLog {
   stageId: string;
   stageKey: string;
   stageName: string;
-  operatorId: string;
-  operatorName: string;
+  preparatorId: string;
+  preparatorName: string;
   sampleId: string;
   sampleCode: string;
 }
 
-export interface OperatorTotal {
-  operatorId: string;
-  operatorName: string;
+export interface PreparatorTotal {
+  preparatorId: string;
+  preparatorName: string;
   total: number;
   byStage: Record<string, number>;
 }
 
 export interface ActivityResponse {
   logs: ActivityLog[];
-  summary: OperatorTotal[];
-  operators: { id: string; name: string }[];
+  summary: PreparatorTotal[];
+  preparators: { id: string; name: string }[];
   pagination: PaginationDTO;
 }

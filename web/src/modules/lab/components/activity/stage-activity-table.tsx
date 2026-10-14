@@ -42,7 +42,7 @@ export function StageActivityTable({ stages }: { stages: StageOption[] }) {
   const { get, setParams } = useTableParams();
 
   const search = get("search", "");
-  const operatorId = get("operatorId", "ALL");
+  const preparatorId = get("preparatorId", "ALL");
   const stageId = get("stageId", "ALL");
   const shiftDate = get("shiftDate", "");
   const corrections = get("corrections", "ALL");
@@ -63,12 +63,12 @@ export function StageActivityTable({ stages }: { stages: StageOption[] }) {
   const buildParams = useCallback(() => {
     const params = new URLSearchParams();
     if (search) params.set("search", search);
-    if (operatorId !== "ALL") params.set("operatorId", operatorId);
+    if (preparatorId !== "ALL") params.set("preparatorId", preparatorId);
     if (stageId !== "ALL") params.set("stageId", stageId);
     if (shiftDate) params.set("shiftDate", shiftDate);
     if (corrections !== "ALL") params.set("corrections", corrections);
     return params;
-  }, [search, operatorId, stageId, shiftDate, corrections]);
+  }, [search, preparatorId, stageId, shiftDate, corrections]);
 
   const queryKey = (() => {
     const params = buildParams();
@@ -84,7 +84,7 @@ export function StageActivityTable({ stages }: { stages: StageOption[] }) {
   const showRefreshing = usePendingDisplay(isLoading);
   const logs = result?.data.logs ?? [];
   const summary = result?.data.summary ?? [];
-  const operators = result?.data.operators ?? [];
+  const preparators = result?.data.preparators ?? [];
   const pagination = result?.data.pagination ?? null;
 
   useEffect(() => {
@@ -124,9 +124,9 @@ export function StageActivityTable({ stages }: { stages: StageOption[] }) {
     if (message) setError(message);
   }
 
-  const operatorLabels: Record<string, string> = {
-    ALL: t("allOperators"),
-    ...Object.fromEntries(operators.map((operator) => [operator.id, operator.name])),
+  const preparatorLabels: Record<string, string> = {
+    ALL: t("allPreparators"),
+    ...Object.fromEntries(preparators.map((preparator) => [preparator.id, preparator.name])),
   };
   const stageLabels: Record<string, string> = {
     ALL: t("allStages"),
@@ -148,9 +148,9 @@ export function StageActivityTable({ stages }: { stages: StageOption[] }) {
         title={t("summaryTitle")}
         hint={t("summaryHint")}
         emptyText={t("summaryEmpty")}
-        items={summary.map((entry) => ({ key: entry.operatorId, label: entry.operatorName, total: entry.total }))}
-        picked={operatorId}
-        onPick={(id) => setParams({ operatorId: id })}
+        items={summary.map((entry) => ({ key: entry.preparatorId, label: entry.preparatorName, total: entry.total }))}
+        picked={preparatorId}
+        onPick={(id) => setParams({ preparatorId: id })}
       />
 
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -166,18 +166,18 @@ export function StageActivityTable({ stages }: { stages: StageOption[] }) {
           />
 
           <Select
-            value={operatorId}
-            items={operatorLabels}
-            onValueChange={(value) => setParams({ operatorId: value === "ALL" ? null : value })}
+            value={preparatorId}
+            items={preparatorLabels}
+            onValueChange={(value) => setParams({ preparatorId: value === "ALL" ? null : value })}
           >
-            <SelectTrigger className="w-full sm:w-48" aria-label={t("allOperators")}>
-              <SelectValue>{(value) => operatorLabels[value as string] ?? ""}</SelectValue>
+            <SelectTrigger className="w-full sm:w-48" aria-label={t("allPreparators")}>
+              <SelectValue>{(value) => preparatorLabels[value as string] ?? ""}</SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">{t("allOperators")}</SelectItem>
-              {operators.map((operator) => (
-                <SelectItem key={operator.id} value={operator.id}>
-                  {operator.name}
+              <SelectItem value="ALL">{t("allPreparators")}</SelectItem>
+              {preparators.map((preparator) => (
+                <SelectItem key={preparator.id} value={preparator.id}>
+                  {preparator.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -268,7 +268,7 @@ export function StageActivityTable({ stages }: { stages: StageOption[] }) {
                       </Link>
                     </TableCell>
                     <TableCell>{stageLabel(tStages, log.stageKey, log.stageName)}</TableCell>
-                    <TableCell className="font-medium">{log.operatorName}</TableCell>
+                    <TableCell className="font-medium">{log.preparatorName}</TableCell>
                     <TableCell>
                       {log.isCorrection ? (
                         <Badge variant="destructive">{t("isCorrection")}</Badge>

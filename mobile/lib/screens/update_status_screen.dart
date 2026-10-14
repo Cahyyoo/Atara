@@ -47,14 +47,14 @@ class UpdateStatusScreen extends ConsumerStatefulWidget {
 
 /// `offlineUnknown` is the case that used to be a dead end: no signal, and the
 /// phone has never seen this sample, so its current stage cannot be shown. The
-/// operator is standing in front of it either way, so a stage is still recorded
+/// preparator is standing in front of it either way, so a stage is still recorded
 /// and the server checks the order when the queue drains.
 enum _LoadState { loading, notFound, error, loaded, offlineUnknown }
 
 /// How long the tick stays on screen before the screen closes itself.
 ///
 /// It was 1200 ms, on both the online and the queued path. That is dead time an
-/// operator pays for every single sample: over a 200-sample shift it alone came
+/// preparator pays for every single sample: over a 200-sample shift it alone came
 /// to about two and a half minutes of watching a finished screen. This is long
 /// enough to read as confirmation and short enough not to be a wait.
 const Duration _confirmationHold = Duration(milliseconds: 450);
@@ -71,15 +71,15 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
 
   StageModel? _selectedStage;
 
-  /// Whether the operator picked the stage themselves.
+  /// Whether the preparator picked the stage themselves.
   ///
   /// The default is derived from the sample's current stage, and the sample now
   /// arrives twice: once from the cache, then corrected from the server. A
   /// cached copy can be a stage behind, so a default chosen from it would be
   /// wrong — and left alone it would stay wrong, because the default is only
   /// applied when nothing is selected. It is recomputed when the fresh sample
-  /// lands, unless the operator has already made the choice their own.
-  bool _stageChosenByOperator = false;
+  /// lands, unless the preparator has already made the choice their own.
+  bool _stageChosenByPreparator = false;
   final _notesController = TextEditingController();
   final _reasonController = TextEditingController();
   bool _isSubmitting = false;
@@ -91,7 +91,7 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
     // Both requests, not one after the other. The stage list is watched inside
     // _buildForm, which is only reachable once the sample has arrived — so
     // /stages was not even *started* until /samples/{code} came back, and the
-    // operator paid two round trips nose to tail behind one spinner. Touching
+    // preparator paid two round trips nose to tail behind one spinner. Touching
     // the provider here puts them in flight together. It is a plain
     // FutureProvider, so this costs nothing when the list is already loaded.
     ref.read(stagesProvider);
@@ -119,7 +119,7 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
     return chosen.sequenceOrder != current.sequenceOrder + 1;
   }
 
-  /// The operator is the role the server lets break the stage order (with a
+  /// The preparator is the role the server lets break the stage order (with a
   /// reason). It is also the only role that can be signed in here at all, so in
   /// practice this is always true — it is kept as a check anyway, because the
   /// panel promises a power the server grants by role, and the day that list
@@ -152,9 +152,9 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
         final movedOn = _sample?.currentStage?.id != sample.currentStage?.id;
         _sample = sample;
         _loadState = _LoadState.loaded;
-        // See _stageChosenByOperator: a default taken from a stale cached copy
+        // See _stageChosenByPreparator: a default taken from a stale cached copy
         // has to give way to one taken from the server.
-        if (movedOn && !_stageChosenByOperator) _selectedStage = null;
+        if (movedOn && !_stageChosenByPreparator) _selectedStage = null;
       });
     } on ApiException catch (error) {
       // Only worth resolving when the server was never reached: a refusal came
@@ -171,7 +171,7 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
           _loadState = _LoadState.notFound;
         } else if (error.isOffline) {
           // The server was never reached, so nothing was decided. Carry on
-          // without the sample's details rather than stopping the operator.
+          // without the sample's details rather than stopping the preparator.
           _loadState = _LoadState.offlineUnknown;
         } else {
           _loadState = _LoadState.error;
@@ -227,17 +227,17 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
     final stage = _selectedStage;
     if (stage == null) return;
 
-    // In offlineUnknown there is no loaded sample, only the code the operator
+    // In offlineUnknown there is no loaded sample, only the code the preparator
     // scanned or typed. That is all the server needs.
     final sampleCode = _sample?.sampleCode ?? widget.sampleCode;
 
-    // Resolved before any await: the operator can leave this screen mid-request,
+    // Resolved before any await: the preparator can leave this screen mid-request,
     // and touching the context afterwards is what makes that a crash.
     final l10n = AppLocalizations.of(context)!;
 
     final override = _isOverriding;
     final reason = _reasonController.text.trim();
-    // Checked here as well as on the server, so the operator is told before a
+    // Checked here as well as on the server, so the preparator is told before a
     // round trip rather than after a 422.
     if (override && reason.length < 5) {
       setState(() => _errorMessage = l10n.overrideReasonTooShort);
@@ -312,7 +312,7 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
         id: '${DateTime.now().microsecondsSinceEpoch}-$sampleCode',
         // Stamped now, because the drain may happen days later under whoever
         // is signed in then.
-        operatorId: ref.read(sessionProvider).valueOrNull?.id,
+        preparatorId: ref.read(sessionProvider).valueOrNull?.id,
         sampleCode: sampleCode,
         stageId: stage.id,
         stageKey: stage.key,
@@ -327,7 +327,7 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
     );
 
     // The service writes to disk; the provider is what Home reads. Without this
-    // the operator is told "saved offline", returns to Home and finds no queue
+    // the preparator is told "saved offline", returns to Home and finds no queue
     // at all — the scan looks lost until something else happens to refresh it,
     // and offline is exactly when nothing else does: no connectivity event
     // fires, so only a deliberate pull would reveal the work is still there.
@@ -501,7 +501,7 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
         // Read-only during an override, with the reason why underneath.
         //
         // The server writes `notes = reason` on a correction, so anything typed
-        // here was being discarded on the way into the database and the operator
+        // here was being discarded on the way into the database and the preparator
         // was never told. It is no longer sent (see scanUpdateBody) — but hiding
         // or clearing the field would replace one silent loss with another, and
         // _isOverriding flips as the stage picker changes, so the field would
@@ -593,7 +593,7 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
   }
 
   /// The sample is not on the phone and the server cannot be asked. Say so
-  /// plainly, then get out of the operator's way.
+  /// plainly, then get out of the preparator's way.
   Widget _buildUnknownBanner(AppLocalizations l10n) {
     final palette = context.palette;
 
@@ -648,7 +648,7 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
       stagesAsync.when(
         // Five rows of the right shape. The stage list is prefetched twice
         // before anyone reaches this screen, so it is the one placeholder
-        // most operators will never see.
+        // most preparators will never see.
         loading: () => const StagePickerSkeleton(),
         error: (error, stackTrace) => Padding(
           padding: const EdgeInsets.only(bottom: AppSpacing.xl),
@@ -662,7 +662,7 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
           // Nothing can be recorded against a workflow with no stages. Say so
           // rather than throwing out of `build`: `stages.first` on an empty
           // list is a StateError, and an exception thrown while rendering
-          // reaches the operator as a dead screen with no explanation.
+          // reaches the preparator as a dead screen with no explanation.
           if (stages.isEmpty) return const StagePickerEmpty();
 
           _selectedStage ??= _defaultStage(stages);
@@ -672,7 +672,7 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
             selectedId: _selectedStage?.id,
             onChanged: (id) => setState(() {
               _selectedStage = stages.firstWhere((stage) => stage.id == id);
-              _stageChosenByOperator = true;
+              _stageChosenByPreparator = true;
             }),
           );
         },
@@ -680,7 +680,7 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
     ];
   }
 
-  /// The stage the operator most likely wants: the one after where the sample
+  /// The stage the preparator most likely wants: the one after where the sample
   /// has reached. Offline with no cached sample there is no current stage to
   /// step on from, so start at the top of the list.
   ///

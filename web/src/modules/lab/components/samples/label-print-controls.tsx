@@ -83,7 +83,7 @@ function writeSettings(next: LabelPrintSettings) {
 }
 
 /**
- * Remembers the sheet layout between runs. An operator prints with one label
+ * Remembers the sheet layout between runs. A preparator prints with one label
  * stock all shift, so re-picking every time is exactly the friction this is
  * meant to remove. Both bulk surfaces share one key — it is one preference.
  */

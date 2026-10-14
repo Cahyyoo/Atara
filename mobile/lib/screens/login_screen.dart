@@ -244,7 +244,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         // Offered only when the server was never reached, which
                         // is what a wrong address looks like. The fix is then
                         // one tap from the problem rather than something the
-                        // operator has to guess at.
+                        // preparator has to guess at.
                         if (_serverUnreachable)
                           ServerAddressNotice(
                             color: palette.danger.foreground,
@@ -263,7 +263,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: AppSpacing.sm),
                 // The server address lives in Settings, and Settings used to
                 // open only from the home screen — which needs a session. A
-                // wrong address therefore locked the operator out with no way
+                // wrong address therefore locked the preparator out with no way
                 // back, reinstalling included.
                 AppButton(
                   label: l10n.settingsTitle,
@@ -280,9 +280,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 }
 
-/// Why the operator is looking at this screen when they never signed out.
+/// Why the preparator is looking at this screen when they never signed out.
 ///
-/// Warning, not danger: nothing is wrong with this phone or its operator, and
+/// Warning, not danger: nothing is wrong with this phone or its preparator, and
 /// signing in again here is a legitimate answer. Announced, because it replaces
 /// the screen they were working on without a tap of theirs.
 ///
@@ -294,7 +294,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 ///
 /// Shaped like [_ReplacedNotice] on purpose -- same box, same tone. The only
 /// difference is the sentence, because the cause is different and the
-/// operator's next step is too: there is no other phone to go and close.
+/// preparator's next step is too: there is no other phone to go and close.
 class _EndedNotice extends StatelessWidget {
   const _EndedNotice({required this.ended});
 

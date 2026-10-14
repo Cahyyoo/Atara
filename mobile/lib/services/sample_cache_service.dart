@@ -11,10 +11,10 @@ import '../models/sample_model.dart';
 ///
 /// It used to be a single list of 300 encoded samples, rewritten whole on every
 /// scan: 300 decodes, 300 encodes and a ~90 KB write across the platform
-/// channel, on the UI isolate, while the operator watched a spinner. Reading one
+/// channel, on the UI isolate, while the preparator watched a spinner. Reading one
 /// sample decoded all 300 and then scanned the list linearly. Now a save touches
 /// one entry plus a list of codes, and a read touches one entry — the work no
-/// longer grows with how long the operator has been on shift.
+/// longer grows with how long the preparator has been on shift.
 class SampleCacheService {
   /// The old single-blob key, kept only so an existing cache can be migrated.
   static const _legacyKey = 'atara_sample_cache';
@@ -73,7 +73,7 @@ class SampleCacheService {
 
   /// Moves an old single-blob cache across, once.
   ///
-  /// Updating the app mid-shift must not burn the samples an operator saved
+  /// Updating the app mid-shift must not burn the samples a preparator saved
   /// for going offline — the same reason [SampleModel] still parses the older
   /// shapes it has been written in.
   static Future<void> _migrateIfNeeded(SharedPreferences prefs) async {

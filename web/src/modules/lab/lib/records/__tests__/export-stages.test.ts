@@ -5,7 +5,7 @@ import { stageColumnKey } from "@/modules/lab/lib/records/export-columns";
 
 /**
  * Both exports with the columns chosen: only those columns, each stage's
- * entry time, hours and operator from the scan log, and an identity column as
+ * entry time, hours and preparator from the scan log, and an identity column as
  * its code. Against the real database; skipped when there is none.
  */
 
@@ -46,7 +46,7 @@ describe.skipIf(!reachable)("exports with chosen columns", () => {
 
   beforeAll(async () => {
     const user = await prisma.user.create({
-      data: { name: `${tag} Operator`, email: `${tag.toLowerCase()}@test.invalid`, password: "x", role: "PREPARATOR", department: "LAB" as const },
+      data: { name: `${tag} Preparator`, email: `${tag.toLowerCase()}@test.invalid`, password: "x", role: "PREPARATOR", department: "LAB" as const },
     });
     created.user = user.id;
     session.userId = user.id;
@@ -63,8 +63,8 @@ describe.skipIf(!reachable)("exports with chosen columns", () => {
         currentStageId: second.id,
         logs: {
           create: [
-            { stageId: first.id, operatorId: user.id, scannedAt: new Date("2026-10-05T00:00:00Z") },
-            { stageId: second.id, operatorId: user.id, scannedAt: new Date("2026-10-05T03:30:00Z") },
+            { stageId: first.id, preparatorId: user.id, scannedAt: new Date("2026-10-05T00:00:00Z") },
+            { stageId: second.id, preparatorId: user.id, scannedAt: new Date("2026-10-05T03:30:00Z") },
           ],
         },
       },
@@ -106,7 +106,7 @@ describe.skipIf(!reachable)("exports with chosen columns", () => {
     expect(rows[1][0]).toBe(`${tag}.1`);
     expect(rows[1][1]).toContain("08:00");
     expect(rows[1][2]).toBe("3.5");
-    expect(rows[1][3]).toBe(`${tag} Operator`);
+    expect(rows[1][3]).toBe(`${tag} Preparator`);
     expect(rows[1][4]).toBe(`${tag}P`);
   });
 
@@ -119,7 +119,7 @@ describe.skipIf(!reachable)("exports with chosen columns", () => {
     expect(rows[0]).toEqual(["Barcode Code", `Entered ${second.name}`, `Preparator ${second.name}`]);
     expect(rows[1][0]).toBe(`${tag}-1`);
     expect(rows[1][1]).toContain("11:30");
-    expect(rows[1][2]).toBe(`${tag} Operator`);
+    expect(rows[1][2]).toBe(`${tag} Preparator`);
   });
 
   it("still gives the old sheet to a link that chooses nothing", async () => {

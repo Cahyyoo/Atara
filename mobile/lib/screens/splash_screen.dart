@@ -9,7 +9,7 @@ import '../widgets/brand_mark.dart';
 ///
 /// **The mark does not animate in, and that is the point.** The native launch
 /// window already shows it — the launcher's adaptive icon on this same teal —
-/// so by the time Flutter draws its first frame the operator has been looking
+/// so by the time Flutter draws its first frame the preparator has been looking
 /// at the mountain for however long the app took to boot. Fading it in here
 /// would mean drawing it twice. Starting with it in place means the handoff
 /// from the system window to the first Flutter frame is seamless.

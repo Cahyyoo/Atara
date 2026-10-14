@@ -64,12 +64,12 @@ describe("updateLabRecordSchema", () => {
 describe("scanSampleSchema", () => {
   const base = { sample_code: "NKL-2026-00001", stage_id: "s1" };
 
-  it("no longer requires operator_id, which the server ignores", () => {
+  it("no longer requires preparator_id, which the server ignores", () => {
     expect(scanSampleSchema.safeParse(base).success).toBe(true);
   });
 
-  it("still accepts operator_id from older mobile builds", () => {
-    expect(scanSampleSchema.safeParse({ ...base, operator_id: "u1" }).success).toBe(true);
+  it("still accepts preparator_id from older mobile builds", () => {
+    expect(scanSampleSchema.safeParse({ ...base, preparator_id: "u1" }).success).toBe(true);
   });
 
   it("requires a meaningful override reason", () => {
@@ -115,7 +115,7 @@ describe("generateSamplesSchema", () => {
 
   /**
    * The shape the form used to send. Accepting it as well would parse to an
-   * empty list, or worse to a single sample, for an operator who asked for
+   * empty list, or worse to a single sample, for a preparator who asked for
    * fifty — so it has to be refused outright.
    */
   it("refuses the old quantity-times-one-identity request", () => {

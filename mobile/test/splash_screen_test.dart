@@ -94,7 +94,7 @@ void main() {
     expect(
       lineFill(tester),
       greaterThan(0),
-      reason: 'the line is what tells the operator Flutter has taken over',
+      reason: 'the line is what tells the preparator Flutter has taken over',
     );
 
     // The name follows the line rather than racing it.

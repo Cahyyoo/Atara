@@ -24,7 +24,7 @@ describe("mapPastedRows", () => {
       [
         HEADER,
         // Deliberately the second selected row first: an id match must not
-        // depend on the order the operator ticked the boxes in.
+        // depend on the order the preparator ticked the boxes in.
         ["MOL/LIM/S3/PA4/B42/919.4/12", "1.90", "14.20", "0.03", "40.1", "12.0"],
         ["MOL/LIM/S3/PA4/B42/919.3/12", "1.86", "14.24", "0.02", "39.8", "11.5"],
       ],

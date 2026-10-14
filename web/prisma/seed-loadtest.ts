@@ -5,11 +5,11 @@
  *   source ../load-tests/env.sh && npx tsx prisma/seed-loadtest.ts
  *
  * Writes, on top of `db:seed` + `db:seed-master`:
- *   - 350 operators + 40 web accounts (one per virtual user: a session slot
+ *   - 350 preparators + 40 web accounts (one per virtual user: a session slot
  *     holds one sign-in, so shared accounts would sign each other out)
  *   - ~240k historical samples over 1,500 shift days, mostly completed
  *   - a 30k "scan pool" of fresh, unscanned samples from the last 30 days that
- *     the k6 operators walk through the five stages (reset with
+ *     the k6 preparators walk through the five stages (reset with
  *     load-tests/reset-pool.sql between runs)
  *   - every sample's lab record and scan logs (~1.1M), ~500k lab record
  *     audits, 200k sign-in audits, 50k ended sessions
@@ -32,7 +32,7 @@ const prisma = new PrismaClient();
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
 
-const OPERATORS = 350;
+const PREPARATORS = 350;
 const WEB_ACCOUNTS = { ADMIN: 15, DATABASE: 10, ANALISIS: 15 } as const;
 const HISTORY_DAYS = 1500;
 const HISTORY_PER_DAY = 160;
@@ -80,14 +80,14 @@ async function main() {
   console.log("Accounts...");
   const hash = await bcrypt.hash(PASSWORD, 10);
   const users: Prisma.UserCreateManyInput[] = [];
-  const operatorIds: string[] = [];
-  const out = { password: PASSWORD, operators: [] as string[], ADMIN: [] as string[], DATABASE: [] as string[], ANALISIS: [] as string[] };
-  for (let i = 1; i <= OPERATORS; i++) {
+  const preparatorIds: string[] = [];
+  const out = { password: PASSWORD, preparators: [] as string[], ADMIN: [] as string[], DATABASE: [] as string[], ANALISIS: [] as string[] };
+  for (let i = 1; i <= PREPARATORS; i++) {
     const id = `ltu_op_${i}`;
     const email = `lt-op-${String(i).padStart(3, "0")}@atara.local`;
-    users.push({ id, name: `LT Operator ${i}`, email, password: hash, role: "PREPARATOR" });
-    operatorIds.push(id);
-    out.operators.push(email);
+    users.push({ id, name: `LT Preparator ${i}`, email, password: hash, role: "PREPARATOR" });
+    preparatorIds.push(id);
+    out.preparators.push(email);
   }
   for (const [role, count] of Object.entries(WEB_ACCOUNTS) as [keyof typeof WEB_ACCOUNTS, number][]) {
     for (let i = 1; i <= count; i++) {
@@ -194,7 +194,7 @@ async function main() {
         id: `ltl_${index}_${step}`,
         sampleId: id,
         stageId: stages[step].id,
-        operatorId: rng.pick(operatorIds),
+        preparatorId: rng.pick(preparatorIds),
         scannedAt: new Date(plan.arrivedAt.getTime() + (step + 1) * 2 * HOUR_MS),
       });
     }

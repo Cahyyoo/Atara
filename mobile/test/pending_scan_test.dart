@@ -77,7 +77,7 @@ void main() {
       expect(scan.stageId, 'stage-1');
     });
 
-    test('clears the failure when the operator retries', () async {
+    test('clears the failure when the preparator retries', () async {
       await PendingScanService.add(makeScan('1'));
       await PendingScanService.markFailed('1', 'Rejected');
 
@@ -157,7 +157,7 @@ void main() {
   });
 
   group('SettingsService.isValidServerUrl', () {
-    test('accepts the addresses an operator would actually type', () {
+    test('accepts the addresses a preparator would actually type', () {
       expect(SettingsService.isValidServerUrl('http://10.10.50.14:3001/api'), isTrue);
       expect(SettingsService.isValidServerUrl('https://lab.example.com/api'), isTrue);
       // Empty means "use the default", which is a valid choice.

@@ -561,7 +561,7 @@
     "REPORT": "REPORT"
   },
   "stageActivity": {
-    "allOperators": "Everyone",
+    "allPreparators": "Everyone",
     "allStages": "All stages",
     "by": "By",
     "corrections": "Corrections",
@@ -1133,7 +1133,7 @@
     "stage": "Stage",
     "entered": "Entered",
     "hours": "Hours",
-    "operator": "Preparator",
+    "preparator": "Preparator",
     "allOf": "All {part}",
     "noStages": "No stages to offer.",
     "chosen": "{count, plural, one {# column} other {# columns}} chosen",

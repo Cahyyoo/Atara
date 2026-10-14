@@ -88,7 +88,7 @@ describe("the generate page", () => {
   });
 
   // The change asked for: the finished form gives up its place rather than
-  // sitting above the result the operator came for.
+  // sitting above the result the preparator came for.
   it("replaces the form with the labels once the barcodes exist", async () => {
     const user = userEvent.setup({ delay: null });
     show();

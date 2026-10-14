@@ -131,7 +131,7 @@ export const backupSection: BackupSection = {
         columns: [
           { header: "Barcode Code", key: "sampleCode", width: 18 },
           { header: "Stage", key: "stage", width: 12 },
-          { header: "By", key: "operator", width: 18 },
+          { header: "By", key: "preparator", width: 18 },
           { header: "Recorded At", key: "scannedAt", width: 20 },
           { header: "Correction", key: "isCorrection", width: 11 },
           { header: "Notes", key: "notes", width: 40 },
@@ -143,7 +143,7 @@ export const backupSection: BackupSection = {
               include: {
                 sample: { select: { sampleCode: true } },
                 stage: { select: { name: true } },
-                operator: { select: { name: true } },
+                preparator: { select: { name: true } },
               },
             })
           );
@@ -151,7 +151,7 @@ export const backupSection: BackupSection = {
             yield {
               sampleCode: log.sample.sampleCode,
               stage: log.stage.name,
-              operator: log.operator.name,
+              preparator: log.preparator.name,
               scannedAt: when(log.scannedAt),
               isCorrection: log.isCorrection ? "Yes" : "No",
               notes: log.notes,

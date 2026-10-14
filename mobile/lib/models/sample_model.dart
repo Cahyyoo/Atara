@@ -99,7 +99,7 @@ class SampleModel {
   /// the scan reply; the device cache round-trips it flat, from [toJson]. And a
   /// cache entry written by an older build has no such key at all — that has to
   /// read as null rather than throw, or updating the app mid-shift would burn
-  /// every sample the operator had saved for going offline.
+  /// every sample the preparator had saved for going offline.
   static String? _identFrom(Map<String, dynamic> json) {
     final flat = json['sampleIdent'];
     if (flat is String) return flat;

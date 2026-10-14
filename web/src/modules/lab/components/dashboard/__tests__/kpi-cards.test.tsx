@@ -41,7 +41,7 @@ describe("the KPI tiles", () => {
     ]);
   });
 
-  it("shows the operator only what is moving and what is stuck", () => {
+  it("shows the preparator only what is moving and what is stuck", () => {
     expect(tileTitles(dashboardLayoutFor("PREPARATOR").kpis)).toEqual([
       en.dashboard.kpi.inProgress,
       en.dashboard.kpi.needsAttention,

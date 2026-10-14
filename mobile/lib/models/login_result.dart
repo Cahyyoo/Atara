@@ -54,7 +54,7 @@ sealed class LoginResult {
   /// Nothing here is a hard cast. The old code did four of them in a row
   /// (`data['token'] as String` and friends) and threw a `TypeError` on the
   /// second-factor body — which is not a `DioException`, so the catch below it
-  /// never saw it, and the operator got "an unexpected error occurred" with no
+  /// never saw it, and the preparator got "an unexpected error occurred" with no
   /// hint that a second step even existed. That is the bug this file exists to
   /// close.
   static LoginResult parse(Object? body) {
@@ -145,7 +145,7 @@ class PreparatorOnlyException implements Exception {
   String toString() => 'This app is for Preparators.';
 }
 
-/// Why this phone was signed out, when the operator did not ask for it.
+/// Why this phone was signed out, when the preparator did not ask for it.
 ///
 /// Two things end a session from the outside and they need different words:
 /// another phone took the account ([SessionReplaced]), or somebody on the
@@ -159,7 +159,7 @@ sealed class SignedOutNotice {
 /// An administrator ended the session, or the account's password changed.
 ///
 /// Before this existed the server's `session-ended` was simply an unexplained
-/// 401: the operator was dropped on the sign-in screen mid-shift with no idea
+/// 401: the preparator was dropped on the sign-in screen mid-shift with no idea
 /// why -- which reads as a crash. An administrator resetting a password now
 /// ends every session, so this is no longer a rare case.
 final class SessionEnded extends SignedOutNotice {
@@ -187,7 +187,7 @@ final class SessionEnded extends SignedOutNotice {
 /// An account holds one phone at a time, and the latest sign-in simply wins —
 /// the server asks nobody first. The phone that lost the account hears about it
 /// as a 401 `session-replaced` carrying when, and on what. Without it the
-/// operator is simply dropped on the sign-in screen mid-shift, which reads as a
+/// preparator is simply dropped on the sign-in screen mid-shift, which reads as a
 /// crash rather than as someone else signing in.
 final class SessionReplaced extends SignedOutNotice {
   const SessionReplaced({this.device, this.at, this.deviceInfo});

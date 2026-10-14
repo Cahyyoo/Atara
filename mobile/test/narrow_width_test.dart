@@ -171,7 +171,7 @@ void main() {
             HistoryRow(
               entry: SampleLogEntry(
                 stageName: 'XRF/ICP Analysis and Verification',
-                operatorName: 'Muhammad Fajar Nurrahman Pratama',
+                preparatorName: 'Muhammad Fajar Nurrahman Pratama',
                 scannedAt: DateTime.utc(2026, 9, 21, 7),
                 notes: 'Sampel basah, dikeringkan ulang sebelum ditimbang.',
               ),
@@ -237,7 +237,7 @@ void main() {
     // That branch used to run unconditionally, so making it lazy is the kind of
     // change that could silently strip a widget's theme dependency -- and the
     // symptom would be light-mode text on a dark card, in the one place an
-    // operator reads a code character by character.
+    // preparator reads a code character by character.
     await tester.pumpWidget(
       MaterialApp(
         theme: AppTheme.dark,

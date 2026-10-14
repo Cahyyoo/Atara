@@ -97,7 +97,7 @@ export function buildLabRecordWhere(query: {
     // `sample` is already spoken for by the deleted filter above, so the
     // code search goes through `is` rather than replacing that key.
     // The Sample ID is asked for in every hand it could have been written in:
-    // the stored id separates its leading group with spaces, and an operator
+    // the stored id separates its leading group with spaces, and a preparator
     // reading one off an older sheet types slashes throughout. A Lab Code has
     // only ever had one form, so it is matched as typed.
     const own = [

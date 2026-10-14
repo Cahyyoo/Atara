@@ -86,7 +86,7 @@ model User {
 
   createdSamples    Sample[]              @relation("SampleCreatedBy")
   deletedSamples    Sample[]              @relation("SampleDeletedBy")
-  sampleLogs        SampleLog[]           @relation("SampleLogOperator")
+  sampleLogs        SampleLog[]           @relation("SampleLogPreparator")
   labRecordEdits    LabRecord[]           @relation("LabRecordUpdatedBy")
   labRecordAudits   LabRecordAudit[]      @relation("LabRecordAuditUser")
   faceEnrollments   FaceEnrollment[]      @relation("FaceEnrollmentUser")

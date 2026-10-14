@@ -2,12 +2,12 @@
 ///
 /// The server is a super app now: a role belongs to a department (LAB or
 /// EKSPLORASI), and SUPER_ADMIN to none. This app only needs the role -- the
-/// operator, who is always in the lab -- so the department is not read here.
+/// preparator, who is always in the lab -- so the department is not read here.
 ///
 /// This used to be two values and a parser that read anything other than
-/// `ADMIN` as an operator. With four roles that default would have been a
+/// `ADMIN` as a preparator. With four roles that default would have been a
 /// privilege: a DATABASE or ANALISIS account would have come back from storage
-/// as an operator, and the operator is now the one role this app is for and the
+/// as a preparator, and the preparator is now the one role this app is for and the
 /// one allowed to override the stage order. So the parse is exact, and a string
 /// it does not know is refused rather than guessed at.
 enum UserRole {

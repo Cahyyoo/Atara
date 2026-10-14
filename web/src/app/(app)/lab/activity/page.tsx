@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
  * (/admin/sign-ins), since it covers every department.
  *
  * Lab admin only, like Users and Master Data, because this is data about
- * people as much as about samples. Operators keep what they already had: the
+ * people as much as about samples. Preparators keep what they already had: the
  * timeline on a sample's own page, which has always named who did each step.
  */
 export default async function ActivityPage() {

@@ -13,7 +13,7 @@ import 'skeleton.dart';
 /// page's own ground would be 1.07:1 in light — there, but not visible.
 ///
 /// The row counts are deliberately short of what a full screen holds. Four
-/// rows fill the fold; ten would promise a list the operator may not have.
+/// rows fill the fold; ten would promise a list the preparator may not have.
 
 /// A work row: leading glyph, a code over a stage line, a time on the right.
 /// Matches `WorkRow` at 64 high.

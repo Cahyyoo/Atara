@@ -30,12 +30,12 @@ class _UnreachableHttpClient implements HttpClient {
   noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-/// A scan queued offline has to be visible the moment the operator lands back
+/// A scan queued offline has to be visible the moment the preparator lands back
 /// on Home.
 ///
 /// It was not. `_queueOffline` wrote the scan to disk and popped, and nothing
 /// told `pendingScansProvider` — the only thing Home actually reads. So the
-/// operator was shown "saved offline", returned to a Home with no queue on it
+/// preparator was shown "saved offline", returned to a Home with no queue on it
 /// at all, and had every reason to think the scan was lost. The one moment this
 /// bites is the one moment it must not: offline, where no connectivity event
 /// fires to refresh anything, so only a deliberate pull would have revealed the
@@ -84,7 +84,7 @@ void main() {
 
     expect(container.read(pendingScansProvider), isEmpty);
 
-    // Offline there is no current stage to default from, so the operator picks
+    // Offline there is no current stage to default from, so the preparator picks
     // one; the button does nothing until they do.
     await tester.tap(find.text('Drying'));
     await tester.pump();

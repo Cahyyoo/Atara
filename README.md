@@ -70,7 +70,7 @@ Urutan startup: **database → layanan face → backend web → aplikasi mobile*
 | ADMIN       | LAB        | admin@atara.local        | lihat catatan | Web                         |
 | DATABASE    | LAB        | database@atara.local     | lihat catatan | Web                         |
 | ANALISIS    | LAB        | analisis@atara.local     | lihat catatan | Web                         |
-| PREPARATOR    | LAB        | operator@atara.local     | lihat catatan | Web & Aplikasi Mobile       |
+| PREPARATOR    | LAB        | preparator@atara.local     | lihat catatan | Web & Aplikasi Mobile       |
 | ADMIN       | EKSPLORASI | eksplorasi@atara.local   | lihat catatan | Web                         |
 
 > **Catatan kata sandi.** Akun ini dibuat oleh `npm run db:seed`. Di lingkungan pengembangan kata sandinya ada di `web/prisma/seed-policy.ts`. Di produksi seed **menolak** membuat akun kecuali `SEED_ADMIN_PASSWORD` (minimal 12 karakter) diberikan, dan yang dibuat hanya akun super admin. Ganti kata sandi super admin setelah masuk pertama kali.

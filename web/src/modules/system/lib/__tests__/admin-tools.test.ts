@@ -46,7 +46,7 @@ describe("who sees an announcement, and when", () => {
     expect(isShownTo(announcement({ endsAt: "2026-05-01T00:00:00.000Z" }), "ADMIN", now)).toBe(false);
   });
 
-  it("keeps one meant for analysts away from operators", () => {
+  it("keeps one meant for analysts away from preparators", () => {
     const forAnalysts = announcement({ roles: ["ANALISIS"] });
     expect(isShownTo(forAnalysts, "ANALISIS", now)).toBe(true);
     expect(isShownTo(forAnalysts, "PREPARATOR", now)).toBe(false);
@@ -179,13 +179,13 @@ describe.skipIf(!reachable)("against the database", () => {
     const over = await make({ startsAt: new Date(Date.now() - 172_800_000), endsAt: new Date(Date.now() - 86_400_000) });
     invalidateAnnouncements();
 
-    const forOperator = (await loadActiveAnnouncements("PREPARATOR")).map((a) => a.id);
+    const forPreparator = (await loadActiveAnnouncements("PREPARATOR")).map((a) => a.id);
     const forAnalyst = (await loadActiveAnnouncements("ANALISIS")).map((a) => a.id);
-    expect(forOperator).toContain(live);
-    expect(forOperator).not.toContain(analystsOnly);
+    expect(forPreparator).toContain(live);
+    expect(forPreparator).not.toContain(analystsOnly);
     expect(forAnalyst).toEqual(expect.arrayContaining([live, analystsOnly]));
-    expect([...forOperator, ...forAnalyst]).not.toContain(later);
-    expect([...forOperator, ...forAnalyst]).not.toContain(over);
+    expect([...forPreparator, ...forAnalyst]).not.toContain(later);
+    expect([...forPreparator, ...forAnalyst]).not.toContain(over);
   });
 
   it("puts a sample in the Samples sheet with its codes, and the users without secrets", async () => {

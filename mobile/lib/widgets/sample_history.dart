@@ -13,7 +13,7 @@ import '../services/stage_label.dart';
 ///
 /// Capped on the update screen on purpose. The point of that screen is to
 /// record the next stage, and a sample near the end of the workflow can carry a
-/// long history — putting all of it inline would push the thing the operator
+/// long history — putting all of it inline would push the thing the preparator
 /// came to do below the fold, and rebuild it on every tap.
 class SampleHistorySection extends StatelessWidget {
   const SampleHistorySection({super.key, required this.sample, this.maxInline = 3});
@@ -44,7 +44,7 @@ class SampleHistorySection extends StatelessWidget {
       );
     }
 
-    // Newest first: what happened last is what the operator is checking against.
+    // Newest first: what happened last is what the preparator is checking against.
     final newestFirst = sample.logs.reversed.toList();
     final shown = newestFirst.take(maxInline).toList();
 
@@ -153,10 +153,10 @@ class HistoryRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  entry.operatorName,
+                  entry.preparatorName,
                   style: AppText.footnote.copyWith(color: palette.secondaryLabel),
                 ),
-                // The note is the whole reason this screen exists: an operator
+                // The note is the whole reason this screen exists: a preparator
                 // could write one and no one could read it back from a phone.
                 if (entry.notes != null && entry.notes!.trim().isNotEmpty) ...[
                   const SizedBox(height: AppSpacing.xs),

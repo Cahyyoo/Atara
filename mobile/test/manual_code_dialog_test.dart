@@ -81,7 +81,7 @@ void main() {
     expect(dialogOpen, findsOneWidget);
   });
 
-  testWidgets('clears the error once the operator starts typing', (tester) async {
+  testWidgets('clears the error once the preparator starts typing', (tester) async {
     await openDialog(tester);
 
     await tester.tap(find.text('Lanjut'));

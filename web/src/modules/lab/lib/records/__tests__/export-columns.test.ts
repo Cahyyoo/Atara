@@ -24,11 +24,11 @@ const at = (hours: number) => new Date(Date.UTC(2026, 9, 5, 0, 0) + hours * 3_60
 
 describe("stageTimeline", () => {
   const logs = [
-    { stageId: "s2", scannedAt: at(5.5), operator: "Budi" },
-    { stageId: "s1", scannedAt: at(2), operator: "Ani" },
+    { stageId: "s2", scannedAt: at(5.5), preparator: "Budi" },
+    { stageId: "s1", scannedAt: at(2), preparator: "Ani" },
   ];
 
-  it("gives each stage its entry, its operator and the hours until the next scan", () => {
+  it("gives each stage its entry, its preparator and the hours until the next scan", () => {
     const visits = stageTimeline(logs, { now: at(8), completed: false });
     expect(visits.get("s1")).toEqual({ at: at(2), hours: 3.5, by: "Ani" });
     // The stage it is in now runs until now.
@@ -41,7 +41,7 @@ describe("stageTimeline", () => {
 
   it("keeps the last visit when a correction sent the sample back", () => {
     const visits = stageTimeline(
-      [...logs, { stageId: "s1", scannedAt: at(6), operator: "Citra" }],
+      [...logs, { stageId: "s1", scannedAt: at(6), preparator: "Citra" }],
       { now: at(7), completed: false }
     );
     expect(visits.get("s1")).toEqual({ at: at(6), hours: 1, by: "Citra" });
@@ -69,7 +69,7 @@ describe("parseExportColumns", () => {
     const labRecords = parseExportColumns(null, LAB_RECORD_EXPORT_COLUMNS, ids);
     expect(labRecords.slice(0, 3)).toEqual(["rowNo", "sampleIdent", "leadTime"]);
     expect(labRecords).toEqual(
-      expect.arrayContaining(["ni", "cr", "smRatio", "mc", "measurementMethod", "operator", "xrayInstrument", "mcDate", "wp", "w0", "wd"])
+      expect.arrayContaining(["ni", "cr", "smRatio", "mc", "measurementMethod", "preparator", "xrayInstrument", "mcDate", "wp", "w0", "wd"])
     );
     expect(labRecords).not.toContain("pit");
     expect(labRecords).not.toContain("fe2o3");
@@ -128,7 +128,7 @@ describe("parseExportColumns", () => {
       "Preparator Analysis",
     ]);
 
-    const visits = stageTimeline([{ stageId: "s1", scannedAt: at(2), operator: "Ani" }], {
+    const visits = stageTimeline([{ stageId: "s1", scannedAt: at(2), preparator: "Ani" }], {
       now: at(4),
       completed: false,
     });

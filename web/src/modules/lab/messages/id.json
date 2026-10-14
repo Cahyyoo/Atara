@@ -561,7 +561,7 @@
     "REPORT": "REPORT"
   },
   "stageActivity": {
-    "allOperators": "Semua orang",
+    "allPreparators": "Semua orang",
     "allStages": "Semua stage",
     "by": "Oleh",
     "corrections": "Koreksi",
@@ -1133,7 +1133,7 @@
     "stage": "Tahap",
     "entered": "Masuk",
     "hours": "Lama (jam)",
-    "operator": "Preparator",
+    "preparator": "Preparator",
     "allOf": "Semua {part}",
     "noStages": "Tidak ada tahap.",
     "chosen": "{count} kolom dipilih",

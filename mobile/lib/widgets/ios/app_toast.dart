@@ -13,7 +13,7 @@ import '../../theme/app_theme.dart';
 /// that is already popping — which is exactly where the three callers sit.
 ///
 /// It never blocks: iOS has no snackbar idiom and nothing here is undoable, so
-/// there is no action to offer and no reason to hold the operator up.
+/// there is no action to offer and no reason to hold the preparator up.
 class AppToast {
   static OverlayEntry? _current;
   static Timer? _timer;

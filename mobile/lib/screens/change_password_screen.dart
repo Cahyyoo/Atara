@@ -19,8 +19,8 @@ const _minPasswordLength = 8;
 /// Replacing one's own password.
 ///
 /// Two ways in, one screen. [forced] is the one that matters: an account
-/// whose password an administrator chose — a new operator, or a reset — is
-/// handed the password every Operator shares, and the server refuses it
+/// whose password an administrator chose — a new preparator, or a reset — is
+/// handed the password every Preparator shares, and the server refuses it
 /// everything until that is replaced. So there is no way past this screen but
 /// through it, or out: no back button, only Sign out.
 ///
@@ -117,7 +117,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
     }
   }
 
-  /// The server's own refusals, in words an operator can act on.
+  /// The server's own refusals, in words a preparator can act on.
   ///
   /// Matched on `code`, never on the message: the text is written for the
   /// website and is in one language.

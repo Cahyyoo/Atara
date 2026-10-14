@@ -39,7 +39,7 @@ describe("what each role's dashboard shows", () => {
     });
   });
 
-  it("gives the operator their own shift and the samples that are stuck", () => {
+  it("gives the preparator their own shift and the samples that are stuck", () => {
     expect(dashboardLayoutFor("PREPARATOR")).toEqual({
       kpis: ["inProgress", "needsAttention"],
       charts: ["waiting", "stageHours"],

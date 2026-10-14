@@ -18,7 +18,7 @@ class ScanDay {
 /// Flat on purpose, and this is the whole performance story of the screen.
 /// Rendering a sliver per day put ninety of them in one viewport, and a
 /// viewport lays out every sliver above the fold on every frame — so the cost
-/// grew with how far the operator had scrolled, which is exactly what "it gets
+/// grew with how far the preparator had scrolled, which is exactly what "it gets
 /// heavier the longer I scroll" feels like. One SliverList over this list does
 /// work proportional to what is on screen instead.
 @immutable
@@ -97,7 +97,7 @@ class ScanHistoryState {
 
   final bool isFromCache;
 
-  /// The [loadedPages] value at the last time the operator ASKED for a page.
+  /// The [loadedPages] value at the last time the preparator ASKED for a page.
   ///
   /// Auto-loading may run [kScanHistoryAutoLoadPages] past this and then stops
   /// until asked again. Zero after a first load or a refresh, both of which are
@@ -108,7 +108,7 @@ class ScanHistoryState {
 
   /// True when the list has grown as far as it may without being asked again.
   ///
-  /// The screen used to fetch on its own for as long as the operator kept
+  /// The screen used to fetch on its own for as long as the preparator kept
   /// scrolling, so one long drag could pull the whole ninety-day window onto the
   /// phone. This is the brake, and it is deliberately NOT a brake on rendering —
   /// nothing is ever removed from the list, and a pause is only a refusal to
@@ -169,7 +169,7 @@ class ScanHistoryState {
   }
 }
 
-/// The operator's own scans, accumulated a page at a time.
+/// The preparator's own scans, accumulated a page at a time.
 class ScanHistoryNotifier extends StateNotifier<ScanHistoryState> {
   ScanHistoryNotifier() : super(const ScanHistoryState()) {
     _load(1, replace: true);
@@ -188,16 +188,16 @@ class ScanHistoryNotifier extends StateNotifier<ScanHistoryState> {
   /// Starts again from page one without emptying the screen on the way.
   ///
   /// Collapsing several loaded pages back to one is the honest answer to a
-  /// refresh, and the pull gesture has put the operator at the top anyway.
+  /// refresh, and the pull gesture has put the preparator at the top anyway.
   /// What it must not do is blank the list while the request is in flight —
   /// the detail screen has a post-mortem of exactly that mistake.
   Future<void> refresh() => _load(1, replace: true);
 
-  /// The operator asking, by tap. Grants a fresh auto-load budget.
+  /// The preparator asking, by tap. Grants a fresh auto-load budget.
   ///
   /// The anchor is moved when the request STARTS rather than when the page
   /// lands, so a tap that fails over the network still leaves the budget
-  /// granted: the error branches below copyWith without it. The operator asked;
+  /// granted: the error branches below copyWith without it. The preparator asked;
   /// a dead connection should not also cost them their budget.
   Future<void> loadMore() => _requestNextPage(anchor: state.loadedPages);
 
@@ -213,7 +213,7 @@ class ScanHistoryNotifier extends StateNotifier<ScanHistoryState> {
   /// It also declines after a failure. Before this existed, a failed page left
   /// `loadMoreError` set while the list still had more, so the very next scroll
   /// frame retried — against a network that had just failed, every frame, for as
-  /// long as the operator stayed near the bottom. The footer offers the button
+  /// long as the preparator stayed near the bottom. The footer offers the button
   /// for that, and [loadMore] is not gated by the error, so the way forward is
   /// intact and now deliberate.
   Future<void> loadMoreAutomatically() {
@@ -339,7 +339,7 @@ class ScanHistoryNotifier extends StateNotifier<ScanHistoryState> {
   ///
   /// Recomputing this from scratch on every page meant formatting an ISO
   /// timestamp for all nine hundred rows already loaded — on the UI isolate, at
-  /// the moment the operator was dragging towards the bottom.
+  /// the moment the preparator was dragging towards the bottom.
   final Set<String> _seen = {};
 
   static String _keyOf(WorkEntry entry) =>
@@ -360,7 +360,7 @@ class ScanHistoryNotifier extends StateNotifier<ScanHistoryState> {
   /// for every row already on screen, a fresh sublist per day and a fresh outer
   /// list built through nested spreads — order of eighty kilobytes of
   /// young-generation garbage in one synchronous burst, on the UI isolate, at
-  /// the moment the operator was dragging towards the bottom. The burst grew
+  /// the moment the preparator was dragging towards the bottom. The burst grew
   /// linearly with how far down they had got, which made it the one thing left
   /// in this screen that got heavier the longer you scrolled.
   ///

@@ -85,7 +85,7 @@ void main() {
     expect(find.byType(CupertinoTextField), findsNothing);
   });
 
-  testWidgets('a returning operator goes straight to the sign-in screen',
+  testWidgets('a returning preparator goes straight to the sign-in screen',
       (tester) async {
     SharedPreferences.setMockInitialValues(prefs(seenGuide: true));
 

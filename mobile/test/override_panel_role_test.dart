@@ -13,10 +13,10 @@ import 'package:atara/providers/stages_provider.dart';
 import 'package:atara/screens/update_status_screen.dart';
 import 'package:atara/services/sample_cache_service.dart';
 
-/// The stage-order override belongs to the operator.
+/// The stage-order override belongs to the preparator.
 ///
 /// The server accepts `force` with a reason from PREPARATOR alone, and the app is
-/// for nobody else — so an operator who picks a stage out of order is offered
+/// for nobody else — so a preparator who picks a stage out of order is offered
 /// the override, and there is no way for anyone else to reach it: every other
 /// role is turned away at sign-in and cleared from storage on start.
 const _stages = [
@@ -82,7 +82,7 @@ void main() {
 
   tearDown(() => HttpOverrides.global = null);
 
-  testWidgets('an operator moving a sample back is offered the override', (
+  testWidgets('a preparator moving a sample back is offered the override', (
     tester,
   ) async {
     await openWithStoredRole(tester, 'PREPARATOR');
@@ -104,7 +104,7 @@ void main() {
 
   testWidgets('a stored ADMIN session never reaches it', (tester) async {
     // Saved by an older build. It is cleared on start, so the screen has no
-    // operator behind it and the panel is not offered.
+    // preparator behind it and the panel is not offered.
     await openWithStoredRole(tester, 'ADMIN');
 
     await pickReceiving(tester);

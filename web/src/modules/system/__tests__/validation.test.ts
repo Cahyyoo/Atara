@@ -9,7 +9,7 @@ describe("createUserSchema", () => {
     expect(createUserSchema.parse({ ...base, password: "12345678" })).not.toHaveProperty("password");
   });
 
-  it("defaults new accounts to operator", () => {
+  it("defaults new accounts to preparator", () => {
     expect(createUserSchema.parse(base).role).toBe("PREPARATOR");
   });
 

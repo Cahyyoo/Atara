@@ -386,7 +386,7 @@ void main() {
   });
 
   group('the auto-load budget', () {
-    // The screen used to fetch for as long as the operator kept scrolling, so
+    // The screen used to fetch for as long as the preparator kept scrolling, so
     // one long drag could pull the whole ninety-day window onto the phone. These
     // pin the brake. Everything here drives the notifier directly: the budget is
     // policy and has nothing to do with pixels, and routing it through a drag
@@ -452,7 +452,7 @@ void main() {
       // `autoLoadAnchor == 0`, or only that nine more pages arrived, both pass
       // against the mutation that matters: leave the anchor at a stale ten while
       // loadedPages is back to one and the difference is minus nine, which is
-      // ALSO not paused -- so the operator silently gets nineteen free pages.
+      // ALSO not paused -- so the preparator silently gets nineteen free pages.
       expect(notifier.state.loadedPages, kScanHistoryAutoLoadPages);
       expect(notifier.state.isAutoLoadPaused, isTrue);
     });
@@ -526,7 +526,7 @@ void main() {
     test('a failed page stops the scroll trigger from retrying', () async {
       // Before this, loadMoreError stayed set while the list still had more, so
       // the next scroll frame retried against a network that had just failed --
-      // every frame, for as long as the operator stayed near the bottom.
+      // every frame, for as long as the preparator stayed near the bottom.
       final notifier = ScriptedHistory(
         {1: page(1, codes: ['A'])},
         failOn: 2,
@@ -545,7 +545,7 @@ void main() {
 
     test('the button still asks after a failure', () async {
       // The other half of the branch above: declining the automatic path must
-      // not also block the operator, because the footer's error branch is the
+      // not also block the preparator, because the footer's error branch is the
       // only way forward. ScriptedHistory records the request before it decides
       // to fail, so a second entry for page two is proof the explicit path was
       // not gated by loadMoreError.

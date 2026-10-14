@@ -17,7 +17,7 @@ import 'support/sample_fixtures.dart';
 
 /// The gap that let a red slab ship.
 ///
-/// `grep -rn "SampleDetailScreen" test/` was empty: the screen an operator
+/// `grep -rn "SampleDetailScreen" test/` was empty: the screen a preparator
 /// reaches by tapping any recorded row had no widget test at all, so nothing
 /// ever built it. That is the same gap documented at the top of
 /// scan_history_screen_test.dart, which is how an ErrorWidget once shipped on
@@ -215,7 +215,7 @@ void main() {
   testWidgets('a failed fetch today discards a good cached page',
       (tester) async {
     // Not a render error — a behaviour one, recorded here because it is the
-    // thing an operator loses by going offline. The cache puts a full page up,
+    // thing a preparator loses by going offline. The cache puts a full page up,
     // then the failed request replaces it with a full-screen error. The comment
     // on _fetch explains at length why pull-to-refresh must NOT empty the
     // screen; the error branch does not follow the same rule.

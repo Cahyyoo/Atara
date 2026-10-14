@@ -7,7 +7,7 @@ import '../services/settings_service.dart';
 /// The notices to show above Home, with the ones this reader closed removed.
 ///
 /// Never an error state and never a spinner: a banner is something extra on
-/// top of the screen an operator scans from, so a server that will not answer
+/// top of the screen a preparator scans from, so a server that will not answer
 /// costs an empty list and nothing else.
 class AnnouncementsNotifier extends StateNotifier<List<Announcement>> {
   AnnouncementsNotifier() : super(const []) {

@@ -26,7 +26,7 @@ void main() {
   // Still nothing awaited before the first frame. The date tables used to be
   // loaded here, which delayed every cold start; then they moved to first use,
   // which was worse in a way that took a profile to see — first use is inside
-  // the frame that paints the screen the operator just opened.
+  // the frame that paints the screen the preparator just opened.
   //
   // scheduleTask runs it in the gap between frames, and the scheduler skips it
   // while a frame is in flight. addPostFrameCallback would extend the current
@@ -53,10 +53,10 @@ class AtaraApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
-      // Following the system is still the default; Settings lets an operator
+      // Following the system is still the default; Settings lets a preparator
       // pin it when their phone is set one way and the shift wants the other.
       themeMode: themeMode,
-      // Null follows the device language; otherwise the operator's choice wins.
+      // Null follows the device language; otherwise the preparator's choice wins.
       locale: locale == null ? null : Locale(locale),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
@@ -146,7 +146,7 @@ class _ScanSyncScopeState extends ConsumerState<ScanSyncScope>
 /// Keeps asking whether this phone still holds the account, while it matters.
 ///
 /// Signed in and in the foreground: every thirty seconds, and at once on every
-/// return to the foreground — the moment an operator is most likely to be
+/// return to the foreground — the moment a preparator is most likely to be
 /// looking at a screen that is no longer theirs. Backgrounded or signed out:
 /// not at all, because nobody is looking and the battery is. See
 /// [SessionHeartbeat] for what happens with the answer, which is nothing here.
@@ -175,7 +175,7 @@ class _SessionHeartbeatScopeState extends ConsumerState<SessionHeartbeatScope>
     WidgetsBinding.instance.addObserver(this);
 
     // Null before the first lifecycle event, which on a cold start is the app
-    // coming up in front of the operator.
+    // coming up in front of the preparator.
     final lifecycle = WidgetsBinding.instance.lifecycleState;
     _heartbeat.foreground =
         lifecycle == null || lifecycle == AppLifecycleState.resumed;
@@ -224,7 +224,7 @@ class _SessionHeartbeatScopeState extends ConsumerState<SessionHeartbeatScope>
 ///
 /// A Stack, not a replacement: [AuthGate] has to be built from the first frame
 /// or the providers it watches are never constructed, the stored answers are
-/// not read until the splash leaves, and the operator gets a spinner
+/// not read until the splash leaves, and the preparator gets a spinner
 /// immediately afterwards. Underneath, the app settles while the mountain
 /// draws; by the time the splash fades there is a real screen behind it.
 class SplashGate extends StatefulWidget {
@@ -247,7 +247,7 @@ class _SplashGateState extends State<SplashGate> {
     //
     // Until now the only way off this screen was SplashScreen's controller
     // reaching `completed`. One unguarded 600ms promise stood between the
-    // operator and the app: if that controller never finished -- a muted
+    // preparator and the app: if that controller never finished -- a muted
     // ticker, a paused activity, anything -- the app was locked, forever,
     // behind a decoration. A Timer runs on the event loop rather than on
     // vsync, so it fires whether or not a single frame is ever scheduled.
@@ -303,7 +303,7 @@ class AuthGate extends ConsumerWidget {
     final session = ref.watch(sessionProvider);
 
     // The one spinner in the app, and the one state that can strand an
-    // operator on it. Both notifiers resolve inside a try/catch precisely so
+    // preparator on it. Both notifiers resolve inside a try/catch precisely so
     // that neither can sit here for ever; see SessionNotifier._restore and
     // OnboardingNotifier._load. Nesting two `.when`s would give each provider
     // its own `loading:` branch, and only one of them tends to keep that
@@ -316,7 +316,7 @@ class AuthGate extends ConsumerWidget {
 
     // A store that cannot be read cannot be written either, so treating a
     // failure as "not seen" would replay the guide on every single launch.
-    // Skipping it leaves the operator one screen away from work, which is the
+    // Skipping it leaves the preparator one screen away from work, which is the
     // same call the session makes when its own read fails.
     if (!(onboarding.valueOrNull ?? true)) {
       return const OnboardingScreen(isFirstRun: true);
@@ -332,7 +332,7 @@ class AuthGate extends ConsumerWidget {
     if (user == null) return const LoginScreen();
 
     // Signed in, but on a password an administrator chose -- the one every
-    // Operator is handed. The server refuses this session everything until it
+    // Preparator is handed. The server refuses this session everything until it
     // is replaced, so Home would only be a screen full of refusals.
     if (user.mustChangePassword) {
       return const ChangePasswordScreen(forced: true);

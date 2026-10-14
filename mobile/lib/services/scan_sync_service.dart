@@ -33,18 +33,18 @@ class ScanSyncService {
     var stoppedOffline = false;
 
     try {
-      // Only this operator's own work.
+      // Only this preparator's own work.
       //
-      // The queue outlives a sign-out, and the server takes the operator from
+      // The queue outlives a sign-out, and the server takes the preparator from
       // the session rather than from the body. So a handful of scans queued
-      // offline by one operator, drained after somebody else signs in on the
-      // same handset, were being filed as that second operator's work. The
+      // offline by one preparator, drained after somebody else signs in on the
+      // same handset, were being filed as that second preparator's work. The
       // scans are left in the queue for whoever actually made them.
-      final operatorId = (await SessionService.getUser())?.id;
-      final queue = await PendingScanService.getFor(operatorId);
+      final preparatorId = (await SessionService.getUser())?.id;
+      final queue = await PendingScanService.getFor(preparatorId);
 
       for (final PendingScan scan in queue) {
-        // Rejected scans wait for the operator, not for another attempt.
+        // Rejected scans wait for the preparator, not for another attempt.
         if (scan.hasFailed) continue;
 
         try {
@@ -65,13 +65,13 @@ class ScanSyncService {
             //
             // Treating a 401 as a refusal here would be the worst outcome: every
             // queued scan would be marked rejected because the token aged out,
-            // and the operator would have to sort real refusals from noise.
+            // and the preparator would have to sort real refusals from noise.
             stoppedOffline = true;
             break;
           }
           if (error.isAlreadyRecorded) {
             // A timeout counts as offline, so a scan the server had already
-            // saved was queued and sent again -- and then shown to the operator
+            // saved was queued and sent again -- and then shown to the preparator
             // as refused. The sample is where the scan meant to put it.
             await PendingScanService.remove(scan.id);
             synced++;
@@ -85,9 +85,9 @@ class ScanSyncService {
             break;
           }
           // The server answered and refused it — a stage-order clash, say, or
-          // a 403 because the account is no longer an operator. Surface it
+          // a 403 because the account is no longer a preparator. Surface it
           // instead of retrying forever; a 403 is final for every scan in the
-          // queue, and each is left for the operator to retry or discard.
+          // queue, and each is left for the preparator to retry or discard.
           await PendingScanService.markFailed(scan.id, error.message);
           rejected++;
         }

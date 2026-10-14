@@ -2,15 +2,15 @@
 ///
 /// Extracted so the one rule below cannot be applied on some paths and forgotten
 /// on others — the same reason `scan_gate.dart` exists. Two callers reach the
-/// scan endpoint: the update screen when the operator is online, and the queue
+/// scan endpoint: the update screen when the preparator is online, and the queue
 /// drain when a scan recorded offline finally goes out. A fix made only in the
 /// screen would leak straight back through every queued correction.
 ///
 /// **The rule: a correction does not carry field notes.** The server writes
-/// `notes = reason` whenever it treats a scan as a correction — an operator
+/// `notes = reason` whenever it treats a scan as a correction — a preparator
 /// sending `force` — so anything typed in Field Notes is discarded on its way
 /// into the database, with nothing said about it. It used to be sent anyway, so
-/// the operator watched their words vanish. Now they are not sent, and the screen
+/// the preparator watched their words vanish. Now they are not sent, and the screen
 /// says which field the server keeps.
 ///
 /// Merging the two was considered and rejected: `reason` is the audit sentence an

@@ -6,7 +6,7 @@ import '../theme/app_theme.dart';
 /// The release, in small print at the foot of Settings.
 ///
 /// There so a report from the floor ("it does this on my phone") can be tied
-/// to a build without the operator having to find it in the launcher.
+/// to a build without the preparator having to find it in the launcher.
 ///
 /// Read from the installed package rather than from a constant in the code:
 /// that is the number the phone itself was given, so the two cannot drift.

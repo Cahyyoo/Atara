@@ -94,11 +94,11 @@ describe("rejections", () => {
 });
 
 /**
- * The operator's override. Moving samples is the operator's job, so the
+ * The preparator's override. Moving samples is the preparator's job, so the
  * correction that steps one back or past a stage is theirs too -- with a
  * reason, and flagged as a correction in the trail.
  */
-describe("operator override", () => {
+describe("preparator override", () => {
   it("requires a reason", () => {
     const result = evaluate({
       currentOrder: 3,

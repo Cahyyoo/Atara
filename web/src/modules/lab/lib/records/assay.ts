@@ -1,6 +1,6 @@
 /**
  * The assay parameters stored for every sample, in the order the instrument
- * reports them — which is also the column order of the sheet operators paste
+ * reports them — which is also the column order of the sheet preparators paste
  * from. Shared by the table, the edit dialog, the paste mapper and both exports.
  */
 export type AssayField =

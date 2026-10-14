@@ -4,7 +4,7 @@ import '../theme/app_theme.dart';
 
 /// A sample code, set the one way it is set everywhere.
 ///
-/// The operator compares these against a printed label character by character,
+/// The preparator compares these against a printed label character by character,
 /// so the face is monospaced and the letters never run together.
 class SampleCodeText extends StatelessWidget {
   const SampleCodeText(this.code, {super.key, this.style, this.large = false});

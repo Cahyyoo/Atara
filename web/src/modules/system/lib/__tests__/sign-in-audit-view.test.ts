@@ -241,7 +241,7 @@ describe("each trail on its own page", () => {
    * The stage trail is the lab admin's (/lab/activity), the sign-in trail the
    * super admin's (/admin/sign-ins). They used to be tabs of one component,
    * which tied the lab module to the system module; now each page renders its
-   * own table, and the super admin's menu -- which no operator sees -- links
+   * own table, and the super admin's menu -- which no preparator sees -- links
    * the sign-in one.
    */
   it("renders one table each, from its own module", () => {

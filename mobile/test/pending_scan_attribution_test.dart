@@ -6,21 +6,21 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:atara/models/pending_scan.dart';
 import 'package:atara/services/pending_scan_service.dart';
 
-/// The queue outlives a sign-out, and the server takes the operator from the
+/// The queue outlives a sign-out, and the server takes the preparator from the
 /// session rather than from the request body. So scans queued offline by one
-/// operator and drained after someone else signs in on the same handset were
-/// being filed as that second operator's work.
+/// preparator and drained after someone else signs in on the same handset were
+/// being filed as that second preparator's work.
 ///
 /// Nothing showed it, because the app only ever displayed the current shift.
 /// A dated history is the first screen that would.
 
-PendingScan scan(String id, {String? operatorId}) => PendingScan(
+PendingScan scan(String id, {String? preparatorId}) => PendingScan(
       id: id,
       sampleCode: 'SMPL-2026-$id',
       stageId: 'stage-1',
       stageName: 'PREP BASAH',
       queuedAt: DateTime.utc(2026, 9, 22, 10),
-      operatorId: operatorId,
+      preparatorId: preparatorId,
     );
 
 Future<void> seed(List<PendingScan> scans) async {
@@ -33,41 +33,41 @@ Future<void> seed(List<PendingScan> scans) async {
 void main() {
   tearDown(SharedPreferences.resetStatic);
 
-  test('a queue is read back as the operator who made it', () async {
+  test('a queue is read back as the preparator who made it', () async {
     await seed([
-      scan('00001', operatorId: 'operator-a'),
-      scan('00002', operatorId: 'operator-b'),
-      scan('00003', operatorId: 'operator-a'),
+      scan('00001', preparatorId: 'preparator-a'),
+      scan('00002', preparatorId: 'preparator-b'),
+      scan('00003', preparatorId: 'preparator-a'),
     ]);
 
-    final mine = await PendingScanService.getFor('operator-a');
+    final mine = await PendingScanService.getFor('preparator-a');
 
     expect(mine.map((s) => s.id), ['00001', '00003']);
   });
 
-  test('scans queued before operators were recorded still go out', () async {
+  test('scans queued before preparators were recorded still go out', () async {
     // There is no way to find out who queued these, and losing a scan is worse
     // than crediting it to whoever is signed in — which is what was already
     // happening to every scan before this change.
     await seed([
       scan('00001'),
-      scan('00002', operatorId: 'operator-b'),
+      scan('00002', preparatorId: 'preparator-b'),
     ]);
 
-    final mine = await PendingScanService.getFor('operator-a');
+    final mine = await PendingScanService.getFor('preparator-a');
 
     expect(mine.map((s) => s.id), ['00001']);
   });
 
   test('a signed-out drain still carries the unattributed ones', () async {
-    await seed([scan('00001'), scan('00002', operatorId: 'operator-a')]);
+    await seed([scan('00001'), scan('00002', preparatorId: 'preparator-a')]);
 
     final anonymous = await PendingScanService.getFor(null);
 
     expect(anonymous.map((s) => s.id), ['00001']);
   });
 
-  group('writing one operator scan leaves the others alone', () {
+  group('writing one preparator scan leaves the others alone', () {
     // The hazard the filtered read was kept out of getAll() for: every writer
     // below reads the whole list, changes one entry and writes it back. A
     // filter inside getAll() would silently delete every other account's
@@ -75,8 +75,8 @@ void main() {
 
     test('removing', () async {
       await seed([
-        scan('00001', operatorId: 'operator-a'),
-        scan('00002', operatorId: 'operator-b'),
+        scan('00001', preparatorId: 'preparator-a'),
+        scan('00002', preparatorId: 'preparator-b'),
       ]);
 
       await PendingScanService.remove('00001');
@@ -87,34 +87,34 @@ void main() {
 
     test('marking failed', () async {
       await seed([
-        scan('00001', operatorId: 'operator-a'),
-        scan('00002', operatorId: 'operator-b'),
+        scan('00001', preparatorId: 'preparator-a'),
+        scan('00002', preparatorId: 'preparator-b'),
       ]);
 
       await PendingScanService.markFailed('00001', 'Out of stage order');
 
       final all = await PendingScanService.getAll();
       expect(all.length, 2);
-      expect(all.firstWhere((s) => s.id == '00002').operatorId, 'operator-b');
+      expect(all.firstWhere((s) => s.id == '00002').preparatorId, 'preparator-b');
     });
 
     test('queueing another', () async {
-      await seed([scan('00001', operatorId: 'operator-b')]);
+      await seed([scan('00001', preparatorId: 'preparator-b')]);
 
-      await PendingScanService.add(scan('00002', operatorId: 'operator-a'));
+      await PendingScanService.add(scan('00002', preparatorId: 'preparator-a'));
 
       final all = await PendingScanService.getAll();
-      expect(all.map((s) => s.operatorId), ['operator-b', 'operator-a']);
+      expect(all.map((s) => s.preparatorId), ['preparator-b', 'preparator-a']);
     });
   });
 
-  test('the operator survives a round trip, and an old entry reads as null',
+  test('the preparator survives a round trip, and an old entry reads as null',
       () async {
     final stamped = PendingScan.fromJson(
-      jsonDecode(jsonEncode(scan('00001', operatorId: 'operator-a').toJson()))
+      jsonDecode(jsonEncode(scan('00001', preparatorId: 'preparator-a').toJson()))
           as Map<String, dynamic>,
     );
-    expect(stamped.operatorId, 'operator-a');
+    expect(stamped.preparatorId, 'preparator-a');
 
     // What a build before this change wrote: the key is simply absent.
     final legacy = PendingScan.fromJson({
@@ -124,16 +124,16 @@ void main() {
       'stageName': 'PREP BASAH',
       'queuedAt': DateTime.utc(2026, 9, 22, 10).toIso8601String(),
     });
-    expect(legacy.operatorId, isNull);
+    expect(legacy.preparatorId, isNull);
   });
 
-  test('a failure marker does not drop the operator', () async {
+  test('a failure marker does not drop the preparator', () async {
     // copyWith rebuilds the whole object; forgetting a field there would
     // un-attribute a scan the moment the server refused it.
-    final refused = scan('00001', operatorId: 'operator-a')
+    final refused = scan('00001', preparatorId: 'preparator-a')
         .copyWith(failureReason: 'Out of stage order');
 
-    expect(refused.operatorId, 'operator-a');
-    expect(refused.copyWith(clearFailure: true).operatorId, 'operator-a');
+    expect(refused.preparatorId, 'preparator-a');
+    expect(refused.copyWith(clearFailure: true).preparatorId, 'preparator-a');
   });
 }

@@ -9,7 +9,7 @@ import 'package:atara/screens/onboarding_screen.dart';
 import 'package:atara/services/settings_service.dart';
 import 'package:atara/theme/app_theme.dart';
 
-/// The welcome, then the four things an operator has to know.
+/// The welcome, then the four things a preparator has to know.
 ///
 /// Named so that adding a sixth page breaks one line rather than four loops.
 const int kGuidePages = 5;
@@ -109,7 +109,7 @@ void main() {
     expect(await SettingsService.getOnboardingSeen(), isTrue);
   });
 
-  testWidgets('announces where in the guide the operator is', (tester) async {
+  testWidgets('announces where in the guide the preparator is', (tester) async {
     await pumpGuide(tester);
 
     // The dots carry no text, so the position has to be said outright.

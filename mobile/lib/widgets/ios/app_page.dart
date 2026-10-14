@@ -5,7 +5,7 @@ import '../../theme/app_theme.dart';
 /// A screen with an iOS large title that shrinks into the bar as it scrolls.
 ///
 /// The collapsing title is the most recognisable piece of iOS chrome, and it
-/// earns its place here: the title is large and legible while the operator is
+/// earns its place here: the title is large and legible while the preparator is
 /// orienting, then gets out of the way once they are reading rows.
 ///
 /// [slivers] takes the page body. Use [AppPage.list] for the common case of a
@@ -103,7 +103,7 @@ class AppPage extends StatelessWidget {
 }
 
 /// A screen with a plain, non-collapsing bar — for pages pushed on top of
-/// another, where a large title would restate what the operator just tapped.
+/// another, where a large title would restate what the preparator just tapped.
 class AppModalPage extends StatelessWidget {
   const AppModalPage({
     super.key,

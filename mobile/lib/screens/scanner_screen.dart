@@ -48,12 +48,12 @@ class _ScannerScreenState extends State<ScannerScreen> {
   bool _hasHandledCode = false;
 
   /// The code most recently opened, kept so the camera does not reopen it the
-  /// instant it restarts. Cleared when the operator asks for it deliberately.
+  /// instant it restarts. Cleared when the preparator asks for it deliberately.
   String? _lastHandledCode;
 
   /// Set when the camera cannot start at all — almost always a refused
   /// permission. Without this the screen was simply black, with nothing said
-  /// and nothing to do: the operator could not tell a denied permission from a
+  /// and nothing to do: the preparator could not tell a denied permission from a
   /// broken app.
   bool _cameraUnavailable = false;
 
@@ -64,7 +64,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
   bool _continuous = false;
 
   /// How many stages have been recorded without leaving this screen, so the
-  /// operator can see progress without stopping to check Home.
+  /// preparator can see progress without stopping to check Home.
   int _recorded = 0;
 
   @override
@@ -121,7 +121,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
   }
 
   /// Shared by both routes in: pause the camera, hand the code over, and come
-  /// back to a live scanner if the operator did not complete the update.
+  /// back to a live scanner if the preparator did not complete the update.
   Future<void> _openSample(String sampleCode) async {
     _lastHandledCode = sampleCode;
     await _controller.stop();
@@ -270,7 +270,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                 // the 312 available on a 360dp phone, and neither could shrink
                 // — so this overflowed the moment the second one was added, and
                 // shipped as yellow-and-black stripes over the camera feed. The
-                // labels are longest in the state the operator sees first.
+                // labels are longest in the state the preparator sees first.
                 Wrap(
                   alignment: WrapAlignment.center,
                   spacing: AppSpacing.sm,
@@ -305,7 +305,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
     );
   }
 
-  /// No camera, but the operator is still standing in front of a sample — so
+  /// No camera, but the preparator is still standing in front of a sample — so
   /// the way in by hand is offered rather than leaving them stuck.
   Widget _buildUnavailable(AppLocalizations l10n) {
     return AppModalPage(
@@ -395,7 +395,7 @@ class _CameraAction extends StatelessWidget {
 
 /// The target area, drawn as four corner brackets rather than a closed square.
 ///
-/// The square read as a frame the label had to fit inside, which made operators
+/// The square read as a frame the label had to fit inside, which made preparators
 /// back away from small labels until the code was too small to decode. Brackets
 /// say "aim here" without implying a size.
 class _Viewfinder extends StatelessWidget {

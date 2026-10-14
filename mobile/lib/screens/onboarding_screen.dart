@@ -12,7 +12,7 @@ import '../widgets/hero_tile.dart';
 import '../widgets/ios/app_page.dart';
 import '../widgets/ios/ios_button.dart';
 
-/// A welcome, then the four things an operator has to know before their first
+/// A welcome, then the four things a preparator has to know before their first
 /// shift.
 ///
 /// Three of those four are invisible until they bite: that a damaged label can
@@ -444,7 +444,7 @@ class _Rise extends AnimatedWidget {
   }
 }
 
-/// Where the operator is in the guide, and how much is left.
+/// Where the preparator is in the guide, and how much is left.
 ///
 /// Drawn rather than depended on: every package that does this brings a
 /// transitive tree for five dots, and this app keeps its dependency list to the

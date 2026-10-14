@@ -53,10 +53,10 @@ async function main() {
 
   const users = await prisma.user.findMany();
   const admin = users.find((user) => user.role === "ADMIN");
-  const operators = users.filter((user) => user.role === "PREPARATOR");
+  const preparators = users.filter((user) => user.role === "PREPARATOR");
   // Who enters the results, and who types in the identity and the weighing.
-  if (!admin || operators.length === 0) {
-    throw new Error("Admin/operator users are missing. Run `npm run db:seed` first.");
+  if (!admin || preparators.length === 0) {
+    throw new Error("Admin/preparator users are missing. Run `npm run db:seed` first.");
   }
   const analyst = users.find((user) => user.role === "ANALISIS") ?? admin;
   const database = users.find((user) => user.role === "DATABASE") ?? admin;
@@ -203,7 +203,7 @@ async function main() {
                     ...(weighed ? dummyWeights(rng) : {}),
                     ...results,
                     updatedById: analysed ? analyst.id : database.id,
-                    // Whoever entered the results, so the form names its operator.
+                    // Whoever entered the results, so the form names its preparator.
                     ...(analysed
                       ? {
                           audits: {
@@ -220,7 +220,7 @@ async function main() {
                 logs: {
                   create: Array.from({ length: Math.max(0, reachedIndex + 1) }, (_, step) => ({
                     stageId: stages[step].id,
-                    operatorId: pick(operators).id,
+                    preparatorId: pick(preparators).id,
                     scannedAt: new Date(arrivedAt.getTime() + (step + 1) * 2 * HOUR_MS),
                     notes: null,
                   })),

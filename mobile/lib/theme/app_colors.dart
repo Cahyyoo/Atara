@@ -34,7 +34,7 @@ class ToneColors {
 /// The web app's palette, in both appearances.
 ///
 /// These are `web/src/app/globals.css` converted from OKLCH to sRGB, not
-/// approximations of it. The two apps are one product and an operator moves
+/// approximations of it. The two apps are one product and a preparator moves
 /// between them during a shift, so the teal that means "this is Atara" has to
 /// be the same teal in both — a near miss reads as a different app, or as a
 /// rendering fault.

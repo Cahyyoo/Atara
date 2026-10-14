@@ -26,7 +26,7 @@ class WorkSummaryCacheService {
     }
   }
 
-  /// Signing out must not leave one operator's tally on screen for the next.
+  /// Signing out must not leave one preparator's tally on screen for the next.
   static Future<void> clear() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_key);

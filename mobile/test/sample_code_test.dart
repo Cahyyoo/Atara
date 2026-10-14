@@ -17,7 +17,7 @@ void main() {
       expect(normaliseSampleCode('smpl 2026 00031'), 'SMPL-2026-00031');
     });
 
-    test('pads a sequence the operator read off the label without its zeroes', () {
+    test('pads a sequence the preparator read off the label without its zeroes', () {
       expect(normaliseSampleCode('SMPL-2026-31'), 'SMPL-2026-00031');
       expect(normaliseSampleCode('SMPL-2026-1'), 'SMPL-2026-00001');
       expect(normaliseSampleCode('smpl-2026-431'), 'SMPL-2026-00431');
@@ -43,7 +43,7 @@ void main() {
 
     test('tidies the old NKL prefix exactly as readily', () {
       // Those labels are stuck to containers already out in the field. An
-      // operator reading one off a bucket has to be able to type it in.
+      // preparator reading one off a bucket has to be able to type it in.
       expect(normaliseSampleCode('NKL-2026-00031'), 'NKL-2026-00031');
       expect(normaliseSampleCode('nkl-2026-31'), 'NKL-2026-00031');
       expect(normaliseSampleCode('nkl 2026 00031'), 'NKL-2026-00031');

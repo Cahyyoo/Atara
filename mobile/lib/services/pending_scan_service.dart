@@ -8,7 +8,7 @@ import '../models/pending_scan.dart';
 ///
 /// Unlike the scan history, which is a receipt of what already succeeded, this
 /// is work still owed to the server. Nothing is ever removed without either
-/// succeeding or the operator explicitly discarding it.
+/// succeeding or the preparator explicitly discarding it.
 class PendingScanService {
   static const _key = 'atara_pending_scans';
 
@@ -55,7 +55,7 @@ class PendingScanService {
 
   /// The tail of the queue of changes. Every writer reads the whole list,
   /// changes one entry and writes it all back; two of them interleaved -- the
-  /// drain removing a sent scan while the operator queues a new one -- and the
+  /// drain removing a sent scan while the preparator queues a new one -- and the
   /// later write put back a list without the other's change, so a freshly
   /// queued scan could vanish. Changes now run one after another.
   static Future<void> _tail = Future<void>.value();
@@ -66,18 +66,18 @@ class PendingScanService {
     return run;
   }
 
-  /// The queue as it belongs to one operator.
+  /// The queue as it belongs to one preparator.
   ///
   /// Deliberately not a filter inside [getAll]: the writers below read the
   /// whole list, change one entry and write it back, so a filtered read there
   /// would delete every other account's queued work on the next save.
   ///
-  /// Entries with no operator were queued by a build that did not record one.
-  /// They are included rather than orphaned — see [PendingScan.operatorId].
-  static Future<List<PendingScan>> getFor(String? operatorId) async {
+  /// Entries with no preparator were queued by a build that did not record one.
+  /// They are included rather than orphaned — see [PendingScan.preparatorId].
+  static Future<List<PendingScan>> getFor(String? preparatorId) async {
     final scans = await getAll();
     return scans
-        .where((scan) => scan.operatorId == null || scan.operatorId == operatorId)
+        .where((scan) => scan.preparatorId == null || scan.preparatorId == preparatorId)
         .toList();
   }
 

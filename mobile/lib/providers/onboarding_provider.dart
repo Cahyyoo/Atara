@@ -6,7 +6,7 @@ import '../services/settings_service.dart';
 ///
 /// An [AsyncValue] rather than a plain bool, because the two states a bool
 /// cannot tell apart are the two that matter here: starting at false would
-/// flash the guide at a returning operator for a frame, and starting at true
+/// flash the guide at a returning preparator for a frame, and starting at true
 /// would skip it for a new one. [LocaleNotifier] gets away with a plain value
 /// because null there is a real answer — "follow the device" — rather than
 /// "not asked yet".

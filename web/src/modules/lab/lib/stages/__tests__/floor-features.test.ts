@@ -128,7 +128,7 @@ describe.skipIf(!reachable)("against the database", () => {
     const moved = await applyStageMove({ sample: row, decision, userId: created.user, notes: "Test correction" });
     expect(moved.currentStageId).toBe(third.id);
     const log = await prisma.sampleLog.findFirst({ where: { sampleId: row.id } });
-    expect(log).toMatchObject({ isCorrection: true, notes: "Test correction", operatorId: created.user });
+    expect(log).toMatchObject({ isCorrection: true, notes: "Test correction", preparatorId: created.user });
 
     // The same move again from the stage it was read on: somebody else won.
     await expect(

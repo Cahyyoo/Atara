@@ -11,7 +11,7 @@
 export interface TimelineLog {
   stageId: string;
   scannedAt: Date;
-  operator: string | null;
+  preparator: string | null;
 }
 
 export interface StageVisit {
@@ -42,7 +42,7 @@ export function stageTimeline(
     visits.set(log.stageId, {
       at: log.scannedAt,
       hours: end ? Math.round(((end.getTime() - log.scannedAt.getTime()) / HOUR_MS) * 100) / 100 : null,
-      by: log.operator,
+      by: log.preparator,
     });
   });
   return visits;

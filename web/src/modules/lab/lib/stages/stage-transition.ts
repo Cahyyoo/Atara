@@ -18,7 +18,7 @@ export interface StageTransitionInput {
   currentOrder: number;
   targetStageId: string;
   role: Role;
-  /** Roles with `overrideStage` only (operators): skip the ordering rules. */
+  /** Roles with `overrideStage` only (preparators): skip the ordering rules. */
   force?: boolean;
   reason?: string | null;
   /**

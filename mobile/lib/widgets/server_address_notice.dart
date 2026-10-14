@@ -7,7 +7,7 @@ import '../theme/app_theme.dart';
 ///
 /// The sign-in screen and the update screen each grew their own copy of this,
 /// differing only in the shade of red. It belongs in one place: a wrong address
-/// reads as "the network is down" on every screen, so the operator has nothing
+/// reads as "the network is down" on every screen, so the preparator has nothing
 /// to act on unless the address itself is put in front of them.
 class ServerAddressNotice extends StatelessWidget {
   const ServerAddressNotice({
