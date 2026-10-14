@@ -13,6 +13,8 @@ import { cn } from "@/core/lib/utils";
 import type { ImportPreviewDTO, ImportPreviewRow } from "@/modules/lab/types";
 import { PREVIEW_ROW_LIMIT, labelFor } from "@/modules/lab/components/shared/paste-preview";
 import { formatValue } from "@/modules/lab/components/assay/paste-import-utils";
+import { DuplicateBanner } from "@/modules/lab/components/assay/duplicate-alert";
+import { duplicateGroups } from "@/modules/lab/lib/records/assay-duplicates";
 
 interface PasteImportPreviewProps {
   summary: ImportPreviewDTO["summary"];
@@ -34,9 +36,17 @@ export function PasteImportPreview({ summary, rows, problemsOnly, onProblemsOnly
     invalid: t("status.invalid"),
   };
   const problems = summary.invalid + summary.unknown + (summary.duplicate ?? 0);
+  const duplicates = duplicateGroups(
+    rows.flatMap((row) =>
+      row.duplicateLines || row.duplicateOf
+        ? [{ row: row.line, label: row.labCode, lines: row.duplicateLines, samples: row.duplicateOf }]
+        : []
+    )
+  );
 
   return (
     <>
+      <DuplicateBanner groups={duplicates} />
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <span className="rounded-md bg-muted px-2.5 py-1">{t("rowsRead", { count: summary.total })}</span>
         <span className="rounded-md bg-primary/10 px-2.5 py-1 font-medium text-primary">
@@ -120,6 +130,11 @@ export function PasteImportPreview({ summary, rows, problemsOnly, onProblemsOnly
                   )}
                 >
                   {statusLabel[row.status]}
+                  {row.duplicateLines || row.duplicateOf ? (
+                    <span className="ml-2 rounded-full bg-amber-400/90 px-1.5 text-[10px] leading-4 font-semibold text-amber-950">
+                      {t("duplicateBadge")}
+                    </span>
+                  ) : null}
                   {row.subCode ? (
                     <span className="block text-xs text-muted-foreground">{t("subOf", { code: row.subCode })}</span>
                   ) : null}

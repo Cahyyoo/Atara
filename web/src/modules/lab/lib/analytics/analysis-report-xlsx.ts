@@ -1,6 +1,7 @@
 import ExcelJS from "exceljs";
 import { REPORT_DOCUMENT, averagedRows, mean, type ReportRecord, type ReportSheet } from "@/modules/lab/lib/analytics/analysis-report";
 import { placeImageInBox, pngSize, type ImageSize } from "@/core/lib/sheets/xlsx-brand";
+import { ASSAY_FIELDS } from "@/modules/lab/lib/records/assay";
 
 /**
  * Writes the FORMULIR ANALYSIS RESULT workbook: the lab's own form, one sheet
@@ -56,9 +57,16 @@ const DATE_TIME = "d-mmm-yy hh:mm";
 
 /** Three places where the form prints three, two elsewhere. */
 const THREE_PLACES = new Set(["co", "cao"]);
+/** The measured results, as against the figures worked out from them. */
+const ASSAY_KEY_SET = new Set<string>(ASSAY_FIELDS.map((field) => field.key));
 
 function numberFormat(column: ReportColumn): string | undefined {
-  if (column.band === "results") return THREE_PLACES.has(column.key) ? "0.000" : "0.00";
+  if (column.band === "results") {
+    const places = THREE_PLACES.has(column.key) ? "0.000" : "0.00";
+    // A measured result keeps any further places it was given (Zn 0.0303);
+    // a worked-out figure (SM ratio, MC) stays at the form's own.
+    return ASSAY_KEY_SET.has(column.key) ? places.padEnd(12, "#") : places;
+  }
   if (column.band === "mc") return column.key === "mcDate" ? DATE_TIME : "0.0";
   if (column.key === "leadTime") return "0.0";
   return undefined;

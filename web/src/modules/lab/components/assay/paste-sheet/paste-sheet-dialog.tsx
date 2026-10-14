@@ -7,6 +7,7 @@ import { InlineNotice } from "@/core/components/ui/inline-notice";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/core/components/ui/dialog";
 import { ResultsColumnPicker } from "@/modules/lab/components/assay/results-column-picker";
 import { PasteImportSaveBar } from "@/modules/lab/components/assay/paste-import-save-bar";
+import { DuplicateBanner, DuplicateConfirmDialog } from "@/modules/lab/components/assay/duplicate-alert";
 import { numberProblem } from "@/modules/lab/components/assay/results-grid";
 import { SheetGrid, type CellCheck, type SheetColumn } from "@/modules/lab/components/assay/paste-sheet/sheet-grid";
 import { SheetSummary } from "@/modules/lab/components/assay/paste-sheet/sheet-status";
@@ -105,6 +106,15 @@ export function PasteSheetDialog({
   }, [open, ready]);
 
   const { filled, checked } = sheet.progress;
+  const hasDuplicates = (sheet.summary?.duplicate ?? 0) > 0;
+
+  /** From the banner to the row: scrolled into view, its Sample ID box focused. */
+  function goToRow(row: number) {
+    sheet.virtual.scrollToRow(row - 1);
+    requestAnimationFrame(() =>
+      document.querySelector<HTMLInputElement>(`[data-cell-row="${row - 1}"][data-cell-col="0"]`)?.focus()
+    );
+  }
 
   return (
     <Dialog
@@ -158,6 +168,8 @@ export function PasteSheetDialog({
           </p>
         ) : null}
 
+        <DuplicateBanner groups={sheet.duplicates} onGoToRow={goToRow} />
+
         <div className="relative flex min-h-0 flex-1 flex-col">
           {ready ? (
             <SheetGrid
@@ -194,7 +206,8 @@ export function PasteSheetDialog({
             <PasteImportSaveBar
               summary={sheet.summary}
               writes={sheet.writes}
-              confirmOverwrite={sheet.confirmOverwrite}
+              // Look-alikes are asked about in the dialog below, with the list.
+              confirmOverwrite={sheet.confirmOverwrite && !hasDuplicates}
               isSaving={sheet.isSaving}
               canSave={sheet.canSave}
               onCancelOverwrite={() => sheet.setConfirmOverwrite(false)}
@@ -203,6 +216,14 @@ export function PasteSheetDialog({
             />
           ) : null}
         </div>
+        <DuplicateConfirmDialog
+          open={sheet.confirmOverwrite && hasDuplicates}
+          groups={sheet.duplicates}
+          overwriteCount={sheet.summary?.overwrite ?? 0}
+          busy={sheet.isSaving}
+          onCancel={() => sheet.setConfirmOverwrite(false)}
+          onConfirm={() => void sheet.save(true)}
+        />
       </DialogContent>
     </Dialog>
   );

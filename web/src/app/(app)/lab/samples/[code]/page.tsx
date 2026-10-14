@@ -16,7 +16,7 @@ import type { LabRecordAuditDTO, SampleListItemDTO } from "@/modules/lab/types";
 import { stageLabel } from "@/modules/lab/lib/stages/stages";
 import Link from "next/link";
 import { subSamplePath } from "@/modules/lab/lib/samples/sample-ident";
-import { ASSAY_FIELDS } from "@/modules/lab/lib/records/assay";
+import { ASSAY_FIELDS, formatAssayValue } from "@/modules/lab/lib/records/assay";
 import { IoCalendarOutline, IoHourglassOutline, IoLayersOutline, IoPersonOutline } from "react-icons/io5";
 import { leadTimeHours, stageMoments } from "@/modules/lab/lib/records/mc";
 
@@ -246,7 +246,7 @@ export default async function SampleDetailPage({
                       const value = sub[key];
                       return (
                         <span key={key}>
-                          {field.shortLabel} {value === null ? "—" : Number(value).toFixed(3)}
+                          {field.shortLabel} {value === null ? "—" : formatAssayValue(Number(value), 3)}
                         </span>
                       );
                     })}

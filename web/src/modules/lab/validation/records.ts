@@ -1,5 +1,6 @@
 /** Input schemas for lab records: results, weights, the record list, history and imports. */
 import { z } from "zod";
+import { MAX_ASSAY_DECIMALS, fitsAssayDecimals } from "@/modules/lab/lib/records/assay";
 import { identityFieldsShape } from "@/modules/lab/validation/samples";
 
 /**
@@ -10,10 +11,14 @@ import { identityFieldsShape } from "@/modules/lab/validation/samples";
 export const SUB_FILTERS = ["parents", "all", "subs"] as const;
 export type SubFilter = (typeof SUB_FILTERS)[number];
 
+const TOO_PRECISE = `At most ${MAX_ASSAY_DECIMALS} decimal places.`;
+
 const percentageSchema = z.coerce
   .number()
   .min(0, "Value cannot be negative.")
   .max(100, "Percentage cannot exceed 100.")
+  // The column would round an eleventh decimal away without a word.
+  .refine(fitsAssayDecimals, TOO_PRECISE)
   .nullable()
   .optional();
 
@@ -37,7 +42,7 @@ export const updateLabRecordSchema = z.object({
   zn: percentageSchema,
   // The instrument's own total. Not a percentage of anything, so it is allowed
   // past 100 rather than being rejected when a run reports an odd figure.
-  sum: z.coerce.number().min(0).max(1000).nullable().optional(),
+  sum: z.coerce.number().min(0).max(1000).refine(fitsAssayDecimals, TOO_PRECISE).nullable().optional(),
   measurementMethod: z.string().trim().max(191).nullable().optional(),
   solutionId: z.string().trim().max(191).nullable().optional(),
   measurementFinished: z.coerce.date().nullable().optional(),

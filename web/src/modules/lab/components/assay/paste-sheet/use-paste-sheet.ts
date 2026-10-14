@@ -20,6 +20,7 @@ import { readClipboardBlock, rangeToTsv, spreadPaste } from "@/modules/lab/lib/r
 import { withBasePath } from "@/core/lib/http/base-path";
 import type { ApiResult } from "@/core/types";
 import type { ImportPreviewDTO } from "@/modules/lab/types";
+import { duplicateGroups } from "@/modules/lab/lib/records/assay-duplicates";
 
 export const SHEET_ROW_HEIGHT = 36;
 const KNOWN = ["sampleIdent", ...ALL_COLUMNS];
@@ -79,6 +80,21 @@ export function usePasteSheet(onApplied: (count: number) => void) {
   });
 
   const summary = check.progress.summary;
+  // Every flagged row, grouped for the banner and the confirmation.
+  const { duplicatesFor, verdictFor } = check;
+  const duplicates = useMemo(
+    () =>
+      duplicateGroups(
+        rows.flatMap((row, index) => {
+          const lines = duplicatesFor(row);
+          const samples = verdictFor(row)?.duplicateOf;
+          return lines?.length || samples?.length
+            ? [{ row: index + 1, label: (row.sampleIdent ?? "").trim(), lines, samples }]
+            : [];
+        })
+      ),
+    [rows, duplicatesFor, verdictFor]
+  );
   const writes = summary ? summary.update + summary.create : 0;
   const canSave = summary !== null && writes > 0 && summary.invalid === 0 && !check.isChecking && !isSaving;
   const error = check.error ?? (saveFailure && saveFailure.rows === rows ? saveFailure.message : null);
@@ -216,6 +232,7 @@ export function usePasteSheet(onApplied: (count: number) => void) {
     rows,
     verdictFor: check.verdictFor,
     duplicatesFor: check.duplicatesFor,
+    duplicates,
     progress: check.progress,
     summary,
     writes,

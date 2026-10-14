@@ -48,6 +48,9 @@ const GRID_FOR_COUNT: Record<number, string> = {
 
 export function KpiCards({ kpi, rangeLabel, keys = KPI_KEYS }: KpiCardsProps) {
   const t = useTranslations("dashboard.kpi");
+  // Of the samples the lab has actually received: a barcode printed ahead and
+  // never scanned is not work the lab has, nor work it has not finished.
+  const received = kpi.inProgress + kpi.completed;
 
   const all = {
     samples: {
@@ -70,9 +73,7 @@ export function KpiCards({ kpi, rangeLabel, keys = KPI_KEYS }: KpiCardsProps) {
       value: kpi.completed,
       format: formatCount,
       hint:
-        kpi.total > 0
-          ? t("completedHint", { percent: Math.round((kpi.completed / kpi.total) * 100) })
-          : undefined,
+        received > 0 ? t("completedHint", { percent: Math.round((kpi.completed / received) * 100) }) : undefined,
       icon: IoCheckmarkCircleOutline,
       accent: "text-emerald-600 bg-emerald-100 dark:bg-emerald-500/15",
     },

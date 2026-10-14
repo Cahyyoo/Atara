@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useFormatter, useTranslations } from "next-intl";
-import { ASSAY_FIELDS } from "@/modules/lab/lib/records/assay";
+import { ASSAY_FIELDS, formatAssayValue } from "@/modules/lab/lib/records/assay";
 import { RESULT_KEYS } from "@/modules/lab/lib/records/overwrite";
 import { formatWitaDateTime } from "@/core/lib/wita-time";
 import { subSamplePath, samplePath } from "@/modules/lab/lib/samples/sample-ident";
@@ -31,11 +31,11 @@ function isAssay(key: string): boolean {
   return ASSAY_FIELDS.some((field) => field.key === key);
 }
 
-/** Assays to three places, as everywhere; counts as whole numbers; times on the lab's clock. */
+/** Assays to three places or more, as stored; counts as whole numbers; times on the lab's clock. */
 function formatValue(key: string, value: number | string | null): string {
   if (value === null || value === "") return "—";
   if (key === "measurementFinished") return formatWitaDateTime(String(value)) ?? String(value);
-  if (typeof value === "number" && isAssay(key)) return value.toFixed(3);
+  if (typeof value === "number" && isAssay(key)) return formatAssayValue(value, 3);
   return String(value);
 }
 

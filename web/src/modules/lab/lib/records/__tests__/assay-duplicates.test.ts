@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { assayKey, assayWhere, groupDuplicates } from "@/modules/lab/lib/records/assay-duplicates";
+import { assayKey, assayWhere, duplicateGroups, groupDuplicates } from "@/modules/lab/lib/records/assay-duplicates";
 
 describe("assayKey", () => {
-  it("reads results the way they are stored, to three decimals", () => {
-    expect(assayKey({ ni: 1.86, fe: "44.4" })).toBe(assayKey({ ni: "1.860", fe: 44.4004 }));
+  it("reads results the way they are stored, to ten decimals", () => {
+    expect(assayKey({ ni: 1.86, fe: "44.4" })).toBe(assayKey({ ni: "1.8600", fe: 44.40000000001 }));
+    expect(assayKey({ zn: 0.0303 })).not.toBe(assayKey({ zn: 0.03 }));
     expect(assayKey({ ni: 1.86 })).not.toBe(assayKey({ ni: 1.861 }));
   });
 
@@ -20,7 +21,7 @@ describe("assayKey", () => {
 describe("assayWhere", () => {
   it("asks for every result, empty ones as empty", () => {
     const where = assayWhere({ ni: "1.8604" });
-    expect(where.ni).toBe(1.86);
+    expect(where.ni).toBe(1.8604);
     expect(where.fe).toBeNull();
     expect(Object.keys(where)).toHaveLength(18);
   });
@@ -41,5 +42,29 @@ describe("groupDuplicates", () => {
     expect(duplicates.get(7)).toEqual([2, 4]);
     expect(duplicates.has(3)).toBe(false);
     expect(duplicates.has(5)).toBe(false);
+  });
+});
+
+describe("duplicateGroups", () => {
+  it("lists rows alike among themselves once, then rows like a stored sample", () => {
+    expect(
+      duplicateGroups([
+        { row: 7, label: "A-7", lines: [2, 3] },
+        { row: 3, label: "A-3", lines: [2, 7] },
+        { row: 5, label: "A-5", samples: ["MOL B7/1.2"] },
+        { row: 2, label: "A-2", lines: [3, 7], samples: ["LAM B1/4"] },
+      ])
+    ).toEqual([
+      {
+        kind: "rows",
+        rows: [
+          { row: 2, label: "A-2" },
+          { row: 3, label: "A-3" },
+          { row: 7, label: "A-7" },
+        ],
+      },
+      { kind: "stored", row: 2, label: "A-2", samples: ["LAM B1/4"] },
+      { kind: "stored", row: 5, label: "A-5", samples: ["MOL B7/1.2"] },
+    ]);
   });
 });

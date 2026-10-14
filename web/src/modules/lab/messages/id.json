@@ -125,7 +125,7 @@
       "samples": "Sampel",
       "inProgress": "Berjalan",
       "completed": "Selesai",
-      "completedHint": "{percent}% dari rentang",
+      "completedHint": "{percent}% dari sampel diterima",
       "cycleTime": "Waktu Siklus",
       "cycleTimeHint": "Scan pertama sampai Reporting",
       "awaitingAssay": "Menunggu Hasil Uji",
@@ -445,7 +445,7 @@
     "cell": {
       "notNumber": "Isi dengan angka, mis. 1,86",
       "outOfRange": "Nilai harus antara 0 dan {max}",
-      "tooManyDecimals": "Maksimal 3 angka di belakang koma"
+      "tooManyDecimals": "Maksimal 10 angka di belakang koma"
     },
     "unsaved": {
       "title": "{count} baris belum disimpan",
@@ -509,6 +509,15 @@
       "duplicateLines": "Hasil sama dengan baris {lines}",
       "duplicateOf": "Hasil sama dengan {samples}",
       "duplicateConfirm": "{count} baris punya hasil yang identik dengan baris atau sampel lain. Tetap simpan?",
+      "duplicateTitle": "{count} baris punya hasil assay yang sama persis dengan yang lain",
+      "duplicateBody": "Dua sampel hampir tidak mungkin punya hasil identik. Periksa apakah setiap baris ditempel ke Sample ID yang benar.",
+      "duplicateRows": "hasil identik",
+      "duplicateStored": "sama dengan sampel tersimpan {samples}",
+      "duplicateMore": "dan {count} lainnya",
+      "duplicateBadge": "Duplikat",
+      "duplicateRow": "Baris {row}",
+      "goToRow": "Ke baris {row}",
+      "duplicateDialogTitle": "Simpan baris dengan hasil identik?",
       "saveAnyway": "Tetap simpan",
       "overwriteAndSave": "Timpa & simpan"
     },

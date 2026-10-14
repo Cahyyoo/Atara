@@ -1,6 +1,7 @@
 import {
   ASSAY_FIELDS,
   INSTRUMENT_FIELDS,
+  formatAssayValue,
   type AssayField,
   type InstrumentField,
 } from "@/modules/lab/lib/records/assay";
@@ -53,7 +54,8 @@ export const DEFAULT_PAGE_SIZE = "25";
 export const MATCH_LIMIT = 200;
 
 export function formatAssay(value: number | null): string {
-  return value === null ? "—" : value.toFixed(2);
+  // Two places at least, as the table always showed; a trace element keeps its own.
+  return value === null ? "—" : formatAssayValue(value, 2);
 }
 
 /** MC, %, from the record's own weighing. */

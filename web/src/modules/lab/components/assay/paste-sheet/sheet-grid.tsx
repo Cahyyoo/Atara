@@ -45,7 +45,7 @@ const BOX_KIND: Record<SheetColumn["kind"], string> = {
 };
 const REPLACED = " bg-amber-100/70 dark:bg-amber-500/15";
 const CELL_KIND: Record<SheetColumn["kind"], string> = {
-  key: `p-0.5 ${WIDTH.key} sticky left-16 z-10 bg-background`,
+  key: `p-0.5 ${WIDTH.key} sticky left-24 z-10 bg-background`,
   number: `p-0.5 ${WIDTH.number}`,
   text: `p-0.5 ${WIDTH.text}`,
   date: `p-0.5 ${WIDTH.date}`,
@@ -90,11 +90,16 @@ const SheetRowView = memo(function SheetRowView({
   onCellChange,
 }: RowProps) {
   const filled = columns.some((column) => (row[column.key] ?? "").trim() !== "");
+  const duplicate = Boolean(duplicates?.length || verdict?.duplicateOf?.length);
   const overwrites = new Map((verdict?.overwrites ?? []).map((entry) => [entry.field, entry]));
 
   return (
-    <tr style={{ height: SHEET_ROW_HEIGHT }} className="border-b border-border/50">
-      <td className="sticky left-0 z-10 w-16 min-w-16 bg-background px-2">
+    <tr
+      style={{ height: SHEET_ROW_HEIGHT }}
+      data-duplicate={duplicate ? "" : undefined}
+      className={cn("border-b border-border/50", duplicate && "bg-amber-100/70 dark:bg-amber-500/15")}
+    >
+      <td className={cn("sticky left-0 z-10 w-24 min-w-24 px-2", duplicate ? "bg-amber-100 dark:bg-amber-950" : "bg-background")}>
         <span className="flex items-center gap-1.5 text-xs tabular-nums text-muted-foreground">
           {index + 1}
           <StatusMark verdict={verdict} filled={filled} pending={pending} />
@@ -212,7 +217,7 @@ export function SheetGrid({
                   key={column.key}
                   className={cn(
                     "border-l border-border/60 px-2 text-center leading-tight whitespace-normal",
-                    column.kind === "key" && "sticky left-16 z-10 bg-muted"
+                    column.kind === "key" && "sticky left-24 z-10 bg-muted"
                   )}
                 >
                   {column.label}

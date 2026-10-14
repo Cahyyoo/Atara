@@ -260,6 +260,18 @@ describe.skipIf(!reachable)("sub-samples against the database", () => {
     expect(Number((await prisma.labRecord.findUniqueOrThrow({ where: { id: first.id } })).ni)).toBe(odd);
   });
 
+  it("keeps a trace element to ten decimals, and refuses an eleventh", async () => {
+    const record = await sample();
+    const csv = `Sample ID\tZn\n${record.sampleIdent}\t0.0303`;
+    const applied = await call(importSheet, "/api/lab-records/import", "POST", { csv, apply: true, duplicates: true });
+    expect(applied.status).toBe(200);
+    expect((await prisma.labRecord.findUniqueOrThrow({ where: { id: record.id } })).zn?.toString()).toBe("0.0303");
+
+    const tooFine = `Sample ID\tZn\n${record.sampleIdent}\t0.12345678901`;
+    const preview = await call(importSheet, "/api/lab-records/import", "POST", { csv: tooFine, apply: false });
+    expect(preview.body.data.rows[0]).toMatchObject({ status: "invalid", field: "zn" });
+  });
+
   it("names the column at fault, so a grid can mark the very cell", async () => {
     const parent = await sample();
     const csv = `Sample ID\tNi\tFe\n${parent.sampleIdent}\t1.5\tabc\nNO-SUCH-SAMPLE\t1\t2\n\t1\t2\n`;

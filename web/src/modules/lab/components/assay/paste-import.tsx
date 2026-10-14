@@ -7,6 +7,8 @@ import { PasteImportInput } from "@/modules/lab/components/assay/paste-import-in
 import { PasteImportPreview } from "@/modules/lab/components/assay/paste-import-preview";
 import { PasteImportSaveBar } from "@/modules/lab/components/assay/paste-import-save-bar";
 import { usePasteImport } from "@/modules/lab/components/assay/use-paste-import";
+import { DuplicateConfirmDialog } from "@/modules/lab/components/assay/duplicate-alert";
+import { duplicateGroups } from "@/modules/lab/lib/records/assay-duplicates";
 
 /** The empty sheet, in the shape this screen reads back. */
 function downloadTemplate() {
@@ -51,6 +53,16 @@ export function PasteImport() {
     pasteAnother,
   } = usePasteImport();
 
+  const hasDuplicates = (summary?.duplicate ?? 0) > 0;
+  // Every flagged row, not only the ones the preview's filter shows.
+  const duplicates = duplicateGroups(
+    (preview?.rows ?? []).flatMap((row) =>
+      row.duplicateLines || row.duplicateOf
+        ? [{ row: row.line, label: row.labCode, lines: row.duplicateLines, samples: row.duplicateOf }]
+        : []
+    )
+  );
+
   if (done !== null) {
     return <PasteImportDone count={done} onPasteAnother={pasteAnother} />;
   }
@@ -84,12 +96,21 @@ export function PasteImport() {
           <PasteImportSaveBar
             summary={summary}
             writes={writes}
-            confirmOverwrite={confirmOverwrite}
+            // Look-alikes are asked about in the dialog below, with the list.
+            confirmOverwrite={confirmOverwrite && !hasDuplicates}
             isSaving={isSaving}
             canSave={canSave}
             onCancelOverwrite={() => setConfirmOverwrite(false)}
             onSave={save}
             onClear={() => replaceText("")}
+          />
+          <DuplicateConfirmDialog
+            open={confirmOverwrite && hasDuplicates}
+            groups={duplicates}
+            overwriteCount={summary.overwrite ?? 0}
+            busy={isSaving}
+            onCancel={() => setConfirmOverwrite(false)}
+            onConfirm={() => void save(true)}
           />
         </div>
       ) : null}

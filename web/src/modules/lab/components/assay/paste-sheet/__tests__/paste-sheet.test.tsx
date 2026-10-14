@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 
@@ -101,19 +101,40 @@ describe("the paste sheet", () => {
     expect(box(1, "Sample ID").value).toBe("A-9");
   });
 
-  it("warns about rows with the same results, and asks before saving them", async () => {
+  it("warns about rows with the same results, plainly, and asks with the list before saving them", async () => {
     const onApplied = await show();
     paste("Sample ID\tNi (%)\nA-1\t1.5\nA-2\t1.5\nA-3\t1.7");
     await waitFor(() => expect(screen.getByRole("img", { name: "Same results as row 2" })).toBeTruthy(), LONG);
-    expect(screen.getByRole("img", { name: "Same results as row 1" })).toBeTruthy();
+    expect(screen.getByRole("img", { name: "Same results as row 1" }).textContent).toBe(en.assay.paste.duplicateBadge);
+
+    // A banner over the sheet, naming the rows; the rows themselves amber.
+    const banner = screen.getByRole("alert");
+    expect(banner.textContent).toContain("2 rows have results identical to another");
+    expect(banner.textContent).toContain("Row 1 · A-1");
+    expect(banner.textContent).toContain("Row 2 · A-2");
+    expect(box(1, "Sample ID").closest("tr")?.hasAttribute("data-duplicate")).toBe(true);
+    expect(box(3, "Sample ID").closest("tr")?.hasAttribute("data-duplicate")).toBe(false);
+
+    const user = userEvent.setup();
+    await user.click(within(banner).getByRole("button", { name: /Row 2/ }));
+    await waitFor(() => expect(document.activeElement).toBe(box(2, "Sample ID")));
 
     const save = await screen.findByRole("button", { name: "Save 3 row(s)" }, LONG);
     await waitFor(() => expect((save as HTMLButtonElement).disabled).toBe(false), LONG);
-    const user = userEvent.setup();
     await user.click(save);
-    await user.click(await screen.findByRole("button", { name: en.assay.paste.saveAnyway }));
+    const dialog = await screen.findByRole("dialog", { name: en.assay.paste.duplicateDialogTitle });
+    expect(dialog.textContent).toContain("Row 1 · A-1");
+    expect(requests.some((request) => request.apply)).toBe(false);
+    await user.click(within(dialog).getByRole("button", { name: en.assay.paste.saveAnyway }));
     await waitFor(() => expect(onApplied).toHaveBeenCalledWith(3), LONG);
     expect(requests.at(-1)).toMatchObject({ apply: true, duplicates: true });
+  });
+
+  it("takes a trace element to ten decimals, and marks only an eleventh", async () => {
+    await show();
+    paste("Sample ID\tZn (%)\nA-1\t0.0303\nA-2\t0.12345678901");
+    expect(box(1, "Zn (%)").getAttribute("aria-invalid")).toBeNull();
+    expect(box(2, "Zn (%)").getAttribute("aria-invalid")).toBe("true");
   });
 
   it("has an outline to show while it opens: the real headings, and not one input", () => {

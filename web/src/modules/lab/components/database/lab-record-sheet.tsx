@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from "@/core/components/ui/dialog";
 import { StatusBadge } from "@/modules/lab/components/samples/status-badge";
-import { ASSAY_FIELDS, INSTRUMENT_FIELDS } from "@/modules/lab/lib/records/assay";
+import { ASSAY_FIELDS, INSTRUMENT_FIELDS, formatAssayValue } from "@/modules/lab/lib/records/assay";
 import { formatWitaDateTime } from "@/core/lib/wita-time";
 import { stageLabel } from "@/modules/lab/lib/stages/stages";
 import { cn } from "@/core/lib/utils";
@@ -103,7 +103,7 @@ export function LabRecordSheet({
                             value === null ? "text-muted-foreground" : "font-medium"
                           )}
                         >
-                          {value === null ? "—" : value.toFixed(3).replace(/\.?0+$/, "")}
+                          {value === null ? "—" : formatAssayValue(value, 0)}
                         </dd>
                       </div>
                     );

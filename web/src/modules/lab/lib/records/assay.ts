@@ -58,6 +58,27 @@ export const ASSAY_FIELDS: AssayFieldSpec[] = [
 ];
 
 /**
+ * The most decimal places a result is stored with (the columns are
+ * DECIMAL(14,10)): trace elements such as Zn are reported as 0.0303.
+ */
+export const MAX_ASSAY_DECIMALS = 10;
+
+/** Whether a number fits the columns' decimals, so MySQL would not round it away. */
+export function fitsAssayDecimals(value: number): boolean {
+  return Number(value.toFixed(MAX_ASSAY_DECIMALS)) === value;
+}
+
+/**
+ * A result as stored, with no zeros trailing past `minDecimals`: 1.86 reads
+ * "1.86" (or "1.860" at three), 0.0303 reads "0.0303" rather than "0.030".
+ */
+export function formatAssayValue(value: number, minDecimals: number): string {
+  const full = value.toFixed(MAX_ASSAY_DECIMALS).replace(/0+$/, "");
+  const decimals = full.split(".")[1]?.length ?? 0;
+  return decimals >= minDecimals ? full.replace(/\.$/, "") : value.toFixed(minDecimals);
+}
+
+/**
  * The columns shown in the database table. Eighteen at once is unreadable on
  * any screen, so the rest stay behind the column picker and the edit dialog.
  */

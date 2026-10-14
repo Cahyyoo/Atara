@@ -94,6 +94,30 @@ describe("pasting results from Excel", () => {
     expect(await screen.findByText("2 sample(s) updated")).toBeTruthy();
   });
 
+  it("shows look-alike results plainly, and lists them before saving", async () => {
+    respond = (apply) => {
+      const preview = previewOf({ duplicate: 2 }, apply);
+      preview.rows[0] = { ...preview.rows[0], duplicateLines: [4] };
+      preview.rows[2] = { ...preview.rows[2], duplicateLines: [2], duplicateOf: ["MOL B7/1.2"] };
+      return { success: true, data: preview };
+    };
+    const user = userEvent.setup({ delay: null });
+    show();
+    paste(SHEET);
+
+    const banner = await screen.findByRole("alert");
+    expect(banner.textContent).toContain("2 rows have results identical to another");
+    expect(banner.textContent).toContain("Row 2 · SPR.001");
+    expect(banner.textContent).toContain("same results as stored sample MOL B7/1.2");
+    expect(screen.getAllByText(en.assay.paste.duplicateBadge).length).toBeGreaterThan(0);
+
+    await user.click(screen.getByRole("button", { name: "Save 2 row(s)" }));
+    const dialog = await screen.findByRole("dialog", { name: en.assay.paste.duplicateDialogTitle });
+    expect(calls.some((call) => call.apply)).toBe(false);
+    await user.click(within(dialog).getByRole("button", { name: en.assay.paste.saveAnyway }));
+    await waitFor(() => expect(calls.find((call) => call.apply)).toMatchObject({ duplicates: true }));
+  });
+
   it("will not save while a row is not valid", async () => {
     respond = () => ({ success: true, data: previewOf({ invalid: 1 }) });
     show();

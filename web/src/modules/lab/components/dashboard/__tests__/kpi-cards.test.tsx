@@ -47,4 +47,14 @@ describe("the KPI tiles", () => {
       en.dashboard.kpi.needsAttention,
     ]);
   });
+
+  it("counts the finished share against the samples received, not barcodes never scanned", () => {
+    const { container } = render(
+      <NextIntlClientProvider locale="en" messages={en} onError={() => {}}>
+        <KpiCards kpi={KPI} rangeLabel="Last 14 days" keys={["completed"]} />
+      </NextIntlClientProvider>
+    );
+    // 18 of the 38 received (20 in progress + 18 done), not of all 40.
+    expect(container.textContent).toContain("47% of received samples");
+  });
 });

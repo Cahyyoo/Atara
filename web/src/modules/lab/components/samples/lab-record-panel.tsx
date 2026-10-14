@@ -3,7 +3,7 @@
 import { getFormatter, getTranslations } from "next-intl/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/core/components/ui/card";
 import { Badge } from "@/core/components/ui/badge";
-import { ASSAY_FIELDS } from "@/modules/lab/lib/records/assay";
+import { ASSAY_FIELDS, formatAssayValue } from "@/modules/lab/lib/records/assay";
 import { moistureContent } from "@/modules/lab/lib/records/mc";
 import { LabRecordIdentity } from "@/modules/lab/components/samples/lab-record-identity";
 import { prisma } from "@/core/lib/prisma";
@@ -36,9 +36,9 @@ function isAssay(key: string): boolean {
   return ASSAY_FIELDS.some((field) => field.key === key);
 }
 
-/** Assay results are measured to three places; the grid always shows all three. */
+/** At least three places, as the lab reports; more when the result has them (Zn 0.0303). */
 function formatAssay(value: number | null): string {
-  return value === null ? "—" : value.toFixed(3);
+  return value === null ? "—" : formatAssayValue(value, 3);
 }
 
 interface LabRecordPanelProps {
@@ -126,7 +126,7 @@ export async function LabRecordPanel({
     if (key === "measurementFinished") return formatWitaDateTime(String(value)) ?? String(value);
     if (typeof value !== "number") return value;
     // Counts and running numbers are integers: "25.000" reads as a thousand.
-    return isAssay(key) ? value.toFixed(3) : String(value);
+    return isAssay(key) ? formatAssayValue(value, 3) : String(value);
   }
 
   return (

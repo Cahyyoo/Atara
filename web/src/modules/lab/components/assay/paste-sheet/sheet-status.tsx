@@ -60,7 +60,15 @@ export function DuplicateMark({ lines, samples }: { lines?: number[]; samples?: 
     .filter(Boolean)
     .join(" · ");
   return (
-    <IoWarning role="img" aria-label={label} title={label} className="size-4 shrink-0 text-amber-500 dark:text-amber-400" />
+    <span
+      role="img"
+      aria-label={label}
+      title={label}
+      className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-amber-400/90 px-1.5 text-[10px] leading-4 font-semibold text-amber-950"
+    >
+      <IoWarning aria-hidden className="size-3" />
+      {t("duplicateBadge")}
+    </span>
   );
 }
 

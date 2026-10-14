@@ -125,7 +125,7 @@
       "samples": "Samples",
       "inProgress": "In Progress",
       "completed": "Completed",
-      "completedHint": "{percent}% of range",
+      "completedHint": "{percent}% of received samples",
       "cycleTime": "Cycle Time",
       "cycleTimeHint": "First scan to Reporting",
       "awaitingAssay": "Awaiting Assay",
@@ -445,7 +445,7 @@
     "cell": {
       "notNumber": "Enter a number, e.g. 1.86",
       "outOfRange": "Must be between 0 and {max}",
-      "tooManyDecimals": "At most 3 decimal places"
+      "tooManyDecimals": "At most 10 decimal places"
     },
     "unsaved": {
       "title": "{count} row(s) not saved",
@@ -509,6 +509,15 @@
       "duplicateLines": "Same results as row {lines}",
       "duplicateOf": "Same results as {samples}",
       "duplicateConfirm": "{count, plural, one {# row has} other {# rows have}} results identical to another row or sample. Save anyway?",
+      "duplicateTitle": "{count, plural, one {# row has} other {# rows have}} results identical to another",
+      "duplicateBody": "Two samples almost never assay exactly alike. Check that each row was pasted against the right Sample ID.",
+      "duplicateRows": "identical results",
+      "duplicateStored": "same results as stored sample {samples}",
+      "duplicateMore": "and {count} more",
+      "duplicateBadge": "Duplicate",
+      "duplicateRow": "Row {row}",
+      "goToRow": "Go to row {row}",
+      "duplicateDialogTitle": "Save rows with identical results?",
       "saveAnyway": "Save anyway",
       "overwriteAndSave": "Replace and save"
     },

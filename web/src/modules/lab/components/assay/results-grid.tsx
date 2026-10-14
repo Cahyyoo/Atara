@@ -13,7 +13,14 @@ import {
   TableRow,
 } from "@/core/components/ui/table";
 import { TableSkeleton } from "@/core/components/ui/table-skeleton";
-import { ASSAY_FIELDS, INSTRUMENT_FIELDS, type AssayField, type AssayFieldSpec, type InstrumentField } from "@/modules/lab/lib/records/assay";
+import {
+  ASSAY_FIELDS,
+  INSTRUMENT_FIELDS,
+  MAX_ASSAY_DECIMALS,
+  type AssayField,
+  type AssayFieldSpec,
+  type InstrumentField,
+} from "@/modules/lab/lib/records/assay";
 import { toWitaInputValue } from "@/core/lib/wita-time";
 import { cn } from "@/core/lib/utils";
 import type { LabRecordListItemDTO } from "@/modules/lab/types";
@@ -71,8 +78,8 @@ export function numberProblem(raw: string, max: number): CellProblem | null {
   const value = normaliseNumber(raw);
   if (value === "") return null;
   if (!/^\d+(\.\d+)?$/.test(value)) return "notNumber";
-  // The column holds three decimals; a fourth would be rounded away silently.
-  if ((value.split(".")[1]?.length ?? 0) > 3) return "tooManyDecimals";
+  // The column holds ten decimals; an eleventh would be rounded away silently.
+  if ((value.split(".")[1]?.length ?? 0) > MAX_ASSAY_DECIMALS) return "tooManyDecimals";
   if (Number(value) > max) return "outOfRange";
   return null;
 }
