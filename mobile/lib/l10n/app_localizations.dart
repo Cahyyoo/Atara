@@ -1765,6 +1765,18 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Belum ada Sample ID'**
   String get todoNoSampleId;
+
+  /// No description provided for @sampleIdRequired.
+  ///
+  /// In id, this message translates to:
+  /// **'Isi Sample ID dulu sebelum memperbarui tahap.'**
+  String get sampleIdRequired;
+
+  /// No description provided for @sampleIdRequiredOffline.
+  ///
+  /// In id, this message translates to:
+  /// **'Sampel ini belum punya Sample ID, dan mengisinya perlu koneksi.'**
+  String get sampleIdRequiredOffline;
 }
 
 class _AppLocalizationsDelegate

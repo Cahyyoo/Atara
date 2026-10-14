@@ -71,6 +71,10 @@ class ApiException implements Exception {
   /// was lost to a timeout: done, not refused.
   bool get isAlreadyRecorded => code == 'STAGE_ALREADY_RECORDED';
 
+  /// The sample has no Sample ID yet, and the server will not move it until
+  /// it has one. Filled in from the sample's page, then the scan goes through.
+  bool get isSampleIdentMissing => code == 'SAMPLE_IDENT_REQUIRED';
+
   /// True when the server was never reached, so nothing was decided about the
   /// request and it is safe to queue and retry.
   bool get isOffline => statusCode == null;

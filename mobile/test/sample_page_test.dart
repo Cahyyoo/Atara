@@ -14,6 +14,7 @@ import 'package:atara/services/api_exception.dart';
 import 'package:atara/services/sample_cache_service.dart';
 import 'package:atara/theme/app_theme.dart';
 import 'package:atara/widgets/ios/inset_section.dart';
+import 'package:atara/widgets/ios/ios_button.dart';
 import 'package:atara/widgets/status_view.dart';
 
 import 'support/sample_fixtures.dart';
@@ -85,6 +86,10 @@ Future<void> pumpDetail(
                 if (failWith != null) return Future.error(failWith);
                 return Future.value(served ?? cached ?? sampleFixture());
               },
+              // A stand-in for the identity form, which would make a request
+              // of its own the moment it opened.
+              identityPage: (code) =>
+                  const Scaffold(body: Center(child: Text('identity form'))),
             ),
           ),
         ),
@@ -262,5 +267,78 @@ void main() {
     expectNoRenderError(tester, reason: 'still no render error either way');
     expect(find.text('Coba Lagi'), findsNothing);
     expect(find.text('SMPL-2026-00001'), findsWidgets);
+  });
+
+  group('a sample with no Sample ID', () {
+    // Tall enough that the banner and the save button, at the foot of a lazily
+    // built list, are on screen and so built at all.
+    Future<void> tall(WidgetTester tester) async {
+      tester.view.physicalSize = const Size(400 * 3, 2400 * 3);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+    }
+
+    testWidgets('opens the identity form as soon as the server says so', (
+      tester,
+    ) async {
+      await tall(tester);
+      await pumpDetail(tester, served: sampleFixture(sampleIdent: null));
+      await tester.pumpAndSettle();
+
+      expectNoRenderError(tester, reason: 'the form is pushed over the page');
+      expect(find.text('identity form'), findsOneWidget);
+    });
+
+    testWidgets('keeps the stage locked after the form is backed out of', (
+      tester,
+    ) async {
+      await tall(tester);
+      await pumpDetail(tester, served: sampleFixture(sampleIdent: null));
+      await tester.pumpAndSettle();
+      tester.state<NavigatorState>(find.byType(Navigator).first).pop();
+      await tester.pumpAndSettle();
+
+      expect(find.text('identity form'), findsNothing, reason: 'once only');
+      expect(
+        find.text('Isi Sample ID dulu sebelum memperbarui tahap.'),
+        findsOneWidget,
+      );
+      final save = tester.widget<AppButton>(
+        find.widgetWithText(AppButton, 'Simpan & Perbarui Tahap'),
+      );
+      expect(save.onPressed, isNull);
+    });
+
+    testWidgets('says it needs a connection when only the cache knows it', (
+      tester,
+    ) async {
+      await tall(tester);
+      await pumpDetail(
+        tester,
+        cached: sampleFixture(sampleIdent: null),
+        failWith: const ApiException('offline', kind: ApiErrorKind.unreachable),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('identity form'), findsNothing);
+      expect(
+        find.text(
+          'Sampel ini belum punya Sample ID, dan mengisinya perlu koneksi.',
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('leaves a sample that has one alone', (tester) async {
+      await tall(tester);
+      await pumpDetail(tester, served: sampleFixture());
+      await tester.pumpAndSettle();
+
+      expect(find.text('identity form'), findsNothing);
+      expect(
+        find.text('Isi Sample ID dulu sebelum memperbarui tahap.'),
+        findsNothing,
+      );
+    });
   });
 }

@@ -971,4 +971,12 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get todoNoSampleId => 'Belum ada Sample ID';
+
+  @override
+  String get sampleIdRequired =>
+      'Isi Sample ID dulu sebelum memperbarui tahap.';
+
+  @override
+  String get sampleIdRequiredOffline =>
+      'Sampel ini belum punya Sample ID, dan mengisinya perlu koneksi.';
 }

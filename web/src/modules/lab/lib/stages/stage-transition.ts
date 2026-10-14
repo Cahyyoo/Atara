@@ -33,6 +33,13 @@ export interface StageTransitionInput {
 export const STAGE_ALREADY_RECORDED = "STAGE_ALREADY_RECORDED";
 
 /**
+ * The sample has no Sample ID yet. A scan does not move it until it has one:
+ * the id is what every sheet downstream finds the sample by, and the
+ * preparator holding the bag is the one who can read it off the label.
+ */
+export const SAMPLE_IDENT_REQUIRED = "SAMPLE_IDENT_REQUIRED";
+
+/**
  * Decides whether a scan may move a sample to a stage.
  *
  * Pure on purpose: the scan endpoint owns the database writes, this owns the

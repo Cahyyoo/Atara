@@ -4,7 +4,7 @@ import { loadStages } from "@/modules/lab/lib/stages/stages-cache";
 import { jsonSuccess, handleApiError, ApiError } from "@/core/lib/http/api-response";
 import { requireCapability } from "@/core/lib/http/api-auth";
 import { scanSampleSchema } from "@/modules/lab/validation/samples";
-import { evaluateStageTransition } from "@/modules/lab/lib/stages/stage-transition";
+import { SAMPLE_IDENT_REQUIRED, evaluateStageTransition } from "@/modules/lab/lib/stages/stage-transition";
 import { readJsonBody, BODY_LIMIT } from "@/core/lib/http/api-request";
 import { applyStageMove } from "@/modules/lab/lib/stages/stage-move";
 
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     const [sample, stages] = await Promise.all([
       prisma.sample.findUnique({
         where: { sampleCode: body.sample_code },
-        include: { currentStage: true },
+        include: { currentStage: true, labRecord: { select: { sampleIdent: true } } },
       }),
       loadStages(),
     ]);
@@ -31,6 +31,15 @@ export async function POST(request: NextRequest) {
     // preparator will scan it again and again unless the answer says why.
     if (sample.deletedAt !== null) {
       throw new ApiError("This sample was removed from the database.", 410);
+    }
+    // Filled in first, then moved: the app opens the identity form for exactly
+    // this, and the check here holds for older builds and queued scans too.
+    if (!sample.labRecord?.sampleIdent) {
+      throw new ApiError(
+        "This sample has no Sample ID yet. Fill it in before moving it to a stage.",
+        422,
+        SAMPLE_IDENT_REQUIRED
+      );
     }
 
     const decision = evaluateStageTransition({

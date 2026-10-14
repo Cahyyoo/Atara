@@ -48,6 +48,7 @@ class UpdateStatusScreen extends ConsumerStatefulWidget {
     super.key,
     required this.sampleCode,
     @visibleForTesting this.fetchSample,
+    @visibleForTesting this.identityPage,
   });
 
   final String sampleCode;
@@ -56,6 +57,10 @@ class UpdateStatusScreen extends ConsumerStatefulWidget {
   /// production call site. ApiService is a singleton with no other way in, and
   /// a real request leaves dio's timer pending past a widget test's teardown.
   final Future<SampleModel> Function(String sampleCode)? fetchSample;
+
+  /// The identity form, swapped for a stand-in by a test: the real one makes
+  /// its own request the moment it opens. Null in every production call site.
+  final Widget Function(String sampleCode)? identityPage;
 
   @override
   ConsumerState<UpdateStatusScreen> createState() => _UpdateStatusScreenState();
@@ -101,6 +106,10 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
   bool _isSubmitting = false;
   bool _isSubmitted = false;
 
+  /// Whether the identity form has already been raised on its own, so backing
+  /// out of it does not bring it straight back. The banner and its button stay.
+  bool _identityPrompted = false;
+
   @override
   void initState() {
     super.initState();
@@ -143,6 +152,12 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
   bool get _canOverride =>
       ref.read(sessionProvider).value?.role == UserRole.preparator;
 
+  /// A sample the phone knows to have no Sample ID yet. It is filled in
+  /// before the stage moves — the server refuses the scan otherwise. A sample
+  /// the phone has never seen (offline, nothing cached) is not known to lack
+  /// one, so it may still be queued and the server decides when it drains.
+  bool get _needsSampleIdent => _sample != null && _sample!.sampleIdent == null;
+
   /// Whether the override is on offer right now — and so whether a reason is
   /// required before the button does anything.
   bool get _isOverriding => _canOverride && _breaksStageOrder;
@@ -170,6 +185,7 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
         // has to give way to one taken from the server.
         if (movedOn && !_stageChosenByPreparator) _selectedStage = null;
       });
+      _promptForIdentity(sample);
     } on ApiException catch (error) {
       // Only worth resolving when the server was never reached: a refusal came
       // from the right address by definition.
@@ -199,6 +215,20 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
         _loadState = _LoadState.error;
       });
     }
+  }
+
+  /// Raises the identity form once, over this page, when the server says the
+  /// sample has no Sample ID: that is the first thing to do with it. Only on
+  /// the server's answer — never a cached copy, which may be out of date, and
+  /// never offline, where the form could not save.
+  void _promptForIdentity(SampleModel sample) {
+    if (_identityPrompted || sample.isFromCache || sample.sampleIdent != null) {
+      return;
+    }
+    _identityPrompted = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _needsSampleIdent && !_isSubmitted) _openIdentity();
+    });
   }
 
   Future<SampleModel> _lookup(String code) =>
@@ -261,7 +291,7 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
     // twice, the second answered "already recorded" over a scan that worked.
     if (_isSubmitting || _isSubmitted) return;
     final stage = _selectedStage;
-    if (stage == null) return;
+    if (stage == null || _needsSampleIdent) return;
 
     // In offlineUnknown there is no loaded sample, only the code the preparator
     // scanned or typed. That is all the server needs.
@@ -390,7 +420,9 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
   Future<void> _openIdentity() async {
     final saved = await Navigator.of(context).push<bool>(
       CupertinoPageRoute(
-        builder: (context) => SampleIdentityScreen(sampleCode: widget.sampleCode),
+        builder: (context) =>
+            widget.identityPage?.call(widget.sampleCode) ??
+            SampleIdentityScreen(sampleCode: widget.sampleCode),
       ),
     );
     if (saved == true && mounted) await _refreshInPlace();
@@ -570,12 +602,38 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
         ),
         const SizedBox(height: AppSpacing.xl),
       ],
+      if (_needsSampleIdent) ...[
+        _buildIdentRequired(l10n),
+        const SizedBox(height: AppSpacing.xl),
+      ],
       AppButton(
         label: l10n.saveAndUpdate,
         isBusy: _isSubmitting,
-        onPressed: _selectedStage == null ? null : _handleSubmit,
+        onPressed: _selectedStage == null || _needsSampleIdent
+            ? null
+            : _handleSubmit,
       ),
     ];
+  }
+
+  /// Why the save button is off. Online, with the way to fix it; from a cached
+  /// copy with no signal, saying that it cannot be fixed from here just now.
+  Widget _buildIdentRequired(AppLocalizations l10n) {
+    final palette = context.palette;
+    final offline = _sample!.isFromCache;
+    return ToneBanner(
+      icon: CupertinoIcons.exclamationmark_triangle_fill,
+      tone: palette.warning,
+      title: offline ? l10n.sampleIdRequiredOffline : l10n.sampleIdRequired,
+      detail: offline
+          ? null
+          : AppButton(
+              label: l10n.fillSampleId,
+              icon: CupertinoIcons.plus_circle,
+              style: AppButtonStyle.tinted,
+              onPressed: _openIdentity,
+            ),
+    );
   }
 
   /// Offered only when the pick breaks the order: a step back, or a skip.

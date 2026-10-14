@@ -84,6 +84,8 @@ Map<String, dynamic> _sampleJson(String code, {String? stageId}) {
     'createdBy': {'id': 'u', 'name': 'Admin'},
     'updatedAt': '2026-10-09T01:00:00.000Z',
     'logs': <Object>[],
+    // Identified, as a sample has to be before its stage can move.
+    'labRecord': {'labCode': 'SPR.QLAB.20261009.001', 'sampleIdent': 'MOL/$code'},
   };
 }
 

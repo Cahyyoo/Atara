@@ -399,5 +399,7 @@
   "todoOverdue": "{count} past SLA",
   "todoStageFooter": "Showing {shown} of {total} samples, longest waiting first.",
   "todoWaitingHours": "{hours} h",
-  "todoNoSampleId": "No Sample ID yet"
+  "todoNoSampleId": "No Sample ID yet",
+  "sampleIdRequired": "Fill in the Sample ID before updating the stage.",
+  "sampleIdRequiredOffline": "This sample has no Sample ID yet, and filling it in needs a connection."
 }

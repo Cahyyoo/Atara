@@ -491,5 +491,7 @@
       }
     }
   },
-  "todoNoSampleId": "Belum ada Sample ID"
+  "todoNoSampleId": "Belum ada Sample ID",
+  "sampleIdRequired": "Isi Sample ID dulu sebelum memperbarui tahap.",
+  "sampleIdRequiredOffline": "Sampel ini belum punya Sample ID, dan mengisinya perlu koneksi."
 }
