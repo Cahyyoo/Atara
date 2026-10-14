@@ -11,11 +11,85 @@ import { readJsonBody } from "@/core/lib/http/api-request";
 import { ensureSub, resolvePastedKeys } from "@/modules/lab/lib/records/sub-records";
 import { findOverwrites } from "@/modules/lab/lib/records/overwrite";
 import { lockLabRecords } from "@/modules/lab/lib/records/record-lock";
+import { ASSAY_KEYS, assayKey, assayWhere, groupDuplicates } from "@/modules/lab/lib/records/assay-duplicates";
+import { ACTIVE_LAB_RECORD } from "@/modules/lab/lib/samples/soft-delete";
 
 type Values = Record<string, number | string | Date | null>;
 type DiffInput = Parameters<typeof diffLabRecord>[0];
 
 const freshSelect = { ...labRecordValueSelect, id: true, labCode: true } satisfies Prisma.LabRecordSelect;
+
+/** Stored samples named per duplicate row: enough to find them, not a list to read. */
+const DUPLICATES_NAMED = 3;
+/** Rows asked about in one query for stored look-alikes. */
+const DUPLICATE_BATCH = 200;
+
+/**
+ * Marks the rows about to be written whose results read exactly like another
+ * row's in this import, or another sample's already stored. A warning, not a
+ * refusal: the summary counts them, and applying asks for `duplicates`.
+ */
+async function markDuplicates(
+  preview: ImportPreviewRow[],
+  writes: { row: ImportPreviewRow; recordId: string | null; merged: Record<string, unknown> }[]
+) {
+  const keyed = writes.map((write) => ({ ...write, key: assayKey(write.merged as Record<string, number | null>) }));
+
+  const inImport = groupDuplicates(keyed.map(({ row, key }) => ({ id: row.line, key })));
+  for (const { row } of keyed) {
+    const lines = inImport.get(row.line);
+    if (lines) row.duplicateLines = lines;
+  }
+
+  // Records written by this import are compared by their new results, above;
+  // what they hold now is about to change.
+  const written = keyed.flatMap(({ recordId }) => (recordId ? [recordId] : []));
+  const unique = [...new Map(keyed.filter((entry) => entry.key !== null).map((entry) => [entry.key!, entry.merged])).entries()];
+  const storedByKey = new Map<string, string[]>();
+  for (let start = 0; start < unique.length; start += DUPLICATE_BATCH) {
+    const batch = unique.slice(start, start + DUPLICATE_BATCH);
+    const found = await prisma.labRecord.findMany({
+      where: {
+        ...ACTIVE_LAB_RECORD,
+        ...(written.length ? { id: { notIn: written } } : {}),
+        OR: batch.map(([, merged]) => assayWhere(merged as Record<string, number | null>)),
+      },
+      select: { labCode: true, sampleIdent: true, ...Object.fromEntries(ASSAY_KEYS.map((key) => [key, true])) },
+      take: DUPLICATE_BATCH * DUPLICATES_NAMED,
+    });
+    for (const record of found) {
+      const key = assayKey(record as unknown as Record<string, number | null>);
+      if (key === null) continue;
+      const names = storedByKey.get(key) ?? [];
+      if (names.length < DUPLICATES_NAMED) storedByKey.set(key, [...names, record.sampleIdent ?? record.labCode]);
+    }
+  }
+  for (const { row, key } of keyed) {
+    const stored = key ? storedByKey.get(key) : undefined;
+    if (stored) row.duplicateOf = stored;
+  }
+  return preview.filter((row) => row.duplicateLines || row.duplicateOf).length;
+}
+
+/** A record's results once a row is written: a column the sheet does not have keeps what is stored. */
+function mergedAssay(record: Record<string, unknown>, values: Values): Record<string, unknown> {
+  return Object.fromEntries(ASSAY_KEYS.map((field) => [field, field in values ? values[field] : record[field]]));
+}
+
+/** As with replacing results: saving look-alikes is a decision the request states. */
+function refuseDuplicates(preview: ImportPreviewRow[], count: number, allowed: boolean) {
+  if (count === 0 || allowed) return;
+  throw new ApiError(
+    `${count} row(s) have results that read exactly like another row's or another sample's.`,
+    409,
+    "duplicate",
+    {
+      duplicates: preview
+        .filter((row) => row.duplicateLines || row.duplicateOf)
+        .map((row) => ({ line: row.line, labCode: row.labCode, lines: row.duplicateLines, samples: row.duplicateOf })),
+    }
+  );
+}
 
 export const POST = route({ capability: "enterResults" }, async ({ request, session }) => {
   const body = importLabRecordsSchema.parse(await readJsonBody(request));
@@ -42,6 +116,8 @@ export const POST = route({ capability: "enterResults" }, async ({ request, sess
   const resolved = new Map((keys.length ? await resolvePastedKeys(keys) : []).map((entry) => [entry.key, entry]));
 
   const preview: ImportPreviewRow[] = [];
+  // Each row about to be written, with its results as they would stand after.
+  const writes: { row: ImportPreviewRow; recordId: string | null; merged: Record<string, unknown> }[] = [];
   const toApply: {
     recordId: string | null;
     sub: { parentId: string; code: string } | null;
@@ -123,7 +199,9 @@ export const POST = route({ capability: "enterResults" }, async ({ request, sess
       const changes = Object.fromEntries(
         Object.entries(diffLabRecord({} as DiffInput, values)).filter(([, change]) => change.to !== null)
       );
-      preview.push({ line, labCode: key, sampleCode, status: "create", subCode: match.code, changes });
+      const created: ImportPreviewRow = { line, labCode: key, sampleCode, status: "create", subCode: match.code, changes };
+      preview.push(created);
+      writes.push({ row: created, recordId: null, merged: values });
       toApply.push({
         recordId: null,
         sub: { parentId: match.parent.id, code: match.code },
@@ -142,14 +220,16 @@ export const POST = route({ capability: "enterResults" }, async ({ request, sess
     }
 
     const overwrites = findOverwrites(record, values);
-    preview.push({
+    const updated: ImportPreviewRow = {
       line,
       labCode: key,
       sampleCode,
       status: "update",
       changes,
       ...(overwrites.length ? { overwrites } : {}),
-    });
+    };
+    preview.push(updated);
+    writes.push({ row: updated, recordId: match.record.id, merged: mergedAssay(record, values) });
     // The diff is kept rather than recomputed below: it is the audit payload.
     toApply.push({ recordId: match.record.id, sub: null, values, changes, overwrites: overwrites.length > 0 });
   });
@@ -162,6 +242,7 @@ export const POST = route({ capability: "enterResults" }, async ({ request, sess
     unknown: preview.filter((row) => row.status === "unknown").length,
     invalid: preview.filter((row) => row.status === "invalid").length,
     overwrite: preview.filter((row) => (row.overwrites?.length ?? 0) > 0).length,
+    duplicate: writes.length ? await markDuplicates(preview, writes) : 0,
   };
 
   // Nothing is written until the user has seen the preview and confirmed it.
@@ -185,6 +266,8 @@ export const POST = route({ capability: "enterResults" }, async ({ request, sess
       }
     );
   }
+
+  refuseDuplicates(preview, summary.duplicate, body.duplicates);
 
   if (toApply.length > 0) {
     await prisma.$transaction(

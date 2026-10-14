@@ -4,7 +4,8 @@ import { memo, type HTMLAttributes, type Ref } from "react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/core/lib/utils";
 import { inSelection } from "@/modules/lab/components/assay/grid/use-grid-selection";
-import { StatusMark } from "@/modules/lab/components/assay/paste-sheet/sheet-status";
+import { isBlock } from "@/modules/lab/lib/records/sheet-paste";
+import { DuplicateMark, StatusMark } from "@/modules/lab/components/assay/paste-sheet/sheet-status";
 import { SHEET_ROW_HEIGHT } from "@/modules/lab/components/assay/paste-sheet/use-paste-sheet";
 import type { SheetRow } from "@/modules/lab/components/assay/paste-sheet/sheet-text";
 import type { Verdict } from "@/modules/lab/components/assay/paste-sheet/sheet-check";
@@ -55,6 +56,8 @@ interface RowProps {
   row: SheetRow;
   columns: readonly SheetColumn[];
   verdict: Verdict | undefined;
+  /** Other rows on this sheet with exactly the same results. */
+  duplicates: number[] | undefined;
   pending: boolean;
   locked: boolean;
   selection: string | null;
@@ -77,6 +80,7 @@ const SheetRowView = memo(function SheetRowView({
   row,
   columns,
   verdict,
+  duplicates,
   pending,
   locked,
   selection,
@@ -94,6 +98,7 @@ const SheetRowView = memo(function SheetRowView({
         <span className="flex items-center gap-1.5 text-xs tabular-nums text-muted-foreground">
           {index + 1}
           <StatusMark verdict={verdict} filled={filled} pending={pending} />
+          <DuplicateMark lines={duplicates} samples={verdict?.duplicateOf} />
         </span>
       </td>
       {columns.map((column, col) => {
@@ -118,7 +123,10 @@ const SheetRowView = memo(function SheetRowView({
               inputMode={column.kind === "number" ? "decimal" : undefined}
               placeholder={column.kind === "date" ? datePlaceholder : undefined}
               autoComplete="off"
-              readOnly={locked}
+              // Results arrive by pasting only: typed over, a figure from the
+              // instrument becomes one nobody measured. The Sample ID is the
+              // one box that is typed, to fix a match.
+              readOnly={locked || column.kind !== "key"}
               data-cell-row={index}
               data-cell-col={col}
               data-selected={inSelection(selection, col) ? "" : undefined}
@@ -126,6 +134,18 @@ const SheetRowView = memo(function SheetRowView({
               title={title}
               value={value}
               onChange={(event) => onCellChange(index, column.key, event.target.value)}
+              // A read-only box takes no paste of its own; one value pasted
+              // into it is laid down here (a block is the grid's to spread).
+              onPaste={
+                column.kind === "key" || locked
+                  ? undefined
+                  : (event) => {
+                      const text = event.clipboardData.getData("text/plain");
+                      if (isBlock(text)) return;
+                      event.preventDefault();
+                      onCellChange(index, column.key, text.trim());
+                    }
+              }
               className={replaced && !faulty ? BOX_KIND[column.kind] + REPLACED : BOX_KIND[column.kind]}
             />
           </td>
@@ -145,6 +165,7 @@ export function SheetGrid({
   columns,
   rows,
   verdictFor,
+  duplicatesFor,
   pending,
   locked,
   checkCell,
@@ -161,6 +182,7 @@ export function SheetGrid({
   columns: readonly SheetColumn[];
   rows: readonly SheetRow[];
   verdictFor: (row: SheetRow) => Verdict | undefined;
+  duplicatesFor: (row: SheetRow) => number[] | undefined;
   pending: boolean;
   locked: boolean;
   checkCell: CellCheck;
@@ -214,6 +236,7 @@ export function SheetGrid({
                   row={row}
                   columns={columns}
                   verdict={verdictFor(row)}
+                  duplicates={duplicatesFor(row)}
                   pending={pending}
                   locked={locked}
                   selection={selectionFor(index)}

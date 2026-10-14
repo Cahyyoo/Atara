@@ -13,7 +13,7 @@ const SHEET = "Lab Code\tNi\nSPR.001\t1,86\nSPR.404\t1\nSPR.002\t1,12\n";
 function previewOf(overrides: Partial<ImportPreviewDTO["summary"]> = {}, applied = false): ImportPreviewDTO {
   return {
     applied,
-    summary: { total: 3, update: 2, create: 0, unchanged: 0, unknown: 1, invalid: 0, overwrite: 0, ...overrides },
+    summary: { total: 3, update: 2, create: 0, unchanged: 0, unknown: 1, invalid: 0, overwrite: 0, duplicate: 0, ...overrides },
     rows: [
       { line: 2, labCode: "SPR.001", sampleCode: "NKL-2026-00001", status: "update", changes: { ni: { from: null, to: 1.86 } } },
       { line: 3, labCode: "SPR.404", status: "unknown", changes: {}, message: "No sample with this lab code." },
@@ -62,7 +62,9 @@ describe("pasting results from Excel", () => {
     paste(SHEET);
 
     await screen.findByText("2 to update");
-    expect(calls).toEqual([{ csv: SHEET, apply: false, overwrite: false, reason: en.assay.paste.auditReason }]);
+    expect(calls).toEqual([
+      { csv: SHEET, apply: false, overwrite: false, duplicates: false, reason: en.assay.paste.auditReason },
+    ]);
     expect(screen.getByText("1 not found")).toBeTruthy();
   });
 

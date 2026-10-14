@@ -9,6 +9,7 @@ import {
   progressOf,
   pruneVerdicts,
   rememberVerdicts,
+  sheetDuplicates,
   type Verdict,
 } from "@/modules/lab/components/assay/paste-sheet/sheet-check";
 import type { SheetRow } from "@/modules/lab/components/assay/paste-sheet/sheet-text";
@@ -83,7 +84,8 @@ export function useSheetCheck({
     };
   }, [rows, keys, cache, send, networkError]);
 
-  const progress = useMemo(() => progressOf(rows, keys, cache), [rows, keys, cache]);
+  const duplicates = useMemo(() => sheetDuplicates(rows, keys, cache), [rows, keys, cache]);
+  const progress = useMemo(() => progressOf(rows, keys, cache, duplicates), [rows, keys, cache, duplicates]);
   const error = failure && failure.rows === rows ? failure.message : null;
   const verdictFor = useCallback((row: SheetRow) => cache.get(lineOf(row, keys)), [cache, keys]);
 
@@ -91,6 +93,8 @@ export function useSheetCheck({
     progress,
     error,
     verdictFor,
+    /** The other rows on the sheet with exactly this row's results. */
+    duplicatesFor: useCallback((row: SheetRow) => duplicates.get(row), [duplicates]),
     isChecking: progress.filled > progress.checked && error === null,
   };
 }

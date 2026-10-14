@@ -218,4 +218,6 @@ export const importLabRecordsSchema = z.object({
   reason: z.string().trim().max(1000).optional(),
   /** As on a bulk save: earlier results are replaced only when this says so. */
   overwrite: z.boolean().default(false),
+  /** Rows whose results read exactly like another's are saved only when this says so. */
+  duplicates: z.boolean().default(false),
 });

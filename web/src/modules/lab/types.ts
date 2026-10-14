@@ -210,6 +210,10 @@ export interface ImportPreviewRow {
    * so a grid can mark the very cell rather than only the row.
    */
   field?: string;
+  /** Other lines of this import whose results read exactly the same. */
+  duplicateLines?: number[];
+  /** Stored samples (Sample ID, or lab code) whose results read exactly the same. */
+  duplicateOf?: string[];
 }
 
 export interface ImportPreviewDTO {
@@ -223,6 +227,8 @@ export interface ImportPreviewDTO {
     invalid: number;
     /** Rows that would replace results already there. */
     overwrite: number;
+    /** Rows whose results read exactly like another row's or another sample's. */
+    duplicate: number;
   };
   applied: boolean;
 }

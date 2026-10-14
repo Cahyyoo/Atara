@@ -229,6 +229,8 @@ model LabRecord {
   @@unique([parentId, subCode])
   @@index([shiftDate])
   @@index([parentId])
+  /// The paste's look-alike check (assay-duplicates.ts) reads by these first.
+  @@index([ni, fe, sio2, mgo])
   @@map("lab_records")
 }
 

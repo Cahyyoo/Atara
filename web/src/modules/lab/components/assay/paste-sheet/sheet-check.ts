@@ -1,14 +1,20 @@
 /**
  * Checking only what changed.
  *
- * The import judges every row on its own -- a row's verdict depends on what
- * the row says and nothing else on the sheet -- so a verdict can be kept by
- * the row's text and reused until that text changes. A paste of five thousand
- * rows is checked once; after that, fixing one box sends one row, not five
- * thousand. Saving still sends the whole sheet, and the server checks all of
- * it again then, inside the transaction that writes it.
+ * The server's verdict on a row depends on what the row says and on what is
+ * stored -- never on the other rows -- so a verdict can be kept by the row's
+ * text and reused until that text changes. A paste of five thousand rows is
+ * checked once; after that, fixing one box sends one row, not five thousand.
+ * Saving still sends the whole sheet, and the server checks all of it again
+ * then, inside the transaction that writes it.
+ *
+ * The one thing that does depend on the other rows -- two rows with the same
+ * results -- is worked out here, over the whole sheet (sheetDuplicates); the
+ * server's own answer to that covers only the batch it was sent.
  */
 import { isFilledLine, rowLine, sheetLabel, type SheetRow } from "@/modules/lab/components/assay/paste-sheet/sheet-text";
+import { ASSAY_KEYS, assayKey, groupDuplicates } from "@/modules/lab/lib/records/assay-duplicates";
+import { parseNumber } from "@/core/lib/number-parse";
 import type { ImportPreviewDTO, ImportPreviewRow } from "@/modules/lab/types";
 
 /** Rows sent to the server in one check: big enough to be few requests, small enough to show progress. */
@@ -62,6 +68,27 @@ export function pruneVerdicts(cache: Map<string, Verdict>, rows: readonly SheetR
   for (const line of cache.keys()) if (!live.has(line)) cache.delete(line);
 }
 
+/**
+ * The rows about to be written whose results read exactly like another such
+ * row's on this sheet, each with the numbers of the rows it matches.
+ */
+export function sheetDuplicates(
+  rows: readonly SheetRow[],
+  keys: readonly string[],
+  cache: ReadonlyMap<string, Verdict>
+): Map<SheetRow, number[]> {
+  const assayColumns = keys.filter((key) => (ASSAY_KEYS as string[]).includes(key));
+  const keyed: { id: number; key: string | null }[] = [];
+  rows.forEach((row, index) => {
+    const status = cache.get(lineOf(row, keys))?.status;
+    if (status !== "update" && status !== "create") return;
+    const values = Object.fromEntries(assayColumns.map((key) => [key, parseNumber((row[key] ?? "").trim())]));
+    keyed.push({ id: index + 1, key: assayKey(values) });
+  });
+  const groups = groupDuplicates(keyed);
+  return new Map([...groups].map(([number, others]) => [rows[number - 1], others]));
+}
+
 export interface SheetProgress {
   /** Rows with something in them. */
   filled: number;
@@ -72,8 +99,13 @@ export interface SheetProgress {
 }
 
 /** The sheet's verdicts counted the way the import counts them (route.ts, `summary`). */
-export function progressOf(rows: readonly SheetRow[], keys: readonly string[], cache: ReadonlyMap<string, Verdict>): SheetProgress {
-  const summary = { total: 0, update: 0, create: 0, unchanged: 0, unknown: 0, invalid: 0, overwrite: 0 };
+export function progressOf(
+  rows: readonly SheetRow[],
+  keys: readonly string[],
+  cache: ReadonlyMap<string, Verdict>,
+  duplicates: ReadonlyMap<SheetRow, number[]> = new Map()
+): SheetProgress {
+  const summary = { total: 0, update: 0, create: 0, unchanged: 0, unknown: 0, invalid: 0, overwrite: 0, duplicate: 0 };
   let filled = 0;
   let checked = 0;
   for (const row of rows) {
@@ -86,6 +118,7 @@ export function progressOf(rows: readonly SheetRow[], keys: readonly string[], c
     summary.total++;
     summary[verdict.status]++;
     if ((verdict.overwrites?.length ?? 0) > 0) summary.overwrite++;
+    if (duplicates.has(row) || (verdict.duplicateOf?.length ?? 0) > 0) summary.duplicate++;
   }
   return { filled, checked, summary: filled > 0 && checked === filled ? summary : null };
 }

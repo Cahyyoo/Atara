@@ -59,12 +59,13 @@ export function usePasteSheet(onApplied: (count: number) => void) {
   const [tooMany, setTooMany] = useState(false);
 
   const send = useCallback(
-    async (csv: string, apply: boolean, overwrite: boolean, signal?: AbortSignal) =>
+    async (csv: string, apply: boolean, confirmed: boolean, signal?: AbortSignal) =>
       (await (
         await fetch(withBasePath("/api/lab-records/import"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ csv, apply, overwrite, reason: tPaste("auditReason") }),
+          // One confirmation covers both: replacing results, and saving look-alikes.
+          body: JSON.stringify({ csv, apply, overwrite: confirmed, duplicates: confirmed, reason: tPaste("auditReason") }),
           signal,
         })
       ).json()) as ApiResult<ImportPreviewDTO>,
@@ -87,7 +88,7 @@ export function usePasteSheet(onApplied: (count: number) => void) {
 
   async function save(overwrite = false) {
     if (!canSave) return;
-    if (!overwrite && (summary?.overwrite ?? 0) > 0) {
+    if (!overwrite && ((summary?.overwrite ?? 0) > 0 || (summary?.duplicate ?? 0) > 0)) {
       setConfirmFor(rows);
       return;
     }
@@ -97,7 +98,7 @@ export function usePasteSheet(onApplied: (count: number) => void) {
     try {
       const body = await send(text, true, overwrite);
       if (!body.success) {
-        if (body.code === "overwrite") setConfirmFor(rows);
+        if (body.code === "overwrite" || body.code === "duplicate") setConfirmFor(rows);
         else setSaveFailure({ rows, message: body.error });
         return;
       }
@@ -176,8 +177,11 @@ export function usePasteSheet(onApplied: (count: number) => void) {
     reveal: virtual.scrollToRow,
     clear: (range: GridRange) => {
       const cells = [];
+      // Only the Sample ID is cleared: results leave the sheet by pasting over them, or Clear all.
       for (let row = range.top; row <= range.bottom; row++) {
-        for (let col = range.left; col <= range.right; col++) cells.push({ row, key: keys[col], value: "" });
+        for (let col = range.left; col <= range.right; col++) {
+          if (keys[col] === "sampleIdent") cells.push({ row, key: keys[col], value: "" });
+        }
       }
       write(cells);
     },
@@ -211,6 +215,7 @@ export function usePasteSheet(onApplied: (count: number) => void) {
     keys,
     rows,
     verdictFor: check.verdictFor,
+    duplicatesFor: check.duplicatesFor,
     progress: check.progress,
     summary,
     writes,

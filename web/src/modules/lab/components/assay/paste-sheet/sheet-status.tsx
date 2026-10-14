@@ -10,6 +10,7 @@ import {
   IoCloseCircle,
   IoHelpCircle,
   IoRemoveCircleOutline,
+  IoWarning,
 } from "react-icons/io5";
 
 const MARKS = {
@@ -45,6 +46,24 @@ export function StatusMark({
   return <Icon role="img" aria-label={label} title={label} className={cn("size-4 shrink-0", className)} />;
 }
 
+/**
+ * Beside the verdict: results that read exactly like another row's on the
+ * sheet, or another sample's already stored. A warning; saving asks first.
+ */
+export function DuplicateMark({ lines, samples }: { lines?: number[]; samples?: string[] }) {
+  const t = useTranslations("assay.paste");
+  if (!lines?.length && !samples?.length) return null;
+  const label = [
+    lines?.length ? t("duplicateLines", { lines: lines.join(", ") }) : null,
+    samples?.length ? t("duplicateOf", { samples: samples.join(", ") }) : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  return (
+    <IoWarning role="img" aria-label={label} title={label} className="size-4 shrink-0 text-amber-500 dark:text-amber-400" />
+  );
+}
+
 /** What the sheet would do, counted, above it. */
 export function SheetSummary({ summary }: { summary: ImportPreviewDTO["summary"] }) {
   const t = useTranslations("assay.paste");
@@ -52,6 +71,7 @@ export function SheetSummary({ summary }: { summary: ImportPreviewDTO["summary"]
     { key: "update", text: t("toUpdate", { count: summary.update }), tone: "text-emerald-700 dark:text-emerald-300" },
     { key: "create", text: t("toCreate", { count: summary.create }), tone: "text-primary" },
     { key: "overwrite", text: t("toOverwrite", { count: summary.overwrite }), tone: "text-amber-700 dark:text-amber-300" },
+    { key: "duplicate", text: t("toDuplicate", { count: summary.duplicate }), tone: "text-amber-700 dark:text-amber-300" },
     { key: "unchanged", text: t("unchanged", { count: summary.unchanged }), tone: "text-muted-foreground" },
     { key: "unknown", text: t("unknown", { count: summary.unknown }), tone: "text-amber-700 dark:text-amber-300" },
     { key: "invalid", text: t("invalid", { count: summary.invalid }), tone: "text-destructive" },

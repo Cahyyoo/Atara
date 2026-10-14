@@ -55,7 +55,7 @@ beforeEach(() => {
       if (gate) await gate;
       const rows = verdicts(body.csv);
       const count = (status: string) => rows.filter((row) => row.status === status).length;
-      const summary = { total: rows.length, update: count("update"), create: 0, unchanged: 0, unknown: count("unknown"), invalid: count("invalid"), overwrite: 0 };
+      const summary = { total: rows.length, update: count("update"), create: 0, unchanged: 0, unknown: count("unknown"), invalid: count("invalid"), overwrite: 0, duplicate: 0 };
       return { ok: true, json: async () => ({ success: true, data: { rows, summary, applied: body.apply } }) };
     })
   );
@@ -87,6 +87,35 @@ const paste = (text: string) => fireEvent.paste(box(1, "Sample ID"), { clipboard
 const LONG = { timeout: 8000 };
 
 describe("the paste sheet", () => {
+  it("takes results by pasting only: the Sample ID is the one box that is typed", async () => {
+    await show();
+    expect(box(1, "Sample ID").readOnly).toBe(false);
+    expect(box(1, "Ni (%)").readOnly).toBe(true);
+    expect(box(1, "Measurement Method").readOnly).toBe(true);
+
+    paste("Sample ID\tNi (%)\nA-1\t1.5");
+    expect(box(1, "Ni (%)").value).toBe("1.5");
+    await userEvent.setup().type(box(1, "Ni (%)"), "9");
+    expect(box(1, "Ni (%)").value).toBe("1.5");
+    fireEvent.change(box(1, "Sample ID"), { target: { value: "A-9" } });
+    expect(box(1, "Sample ID").value).toBe("A-9");
+  });
+
+  it("warns about rows with the same results, and asks before saving them", async () => {
+    const onApplied = await show();
+    paste("Sample ID\tNi (%)\nA-1\t1.5\nA-2\t1.5\nA-3\t1.7");
+    await waitFor(() => expect(screen.getByRole("img", { name: "Same results as row 2" })).toBeTruthy(), LONG);
+    expect(screen.getByRole("img", { name: "Same results as row 1" })).toBeTruthy();
+
+    const save = await screen.findByRole("button", { name: "Save 3 row(s)" }, LONG);
+    await waitFor(() => expect((save as HTMLButtonElement).disabled).toBe(false), LONG);
+    const user = userEvent.setup();
+    await user.click(save);
+    await user.click(await screen.findByRole("button", { name: en.assay.paste.saveAnyway }));
+    await waitFor(() => expect(onApplied).toHaveBeenCalledWith(3), LONG);
+    expect(requests.at(-1)).toMatchObject({ apply: true, duplicates: true });
+  });
+
   it("has an outline to show while it opens: the real headings, and not one input", () => {
     // jsdom runs no animation, so the dialog is ready at once there; the
     // outline itself is what the opening frames draw in a browser.
@@ -136,7 +165,8 @@ describe("the paste sheet", () => {
     await waitFor(() => expect(screen.getByRole("img", { name: /Not valid/ })).toBeTruthy(), LONG);
     const before = requests.length;
 
-    fireEvent.change(box(2, "Ni (%)"), { target: { value: "1.6" } });
+    // A result is put right by pasting over it: the box takes no typing.
+    fireEvent.paste(box(2, "Ni (%)"), { clipboardData: { getData: () => "1.6" } });
     const save = await screen.findByRole("button", { name: "Save 3 row(s)" }, LONG);
     await waitFor(() => expect((save as HTMLButtonElement).disabled).toBe(false), LONG);
     // One more check, carrying the one row that changed and nothing else.

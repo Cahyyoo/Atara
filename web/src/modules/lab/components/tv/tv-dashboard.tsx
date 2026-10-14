@@ -8,6 +8,8 @@ import { formatSessionTime } from "@/core/lib/auth/session-client";
 import { formatWitaDateTime } from "@/core/lib/wita-time";
 import { useVisibleInterval } from "@/core/hooks/use-visible-interval";
 import type { StageBoard } from "@/modules/lab/lib/stages/stage-board";
+import type { YtdProduction } from "@/modules/lab/lib/analytics/ytd-types";
+import { TvYtd } from "@/modules/lab/components/tv/tv-ytd";
 import type { ApiResult } from "@/core/types";
 import { APP_NAME } from "@/core/lib/app/brand";
 import { IoExpandOutline } from "react-icons/io5";
@@ -32,10 +34,18 @@ export function formatWait(hours: number, t: (key: string, values: Record<string
  * ends is noticed here, on the next refresh, and said in the middle of the
  * screen.
  */
-export function TvDashboard({ initialBoard }: { initialBoard: StageBoard }) {
+export function TvDashboard({
+  initialBoard,
+  initialYtd = null,
+}: {
+  initialBoard: StageBoard;
+  /** The year so far per place and production code; null until it could be read. */
+  initialYtd?: YtdProduction | null;
+}) {
   const t = useTranslations("tv");
   const tStages = useTranslations("stages");
   const [board, setBoard] = useState(initialBoard);
+  const [ytd, setYtd] = useState(initialYtd);
   const [expired, setExpired] = useState(false);
   // Starts from the server's time, so the first render matches on both sides.
   const [now, setNow] = useState(initialBoard.generatedAt);
@@ -57,6 +67,15 @@ export function TvDashboard({ initialBoard }: { initialBoard: StageBoard }) {
         if (body.success) setBoard(body.data);
       } catch {
         // Offline for a moment: keep the last figures up.
+      }
+    })();
+    void (async () => {
+      try {
+        const response = await fetch(withBasePath("/api/samples/ytd"), { cache: "no-store" });
+        const body: ApiResult<YtdProduction> = await response.json();
+        if (body.success) setYtd(body.data);
+      } catch {
+        // The year's table keeps its last figures, as the board does.
       }
     })();
   }, TV_REFRESH_MS);
@@ -152,6 +171,8 @@ export function TvDashboard({ initialBoard }: { initialBoard: StageBoard }) {
         </div>
       </section>
 
+      <TvYtd ytd={ytd} />
+
       <section className="mt-8">
         <h2 className="text-xl text-neutral-400">{t("longest")}</h2>
         {longest.length === 0 ? (
@@ -182,7 +203,7 @@ export function TvDashboard({ initialBoard }: { initialBoard: StageBoard }) {
         >
           <p className="text-3xl font-semibold">{t("expired")}</p>
           <a
-            href={withBasePath("/login?next=/tv")}
+            href={withBasePath("/login?next=/lab/tv")}
             className="rounded-xl bg-white px-6 py-3 text-xl font-medium text-neutral-950"
           >
             {t("signInAgain")}

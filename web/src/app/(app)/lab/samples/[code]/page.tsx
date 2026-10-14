@@ -17,7 +17,8 @@ import { stageLabel } from "@/modules/lab/lib/stages/stages";
 import Link from "next/link";
 import { subSamplePath } from "@/modules/lab/lib/samples/sample-ident";
 import { ASSAY_FIELDS } from "@/modules/lab/lib/records/assay";
-import { IoCalendarOutline, IoLayersOutline, IoPersonOutline } from "react-icons/io5";
+import { IoCalendarOutline, IoHourglassOutline, IoLayersOutline, IoPersonOutline } from "react-icons/io5";
+import { leadTimeHours, stageMoments } from "@/modules/lab/lib/records/mc";
 
 export const dynamic = "force-dynamic";
 
@@ -69,6 +70,15 @@ export default async function SampleDetailPage({
   // sample that still exists.
   const correctable = canCorrect && sample.deletedAt === null;
   const stages = correctable ? await loadStages() : [];
+
+  // Receipt to report, from the scans already loaded: the same rule as the
+  // Sample Database and the export (first Received, last Report).
+  const stageIdOf = (key: string) => sample.logs.find((log) => log.stage.key === key)?.stageId;
+  const { receivedAt, reportAt } = stageMoments(sample.logs, {
+    receivedId: stageIdOf("RECEIVED"),
+    reportId: stageIdOf("REPORT"),
+  });
+  const leadTime = leadTimeHours(receivedAt, reportAt);
 
   const logs = sample.logs.map((log) => ({
     id: log.id,
@@ -151,7 +161,7 @@ export default async function SampleDetailPage({
         </div>
       </div>
 
-      <div data-tour="sample-summary" className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div data-tour="sample-summary" className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center gap-2 pb-2">
             <IoLayersOutline className="size-4 text-muted-foreground" />
@@ -187,6 +197,20 @@ export default async function SampleDetailPage({
           </CardHeader>
           <CardContent>
             <p className="text-lg font-semibold">{format.dateTime(sample.createdAt, { dateStyle: "long", timeStyle: "short" })}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center gap-2 pb-2">
+            <IoHourglassOutline className="size-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">{t("leadTime")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-lg font-semibold tabular-nums">
+              {leadTime === null ? "—" : t("leadTimeValue", { hours: leadTime.toFixed(1) })}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {leadTime === null ? t("leadTimePending") : t("leadTimeSpan")}
+            </p>
           </CardContent>
         </Card>
       </div>

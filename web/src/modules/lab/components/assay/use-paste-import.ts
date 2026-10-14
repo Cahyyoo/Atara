@@ -36,12 +36,13 @@ function useImportRequest() {
   );
 
   const send = useCallback(
-    async (csv: string, apply: boolean, overwrite = false) => {
+    async (csv: string, apply: boolean, confirmed = false) => {
       const id = ++requestId.current;
+      // One confirmation covers both: replacing results, and saving look-alikes.
       const response = await fetch(withBasePath("/api/lab-records/import"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ csv, apply, overwrite, reason: t("auditReason") }),
+        body: JSON.stringify({ csv, apply, overwrite: confirmed, duplicates: confirmed, reason: t("auditReason") }),
       });
       const body: ApiResult<ImportPreviewDTO> & { code?: string } = await response.json();
       return { id, body };
@@ -188,8 +189,8 @@ export function usePasteImport() {
   const save = useCallback(
     async (overwrite = false) => {
       if (!canSave || isSaving) return;
-      // Results already there are replaced only once that has been confirmed.
-      if (!overwrite && (summary?.overwrite ?? 0) > 0) {
+      // Results already there are replaced, and look-alikes saved, only once confirmed.
+      if (!overwrite && ((summary?.overwrite ?? 0) > 0 || (summary?.duplicate ?? 0) > 0)) {
         setConfirmOverwrite(true);
         return;
       }
@@ -198,7 +199,7 @@ export function usePasteImport() {
       try {
         const { body } = await send(text, true, overwrite);
         if (!body.success) {
-          if (body.code === "overwrite") {
+          if (body.code === "overwrite" || body.code === "duplicate") {
             setConfirmOverwrite(true);
             return;
           }
@@ -234,7 +235,9 @@ export function usePasteImport() {
     const all = [...(preview?.rows ?? [])].sort(
       (a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status] || a.line - b.line
     );
-    return problemsOnly ? all.filter((row) => row.status === "invalid" || row.status === "unknown") : all;
+    return problemsOnly
+      ? all.filter((row) => row.status === "invalid" || row.status === "unknown" || row.duplicateLines || row.duplicateOf)
+      : all;
   }, [preview, problemsOnly]);
 
   function pasteAnother() {

@@ -129,7 +129,9 @@ export function PasteSheetDialog({
           <DialogTitle>{t("title")}</DialogTitle>
           <DialogDescription className="flex items-start gap-2">
             <IoClipboardOutline aria-hidden className="mt-0.5 size-4 shrink-0" />
-            {t("description", { max: SHEET_MAX_ROWS })}
+            <span>
+              {t("description", { max: SHEET_MAX_ROWS })} <strong className="font-medium">{t("pasteOnly")}</strong>
+            </span>
           </DialogDescription>
         </DialogHeader>
 
@@ -162,6 +164,7 @@ export function PasteSheetDialog({
               columns={columns}
               rows={sheet.rows}
               verdictFor={sheet.verdictFor}
+              duplicatesFor={sheet.duplicatesFor}
               pending={sheet.isChecking}
               locked={sheet.isSaving}
               checkCell={checkCell}

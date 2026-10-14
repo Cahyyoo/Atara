@@ -73,6 +73,29 @@ describe("the TV view", () => {
     expect(screen.queryByText("Not received")).toBeNull();
   });
 
+  it("shows the year so far per place: production first, then each non-production code", () => {
+    wrap(
+      <TvDashboard
+        initialBoard={BOARD}
+        initialYtd={{
+          year: 2026,
+          generatedAt: BOARD.generatedAt,
+          rows: [
+            { place: "MOL", code: null, samples: 1200, assayed: 1150, ni: 1.623, fe: 18.4 },
+            { place: "MOL", code: "TP", samples: 40, assayed: 38, ni: 1.2, fe: null },
+            { place: "LAM", code: null, samples: 300, assayed: 0, ni: null, fe: null },
+          ],
+        }}
+      />
+    );
+
+    expect(screen.getByRole("heading", { name: "Year to date 2026" })).toBeTruthy();
+    const mol = screen.getByText("MOL").parentElement!;
+    const rows = within(mol).getAllByRole("row").slice(1).map((row) => row.textContent);
+    expect(rows).toEqual(["Production120011501.6218.40", "TP40381.20—"]);
+    expect(within(screen.getByText("LAM").parentElement!).getByText("300")).toBeTruthy();
+  });
+
   it("says so in the middle of the screen when its session ends", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     vi.stubGlobal("fetch", vi.fn(async () => ({ status: 401, json: async () => ({}) })));
@@ -82,7 +105,7 @@ describe("the TV view", () => {
       vi.advanceTimersByTime(TV_REFRESH_MS);
     });
     expect(await screen.findByRole("alertdialog")).toBeTruthy();
-    expect(screen.getByRole("link", { name: "Sign in again" }).getAttribute("href")).toBe("/login?next=/tv");
+    expect(screen.getByRole("link", { name: "Sign in again" }).getAttribute("href")).toBe("/login?next=/lab/tv");
   });
 });
 

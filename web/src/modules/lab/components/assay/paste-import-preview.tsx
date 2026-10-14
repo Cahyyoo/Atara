@@ -33,7 +33,7 @@ export function PasteImportPreview({ summary, rows, problemsOnly, onProblemsOnly
     unknown: t("status.unknown"),
     invalid: t("status.invalid"),
   };
-  const problems = summary.invalid + summary.unknown;
+  const problems = summary.invalid + summary.unknown + (summary.duplicate ?? 0);
 
   return (
     <>
@@ -50,6 +50,11 @@ export function PasteImportPreview({ summary, rows, problemsOnly, onProblemsOnly
         {(summary.overwrite ?? 0) > 0 ? (
           <span className="rounded-md bg-amber-100 px-2.5 py-1 text-amber-800 dark:bg-amber-500/15 dark:text-amber-400">
             {t("toOverwrite", { count: summary.overwrite })}
+          </span>
+        ) : null}
+        {(summary.duplicate ?? 0) > 0 ? (
+          <span className="rounded-md bg-amber-100 px-2.5 py-1 text-amber-800 dark:bg-amber-500/15 dark:text-amber-400">
+            {t("toDuplicate", { count: summary.duplicate })}
           </span>
         ) : null}
         <span className="rounded-md bg-muted px-2.5 py-1">{t("unchanged", { count: summary.unchanged })}</span>
@@ -92,7 +97,8 @@ export function PasteImportPreview({ summary, rows, problemsOnly, onProblemsOnly
                 key={`${row.line}-${row.labCode}`}
                 className={cn(
                   row.status === "invalid" && "bg-destructive/5",
-                  row.status === "unknown" && "bg-amber-50/60 dark:bg-amber-500/5"
+                  (row.status === "unknown" || row.duplicateLines || row.duplicateOf) &&
+                    "bg-amber-50/60 dark:bg-amber-500/5"
                 )}
               >
                 <TableCell className="text-muted-foreground tabular-nums">{row.line}</TableCell>
@@ -120,6 +126,16 @@ export function PasteImportPreview({ summary, rows, problemsOnly, onProblemsOnly
                   {row.overwrites?.length ? (
                     <span className="block text-xs text-amber-700 dark:text-amber-400">
                       {t("overwrites", { count: row.overwrites.length })}
+                    </span>
+                  ) : null}
+                  {row.duplicateLines ? (
+                    <span className="block text-xs text-amber-700 dark:text-amber-400">
+                      {t("duplicateLines", { lines: row.duplicateLines.join(", ") })}
+                    </span>
+                  ) : null}
+                  {row.duplicateOf ? (
+                    <span className="block text-xs text-amber-700 dark:text-amber-400">
+                      {t("duplicateOf", { samples: row.duplicateOf.join(", ") })}
                     </span>
                   ) : null}
                   {row.message ? <span className="block text-xs text-muted-foreground">{row.message}</span> : null}

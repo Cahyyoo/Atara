@@ -20,6 +20,7 @@ const { POST: importSheet } = await import("@/app/api/(lab)/lab-records/import/r
 const { DELETE: removeSubs } = await import("@/app/api/(lab)/lab-records/subs/route");
 const { syncSubs } = await import("@/modules/lab/lib/records/sub-records");
 const { buildGradeControl } = await import("@/modules/lab/lib/analytics/grade-control");
+const { loadYtdProduction } = await import("@/modules/lab/lib/analytics/ytd-production");
 
 function request(url: string, method: string, body: unknown) {
   const text = JSON.stringify(body);
@@ -228,6 +229,37 @@ describe.skipIf(!reachable)("sub-samples against the database", () => {
     expect(Number(sub.ni)).toBe(1.7);
   });
 
+  it("warns about results that read like another row's or another sample's, and saves them only when told", async () => {
+    // Figures no other test writes, so a stored look-alike is the one made here.
+    const odd = Number(((Date.now() % 900) / 1000 + 7).toFixed(3));
+    const other = Number((odd + 1).toFixed(3));
+    const stored = await sample();
+    await prisma.labRecord.update({ where: { id: stored.id }, data: { ni: odd, fe: 12.345 } });
+    const [first, second, third] = [await sample(), await sample(), await sample()];
+    const csv = [
+      `Sample ID\tNi\tFe`,
+      `${first.sampleIdent}\t${odd}\t12.345`,
+      `${second.sampleIdent}\t${other}\t12.345`,
+      `${third.sampleIdent}\t${other}\t12.345`,
+    ].join("\n");
+
+    const preview = await call(importSheet, "/api/lab-records/import", "POST", { csv, apply: false });
+    const [likeStored, likeRow, likeRowToo] = preview.body.data.rows;
+    expect(likeStored.duplicateOf).toEqual([stored.sampleIdent]);
+    expect(likeStored.duplicateLines).toBeUndefined();
+    expect(likeRow.duplicateLines).toEqual([4]);
+    expect(likeRowToo.duplicateLines).toEqual([3]);
+    expect(preview.body.data.summary.duplicate).toBe(3);
+
+    const refused = await call(importSheet, "/api/lab-records/import", "POST", { csv, apply: true });
+    expect(refused).toMatchObject({ status: 409, body: { code: "duplicate" } });
+    expect((await prisma.labRecord.findUniqueOrThrow({ where: { id: first.id } })).ni).toBeNull();
+
+    const applied = await call(importSheet, "/api/lab-records/import", "POST", { csv, apply: true, duplicates: true });
+    expect(applied.status).toBe(200);
+    expect(Number((await prisma.labRecord.findUniqueOrThrow({ where: { id: first.id } })).ni)).toBe(odd);
+  });
+
   it("names the column at fault, so a grid can mark the very cell", async () => {
     const parent = await sample();
     const csv = `Sample ID\tNi\tFe\n${parent.sampleIdent}\t1.5\tabc\nNO-SUCH-SAMPLE\t1\t2\n\t1\t2\n`;
@@ -349,5 +381,15 @@ describe.skipIf(!reachable)("sub-samples against the database", () => {
     expect(await rowFor("parents")).toMatchObject({ samples: 1, avg: { ni: 1 } });
     expect(await rowFor("subs")).toMatchObject({ samples: 1, avg: { ni: 3 } });
     expect(await rowFor("all")).toMatchObject({ samples: 2, avg: { ni: 2 } });
+  });
+
+  it("counts the year so far for the wall monitor, per place and production code", async () => {
+    await sample(2);
+    const ytd = await loadYtdProduction(new Date(Date.now() + 60_000));
+    expect(ytd.year).toBe(new Date(Date.now() + 8 * 3_600_000).getUTCFullYear());
+    // This file's samples carry no non-production code: they are production.
+    const own = ytd.rows.find((row) => row.place === `${tag}P` && row.code === null);
+    expect(own?.samples).toBeGreaterThan(0);
+    expect(own?.assayed).toBeGreaterThan(0);
   });
 });

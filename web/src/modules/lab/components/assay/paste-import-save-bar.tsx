@@ -35,9 +35,19 @@ export function PasteImportSaveBar({
     // scroll away from the preview it confirms.
     <div className="sticky bottom-3 z-20 flex flex-wrap items-center gap-3 rounded-2xl border bg-background/95 px-4 py-3 shadow-raised backdrop-blur-sm">
       {confirmOverwrite ? (
-        <span role="alert" className="flex items-center gap-2 text-sm text-amber-800 dark:text-amber-300">
-          <IoWarningOutline className="size-4 shrink-0" />
-          {t("overwriteConfirm", { count: summary.overwrite ?? 0 })}
+        <span role="alert" className="flex flex-col gap-0.5 text-sm text-amber-800 dark:text-amber-300">
+          {(summary.overwrite ?? 0) > 0 ? (
+            <span className="flex items-center gap-2">
+              <IoWarningOutline className="size-4 shrink-0" />
+              {t("overwriteConfirm", { count: summary.overwrite ?? 0 })}
+            </span>
+          ) : null}
+          {(summary.duplicate ?? 0) > 0 ? (
+            <span className="flex items-center gap-2">
+              <IoWarningOutline className="size-4 shrink-0" />
+              {t("duplicateConfirm", { count: summary.duplicate ?? 0 })}
+            </span>
+          ) : null}
         </span>
       ) : summary.invalid > 0 ? (
         <span className="flex items-center gap-2 text-sm text-destructive">
@@ -61,7 +71,7 @@ export function PasteImportSaveBar({
           </Button>
           <Button className="gap-2" disabled={isSaving} onClick={() => void onSave(true)}>
             {isSaving ? <IoReloadOutline className="size-4 animate-spin" /> : null}
-            {t("overwriteAndSave")}
+            {(summary.overwrite ?? 0) > 0 ? t("overwriteAndSave") : t("saveAnyway")}
           </Button>
         </div>
       ) : (

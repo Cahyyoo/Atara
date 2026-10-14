@@ -6,6 +6,7 @@ import {
   progressOf,
   pruneVerdicts,
   rememberVerdicts,
+  sheetDuplicates,
   type Verdict,
 } from "@/modules/lab/components/assay/paste-sheet/sheet-check";
 import type { SheetRow } from "@/modules/lab/components/assay/paste-sheet/sheet-text";
@@ -72,6 +73,7 @@ describe("the sheet's count", () => {
       unknown: 1,
       invalid: 1,
       overwrite: 1,
+      duplicate: 0,
     });
   });
 
@@ -80,5 +82,39 @@ describe("the sheet's count", () => {
     pruneVerdicts(stale, rows, KEYS);
     expect(stale.has("GONE\t9")).toBe(false);
     expect(stale.size).toBe(3);
+  });
+});
+
+describe("rows with the same results", () => {
+  const rows: SheetRow[] = [
+    { sampleIdent: "A-1", ni: "1,86" },
+    { sampleIdent: "A-2", ni: "1.860" },
+    { sampleIdent: "A-3", ni: "1.5" },
+    { sampleIdent: "NOPE", ni: "1.86" },
+  ];
+  const cache = new Map<string, Verdict>([
+    ["A-1\t1,86", { labCode: "A-1", status: "update", changes: {} }],
+    ["A-2\t1.860", { labCode: "A-2", status: "create", changes: {} }],
+    ["A-3\t1.5", { labCode: "A-3", status: "update", changes: {} }],
+    ["NOPE\t1.86", { labCode: "NOPE", status: "unknown", changes: {} }],
+  ]);
+
+  it("are found across the whole sheet, comma decimals and all, among the rows to be written", () => {
+    const duplicates = sheetDuplicates(rows, KEYS, cache);
+    expect(duplicates.get(rows[0])).toEqual([2]);
+    expect(duplicates.get(rows[1])).toEqual([1]);
+    expect(duplicates.has(rows[2])).toBe(false);
+    // Not found, so nothing of it is written.
+    expect(duplicates.has(rows[3])).toBe(false);
+  });
+
+  it("are counted, and so is a row that reads like a stored sample", () => {
+    const stored = new Map(cache).set("A-3\t1.5", {
+      labCode: "A-3",
+      status: "update",
+      changes: {},
+      duplicateOf: ["MOL B7/1.1"],
+    });
+    expect(progressOf(rows, KEYS, stored, sheetDuplicates(rows, KEYS, stored)).summary?.duplicate).toBe(3);
   });
 });
