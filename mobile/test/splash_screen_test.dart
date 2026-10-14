@@ -71,7 +71,7 @@ void main() {
     await pumpSplash(tester, onFinished: () => finished = true);
 
     final mark = find.byType(BrandGlyph);
-    final name = find.text('Atara Operator');
+    final name = find.text('Atara Preparator');
 
     // Frame 0 is the launch window's composition, carried over — the mark is
     // already there, a touch large, with nothing else said yet.
@@ -129,7 +129,7 @@ void main() {
     );
 
     expect(find.byType(BrandGlyph), findsOneWidget);
-    expect(find.text('Atara Operator'), findsOneWidget);
+    expect(find.text('Atara Preparator'), findsOneWidget);
 
     // Well past the 45ms a compressed controller would have taken.
     await tester.pump(const Duration(milliseconds: 200));

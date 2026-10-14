@@ -29,7 +29,7 @@ export function manageableTargets(access: Access): readonly ManagedTarget[] {
       return [
         { role: "DATABASE", department: "LAB" },
         { role: "ANALISIS", department: "LAB" },
-        { role: "OPERATOR", department: "LAB" },
+        { role: "PREPARATOR", department: "LAB" },
       ];
     default:
       return [];

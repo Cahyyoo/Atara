@@ -69,14 +69,26 @@ void main() {
     expect(find.textContaining('MOL/LIM/S3/PA4/B42/919.3/25'), findsOneWidget);
   });
 
-  testWidgets('leaves the row out entirely when there is no Sample ID', (tester) async {
+  testWidgets('says plainly when there is no Sample ID, and offers to fill it in', (tester) async {
     await showCachedSample(tester, sample(code: 'SMPL-2026-00083'));
 
     expect(find.text('SMPL-2026-00083'), findsOneWidget);
-    // Not a dash, not an empty row: nothing. Most samples are barcoded before
-    // their identity is known, so this is the ordinary case, and the card is
-    // read standing in front of the container.
-    expect(find.textContaining('Sample ID'), findsNothing);
+    // Not a dash and not an empty "Sample ID:" row: a sentence, and the way to
+    // fix it right under it. A barcode without its Sample ID is the thing the
+    // preparator is there to notice.
+    expect(find.textContaining('Sample ID: '), findsNothing);
+    expect(find.text('Barcode ini belum punya Sample ID.'), findsOneWidget);
+    expect(find.text('Isi Sample ID'), findsOneWidget);
+  });
+
+  testWidgets('shows the Sample ID once, with the way to change it', (tester) async {
+    await showCachedSample(
+      tester,
+      sample(code: 'SMPL-2026-00084', ident: 'MOL LIM S3/PA4/B42/919.3/25'),
+    );
+
+    expect(find.textContaining('MOL LIM S3/PA4/B42/919.3/25'), findsOneWidget);
+    expect(find.text('Ubah Sample ID'), findsOneWidget);
   });
 
   testWidgets('still opens a sample carrying an old NKL code', (tester) async {

@@ -25,7 +25,7 @@ String _storedUser({required bool mustChangePassword}) => jsonEncode({
   'id': 'u1',
   'name': 'Siti',
   'email': 'siti@atara.local',
-  'role': 'OPERATOR',
+  'role': 'PREPARATOR',
   'mustChangePassword': mustChangePassword,
 });
 
@@ -93,7 +93,7 @@ void main() {
             'id': 'u1',
             'name': 'Siti',
             'email': 'siti@atara.local',
-            'role': 'OPERATOR',
+            'role': 'PREPARATOR',
           },
         },
       });
@@ -109,7 +109,7 @@ void main() {
             'id': 'u1',
             'name': 'Siti',
             'email': 'siti@atara.local',
-            'role': 'OPERATOR',
+            'role': 'PREPARATOR',
           },
         },
       });
@@ -121,7 +121,7 @@ void main() {
         id: 'u1',
         name: 'Siti',
         email: 'siti@atara.local',
-        role: UserRole.operator,
+        role: UserRole.preparator,
         mustChangePassword: true,
       );
       await SessionService.saveSession('jwt', user);
@@ -139,7 +139,7 @@ void main() {
           'id': 'u1',
           'name': 'Siti',
           'email': 'siti@atara.local',
-          'role': 'OPERATOR',
+          'role': 'PREPARATOR',
         }),
       });
       expect((await SessionService.getUser())!.mustChangePassword, isFalse);

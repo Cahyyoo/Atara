@@ -9,7 +9,10 @@ import 'package:flutter/foundation.dart'
 
 import '../models/announcement.dart';
 import '../models/login_result.dart';
+import '../models/master_option.dart';
+import '../models/sample_identity.dart';
 import '../models/sample_model.dart';
+import '../models/stage_board.dart';
 import '../models/stage_model.dart';
 import '../models/work_summary.dart';
 import 'api_exception.dart';
@@ -567,7 +570,7 @@ class ApiService {
   /// The server takes the operator from the auth token, so none is sent here.
   /// [force] and [reason] are the operator's override of the stage order.
   ///
-  /// `evaluateStageTransition` honours them for OPERATOR and refuses them
+  /// `evaluateStageTransition` honours them for PREPARATOR and refuses them
   /// without a reason, so a mis-scan is fixed at the rack instead of at a desk.
   /// Every other role is refused this endpoint outright (403), and the app
   /// signs none of them in.
@@ -594,6 +597,80 @@ class ApiService {
       return SampleModel.fromJson(
         response.data['data'] as Map<String, dynamic>,
       );
+    } on DioException catch (error) {
+      throw _mapError(error);
+    }
+  }
+
+  /// Every code in the five lists a Sample ID is picked from, retired ones
+  /// included: a sample may still carry a code that has since been retired,
+  /// and it has to be shown by name. The pickers offer only the active ones.
+  Future<List<MasterOption>> getMasterOptions() async {
+    try {
+      final response = await _dio.get('/master-options');
+      final data = response.data['data'];
+      final list = data is Map ? data['options'] : null;
+      if (list is! List) return const [];
+      return list
+          .map(MasterOption.tryFromJson)
+          .whereType<MasterOption>()
+          .toList(growable: false);
+    } on DioException catch (error) {
+      throw _mapError(error);
+    }
+  }
+
+  /// Adds a code to a master list straight from a picker, as the identity form
+  /// on the website does. A 409 means somebody added it first; the caller
+  /// re-reads the list and picks theirs.
+  Future<MasterOption> createMasterOption({
+    required MasterKind kind,
+    required String code,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '/master-options',
+        data: {'kind': kind.wire, 'code': code.toUpperCase()},
+      );
+      final option = MasterOption.tryFromJson(response.data['data']);
+      if (option == null) {
+        throw const ApiException('Unreadable reply.');
+      }
+      return option;
+    } on DioException catch (error) {
+      throw _mapError(error);
+    }
+  }
+
+  /// Fills in or corrects a sample's identity by barcode.
+  ///
+  /// With [dryRun] nothing is written: the server answers with the Sample ID
+  /// the parts compose and the sample already holding it, if any, so the form
+  /// can warn while it is being filled in. A real save of an id that is taken
+  /// is refused with a 409. Needs the server: an identity is never queued.
+  Future<IdentityCheck> updateSampleIdentity({
+    required String sampleCode,
+    required SampleIdentity identity,
+    bool dryRun = false,
+  }) async {
+    try {
+      final response = await _dio.patch(
+        '/samples/${Uri.encodeComponent(sampleCode)}/identity',
+        data: {...identity.toPayload(), 'dryRun': dryRun},
+      );
+      return IdentityCheck.fromJson(
+        response.data['data'] as Map<String, dynamic>,
+      );
+    } on DioException catch (error) {
+      throw _mapError(error);
+    }
+  }
+
+  /// Where every live sample is now, stage by stage: Home's to-do list.
+  Future<StageBoard> getStageBoard() async {
+    try {
+      final response = await _dio.get('/samples/board');
+      return StageBoard.fromJson(response.data['data'] as Map<String, dynamic>);
     } on DioException catch (error) {
       throw _mapError(error);
     }

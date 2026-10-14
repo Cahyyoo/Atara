@@ -19,7 +19,7 @@ import { toDateColumn, blankToNull } from "@/modules/eksplorasi/lib/drill-hole";
 const SUPER: Access = { role: "SUPER_ADMIN", department: null };
 const LAB_ADMIN: Access = { role: "ADMIN", department: "LAB" };
 const EKS_ADMIN: Access = { role: "ADMIN", department: "EKSPLORASI" };
-const OPERATOR: Access = { role: "OPERATOR", department: "LAB" };
+const PREPARATOR: Access = { role: "PREPARATOR", department: "LAB" };
 
 describe("who manages whose account", () => {
   it("lets the super admin manage the admins of every department, and nobody else", () => {
@@ -29,21 +29,21 @@ describe("who manages whose account", () => {
     ]);
     expect(canManage(SUPER, LAB_ADMIN)).toBe(true);
     expect(canManage(SUPER, EKS_ADMIN)).toBe(true);
-    expect(canManage(SUPER, OPERATOR)).toBe(false);
+    expect(canManage(SUPER, PREPARATOR)).toBe(false);
     expect(canManage(SUPER, SUPER)).toBe(false);
   });
 
   it("lets the lab admin manage the lab's staff only", () => {
-    expect(assignableRoles(LAB_ADMIN)).toEqual(["DATABASE", "ANALISIS", "OPERATOR"]);
-    expect(canManage(LAB_ADMIN, OPERATOR)).toBe(true);
+    expect(assignableRoles(LAB_ADMIN)).toEqual(["DATABASE", "ANALISIS", "PREPARATOR"]);
+    expect(canManage(LAB_ADMIN, PREPARATOR)).toBe(true);
     expect(canManage(LAB_ADMIN, LAB_ADMIN)).toBe(false);
     expect(canManage(LAB_ADMIN, EKS_ADMIN)).toBe(false);
     expect(canAssign(LAB_ADMIN, "ADMIN", "LAB")).toBe(false);
-    expect(canAssign(LAB_ADMIN, "OPERATOR", "EKSPLORASI")).toBe(false);
+    expect(canAssign(LAB_ADMIN, "PREPARATOR", "EKSPLORASI")).toBe(false);
   });
 
   it("gives everybody else nobody to manage", () => {
-    for (const access of [EKS_ADMIN, OPERATOR]) {
+    for (const access of [EKS_ADMIN, PREPARATOR]) {
       expect(manageableTargets(access)).toEqual([]);
       expect(userScopeWhere(access)).toEqual({ id: { in: [] } });
     }
@@ -51,11 +51,11 @@ describe("who manages whose account", () => {
 
   it("asks the super admin for a department, and nobody else", () => {
     expect(assignableDepartments(SUPER, "ADMIN")).toEqual(["LAB", "EKSPLORASI"]);
-    expect(assignableDepartments(LAB_ADMIN, "OPERATOR")).toEqual(["LAB"]);
+    expect(assignableDepartments(LAB_ADMIN, "PREPARATOR")).toEqual(["LAB"]);
   });
 
   it("never lets anybody create a super admin", () => {
-    for (const access of [SUPER, LAB_ADMIN, EKS_ADMIN, OPERATOR]) {
+    for (const access of [SUPER, LAB_ADMIN, EKS_ADMIN, PREPARATOR]) {
       expect(canAssign(access, "SUPER_ADMIN", null)).toBe(false);
     }
   });
@@ -84,7 +84,7 @@ describe("the modules", () => {
     expect(modulesFor(SUPER).map((m) => m.key)).toEqual(["system"]);
     // The lab admin also opens Settings, for the lab's staff on Users.
     expect(modulesFor(LAB_ADMIN).map((m) => m.key)).toEqual(["lab", "system"]);
-    expect(modulesFor(OPERATOR).map((m) => m.key)).toEqual(["lab"]);
+    expect(modulesFor(PREPARATOR).map((m) => m.key)).toEqual(["lab"]);
     expect(modulesFor(EKS_ADMIN).map((m) => m.key)).toEqual(["eksplorasi"]);
     expect(canAccessModule({ role: "ADMIN", department: null }, "lab")).toBe(false);
   });

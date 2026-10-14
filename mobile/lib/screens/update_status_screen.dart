@@ -12,6 +12,7 @@ import '../providers/my_work_provider.dart';
 import '../providers/pending_scans_provider.dart';
 import '../providers/session_provider.dart';
 import '../providers/stages_provider.dart';
+import '../providers/todo_provider.dart';
 import '../models/pending_scan.dart';
 import '../services/api_error_text.dart';
 import '../services/api_exception.dart';
@@ -26,11 +27,13 @@ import '../widgets/ios/inset_section.dart';
 import '../widgets/ios/ios_button.dart';
 import '../widgets/app_primitives.dart';
 import '../widgets/sample_history.dart';
+import '../widgets/sample_identity_card.dart';
 import '../widgets/sample_summary_card.dart';
 import '../widgets/server_address_notice.dart';
 import '../widgets/stage_picker.dart';
 import '../widgets/status_view.dart';
 import '../widgets/skeletons.dart';
+import 'sample_identity_screen.dart';
 import 'settings_screen.dart';
 
 class UpdateStatusScreen extends ConsumerStatefulWidget {
@@ -122,7 +125,7 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
   /// panel promises a power the server grants by role, and the day that list
   /// changes this line should be the one that has to.
   bool get _canOverride =>
-      ref.read(sessionProvider).value?.role == UserRole.operator;
+      ref.read(sessionProvider).value?.role == UserRole.preparator;
 
   /// Whether the override is on offer right now — and so whether a reason is
   /// required before the button does anything.
@@ -258,6 +261,8 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
       // The work summary counts what the server has, so refresh it rather than
       // keeping a second tally on the device.
       unawaited(ref.read(myWorkProvider.notifier).refresh());
+      // The sample has left one stage's queue for the next one's.
+      unawaited(ref.read(todoProvider.notifier).refresh());
 
       if (!mounted) return;
       setState(() {
@@ -342,6 +347,23 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
     await Future.delayed(_confirmationHold);
     if (!mounted) return;
     Navigator.of(context).pop(true);
+  }
+
+  /// The identity form, over this screen. A saved Sample ID is fetched back in
+  /// place, without the skeleton: the stage being picked here stays picked.
+  Future<void> _openIdentity() async {
+    final saved = await Navigator.of(context).push<bool>(
+      CupertinoPageRoute(
+        builder: (context) => SampleIdentityScreen(sampleCode: widget.sampleCode),
+      ),
+    );
+    if (saved != true || !mounted) return;
+    try {
+      final sample = await ApiService.instance.getSampleByCode(widget.sampleCode);
+      if (mounted) setState(() => _sample = sample);
+    } catch (_) {
+      // The save went through; what is on screen catches up on the next open.
+    }
   }
 
   void _openSettings() {
@@ -468,7 +490,8 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
             tone: palette.success,
             title: l10n.workflowComplete,
           ),
-        SampleSummaryCard(sample: sample),
+        SampleSummaryCard(sample: sample, showIdent: false),
+        SampleIdentityCard(sample: sample, onEdit: _openIdentity),
         SampleHistorySection(sample: sample),
       ],
       ..._buildStagePicker(l10n, stagesAsync),
@@ -522,7 +545,7 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
 
   /// Offered only when the pick breaks the order: a step back, or a skip.
   ///
-  /// The server accepts `force` from an OPERATOR alone — the role standing at
+  /// The server accepts `force` from a PREPARATOR alone — the role standing at
   /// the rack when a mis-scan happens — and refuses it without a reason, so the
   /// reason is required here too. An ordinary next-stage move shows nothing
   /// extra, because there is nothing to explain.

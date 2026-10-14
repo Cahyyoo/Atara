@@ -10,7 +10,7 @@ import { PrismaClient, type UserRole } from "@prisma/client";
 
 const prisma = new PrismaClient();
 const PER_ROLE = 500;
-const ROLES: UserRole[] = ["OPERATOR", "ADMIN", "DATABASE", "ANALISIS"];
+const ROLES: UserRole[] = ["PREPARATOR", "ADMIN", "DATABASE", "ANALISIS"];
 
 async function main() {
   if (!process.env.DATABASE_URL?.includes("atara_loadtest")) {

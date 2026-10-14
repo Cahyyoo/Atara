@@ -61,7 +61,7 @@ describe.skipIf(!reachable)("GET /api/announcements/active", () => {
       ids[message] = row.id;
     };
     await make("everyone", {});
-    await make("operators", { roles: ["OPERATOR"] });
+    await make("operators", { roles: ["PREPARATOR"] });
     await make("analysts", { roles: ["ANALISIS"] });
     await make("ended", { endsAt: new Date("2000-01-01T00:00:00Z") });
     invalidateAnnouncements();
@@ -74,7 +74,7 @@ describe.skipIf(!reachable)("GET /api/announcements/active", () => {
   });
 
   it("gives an operator what is aimed at them, and nothing meant for another role", async () => {
-    const messages = await messagesFor(await actor("OPERATOR"));
+    const messages = await messagesFor(await actor("PREPARATOR"));
     expect(messages).toContain(`${tag} everyone`);
     expect(messages).toContain(`${tag} operators`);
     expect(messages).not.toContain(`${tag} analysts`);

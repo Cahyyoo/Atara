@@ -9,7 +9,7 @@ import { UsersTable } from "@/modules/system/components/users/users-table";
 import type { UserDTO } from "@/modules/system/types";
 
 const BASE: Omit<UserDTO, "id" | "name" | "email"> = {
-  role: "OPERATOR",
+  role: "PREPARATOR",
   department: "LAB",
   isActive: true,
   lockedUntil: null,
@@ -50,10 +50,10 @@ function renderTable() {
 }
 
 /** Which roles have a default password, as the server reports it. */
-let defaultsSet = ["OPERATOR"];
+let defaultsSet = ["PREPARATOR"];
 
 beforeEach(() => {
-  defaultsSet = ["OPERATOR"];
+  defaultsSet = ["PREPARATOR"];
   vi.stubGlobal(
     "fetch",
     vi.fn(async (url: string, init?: RequestInit) => {
@@ -62,7 +62,7 @@ beforeEach(() => {
           ok: true,
           json: async () => ({
             success: true,
-            data: ["ADMIN", "DATABASE", "ANALISIS", "OPERATOR"].map((role) => ({
+            data: ["ADMIN", "DATABASE", "ANALISIS", "PREPARATOR"].map((role) => ({
               role,
               isSet: defaultsSet.includes(role),
               updatedAt: null,
@@ -119,7 +119,7 @@ describe("UsersTable", () => {
   it("names the role instead of printing the enum", async () => {
     renderTable();
     expect(within(await row("Main Admin")).getByText("Admin Lab")).toBeTruthy();
-    expect(within(await row("Field Operator")).getByText("Operator")).toBeTruthy();
+    expect(within(await row("Field Operator")).getByText("Preparator")).toBeTruthy();
     expect(screen.queryByText("ADMIN")).toBeNull();
   });
 
@@ -169,7 +169,7 @@ describe("UsersTable", () => {
     await user.click(await screen.findByRole("menuitem", { name: "Reset ke password default" }));
 
     const dialog = await screen.findByRole("dialog");
-    expect(within(dialog).getByText(/Field Operator dikembalikan ke password default role Operator/)).toBeTruthy();
+    expect(within(dialog).getByText(/Field Operator dikembalikan ke password default role Preparator/)).toBeTruthy();
     await user.click(within(dialog).getByRole("button", { name: "Reset password" }));
 
     expect(fetch).toHaveBeenCalledWith("/api/users/op/reset-password", { method: "POST" });
@@ -193,7 +193,7 @@ describe("Adding a user", () => {
 
     const dialog = await screen.findByRole("dialog");
     expect(dialog.querySelector('input[type="password"]')).toBeNull();
-    expect(await within(dialog).findByText(/password default role Operator/)).toBeTruthy();
+    expect(await within(dialog).findByText(/password default role Preparator/)).toBeTruthy();
     expect((within(dialog).getByRole("button", { name: "Buat Pengguna" }) as HTMLButtonElement).disabled).toBe(false);
   });
 
@@ -204,7 +204,7 @@ describe("Adding a user", () => {
     await user.click(await screen.findByRole("button", { name: "Tambah Pengguna" }));
 
     const dialog = await screen.findByRole("dialog");
-    expect(await within(dialog).findByText("Role Operator belum punya password default.")).toBeTruthy();
+    expect(await within(dialog).findByText("Role Preparator belum punya password default.")).toBeTruthy();
     expect(
       within(dialog).getByRole("link", { name: "Atur di bagian bawah halaman ini" }).getAttribute("href")
     ).toBe("#role-passwords");

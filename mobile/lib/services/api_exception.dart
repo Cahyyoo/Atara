@@ -58,7 +58,7 @@ class ApiException implements Exception {
   bool get isUnauthorized => statusCode == 401;
 
   /// Signed in, and refused on role. `/samples/scan` answers this for anyone
-  /// but an OPERATOR — which, since the role is re-read on every request, is
+  /// but a PREPARATOR — which, since the role is re-read on every request, is
   /// what an account whose role changed mid-shift will start getting.
   bool get isForbidden => statusCode == 403;
 

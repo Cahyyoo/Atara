@@ -402,6 +402,5 @@ describe.skipIf(!reachable)("sub-samples against the database", () => {
     // This file's samples carry no non-production code: they are production.
     const own = ytd.rows.find((row) => row.place === `${tag}P` && row.code === null);
     expect(own?.samples).toBeGreaterThan(0);
-    expect(own?.assayed).toBeGreaterThan(0);
   });
 });

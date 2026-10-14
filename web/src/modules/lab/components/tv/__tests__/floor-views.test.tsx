@@ -63,17 +63,53 @@ describe("the TV view", () => {
     expect(formatWait(50, t)).toBe('days:{"days":2,"hours":2}');
   });
 
-  it("shows the floor in big numbers and the longest-waiting samples", () => {
+  it("shows the day in three numbers, and the work waiting stage by stage", () => {
     wrap(<TvDashboard initialBoard={BOARD} />);
 
     expect(screen.getByText("In progress").nextElementSibling?.textContent).toBe("35");
     expect(screen.getByText("Over 24 h").nextElementSibling?.textContent).toBe("1");
-    expect(screen.getByText("NKL-2")).toBeTruthy();
     // Samples not received yet are not on the TV at all.
     expect(screen.queryByText("Not received")).toBeNull();
+
+    // One column per stage still to go through; what finished is a number above, not a column.
+    const columns = within(screen.getByRole("heading", { name: en.tv.todoTitle }).parentElement!).getAllByRole("region");
+    expect(columns.map((column) => column.getAttribute("aria-label"))).toEqual(["WET PREP"]);
+    const card = within(columns[0]).getByText("NKL-2").closest("li")!;
+    expect(card.hasAttribute("data-overdue")).toBe(true);
+    expect(card.textContent).toContain("MOL/LIM");
+    // 35 waiting, one card shown: the rest are counted, not listed.
+    expect(within(columns[0]).getByText("+34 more")).toBeTruthy();
   });
 
-  it("shows the year so far per place: production first, then each non-production code", () => {
+  it("lists at most a screenful per stage, and says so when a stage is clear", () => {
+    const cards = Array.from({ length: 20 }, (_, index) => ({
+      sampleCode: `NKL-${index}`,
+      labCode: null,
+      sampleIdent: index === 0 ? null : `MOL/${index}`,
+      since: BOARD.generatedAt,
+      hours: 20 - index,
+      overdue: false,
+    }));
+    wrap(
+      <TvDashboard
+        initialBoard={{
+          ...BOARD,
+          columns: [
+            { id: "s1", kind: "stage", stageKey: "RECEIVED", stageName: "RECEIVED", count: 20, overdue: 0, cards },
+            { id: "s3", kind: "stage", stageKey: "DRY_PREP", stageName: "DRY PREP", count: 0, overdue: 0, cards: [] },
+          ],
+        }}
+      />
+    );
+
+    const received = screen.getByRole("region", { name: "RECEIVED" });
+    expect(within(received).getAllByRole("listitem").filter((item) => item.textContent?.startsWith("NKL-"))).toHaveLength(12);
+    expect(within(received).getByText("+8 more")).toBeTruthy();
+    expect(within(received).getByText(en.tv.noIdent)).toBeTruthy();
+    expect(within(screen.getByRole("region", { name: "DRY PREP" })).getByText(en.tv.stageEmpty)).toBeTruthy();
+  });
+
+  it("keeps the year so far to one line: the samples per place and production code, nothing more", () => {
     wrap(
       <TvDashboard
         initialBoard={BOARD}
@@ -81,19 +117,20 @@ describe("the TV view", () => {
           year: 2026,
           generatedAt: BOARD.generatedAt,
           rows: [
-            { place: "MOL", code: null, samples: 1200, assayed: 1150, ni: 1.623, fe: 18.4 },
-            { place: "MOL", code: "TP", samples: 40, assayed: 38, ni: 1.2, fe: null },
-            { place: "LAM", code: null, samples: 300, assayed: 0, ni: null, fe: null },
+            { place: "MOL", code: null, samples: 1200 },
+            { place: "MOL", code: "TP", samples: 40 },
+            { place: "LAM", code: null, samples: 300 },
           ],
         }}
       />
     );
 
-    expect(screen.getByRole("heading", { name: "Year to date 2026" })).toBeTruthy();
-    const mol = screen.getByText("MOL").parentElement!;
-    const rows = within(mol).getAllByRole("row").slice(1).map((row) => row.textContent);
-    expect(rows).toEqual(["Production120011501.6218.40", "TP40381.20—"]);
-    expect(within(screen.getByText("LAM").parentElement!).getByText("300")).toBeTruthy();
+    const ytd = screen.getByRole("region", { name: "Year to date 2026" });
+    expect([...ytd.querySelectorAll("[data-ytd]")].map((chip) => chip.textContent)).toEqual([
+      "MOL · Production 1,200",
+      "MOL · TP 40",
+      "LAM · Production 300",
+    ]);
   });
 
   it("says so in the middle of the screen when its session ends", async () => {

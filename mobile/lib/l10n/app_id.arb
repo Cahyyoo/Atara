@@ -7,7 +7,7 @@
   "statusCompleted": "Selesai",
   "roleSuperAdmin": "Super Admin",
   "roleAdmin": "Administrator",
-  "roleOperator": "Operator",
+  "rolePreparator": "Preparator",
   "roleDatabase": "Database",
   "roleAnalisis": "Analisis",
   "cameraBlockedTitle": "Kamera tidak dapat digunakan",
@@ -56,7 +56,7 @@
   "queueAllTitle": "Antrean",
   "queueEmptyTitle": "Tidak ada lagi yang perlu dikirim",
   "queueEmptyMessage": "Semua scan di HP ini sudah sampai ke server.",
-  "appTitle": "Atara Operator",
+  "appTitle": "Atara Preparator",
   "loginSubtitle": "Masuk untuk mulai memindai sampel",
   "email": "Email",
   "password": "Kata Sandi",
@@ -229,8 +229,8 @@
     }
   },
   "errorUnreadableAnswer": "Server menjawab dalam bentuk yang tidak dikenali. Periksa alamat server atau hubungi administrator.",
-  "signInOperatorsOnly": "Aplikasi ini khusus Operator. Silakan gunakan situs web.",
-  "errorForbidden": "Peran akun Anda tidak mengizinkan ini. Aplikasi ini khusus Operator.",
+  "signInPreparatorsOnly": "Aplikasi ini khusus Preparator. Silakan gunakan situs web.",
+  "errorForbidden": "Peran akun Anda tidak mengizinkan ini. Aplikasi ini khusus Preparator.",
   "mfaTitle": "Verifikasi Identitas",
   "mfaStepLabel": "Langkah 2 dari 2",
   "mfaGreeting": "Halo, {name}",
@@ -384,5 +384,117 @@
       }
     }
   },
-  "announcementDismiss": "Tutup pengumuman"
+  "announcementDismiss": "Tutup pengumuman",
+  "checkBarcode": "Cek Barcode",
+  "scanModeUpdate": "Update Tahap",
+  "scanModeCheck": "Cek Barcode",
+  "barcodeInfoTitle": "Info Barcode",
+  "labCodeLabel": "Lab Code",
+  "identityPlace": "Tempat",
+  "identityRockType": "Ore Class",
+  "identityNonProd": "Kode Non-Produksi",
+  "identitySir": "Sir (Tempat Penumpukan)",
+  "identityPit": "Lokasi Pit",
+  "identityBargingNo": "Urutan Barging",
+  "identitySequenceNo": "No Sample",
+  "identitySampleNo": "No Quantity",
+  "identitySackCount": "Jumlah Karung",
+  "identityCodesUnavailable": "Daftar kode tidak bisa dimuat, jadi bagian-bagiannya tidak ditampilkan.",
+  "noSampleIdYet": "Barcode ini belum punya Sample ID.",
+  "fillSampleId": "Isi Sample ID",
+  "editSampleId": "Ubah Sample ID",
+  "sampleIdPreviewTitle": "Sample ID yang akan tersimpan",
+  "sampleIdNeedsPlace": "Isi Tempat untuk menyusun Sample ID.",
+  "sampleIdWas": "Sebelumnya: {ident}",
+  "@sampleIdWas": {
+    "placeholders": {
+      "ident": {
+        "type": "String"
+      }
+    }
+  },
+  "sampleIdChecking": "Memeriksa…",
+  "sampleIdClash": "Sample ID ini sudah dipakai oleh {sampleCode}.",
+  "@sampleIdClash": {
+    "placeholders": {
+      "sampleCode": {
+        "type": "String"
+      }
+    }
+  },
+  "sampleIdUnchanged": "Belum ada yang diubah.",
+  "sampleIdSave": "Simpan Sample ID",
+  "sampleIdSaved": "Sample ID tersimpan",
+  "sampleIdOnlineOnly": "Sample ID disimpan langsung ke server, jadi perlu koneksi.",
+  "pickerNone": "— tidak ada —",
+  "pickerChoose": "Pilih…",
+  "pickerSearch": "Cari atau ketik kode baru",
+  "pickerClear": "Kosongkan",
+  "pickerCreate": "Buat \"{code}\"",
+  "@pickerCreate": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "pickerRetired": "nonaktif",
+  "pickerNoMatch": "Tidak ada kode yang cocok.",
+  "pickerCodeRule": "Kode baru: huruf, angka, atau tanda hubung, maksimal 16.",
+  "pickerCreateFailed": "Kode tidak bisa dibuat: {reason}",
+  "@pickerCreateFailed": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "numberOutOfRange": "Isi bilangan bulat 0–{max}.",
+  "@numberOutOfRange": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "bargingTooLong": "Maksimal 32 karakter.",
+  "todoTitle": "Tugas Menunggu",
+  "todoEmpty": "Tidak ada sampel yang menunggu.",
+  "todoFooter": "Sampel yang sedang ada di tiap tahap dan menunggu dipindah ke tahap berikutnya.",
+  "todoCount": "{count} sampel",
+  "@todoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "todoOverdue": "{count} lewat SLA",
+  "@todoOverdue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "todoStageFooter": "Menampilkan {shown} dari {total} sampel, yang paling lama menunggu di atas.",
+  "@todoStageFooter": {
+    "placeholders": {
+      "shown": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "todoWaitingHours": "{hours} jam",
+  "@todoWaitingHours": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "todoNoSampleId": "Belum ada Sample ID"
 }

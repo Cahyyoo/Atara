@@ -16,7 +16,7 @@ Aturan di sini **ditegakkan otomatis**:
 
 | Modul | Path | Departemen / persona |
 | ----- | ---- | -------------------- |
-| `lab` | `/lab/*` | LAB: Admin Lab, DATABASE, ANALISIS, OPERATOR |
+| `lab` | `/lab/*` | LAB: Admin Lab, DATABASE, ANALISIS, PREPARATOR |
 | `eksplorasi` | `/eksplorasi/*` | EKSPLORASI: Admin Eksplorasi |
 | `system` (Pengaturan) | `/admin/*`, `/users` | Super Admin; Admin Lab untuk Pengguna saja |
 

@@ -30,7 +30,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get roleAdmin => 'Administrator';
 
   @override
-  String get roleOperator => 'Operator';
+  String get rolePreparator => 'Preparator';
 
   @override
   String get roleDatabase => 'Database';
@@ -131,7 +131,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Every scan on this device has reached the server.';
 
   @override
-  String get appTitle => 'Atara Operator';
+  String get appTitle => 'Atara Preparator';
 
   @override
   String get loginSubtitle => 'Sign in to start scanning nickel samples';
@@ -512,12 +512,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'The server answered in a form the app does not recognise. Check the server address or contact an administrator.';
 
   @override
-  String get signInOperatorsOnly =>
-      'This app is for Operators. Please use the website.';
+  String get signInPreparatorsOnly =>
+      'This app is for Preparators. Please use the website.';
 
   @override
   String get errorForbidden =>
-      'Your account\'s role does not allow this. This app is for Operators.';
+      'Your account\'s role does not allow this. This app is for Preparators.';
 
   @override
   String get mfaTitle => 'Verify It\'s You';
@@ -824,4 +824,164 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get announcementDismiss => 'Dismiss announcement';
+
+  @override
+  String get checkBarcode => 'Check Barcode';
+
+  @override
+  String get scanModeUpdate => 'Update Stage';
+
+  @override
+  String get scanModeCheck => 'Check Barcode';
+
+  @override
+  String get barcodeInfoTitle => 'Barcode Info';
+
+  @override
+  String get labCodeLabel => 'Lab Code';
+
+  @override
+  String get identityPlace => 'Place';
+
+  @override
+  String get identityRockType => 'Ore Class';
+
+  @override
+  String get identityNonProd => 'Non-Production Code';
+
+  @override
+  String get identitySir => 'Sir (Field Stockpile)';
+
+  @override
+  String get identityPit => 'Pit Location';
+
+  @override
+  String get identityBargingNo => 'Barging Run';
+
+  @override
+  String get identitySequenceNo => 'Sample No.';
+
+  @override
+  String get identitySampleNo => 'Quantity No.';
+
+  @override
+  String get identitySackCount => 'Sacks';
+
+  @override
+  String get identityCodesUnavailable =>
+      'The code lists couldn\'t be loaded, so the parts aren\'t shown.';
+
+  @override
+  String get noSampleIdYet => 'This barcode has no Sample ID yet.';
+
+  @override
+  String get fillSampleId => 'Fill in Sample ID';
+
+  @override
+  String get editSampleId => 'Edit Sample ID';
+
+  @override
+  String get sampleIdPreviewTitle => 'Sample ID to be saved';
+
+  @override
+  String get sampleIdNeedsPlace => 'Choose a Place to build the Sample ID.';
+
+  @override
+  String sampleIdWas(String ident) {
+    return 'Was: $ident';
+  }
+
+  @override
+  String get sampleIdChecking => 'Checking…';
+
+  @override
+  String sampleIdClash(String sampleCode) {
+    return 'This Sample ID is already used by $sampleCode.';
+  }
+
+  @override
+  String get sampleIdUnchanged => 'Nothing changed yet.';
+
+  @override
+  String get sampleIdSave => 'Save Sample ID';
+
+  @override
+  String get sampleIdSaved => 'Sample ID saved';
+
+  @override
+  String get sampleIdOnlineOnly =>
+      'The Sample ID is saved straight to the server, so it needs a connection.';
+
+  @override
+  String get pickerNone => '— none —';
+
+  @override
+  String get pickerChoose => 'Choose…';
+
+  @override
+  String get pickerSearch => 'Search or type a new code';
+
+  @override
+  String get pickerClear => 'Clear';
+
+  @override
+  String pickerCreate(String code) {
+    return 'Create \"$code\"';
+  }
+
+  @override
+  String get pickerRetired => 'retired';
+
+  @override
+  String get pickerNoMatch => 'No matching codes.';
+
+  @override
+  String get pickerCodeRule =>
+      'New code: letters, digits or hyphens, up to 16.';
+
+  @override
+  String pickerCreateFailed(String reason) {
+    return 'Couldn\'t create the code: $reason';
+  }
+
+  @override
+  String numberOutOfRange(int max) {
+    return 'Enter a whole number from 0 to $max.';
+  }
+
+  @override
+  String get bargingTooLong => 'At most 32 characters.';
+
+  @override
+  String get todoTitle => 'Waiting Work';
+
+  @override
+  String get todoEmpty => 'No samples are waiting.';
+
+  @override
+  String get todoFooter =>
+      'Samples sitting in each stage, waiting to be moved to the next one.';
+
+  @override
+  String todoCount(int count) {
+    return '$count samples';
+  }
+
+  @override
+  String todoOverdue(int count) {
+    return '$count past SLA';
+  }
+
+  @override
+  String todoStageFooter(int shown, int total) {
+    return 'Showing $shown of $total samples, longest waiting first.';
+  }
+
+  @override
+  String todoWaitingHours(String hours) {
+    return '$hours h';
+  }
+
+  @override
+  String get todoNoSampleId => 'No Sample ID yet';
 }

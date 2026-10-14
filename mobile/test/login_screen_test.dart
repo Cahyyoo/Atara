@@ -48,7 +48,7 @@ class _NonOperatorAfterCode extends SessionNotifier {
     required String challenge,
     required String code,
   }) async {
-    throw const OperatorOnlyException();
+    throw const PreparatorOnlyException();
   }
 }
 
@@ -194,11 +194,11 @@ void main() {
   });
 
   testWidgets('turns away an account that is not an operator', (tester) async {
-    await pumpLogin(tester, loginError: const OperatorOnlyException());
+    await pumpLogin(tester, loginError: const PreparatorOnlyException());
     await submit(tester);
 
     expect(
-      find.text('Aplikasi ini khusus Operator. Silakan gunakan situs web.'),
+      find.text('Aplikasi ini khusus Preparator. Silakan gunakan situs web.'),
       findsOneWidget,
     );
     expect(find.text('Periksa alamat server'), findsNothing);
@@ -218,7 +218,7 @@ void main() {
     expect(find.byType(SecondFactorScreen), findsNothing);
     expect(find.byType(LoginScreen), findsOneWidget);
     expect(
-      find.text('Aplikasi ini khusus Operator. Silakan gunakan situs web.'),
+      find.text('Aplikasi ini khusus Preparator. Silakan gunakan situs web.'),
       findsOneWidget,
     );
   });

@@ -30,7 +30,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get roleAdmin => 'Administrator';
 
   @override
-  String get roleOperator => 'Operator';
+  String get rolePreparator => 'Preparator';
 
   @override
   String get roleDatabase => 'Database';
@@ -130,7 +130,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Semua scan di HP ini sudah sampai ke server.';
 
   @override
-  String get appTitle => 'Atara Operator';
+  String get appTitle => 'Atara Preparator';
 
   @override
   String get loginSubtitle => 'Masuk untuk mulai memindai sampel';
@@ -512,12 +512,12 @@ class AppLocalizationsId extends AppLocalizations {
       'Server menjawab dalam bentuk yang tidak dikenali. Periksa alamat server atau hubungi administrator.';
 
   @override
-  String get signInOperatorsOnly =>
-      'Aplikasi ini khusus Operator. Silakan gunakan situs web.';
+  String get signInPreparatorsOnly =>
+      'Aplikasi ini khusus Preparator. Silakan gunakan situs web.';
 
   @override
   String get errorForbidden =>
-      'Peran akun Anda tidak mengizinkan ini. Aplikasi ini khusus Operator.';
+      'Peran akun Anda tidak mengizinkan ini. Aplikasi ini khusus Preparator.';
 
   @override
   String get mfaTitle => 'Verifikasi Identitas';
@@ -826,4 +826,164 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get announcementDismiss => 'Tutup pengumuman';
+
+  @override
+  String get checkBarcode => 'Cek Barcode';
+
+  @override
+  String get scanModeUpdate => 'Update Tahap';
+
+  @override
+  String get scanModeCheck => 'Cek Barcode';
+
+  @override
+  String get barcodeInfoTitle => 'Info Barcode';
+
+  @override
+  String get labCodeLabel => 'Lab Code';
+
+  @override
+  String get identityPlace => 'Tempat';
+
+  @override
+  String get identityRockType => 'Ore Class';
+
+  @override
+  String get identityNonProd => 'Kode Non-Produksi';
+
+  @override
+  String get identitySir => 'Sir (Tempat Penumpukan)';
+
+  @override
+  String get identityPit => 'Lokasi Pit';
+
+  @override
+  String get identityBargingNo => 'Urutan Barging';
+
+  @override
+  String get identitySequenceNo => 'No Sample';
+
+  @override
+  String get identitySampleNo => 'No Quantity';
+
+  @override
+  String get identitySackCount => 'Jumlah Karung';
+
+  @override
+  String get identityCodesUnavailable =>
+      'Daftar kode tidak bisa dimuat, jadi bagian-bagiannya tidak ditampilkan.';
+
+  @override
+  String get noSampleIdYet => 'Barcode ini belum punya Sample ID.';
+
+  @override
+  String get fillSampleId => 'Isi Sample ID';
+
+  @override
+  String get editSampleId => 'Ubah Sample ID';
+
+  @override
+  String get sampleIdPreviewTitle => 'Sample ID yang akan tersimpan';
+
+  @override
+  String get sampleIdNeedsPlace => 'Isi Tempat untuk menyusun Sample ID.';
+
+  @override
+  String sampleIdWas(String ident) {
+    return 'Sebelumnya: $ident';
+  }
+
+  @override
+  String get sampleIdChecking => 'Memeriksa…';
+
+  @override
+  String sampleIdClash(String sampleCode) {
+    return 'Sample ID ini sudah dipakai oleh $sampleCode.';
+  }
+
+  @override
+  String get sampleIdUnchanged => 'Belum ada yang diubah.';
+
+  @override
+  String get sampleIdSave => 'Simpan Sample ID';
+
+  @override
+  String get sampleIdSaved => 'Sample ID tersimpan';
+
+  @override
+  String get sampleIdOnlineOnly =>
+      'Sample ID disimpan langsung ke server, jadi perlu koneksi.';
+
+  @override
+  String get pickerNone => '— tidak ada —';
+
+  @override
+  String get pickerChoose => 'Pilih…';
+
+  @override
+  String get pickerSearch => 'Cari atau ketik kode baru';
+
+  @override
+  String get pickerClear => 'Kosongkan';
+
+  @override
+  String pickerCreate(String code) {
+    return 'Buat \"$code\"';
+  }
+
+  @override
+  String get pickerRetired => 'nonaktif';
+
+  @override
+  String get pickerNoMatch => 'Tidak ada kode yang cocok.';
+
+  @override
+  String get pickerCodeRule =>
+      'Kode baru: huruf, angka, atau tanda hubung, maksimal 16.';
+
+  @override
+  String pickerCreateFailed(String reason) {
+    return 'Kode tidak bisa dibuat: $reason';
+  }
+
+  @override
+  String numberOutOfRange(int max) {
+    return 'Isi bilangan bulat 0–$max.';
+  }
+
+  @override
+  String get bargingTooLong => 'Maksimal 32 karakter.';
+
+  @override
+  String get todoTitle => 'Tugas Menunggu';
+
+  @override
+  String get todoEmpty => 'Tidak ada sampel yang menunggu.';
+
+  @override
+  String get todoFooter =>
+      'Sampel yang sedang ada di tiap tahap dan menunggu dipindah ke tahap berikutnya.';
+
+  @override
+  String todoCount(int count) {
+    return '$count sampel';
+  }
+
+  @override
+  String todoOverdue(int count) {
+    return '$count lewat SLA';
+  }
+
+  @override
+  String todoStageFooter(int shown, int total) {
+    return 'Menampilkan $shown dari $total sampel, yang paling lama menunggu di atas.';
+  }
+
+  @override
+  String todoWaitingHours(String hours) {
+    return '$hours jam';
+  }
+
+  @override
+  String get todoNoSampleId => 'Belum ada Sample ID';
 }

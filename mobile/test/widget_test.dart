@@ -27,11 +27,11 @@ void main() {
     }
 
     // Stated outright, because the guide's welcome page also says
-    // 'Atara Operator': without this the assertion below would keep passing
+    // 'Atara Preparator': without this the assertion below would keep passing
     // with the guide on screen, which is the fail-open shape support/finders
     // warns about.
     expect(find.byType(OnboardingScreen), findsNothing);
-    expect(find.text('Atara Operator'), findsWidgets);
+    expect(find.text('Atara Preparator'), findsWidgets);
     // Email and password, the two fields the sign-in screen exists for.
     expect(find.byType(CupertinoTextField), findsNWidgets(2));
   });

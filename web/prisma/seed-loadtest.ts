@@ -85,7 +85,7 @@ async function main() {
   for (let i = 1; i <= OPERATORS; i++) {
     const id = `ltu_op_${i}`;
     const email = `lt-op-${String(i).padStart(3, "0")}@atara.local`;
-    users.push({ id, name: `LT Operator ${i}`, email, password: hash, role: "OPERATOR" });
+    users.push({ id, name: `LT Operator ${i}`, email, password: hash, role: "PREPARATOR" });
     operatorIds.push(id);
     out.operators.push(email);
   }

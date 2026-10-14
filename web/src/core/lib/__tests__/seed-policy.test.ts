@@ -8,7 +8,7 @@ import {
   DEV_DATABASE,
   DEV_DEMO_ACCOUNTS,
   DEV_EKSPLORASI_ADMIN,
-  DEV_OPERATOR,
+  DEV_PREPARATOR,
   DEV_SUPER_ADMIN,
   MIN_SEED_PASSWORD_CHARS,
   resolveSeedAccounts,
@@ -89,7 +89,7 @@ describe("seeding accounts", () => {
       ["..", "mobile", "README.md"],
     ]) {
       const readme = readFileSync(join(process.cwd(), ...path), "utf8");
-      for (const account of [DEV_SUPER_ADMIN, DEV_ADMIN, DEV_EKSPLORASI_ADMIN, DEV_OPERATOR, DEV_DATABASE, DEV_ANALISIS]) {
+      for (const account of [DEV_SUPER_ADMIN, DEV_ADMIN, DEV_EKSPLORASI_ADMIN, DEV_PREPARATOR, DEV_DATABASE, DEV_ANALISIS]) {
         expect(readme, path.join("/")).not.toContain(account.password);
       }
     }

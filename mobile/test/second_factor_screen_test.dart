@@ -36,7 +36,7 @@ class ScriptedSession extends SessionNotifier {
     id: 'u1',
     name: 'Main Admin',
     email: 'admin@atara.local',
-    role: UserRole.operator,
+    role: UserRole.preparator,
   );
 
   @override

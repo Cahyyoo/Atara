@@ -46,7 +46,7 @@ describe.skipIf(!reachable)("exports with chosen columns", () => {
 
   beforeAll(async () => {
     const user = await prisma.user.create({
-      data: { name: `${tag} Operator`, email: `${tag.toLowerCase()}@test.invalid`, password: "x", role: "OPERATOR", department: "LAB" as const },
+      data: { name: `${tag} Operator`, email: `${tag.toLowerCase()}@test.invalid`, password: "x", role: "PREPARATOR", department: "LAB" as const },
     });
     created.user = user.id;
     session.userId = user.id;
@@ -99,7 +99,7 @@ describe.skipIf(!reachable)("exports with chosen columns", () => {
       "Lab Code",
       `Entered ${first.name}`,
       `Hours in ${first.name}`,
-      `Operator ${first.name}`,
+      `Preparator ${first.name}`,
       "Pit",
     ]);
     // 00:00 UTC is 08:00 on the lab's clock; 3.5 hours until the next scan.
@@ -116,7 +116,7 @@ describe.skipIf(!reachable)("exports with chosen columns", () => {
       exportSamples,
       `/api/samples/export?format=csv&search=${tag}&columns=${encodeURIComponent(columns.join(","))}`
     );
-    expect(rows[0]).toEqual(["Barcode Code", `Entered ${second.name}`, `Operator ${second.name}`]);
+    expect(rows[0]).toEqual(["Barcode Code", `Entered ${second.name}`, `Preparator ${second.name}`]);
     expect(rows[1][0]).toBe(`${tag}-1`);
     expect(rows[1][1]).toContain("11:30");
     expect(rows[1][2]).toBe(`${tag} Operator`);

@@ -125,7 +125,7 @@ describe("parseExportColumns", () => {
       "Barcode Code",
       "Entered Preparation",
       "Hours in Preparation",
-      "Operator Analysis",
+      "Preparator Analysis",
     ]);
 
     const visits = stageTimeline([{ stageId: "s1", scannedAt: at(2), operator: "Ani" }], {

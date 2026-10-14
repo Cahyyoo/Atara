@@ -4,7 +4,7 @@ Satu aplikasi dengan beberapa modul, satu modul untuk setiap departemen:
 
 - **Lab · Monitoring Sampel** (departemen LAB). Lacak sampel dari penerimaan hingga laporan:
   - generate & cetak label barcode/QR di web;
-  - pindai & update tahapan via aplikasi mobile operator;
+  - pindai & update tahapan via aplikasi mobile preparator;
   - input hasil uji laboratorium;
   - pantau seluruh pergerakan secara real-time di dashboard.
 - **Eksplorasi** (departemen EKSPLORASI). Manage Data Drilling: daftar lubang bor beserta koordinat, orientasi, kedalaman, dan statusnya.
@@ -17,7 +17,7 @@ Setelah masuk, pengguna mendarat di pemilih aplikasi `/home` (seperti Odoo) yang
 ```
 Atara/
   web/      # Next.js — backend REST API + dashboard (TypeScript, Prisma, MySQL, Tailwind, shadcn/ui)
-  mobile/   # Flutter — aplikasi operator lapangan (scan barcode, update tahapan, antrean offline)
+  mobile/   # Flutter — aplikasi preparator lapangan (scan barcode, update tahapan, antrean offline)
   face/     # Python — layanan pengenalan wajah dlib untuk faktor kedua saat masuk (hanya loopback)
 ```
 
@@ -26,8 +26,8 @@ Setiap folder punya README sendiri dengan detail setup: [`web/README.md`](web/RE
 ## Alur Kerja Modul Lab
 
 1. **Generate & Print** — Pengguna peran DATABASE membuat sampel di `/lab/samples/generate` (satu atau massal). Sistem menghasilkan kode sampel unik (`SMPL-YYYY-NNNNN`) beserta QR code dan kode lab per hari shift (`SPR.QLAB.YYYYMMDD.NNN`), lalu label dicetak dan ditempel ke wadah fisik sampel.
-2. **Scan** — Operator membuka aplikasi mobile dan memindai barcode pada sampel.
-3. **Update Tahapan** — Operator memilih tahapan berikutnya (Diterima → Prep Basah → Prep Kering → Analisa → Report), menambahkan catatan opsional, lalu submit. Koreksi (mundur/lompat tahap) diperbolehkan dengan alasan. Scan yang dilakukan saat offline diantrekan dan dikirim begitu koneksi kembali.
+2. **Scan** — Preparator membuka aplikasi mobile dan memindai barcode pada sampel.
+3. **Update Tahapan** — Preparator memilih tahapan berikutnya (Diterima → Prep Basah → Prep Kering → Analisa → Report), menambahkan catatan opsional, lalu submit. Koreksi (mundur/lompat tahap) diperbolehkan dengan alasan. Scan yang dilakukan saat offline diantrekan dan dikirim begitu koneksi kembali.
 4. **Input Hasil Uji** — Pengguna peran ANALISIS memasukkan hasil analisa per sampel, termasuk sub-sampel (mis. fraksi `(-20)`).
 5. **Monitoring Real-Time** — Seluruh sampel, tahapan saat ini, riwayat log, waktu proses, dan sampel yang melewati SLA dapat dipantau melalui dashboard, analitik, dan tampilan TV.
 
@@ -41,7 +41,7 @@ Setiap akun adalah sebuah **peran di dalam departemen**.
 | ADMIN       | LAB        | Dashboard lab, Database Sampel (lihat & export), Aktivitas, Pengguna (staf lab), Master Data | —                        |
 | DATABASE    | LAB        | Dashboard, Buat Barcode, Cetak Ulang Label, Database Sampel (edit, hapus/pulihkan, export) | —                          |
 | ANALISIS    | LAB        | Dashboard, Input Hasil Uji                                                              | —                             |
-| OPERATOR    | LAB        | Dashboard                                                                               | Scan & perbarui tahapan       |
+| PREPARATOR  | LAB        | Dashboard                                                                               | Scan & perbarui tahapan       |
 | ADMIN       | EKSPLORASI | Data Drilling                                                                           | —                             |
 
 Aturan lengkapnya ada di `web/src/core/lib/auth/permissions.ts` + `web/src/modules/<modul>/capabilities.ts` (siapa boleh apa) dan `web/src/modules/system/lib/user-scope.ts` (siapa mengelola akun siapa).
@@ -70,7 +70,7 @@ Urutan startup: **database → layanan face → backend web → aplikasi mobile*
 | ADMIN       | LAB        | admin@atara.local        | lihat catatan | Web                         |
 | DATABASE    | LAB        | database@atara.local     | lihat catatan | Web                         |
 | ANALISIS    | LAB        | analisis@atara.local     | lihat catatan | Web                         |
-| OPERATOR    | LAB        | operator@atara.local     | lihat catatan | Web & Aplikasi Mobile       |
+| PREPARATOR    | LAB        | operator@atara.local     | lihat catatan | Web & Aplikasi Mobile       |
 | ADMIN       | EKSPLORASI | eksplorasi@atara.local   | lihat catatan | Web                         |
 
 > **Catatan kata sandi.** Akun ini dibuat oleh `npm run db:seed`. Di lingkungan pengembangan kata sandinya ada di `web/prisma/seed-policy.ts`. Di produksi seed **menolak** membuat akun kecuali `SEED_ADMIN_PASSWORD` (minimal 12 karakter) diberikan, dan yang dibuat hanya akun super admin. Ganti kata sandi super admin setelah masuk pertama kali.
@@ -80,7 +80,7 @@ Urutan startup: **database → layanan face → backend web → aplikasi mobile*
 - **User** — akun beserta peran dan departemennya (`LAB` / `EKSPLORASI`, kosong untuk super admin), dan pengaturan TOTP bila ada.
 - **Stage** — master data tahapan laboratorium beserta urutannya (`sequence_order`).
 - **Sample** — satu record per sampel fisik: kode unik, batch, tahapan & status saat ini. Dihapus secara *soft delete* sehingga dapat dipulihkan.
-- **SampleLog** — histori setiap perpindahan tahapan (sampel, tahapan, operator, catatan, waktu).
+- **SampleLog** — histori setiap perpindahan tahapan (sampel, tahapan, preparator, catatan, waktu).
 - **LabRecord** — hasil uji per sampel: kode lab, Sample ID (mis. `MOL/LIM/TP/S3/PA4/B42/919.3/12`), dan angka hasil analisa. Sub-sampel menunjuk ke record induknya.
 - **MasterOption** — kosakata penyusun Sample ID (tempat, jenis batuan, non-produksi, pit, SIR).
 - **FaceEnrollment** — descriptor wajah terdaftar per akun (128 float, bukan foto).

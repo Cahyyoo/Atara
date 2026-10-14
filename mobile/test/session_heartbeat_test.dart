@@ -26,7 +26,7 @@ const _operator = UserModel(
   id: 'u1',
   name: 'Siti Operator',
   email: 'operator@atara.local',
-  role: UserRole.operator,
+  role: UserRole.preparator,
 );
 
 /// A session the test signs in and out by hand.

@@ -1,3 +1,4 @@
+import 'sample_identity.dart';
 import 'sample_log_entry.dart';
 import 'stage_model.dart';
 
@@ -27,6 +28,13 @@ class SampleModel {
   /// printed, and is filled in later from the web.
   final String? sampleIdent;
 
+  /// The parts [sampleIdent] is composed from, and the Lab Code.
+  ///
+  /// Null when the reply carried no whole lab record — the scan reply, and
+  /// caches written by older builds — which is not the same as a sample with
+  /// no identity: that has an identity whose parts are all empty.
+  final SampleIdentity? identity;
+
   final SampleStatus status;
   final StageModel? currentStage;
   final String createdByName;
@@ -51,6 +59,7 @@ class SampleModel {
     required this.createdByName,
     required this.updatedAt,
     this.sampleIdent,
+    this.identity,
     this.logs = const [],
     this.isFromCache = false,
   });
@@ -60,6 +69,7 @@ class SampleModel {
       id: id,
       sampleCode: sampleCode,
       sampleIdent: sampleIdent,
+      identity: identity,
       status: status,
       currentStage: currentStage,
       createdByName: createdByName,
@@ -74,6 +84,7 @@ class SampleModel {
       'id': id,
       'sampleCode': sampleCode,
       'sampleIdent': sampleIdent,
+      if (identity != null) 'labRecord': identity!.toJson(),
       'status': status.name,
       'currentStage': currentStage?.toJson(),
       'createdBy': {'name': createdByName},
@@ -122,6 +133,7 @@ class SampleModel {
       id: json['id'] as String,
       sampleCode: json['sampleCode'] as String,
       sampleIdent: _identFrom(json),
+      identity: SampleIdentity.tryFromJson(json['labRecord']),
       status: sampleStatusFromString(json['status'] as String),
       currentStage: json['currentStage'] == null
           ? null

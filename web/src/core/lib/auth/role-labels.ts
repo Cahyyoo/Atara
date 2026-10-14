@@ -14,7 +14,7 @@ export const ROLE_LABEL_KEYS = {
   ADMIN: { name: "roleAdmin", hint: "roleAdminHint" },
   DATABASE: { name: "roleDatabase", hint: "roleDatabaseHint" },
   ANALISIS: { name: "roleAnalisis", hint: "roleAnalisisHint" },
-  OPERATOR: { name: "roleOperator", hint: "roleOperatorHint" },
+  PREPARATOR: { name: "rolePreparator", hint: "rolePreparatorHint" },
 } as const satisfies Record<Role, { name: string; hint: string }>;
 
 /**
@@ -27,7 +27,7 @@ export const PERSONA_LABEL_KEYS = {
   EKSPLORASI_ADMIN: { name: "roleEksplorasiAdmin", hint: "roleEksplorasiAdminHint" },
   DATABASE: ROLE_LABEL_KEYS.DATABASE,
   ANALISIS: ROLE_LABEL_KEYS.ANALISIS,
-  OPERATOR: ROLE_LABEL_KEYS.OPERATOR,
+  PREPARATOR: ROLE_LABEL_KEYS.PREPARATOR,
 } as const satisfies Record<Persona, { name: string; hint: string }>;
 
 /** The label keys for an account; a pair that is not valid falls back to its role. */

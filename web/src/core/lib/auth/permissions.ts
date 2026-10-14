@@ -25,14 +25,14 @@
  *   DATABASE          (LAB) owns the samples: generates barcodes, reprints
  *                     labels, keeps the sample database correct.
  *   ANALISIS          (LAB) enters assay results.
- *   OPERATOR          (LAB) moves samples between stages with the mobile app,
+ *   PREPARATOR        (LAB) moves samples between stages with the mobile app,
  *                     including the corrections that step back or skip one.
  *   EKSPLORASI_ADMIN  ADMIN in EKSPLORASI. Manages the drilling data.
  */
 
 import { CAPABILITIES } from "@/modules/capabilities";
 
-export const ROLES = ["SUPER_ADMIN", "ADMIN", "DATABASE", "ANALISIS", "OPERATOR"] as const;
+export const ROLES = ["SUPER_ADMIN", "ADMIN", "DATABASE", "ANALISIS", "PREPARATOR"] as const;
 export type Role = (typeof ROLES)[number];
 
 export function isRole(value: unknown): value is Role {
@@ -61,7 +61,7 @@ const ROLE_DEPARTMENTS = {
   ADMIN: ["LAB", "EKSPLORASI"],
   DATABASE: ["LAB"],
   ANALISIS: ["LAB"],
-  OPERATOR: ["LAB"],
+  PREPARATOR: ["LAB"],
 } as const satisfies Record<Role, readonly Department[]>;
 
 export function departmentsFor(role: Role): readonly Department[] {
@@ -79,7 +79,7 @@ export const PERSONAS = [
   "LAB_ADMIN",
   "DATABASE",
   "ANALISIS",
-  "OPERATOR",
+  "PREPARATOR",
   "EKSPLORASI_ADMIN",
 ] as const;
 export type Persona = (typeof PERSONAS)[number];

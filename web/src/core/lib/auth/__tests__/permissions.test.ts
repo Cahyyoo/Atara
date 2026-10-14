@@ -49,13 +49,14 @@ const AGREED: Record<Persona, Capability[]> = {
     "viewDeletedRecords",
     "viewRecordHistory",
     "editDatabase",
+    "editSampleIdentity",
     "generateSamples",
     "printLabels",
     "readLabRecords",
     "addMasterOption",
   ],
   ANALISIS: ["viewDashboard", "viewRecordHistory", "enterResults", "readLabRecords"],
-  OPERATOR: ["viewDashboard", "scanSamples", "overrideStage"],
+  PREPARATOR: ["viewDashboard", "scanSamples", "overrideStage", "editSampleIdentity", "addMasterOption"],
   EKSPLORASI_ADMIN: ["manageDrilling"],
 };
 
@@ -65,7 +66,7 @@ const ACCOUNTS: Record<Persona, Access> = {
   LAB_ADMIN: { role: "ADMIN", department: "LAB" },
   DATABASE: { role: "DATABASE", department: "LAB" },
   ANALISIS: { role: "ANALISIS", department: "LAB" },
-  OPERATOR: { role: "OPERATOR", department: "LAB" },
+  PREPARATOR: { role: "PREPARATOR", department: "LAB" },
   EKSPLORASI_ADMIN: { role: "ADMIN", department: "EKSPLORASI" },
 };
 
@@ -84,17 +85,17 @@ describe("the role table", () => {
     expect(can(ACCOUNTS.LAB_ADMIN, "editDatabase")).toBe(false);
   });
 
-  it("leaves scanning, and correcting a scan, to the operator alone", () => {
+  it("leaves scanning, and correcting a scan, to the preparator alone", () => {
     for (const persona of PERSONAS) {
-      expect(can(ACCOUNTS[persona], "scanSamples"), persona).toBe(persona === "OPERATOR");
-      expect(can(ACCOUNTS[persona], "overrideStage"), persona).toBe(persona === "OPERATOR");
+      expect(can(ACCOUNTS[persona], "scanSamples"), persona).toBe(persona === "PREPARATOR");
+      expect(can(ACCOUNTS[persona], "overrideStage"), persona).toBe(persona === "PREPARATOR");
     }
   });
 
   it("keeps each department out of the other's module", () => {
     const lab: Capability[] = ["viewDashboard", "viewDatabase", "readLabRecords", "manageMasterData"];
     for (const cap of lab) expect(can(ACCOUNTS.EKSPLORASI_ADMIN, cap), cap).toBe(false);
-    for (const persona of ["LAB_ADMIN", "DATABASE", "ANALISIS", "OPERATOR"] as const) {
+    for (const persona of ["LAB_ADMIN", "DATABASE", "ANALISIS", "PREPARATOR"] as const) {
       expect(can(ACCOUNTS[persona], "manageDrilling"), persona).toBe(false);
     }
   });
@@ -122,7 +123,7 @@ describe("roles within departments", () => {
     const invalid: Access[] = [
       { role: "SUPER_ADMIN", department: "LAB" },
       { role: "ADMIN", department: null },
-      { role: "OPERATOR", department: "EKSPLORASI" },
+      { role: "PREPARATOR", department: "EKSPLORASI" },
       { role: "DATABASE", department: null },
     ];
     for (const access of invalid) {
@@ -152,7 +153,7 @@ describe("where the table is enforced", () => {
       ["app", "(app)", "lab", "samples", "[code]", "page.tsx"],
     ];
     for (const parts of files) {
-      expect(read(...parts), parts.join("/")).not.toMatch(/role\s*[!=]==\s*"(SUPER_ADMIN|ADMIN|OPERATOR)"/);
+      expect(read(...parts), parts.join("/")).not.toMatch(/role\s*[!=]==\s*"(SUPER_ADMIN|ADMIN|PREPARATOR)"/);
     }
   });
 
@@ -196,12 +197,25 @@ describe("where the table is enforced", () => {
 
   it("lets whoever fills in identities add a code, and only admins change or remove one", () => {
     for (const persona of PERSONAS) {
-      expect(can(ACCOUNTS[persona], "addMasterOption"), persona).toBe(persona === "LAB_ADMIN" || persona === "DATABASE");
+      expect(can(ACCOUNTS[persona], "addMasterOption"), persona).toBe(
+        persona === "LAB_ADMIN" || persona === "DATABASE" || persona === "PREPARATOR"
+      );
     }
     expect(read("app", "api", "(lab)", "master-options", "route.ts")).toMatch(guard("addMasterOption"));
   });
 
-  it("lets only the operator scan", () => {
+  it("lets the database role and the preparator fill in a sample's identity, and nobody else", () => {
+    for (const persona of PERSONAS) {
+      expect(can(ACCOUNTS[persona], "editSampleIdentity"), persona).toBe(
+        persona === "DATABASE" || persona === "PREPARATOR"
+      );
+    }
+    expect(read("app", "api", "(lab)", "samples", "[code]", "identity", "route.ts")).toMatch(
+      guard("editSampleIdentity")
+    );
+  });
+
+  it("lets only the preparator scan", () => {
     expect(read("app", "api", "(lab)", "samples", "scan", "route.ts")).toMatch(guard("scanSamples"));
   });
 

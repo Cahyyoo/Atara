@@ -59,7 +59,7 @@ describe("the welcome guide", () => {
     const fetchMock = vi.fn(async () => ({ ok: true, json: async () => ({ success: true }) }));
     vi.stubGlobal("fetch", fetchMock);
     const user = userEvent.setup();
-    wrap(<WelcomeDialog persona="OPERATOR" name="Budi" />);
+    wrap(<WelcomeDialog persona="PREPARATOR" name="Budi" />);
 
     expect(screen.getByText(/Welcome, Budi/)).toBeTruthy();
     expect(screen.getByText("You move the samples")).toBeTruthy();
@@ -77,7 +77,7 @@ describe("the welcome guide", () => {
     vi.stubGlobal("fetch", fetchMock);
     push.mockClear();
     const user = userEvent.setup();
-    wrap(<WelcomeDialog persona="OPERATOR" name="Budi" />);
+    wrap(<WelcomeDialog persona="PREPARATOR" name="Budi" />);
 
     await user.click(screen.getByRole("button", { name: "Next" }));
     await user.click(screen.getByRole("button", { name: "Next" }));

@@ -74,14 +74,14 @@ String sessionBodyFor(String role) =>
                    "email": "operator@atara.local", "role": "$role"}}}
 ''';
 
-final sessionBody = sessionBodyFor('OPERATOR');
+final sessionBody = sessionBodyFor('PREPARATOR');
 
 /// The stored account a signed-in operator would have.
 const _operator = UserModel(
   id: 'u1',
   name: 'Siti Operator',
   email: 'operator@atara.local',
-  role: UserRole.operator,
+  role: UserRole.preparator,
 );
 
 /// Lets the notifier's constructor-time restore finish.
@@ -244,7 +244,7 @@ void main() {
   });
 
   group('only an operator is signed in', () {
-    // The app scans and moves samples, which is an OPERATOR's job alone. The
+    // The app scans and moves samples, which is a PREPARATOR's job alone. The
     // server signs every role in, so SessionNotifier._adopt is where the others
     // are turned away — once, for the password and both second factors.
     for (final role in ['ADMIN', 'DATABASE', 'ANALISIS']) {
@@ -258,7 +258,7 @@ void main() {
 
           await expectLater(
             notifier.login('someone@atara.local', 'secret'),
-            throwsA(isA<OperatorOnlyException>()),
+            throwsA(isA<PreparatorOnlyException>()),
           );
 
           expect(
@@ -283,11 +283,11 @@ void main() {
 
         await expectLater(
           notifier.verifyTotp(challenge: 'c', code: '123456'),
-          throwsA(isA<OperatorOnlyException>()),
+          throwsA(isA<PreparatorOnlyException>()),
         );
         await expectLater(
           notifier.verifyFace(challenge: 'c', frames: const ['f']),
-          throwsA(isA<OperatorOnlyException>()),
+          throwsA(isA<PreparatorOnlyException>()),
         );
 
         expect(await SessionService.getToken(), isNull);
@@ -304,7 +304,7 @@ void main() {
 
       await expectLater(
         notifier.login('someone@atara.local', 'secret'),
-        throwsA(isA<OperatorOnlyException>()),
+        throwsA(isA<PreparatorOnlyException>()),
       );
       expect(await SessionService.getToken(), isNull);
       notifier.dispose();
@@ -320,7 +320,7 @@ void main() {
 
       expect(result, isA<LoginSession>());
       expect(await SessionService.getToken(), 'session.jwt');
-      expect(notifier.state.value?.role, UserRole.operator);
+      expect(notifier.state.value?.role, UserRole.preparator);
       notifier.dispose();
     });
 

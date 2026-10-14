@@ -11,9 +11,11 @@ import '../widgets/ios/app_page.dart';
 import '../widgets/ios/inset_section.dart';
 import '../widgets/ios/ios_button.dart';
 import '../widgets/sample_history.dart';
+import '../widgets/sample_identity_card.dart';
 import '../widgets/sample_summary_card.dart';
 import '../widgets/status_view.dart';
 import '../widgets/skeletons.dart';
+import 'sample_identity_screen.dart';
 import 'update_status_screen.dart';
 
 /// A sample, read rather than changed: what it is, where it has been, and who
@@ -31,10 +33,15 @@ class SampleDetailScreen extends StatefulWidget {
   const SampleDetailScreen({
     super.key,
     required this.sampleCode,
+    this.title,
     @visibleForTesting this.fetchSample,
   });
 
   final String sampleCode;
+
+  /// The bar's title, for when this screen is opened as the scanner's
+  /// "Check Barcode" rather than from a row of past work.
+  final String? title;
 
   /// The one network call, isolated so a test can answer it.
   ///
@@ -136,6 +143,15 @@ class _SampleDetailScreenState extends State<SampleDetailScreen> {
     if (saved == true && mounted) await _fetch();
   }
 
+  Future<void> _openIdentity() async {
+    final saved = await Navigator.of(context).push<bool>(
+      CupertinoPageRoute(
+        builder: (context) => SampleIdentityScreen(sampleCode: widget.sampleCode),
+      ),
+    );
+    if (saved == true && mounted) await _fetch();
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -159,7 +175,7 @@ class _SampleDetailScreenState extends State<SampleDetailScreen> {
         // which in debug paints an ErrorWidget over the bar. Reachable in the
         // ordinary way: open a sample with no signal, let it fail, go back.
         return AppPage(
-          title: l10n.detailTitle,
+          title: widget.title ?? l10n.detailTitle,
           slivers: [
             SliverToBoxAdapter(
               child: SampleDetailSkeleton(historyHeader: l10n.historyTitle),
@@ -169,7 +185,7 @@ class _SampleDetailScreenState extends State<SampleDetailScreen> {
 
       case _LoadState.notFound:
         return AppPage(
-          title: l10n.detailTitle,
+          title: widget.title ?? l10n.detailTitle,
           slivers: [
             SliverFillRemaining(
               hasScrollBody: false,
@@ -187,7 +203,7 @@ class _SampleDetailScreenState extends State<SampleDetailScreen> {
         // SliverFillRemaining rather than a bare child, which is how the
         // history screen carries the same StatusView inside the same AppPage.
         return AppPage(
-          title: l10n.detailTitle,
+          title: widget.title ?? l10n.detailTitle,
           slivers: [
             SliverFillRemaining(
               hasScrollBody: false,
@@ -217,7 +233,7 @@ class _SampleDetailScreenState extends State<SampleDetailScreen> {
     final history = sample.logs.reversed.toList();
 
     return AppPage(
-      title: l10n.detailTitle,
+      title: widget.title ?? l10n.detailTitle,
       onRefresh: _fetch,
       slivers: [
         SliverPadding(
@@ -236,7 +252,8 @@ class _SampleDetailScreenState extends State<SampleDetailScreen> {
                   tone: context.palette.warning,
                   title: l10n.cachedNotice,
                 ),
-              SampleSummaryCard(sample: sample),
+              SampleSummaryCard(sample: sample, showIdent: false),
+              SampleIdentityCard(sample: sample, onEdit: _openIdentity),
             ]),
           ),
         ),

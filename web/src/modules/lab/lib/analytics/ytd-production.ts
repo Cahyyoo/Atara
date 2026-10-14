@@ -18,12 +18,11 @@ function witaYear(now: Date): number {
 /**
  * The year so far, per place and per production code: production samples
  * (no non-production code) and each non-production code (TP, BG, ...) on its
- * own, with how many were taken, how many have a Ni result, and their average
- * Ni and Fe.
+ * own, and how many samples each took.
  *
- * The grade-control aggregate, over 1 January (WITA) to now: the same samples,
- * filters and averages the Conclusion page shows, without the 90-day window
- * the dashboard's ranges are held to.
+ * The grade-control aggregate, over 1 January (WITA) to now: the same samples
+ * and filters the Conclusion page counts, without the 90-day window the
+ * dashboard's ranges are held to.
  */
 export async function loadYtdProduction(now: Date = new Date()): Promise<YtdProduction> {
   const year = witaYear(now);
@@ -34,9 +33,6 @@ export async function loadYtdProduction(now: Date = new Date()): Promise<YtdProd
       place: row.codes.place === NO_CODE ? null : (row.codes.place ?? null),
       code: row.codes.nonProd === NO_CODE ? null : (row.codes.nonProd ?? null),
       samples: row.samples,
-      assayed: row.assayed,
-      ni: row.avg.ni,
-      fe: row.avg.fe,
     }));
     // By place, a sample with none last; production first in each, then the codes.
     const order = (value: string | null) => value ?? "￿";

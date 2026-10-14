@@ -8,7 +8,7 @@ import type { Persona } from "@/core/lib/auth/permissions";
  */
 
 /** The lab's people: everybody who works in the sample-monitoring module. */
-export const LAB_PERSONAS = ["LAB_ADMIN", "DATABASE", "ANALISIS", "OPERATOR"] as const;
+export const LAB_PERSONAS = ["LAB_ADMIN", "DATABASE", "ANALISIS", "PREPARATOR"] as const;
 export type LabPersona = (typeof LAB_PERSONAS)[number];
 
 export function isLabPersona(persona: Persona | null): persona is LabPersona {
@@ -31,6 +31,12 @@ export const LAB_CAPABILITIES = {
   viewRecordHistory: ["LAB_ADMIN", "DATABASE", "ANALISIS"],
   /** Editing a record, and removing or restoring samples. Admin reads only. */
   editDatabase: ["DATABASE"],
+  /**
+   * Filling in or correcting a sample's identity, and so its Sample ID, and
+   * nothing else on the record. The preparator does it from the mobile app
+   * with the bag in hand, where the parts are read off the label.
+   */
+  editSampleIdentity: ["DATABASE", "PREPARATOR"],
 
   /** Generate Barcode and Reprint Labels, and the print button on a sample. */
   generateSamples: ["DATABASE"],
@@ -49,12 +55,12 @@ export const LAB_CAPABILITIES = {
    * identity forms offer it. Adding only: renaming, retiring and removing a
    * code stay with manageMasterData.
    */
-  addMasterOption: ["LAB_ADMIN", "DATABASE"],
+  addMasterOption: ["LAB_ADMIN", "DATABASE", "PREPARATOR"],
 
   /** Scanning a sample into its next stage, from the mobile app. */
-  scanSamples: ["OPERATOR"],
+  scanSamples: ["PREPARATOR"],
   /** Moving a sample back, or past a stage, with a stated reason. */
-  overrideStage: ["OPERATOR"],
+  overrideStage: ["PREPARATOR"],
   /**
    * The same correction from a sample's page on the website, for when the
    * phone in the lab was the thing that got it wrong.

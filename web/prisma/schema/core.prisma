@@ -22,7 +22,7 @@ enum UserRole {
   ADMIN
   DATABASE
   ANALISIS
-  OPERATOR
+  PREPARATOR
 }
 
 /// The sub-sections of the app. Each one is a module with its own pages.
@@ -36,7 +36,7 @@ model User {
   name       String
   email      String      @unique
   password   String
-  role       UserRole    @default(OPERATOR)
+  role       UserRole    @default(PREPARATOR)
   /// Null only for SUPER_ADMIN. See isValidAccess in src/lib/permissions.ts.
   department Department?
   isActive   Boolean     @default(true) @map("is_active")

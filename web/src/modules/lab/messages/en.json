@@ -602,24 +602,18 @@
     "inProgress": "In progress",
     "overdue": "Over {hours} h",
     "done": "Finished (24 h)",
-    "byStage": "By stage",
-    "last24h": "last 24 hours",
     "overdueShort": "{count} late",
-    "longest": "Waiting longest",
-    "allClear": "No sample is past its SLA.",
     "expired": "This screen's session has ended.",
     "ytdTitle": "Year to date {year}",
-    "noPlace": "No place yet",
-    "code": "Code",
     "production": "Production",
-    "samples": "Samples",
-    "assayed": "Assayed",
-    "avgNi": "Ni %",
-    "avgFe": "Fe %",
     "ytdEmpty": "No samples yet this year.",
     "signInAgain": "Sign in again",
     "hours": "{hours} h",
-    "days": "{days} d {hours} h"
+    "days": "{days} d {hours} h",
+    "todoTitle": "To do",
+    "more": "+{count} more",
+    "noIdent": "No Sample ID yet",
+    "stageEmpty": "Nothing waiting"
   },
   "grade": {
     "title": "Conclusion",
@@ -850,7 +844,7 @@
           }
         }
       },
-      "OPERATOR": {
+      "PREPARATOR": {
         "steps": {
           "1": {
             "title": "You move the samples",
@@ -1139,7 +1133,7 @@
     "stage": "Stage",
     "entered": "Entered",
     "hours": "Hours",
-    "operator": "Operator",
+    "operator": "Preparator",
     "allOf": "All {part}",
     "noStages": "No stages to offer.",
     "chosen": "{count, plural, one {# column} other {# columns}} chosen",

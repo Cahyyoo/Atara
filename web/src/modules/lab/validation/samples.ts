@@ -28,6 +28,18 @@ export const createSampleSchema = z.object({
 });
 
 /**
+ * A sample's identity from the mobile app, by barcode: the nine parts and
+ * nothing else on the record. Strict, so a stray assay or weight is refused
+ * rather than quietly dropped. `dryRun` composes and checks without writing.
+ */
+export const updateSampleIdentitySchema = z
+  .object({
+    ...identityFieldsShape,
+    dryRun: z.boolean().default(false),
+  })
+  .strict();
+
+/**
  * One identity per barcode, so the list length is the quantity.
  *
  * Deliberately not accepting the old `{ quantity, ...identity }` shape as well.

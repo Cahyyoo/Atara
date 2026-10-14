@@ -13,7 +13,7 @@ const STATUS = [
   { role: "ADMIN", isSet: false, updatedAt: null, updatedBy: null },
   { role: "DATABASE", isSet: false, updatedAt: null, updatedBy: null },
   { role: "ANALISIS", isSet: false, updatedAt: null, updatedBy: null },
-  { role: "OPERATOR", isSet: true, updatedAt: "2026-10-01T02:00:00.000Z", updatedBy: "Main Admin" },
+  { role: "PREPARATOR", isSet: true, updatedAt: "2026-10-01T02:00:00.000Z", updatedBy: "Main Admin" },
 ];
 
 function renderCard() {

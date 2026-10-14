@@ -33,6 +33,6 @@ String userRoleText(AppLocalizations l10n, UserRole role) {
     UserRole.admin => l10n.roleAdmin,
     UserRole.database => l10n.roleDatabase,
     UserRole.analisis => l10n.roleAnalisis,
-    UserRole.operator => l10n.roleOperator,
+    UserRole.preparator => l10n.rolePreparator,
   };
 }

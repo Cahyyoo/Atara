@@ -15,15 +15,23 @@ enum UserRole {
   admin('ADMIN'),
   database('DATABASE'),
   analisis('ANALISIS'),
-  operator('OPERATOR');
+  preparator('PREPARATOR');
 
   const UserRole(this.wire);
 
   /// What the server sends and what is written back to storage.
   final String wire;
 
+  /// What the preparator was called before the role was renamed.
+  ///
+  /// Still read, never written: a phone signed in before the update has it in
+  /// storage, and a server not yet migrated still sends it. Refusing it would
+  /// sign every preparator out mid-shift for a change of name.
+  static const legacyOperatorWire = 'OPERATOR';
+
   /// Null for anything that is not exactly one of these.
   static UserRole? tryParse(Object? value) {
+    if (value == legacyOperatorWire) return preparator;
     for (final role in values) {
       if (role.wire == value) return role;
     }

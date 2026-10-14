@@ -72,7 +72,7 @@ const LAYOUTS: Record<LabPersona, DashboardLayout> = {
     allSamples: false,
   },
   // Their own shift, and the samples that are stuck on the way through.
-  OPERATOR: {
+  PREPARATOR: {
     kpis: ["inProgress", "needsAttention"],
     charts: ["waiting", "stageHours"],
     myScans: true,

@@ -38,7 +38,7 @@ describe("who sees an announcement, and when", () => {
   const now = new Date("2026-06-01T00:00:00.000Z");
 
   it("shows a live one to everybody when no role is named", () => {
-    expect(isShownTo(announcement({}), "OPERATOR", now)).toBe(true);
+    expect(isShownTo(announcement({}), "PREPARATOR", now)).toBe(true);
   });
 
   it("hides one that has not started or has ended", () => {
@@ -49,7 +49,7 @@ describe("who sees an announcement, and when", () => {
   it("keeps one meant for analysts away from operators", () => {
     const forAnalysts = announcement({ roles: ["ANALISIS"] });
     expect(isShownTo(forAnalysts, "ANALISIS", now)).toBe(true);
-    expect(isShownTo(forAnalysts, "OPERATOR", now)).toBe(false);
+    expect(isShownTo(forAnalysts, "PREPARATOR", now)).toBe(false);
   });
 
   it("refuses an end before the start", () => {
@@ -66,8 +66,8 @@ describe("the guide", () => {
   it("teaches each role only the pages it can open", () => {
     const keys = (role: Role, department: Department | null = "LAB") =>
       helpSectionsFor({ role, department }).map((s) => s.key);
-    expect(keys("OPERATOR")).toContain("mobile");
-    expect(keys("OPERATOR")).not.toContain("masterData");
+    expect(keys("PREPARATOR")).toContain("mobile");
+    expect(keys("PREPARATOR")).not.toContain("masterData");
     expect(keys("ADMIN")).toContain("masterData");
     expect(keys("ADMIN")).not.toContain("admin");
     expect(keys("ADMIN")).not.toContain("mobile");
@@ -179,7 +179,7 @@ describe.skipIf(!reachable)("against the database", () => {
     const over = await make({ startsAt: new Date(Date.now() - 172_800_000), endsAt: new Date(Date.now() - 86_400_000) });
     invalidateAnnouncements();
 
-    const forOperator = (await loadActiveAnnouncements("OPERATOR")).map((a) => a.id);
+    const forOperator = (await loadActiveAnnouncements("PREPARATOR")).map((a) => a.id);
     const forAnalyst = (await loadActiveAnnouncements("ANALISIS")).map((a) => a.id);
     expect(forOperator).toContain(live);
     expect(forOperator).not.toContain(analystsOnly);

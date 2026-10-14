@@ -101,7 +101,7 @@ describe.skipIf(!reachable)("ending sessions (database)", () => {
 
   it("ends every other session, keeps the one asking, and says why", async () => {
     const user = await prisma.user.create({
-      data: { name: "Session test", email, password: "x", role: "OPERATOR", department: "LAB" as const },
+      data: { name: "Session test", email, password: "x", role: "PREPARATOR", department: "LAB" as const },
     });
     userId = user.id;
     const here = await openSession("WEB");
@@ -109,7 +109,7 @@ describe.skipIf(!reachable)("ending sessions (database)", () => {
 
     expect(await endUserSessions(userId, "PASSWORD_CHANGED", { exceptSessionId: here })).toBe(1);
 
-    expect(await loadSession(here, userId)).toEqual({ status: "active", role: "OPERATOR", department: "LAB" as const, mustChangePassword: false });
+    expect(await loadSession(here, userId)).toEqual({ status: "active", role: "PREPARATOR", department: "LAB" as const, mustChangePassword: false });
     expect(await loadSession(phone, userId)).toMatchObject({
       status: "ended",
       reason: "PASSWORD_CHANGED",

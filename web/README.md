@@ -128,14 +128,14 @@ Browser hanya menerima teks UI milik core dan milik modul yang dipegang persona.
 | ADMIN       | LAB        | admin@atara.local        | lihat catatan |
 | DATABASE    | LAB        | database@atara.local     | lihat catatan |
 | ANALISIS    | LAB        | analisis@atara.local     | lihat catatan |
-| OPERATOR    | LAB        | operator@atara.local     | lihat catatan |
+| PREPARATOR    | LAB        | operator@atara.local     | lihat catatan |
 | ADMIN       | EKSPLORASI | eksplorasi@atara.local   | lihat catatan |
 
 > **Catatan kata sandi.** Akun ini dibuat oleh `npm run db:seed`. Di lingkungan pengembangan kata sandinya ada di `prisma/seed-policy.ts`. Di produksi seed **menolak** membuat akun kecuali `SEED_ADMIN_PASSWORD` (minimal 12 karakter) diberikan, dan yang dibuat hanya akun **super admin**; akun contoh lainnya tidak dibuat sama sekali. Super admin lalu membuat admin setiap departemen dari halaman Akun Admin. Ganti kata sandi super admin setelah masuk pertama kali.
 
 ## Peran
 
-Setiap akun punya **peran** dan **departemen** (kolom `users.department`; null hanya untuk super admin). Siapa boleh melakukan apa ditentukan di `src/core/lib/auth/permissions.ts` dan tabel `capabilities.ts` tiap modul. Halaman, API, dan menu samping semuanya membaca tabel yang sama. Pasangan peran–departemen yang tidak valid, misalnya `OPERATOR` di `EKSPLORASI`, ditolak saat validasi dan tidak mendapat hak apa pun.
+Setiap akun punya **peran** dan **departemen** (kolom `users.department`; null hanya untuk super admin). Siapa boleh melakukan apa ditentukan di `src/core/lib/auth/permissions.ts` dan tabel `capabilities.ts` tiap modul. Halaman, API, dan menu samping semuanya membaca tabel yang sama. Pasangan peran–departemen yang tidak valid, misalnya `PREPARATOR` di `EKSPLORASI`, ditolak saat validasi dan tidak mendapat hak apa pun.
 
 | Persona (peran + departemen) | Website | Aplikasi mobile |
 | ---------------------------- | ------- | --------------- |
@@ -143,13 +143,13 @@ Setiap akun punya **peran** dan **departemen** (kolom `users.department`; null h
 | **Admin Lab** (ADMIN + LAB) | Dashboard lab (termasuk pengaturan SLA & export), Database Sampel (hanya lihat, export, data terhapus), Kualitas Data, Kesimpulan, Aktivitas, Master Data, Pengguna di tile Pengaturan (staf lab + password default-nya), koreksi tahap dari halaman sampel | — |
 | DATABASE (LAB) | Dashboard, Buat Barcode, Cetak Ulang Label, Database Sampel (edit, hapus/pulihkan, export), Kualitas Data, Kesimpulan | — |
 | ANALISIS (LAB) | Dashboard, Input Hasil Uji, Kesimpulan | — |
-| OPERATOR (LAB) | Dashboard | Scan & perbarui tahap, termasuk koreksi (mundur/lompat tahap) dengan alasan |
+| PREPARATOR (LAB) | Dashboard | Scan & perbarui tahap, termasuk koreksi (mundur/lompat tahap) dengan alasan |
 | **Admin Eksplorasi** (ADMIN + EKSPLORASI) | Data Drilling (tambah, ubah, cari, hapus) | — |
 
 **Siapa mengelola akun siapa** (`src/modules/system/lib/user-scope.ts`):
 
 - **Super admin** hanya mengelola akun `ADMIN` milik setiap departemen. Hanya ada satu super admin. Akun ini dibuat oleh seed dan tidak bisa dibuat lewat UI.
-- **Admin Lab** hanya mengelola staf departemennya sendiri, yaitu `DATABASE`, `ANALISIS`, dan `OPERATOR` di LAB.
+- **Admin Lab** hanya mengelola staf departemennya sendiri, yaitu `DATABASE`, `ANALISIS`, dan `PREPARATOR` di LAB.
 - **Admin Eksplorasi** belum punya staf untuk dikelola.
 
 Akun di luar cakupan tidak muncul di daftar, dan setiap route `/api/users/[id]/*` menjawab `404` untuk akun tersebut.
@@ -183,7 +183,7 @@ Akun baru dan akun yang kata sandinya direset memakai kata sandi default per per
 | `/lab/assay`                        | Input Hasil Uji dengan grid seperti Excel: blok dari Excel ditempel langsung ke sel (Ctrl+V), sel bisa diseleksi lalu di-copy ke Excel (Ctrl+C) atau dikosongkan (Delete). Sampel tercentang diisi di grid; tanpa centang, "Tempel per Sample ID" membuka lembar hingga 5.000 baris berkolom persis seperti ekspor instrumen (Sample ID, Measurement Finished seperti `9/1/2026 8:54`, Ni (%) … Sum (%), Measurement Method, Solution ID), dicek server hanya untuk baris yang berubah, dengan progres pengecekan dan penyimpanan yang terlihat. Impor file CSV/XLSX tetap tersedia. |
 | `/lab/assay/history`                | Riwayat perubahan hasil uji. |
 | `/lab/grade`                        | Kesimpulan: rata-rata kadar per pit, SIR, lokasi, jenis batuan, kode non-prod, atau barging run. |
-| `/lab/activity`                     | Jejak perpindahan tahap per operator. |
+| `/lab/activity`                     | Jejak perpindahan tahap per preparator. |
 | `/lab/master-data`                  | Kosakata penyusun Sample ID (tempat, jenis batuan, non-prod, pit, SIR). |
 | `/lab/tv`                           | Tampilan monitoring layar penuh untuk TV di lab. |
 | **Modul Eksplorasi**                | |
@@ -224,8 +224,8 @@ Semua endpoint berada di bawah `/api` dan mengembalikan bentuk `{ success, data 
 | POST        | `/api/samples/generate`      | Generate sampel massal. |
 | GET         | `/api/samples/[code]`        | Detail sampel + seluruh riwayat log (timeline). |
 | POST        | `/api/samples/[code]/stage`  | Koreksi tahap dari web oleh admin, selalu dengan alasan. |
-| POST        | `/api/samples/scan`          | Endpoint utama mobile: `{ sample_code, stage_id, notes?, force?, reason? }`. Operator diambil dari sesi; `force` + `reason` untuk koreksi mundur/lompat tahap. |
-| GET         | `/api/samples/scan/mine`     | Riwayat scan operator yang sedang masuk. |
+| POST        | `/api/samples/scan`          | Endpoint utama mobile: `{ sample_code, stage_id, notes?, force?, reason? }`. Preparator diambil dari sesi; `force` + `reason` untuk koreksi mundur/lompat tahap. |
+| GET         | `/api/samples/scan/mine`     | Riwayat scan preparator yang sedang masuk. |
 | POST        | `/api/samples/delete`        | Hapus (soft) atau pulihkan sampel. |
 | GET         | `/api/samples/export`        | Unduh daftar sampel. |
 | GET         | `/api/samples/lookup`        | Pencarian cepat (Ctrl+K). |

@@ -7,7 +7,7 @@ import 'package:atara/services/scan_request.dart';
 ///
 /// `web/src/app/api/samples/scan/route.ts` writes
 /// `notes: isCorrection ? reason : notes`, and `isCorrection` is
-/// `force && role == OPERATOR` with no condition on direction. So every override
+/// `force && role == PREPARATOR` with no condition on direction. So every override
 /// sent discarded whatever had been typed in Field Notes, silently.
 ///
 /// The rule lives in one pure function because two paths reach the endpoint: a

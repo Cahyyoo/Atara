@@ -58,7 +58,7 @@ const _sessionBody = '''
 {"success": true,
  "data": {"mfaRequired": false, "token": "new.jwt",
           "user": {"id": "u1", "name": "Siti Operator",
-                   "email": "operator@atara.local", "role": "OPERATOR"}}}
+                   "email": "operator@atara.local", "role": "PREPARATOR"}}}
 ''';
 
 const _replacedBody = '''
@@ -87,7 +87,7 @@ const _operator = UserModel(
   id: 'u1',
   name: 'Siti Operator',
   email: 'operator@atara.local',
-  role: UserRole.operator,
+  role: UserRole.preparator,
 );
 
 /// A container whose session has finished restoring from storage.

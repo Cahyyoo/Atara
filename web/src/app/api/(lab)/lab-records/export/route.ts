@@ -297,7 +297,7 @@ async function exportLabRecords(request: NextRequest) {
         const name = stageName.get(stage.stageId) ?? "";
         return {
           key: column.key,
-          header: stage.part === "at" ? "Date / Time" : stage.part === "duration" ? "Hours" : "Operator",
+          header: stage.part === "at" ? "Date / Time" : stage.part === "duration" ? "Hours" : "Preparator",
           band: stage.part === "at" ? "stageAt" : "stageDetail",
           stageName: name,
           width: stage.part === "by" ? 14 : stage.part === "at" ? 15 : 11,

@@ -74,7 +74,7 @@ describe.skipIf(!reachable)("role default passwords and the duty to change them"
   });
 
   it("sets a role's default, and never hands it back", async () => {
-    const response = await setDefault(json("/api/admin/role-passwords", "PUT", { role: "OPERATOR", password: DEFAULT }));
+    const response = await setDefault(json("/api/admin/role-passwords", "PUT", { role: "PREPARATOR", password: DEFAULT }));
     expect(response.status).toBe(200);
 
     const listed = await (await listDefaults(json("/api/admin/role-passwords", "GET"))).text();
@@ -82,19 +82,19 @@ describe.skipIf(!reachable)("role default passwords and the duty to change them"
     expect(listed).not.toContain("$2");
     const body = JSON.parse(listed);
     // Only the roles a lab admin hands out (user-scope.ts).
-    expect(body.data.map((entry: { role: string }) => entry.role)).toEqual(["DATABASE", "ANALISIS", "OPERATOR"]);
-    expect(body.data.find((entry: { role: string }) => entry.role === "OPERATOR")).toMatchObject({
+    expect(body.data.map((entry: { role: string }) => entry.role)).toEqual(["DATABASE", "ANALISIS", "PREPARATOR"]);
+    expect(body.data.find((entry: { role: string }) => entry.role === "PREPARATOR")).toMatchObject({
       isSet: true,
       updatedBy: "Admin",
     });
 
-    const short = await setDefault(json("/api/admin/role-passwords", "PUT", { role: "OPERATOR", password: "short" }));
+    const short = await setDefault(json("/api/admin/role-passwords", "PUT", { role: "PREPARATOR", password: "short" }));
     expect(short.status).toBe(422);
   });
 
   it("starts a new account on its role's default, which it must change", async () => {
     const response = await createUser(
-      json("/api/users", "POST", { name: "New person", email: `${tag}-new@test.invalid`, role: "OPERATOR", department: "LAB" as const })
+      json("/api/users", "POST", { name: "New person", email: `${tag}-new@test.invalid`, role: "PREPARATOR", department: "LAB" as const })
     );
     expect(response.status).toBe(201);
     const body = await response.json();
@@ -120,7 +120,7 @@ describe.skipIf(!reachable)("role default passwords and the duty to change them"
         name: "Other",
         email: `${tag}-other@test.invalid`,
         password: await bcrypt.hash("Mine1234!", 4),
-        role: "OPERATOR", department: "LAB" as const,
+        role: "PREPARATOR", department: "LAB" as const,
         failedLoginAttempts: 5,
         lockedUntil: new Date(Date.now() + 60_000),
       },
@@ -158,7 +158,7 @@ describe.skipIf(!reachable)("role default passwords and the duty to change them"
         name: "Person",
         email: `${tag}-person@test.invalid`,
         password: await bcrypt.hash("Given1234!", 4),
-        role: "OPERATOR", department: "LAB" as const,
+        role: "PREPARATOR", department: "LAB" as const,
         mustChangePassword: true,
       },
     });

@@ -21,7 +21,7 @@ void main() {
       'ADMIN': UserRole.admin,
       'DATABASE': UserRole.database,
       'ANALISIS': UserRole.analisis,
-      'OPERATOR': UserRole.operator,
+      'PREPARATOR': UserRole.preparator,
     };
     expect(UserRole.values, hasLength(5));
 
@@ -38,8 +38,17 @@ void main() {
     });
   });
 
-  test('an unknown role is refused, never read as an operator', () {
-    for (final wire in ['AUDITOR', 'operator', 'Operator', '', null, 7]) {
+  test('the old OPERATOR spelling still reads as the preparator', () {
+    // A phone signed in before the rename has it in storage, and a server not
+    // yet migrated still sends it. It is written back under the new name.
+    final user = UserModel.fromJson(json('OPERATOR'));
+    expect(user.role, UserRole.preparator);
+    expect(user.toJson()['role'], 'PREPARATOR');
+    expect(UserModel.tryFromJson(json('OPERATOR'))?.role, UserRole.preparator);
+  });
+
+  test('an unknown role is refused, never read as a preparator', () {
+    for (final wire in ['AUDITOR', 'operator', 'Preparator', 'preparator', '', null, 7]) {
       expect(UserRole.tryParse(wire), isNull, reason: '$wire');
       expect(UserModel.tryFromJson(json(wire)), isNull, reason: '$wire');
       expect(

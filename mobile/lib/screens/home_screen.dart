@@ -7,6 +7,7 @@ import '../providers/announcements_provider.dart';
 import '../providers/pending_scans_provider.dart';
 import '../providers/my_work_provider.dart';
 import '../providers/session_provider.dart';
+import '../providers/todo_provider.dart';
 import '../services/sample_status_text.dart';
 import '../theme/app_theme.dart';
 import '../widgets/announcement_banner.dart';
@@ -17,17 +18,21 @@ import '../widgets/ios/ios_button.dart';
 import '../widgets/manual_code_dialog.dart';
 import '../widgets/my_work_section.dart';
 import '../widgets/pending_scan_section.dart';
+import '../widgets/todo_section.dart';
 import 'update_status_screen.dart';
 
 /// The operator's own page: who they are, the way to a scan, and what they
 /// still owe the server.
 class HomeScreen extends ConsumerStatefulWidget {
-  const HomeScreen({super.key, required this.onScan});
+  const HomeScreen({super.key, required this.onScan, required this.onCheck});
 
   /// Raising the scanner is the shell's job — it presents it over the tab bar
   /// rather than inside a tab, so the camera is not kept alive in the
   /// background. See `HomeShell`.
   final VoidCallback onScan;
+
+  /// The scanner again, opened to look at a barcode rather than move it.
+  final VoidCallback onCheck;
 
   @override
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
@@ -61,6 +66,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         // Along with the rest: a notice posted mid-shift should arrive on the
         // same pull that fetches the tally, not at the next sign-in.
         ref.read(announcementsProvider.notifier).refresh(),
+        ref.read(todoProvider.notifier).refresh(),
       ]);
     } finally {
       _isBusy = false;
@@ -119,10 +125,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 style: AppButtonStyle.plain,
                 onPressed: () => _openManualEntry(context),
               ),
+              AppButton(
+                label: l10n.checkBarcode,
+                icon: CupertinoIcons.info_circle,
+                style: AppButtonStyle.plain,
+                onPressed: widget.onCheck,
+              ),
               const SizedBox(height: AppSpacing.xl),
               const PendingScanSection(),
             ]),
           ),
+        ),
+        // What is waiting on the floor comes before what this preparator has
+        // already done: it is the answer to "what next".
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          sliver: const TodoSection(),
         ),
         SliverPadding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),

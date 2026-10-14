@@ -73,6 +73,31 @@ export const IDENTITY_FIELDS = [
 ] as const satisfies readonly (keyof IdentityInput)[];
 
 /**
+ * The other record already holding this Sample ID, or null when it is free.
+ *
+ * Asked before a write rather than left to the unique index, whose refusal
+ * would say only that something already exists: this names the sample the id
+ * belongs to, which is what a person can act on.
+ */
+export async function findIdentHolder(
+  db: Prisma.TransactionClient,
+  sampleIdent: string,
+  recordId: string
+): Promise<{ sampleCode: string } | null> {
+  const holder = await db.labRecord.findUnique({
+    where: { sampleIdent },
+    select: { id: true, labCode: true, sample: { select: { sampleCode: true } } },
+  });
+  if (!holder || holder.id === recordId) return null;
+  return { sampleCode: holder.sample?.sampleCode ?? holder.labCode };
+}
+
+/** The refusal both identity routes give for a Sample ID already in use. */
+export function identTakenMessage(sampleIdent: string, holder: { sampleCode: string }): string {
+  return `Sample ID ${sampleIdent} is already used by sample ${holder.sampleCode}.`;
+}
+
+/**
  * Recomposes `sampleIdent` from whatever the record will hold once an update is
  * applied.
  *

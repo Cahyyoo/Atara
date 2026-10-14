@@ -3,13 +3,13 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/core/lib/utils";
-import { stageLabel } from "@/modules/lab/lib/stages/stages";
 import { formatSessionTime } from "@/core/lib/auth/session-client";
 import { formatWitaDateTime } from "@/core/lib/wita-time";
 import { useVisibleInterval } from "@/core/hooks/use-visible-interval";
 import type { StageBoard } from "@/modules/lab/lib/stages/stage-board";
 import type { YtdProduction } from "@/modules/lab/lib/analytics/ytd-types";
 import { TvYtd } from "@/modules/lab/components/tv/tv-ytd";
+import { TvTodoBoard } from "@/modules/lab/components/tv/tv-todo-board";
 import type { ApiResult } from "@/core/types";
 import { APP_NAME } from "@/core/lib/app/brand";
 import { IoExpandOutline } from "react-icons/io5";
@@ -18,21 +18,15 @@ import { withBasePath } from "@/core/lib/http/base-path";
 /** A wall monitor is always visible, so this is simply once a minute. */
 export const TV_REFRESH_MS = 60_000;
 
-/** How many of the longest-waiting samples the list shows. */
-const LONGEST = 10;
-
-/** "31 h" under two days, "3 d 4 h" beyond, so a stuck sample reads as stuck. */
-export function formatWait(hours: number, t: (key: string, values: Record<string, number>) => string) {
-  if (hours < 48) return t("hours", { hours: Math.round(hours) });
-  return t("days", { days: Math.floor(hours / 24), hours: Math.round(hours % 24) });
-}
+export { formatWait } from "@/modules/lab/components/tv/tv-format";
 
 /**
- * The lab's wall monitor: the floor right now in numbers big enough to read
- * from across the room. Same data as the stage board, refreshed once a
- * minute. Without the app shell there is no SessionWatch, so a session that
- * ends is noticed here, on the next refresh, and said in the middle of the
- * screen.
+ * The lab's wall monitor: the work waiting on the floor, stage by stage, in
+ * type big enough to read from across the room, with the day's three numbers
+ * above it and the year so far in one line beneath. Same data as the stage
+ * board, refreshed once a minute. Without the app shell there is no
+ * SessionWatch, so a session that ends is noticed here, on the next refresh,
+ * and said in the middle of the screen.
  */
 export function TvDashboard({
   initialBoard,
@@ -43,7 +37,6 @@ export function TvDashboard({
   initialYtd?: YtdProduction | null;
 }) {
   const t = useTranslations("tv");
-  const tStages = useTranslations("stages");
   const [board, setBoard] = useState(initialBoard);
   const [ytd, setYtd] = useState(initialYtd);
   const [expired, setExpired] = useState(false);
@@ -80,22 +73,10 @@ export function TvDashboard({
     })();
   }, TV_REFRESH_MS);
 
-  const columnLabel = (column: StageBoard["columns"][number]) =>
-    stageLabel(tStages, column.stageKey, column.stageName ?? "");
-
   const inStages = board.columns.filter((column) => column.kind === "stage");
   const done = board.columns.find((column) => column.kind === "done");
   const inProgress = inStages.reduce((sum, column) => sum + column.count, 0);
   const overdue = board.columns.reduce((sum, column) => sum + column.overdue, 0);
-
-  const longest = board.columns
-    .flatMap((column) =>
-      column.cards
-        .filter((card) => card.overdue)
-        .map((card) => ({ ...card, where: columnLabel(column) }))
-    )
-    .sort((a, b) => b.hours - a.hours)
-    .slice(0, LONGEST);
 
   const kpis = [
     { label: t("inProgress"), value: inProgress, alarm: false },
@@ -104,7 +85,7 @@ export function TvDashboard({
   ];
 
   return (
-    <div className="min-h-screen bg-neutral-950 p-6 text-neutral-50 lg:p-10">
+    <div className="flex min-h-screen flex-col bg-neutral-950 p-6 text-neutral-50 lg:p-8">
       <header className="flex flex-wrap items-center gap-4">
         <h1 className="text-3xl font-semibold tracking-tight lg:text-4xl">{APP_NAME}</h1>
         <p className="text-xl text-neutral-400 lg:text-2xl">{t("title")}</p>
@@ -129,71 +110,27 @@ export function TvDashboard({
         </div>
       </header>
 
-      <section className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      {/* The day in three numbers, kept small: the work below is what the screen is for. */}
+      <section className="mt-6 grid grid-cols-3 gap-4">
         {kpis.map((kpi) => (
           <div
             key={kpi.label}
             className={cn(
-              "rounded-2xl border p-6",
+              "flex items-baseline gap-4 rounded-2xl border px-5 py-3",
               kpi.alarm ? "border-red-500/60 bg-red-500/15" : "border-neutral-800 bg-neutral-900"
             )}
           >
-            <p className="text-lg text-neutral-400 lg:text-xl">{kpi.label}</p>
-            <p
-              className={cn(
-                "mt-2 text-6xl font-semibold tabular-nums lg:text-7xl",
-                kpi.alarm && "text-red-400"
-              )}
-            >
+            <p className="text-lg text-neutral-400">{kpi.label}</p>
+            <p className={cn("ml-auto text-4xl font-semibold tabular-nums", kpi.alarm && "text-red-400")}>
               {kpi.value}
             </p>
           </div>
         ))}
       </section>
 
-      <section className="mt-8">
-        <h2 className="text-xl text-neutral-400">{t("byStage")}</h2>
-        <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
-          {board.columns.map((column) => (
-            <div key={column.id} className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4">
-              <p className="truncate text-lg text-neutral-300">{columnLabel(column)}</p>
-              <p className="mt-1 text-5xl font-semibold tabular-nums">{column.count}</p>
-              <p
-                className={cn(
-                  "mt-1 text-base",
-                  column.overdue > 0 ? "text-red-400" : "text-neutral-500"
-                )}
-              >
-                {column.kind === "done" ? t("last24h") : t("overdueShort", { count: column.overdue })}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <TvTodoBoard board={board} />
 
       <TvYtd ytd={ytd} />
-
-      <section className="mt-8">
-        <h2 className="text-xl text-neutral-400">{t("longest")}</h2>
-        {longest.length === 0 ? (
-          <p className="mt-3 text-2xl text-emerald-400">{t("allClear")}</p>
-        ) : (
-          <ol className="mt-3 grid grid-cols-1 gap-2 xl:grid-cols-2">
-            {longest.map((card) => (
-              <li
-                key={card.sampleCode}
-                className="flex items-center gap-4 rounded-xl border border-neutral-800 bg-neutral-900 px-4 py-3 text-xl"
-              >
-                <span className="font-mono font-semibold">{card.sampleCode}</span>
-                <span className="truncate text-neutral-400">{card.where}</span>
-                <span className="ml-auto font-semibold tabular-nums text-red-400">
-                  {formatWait(card.hours, t)}
-                </span>
-              </li>
-            ))}
-          </ol>
-        )}
-      </section>
 
       {expired ? (
         <div

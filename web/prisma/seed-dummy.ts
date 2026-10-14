@@ -53,7 +53,7 @@ async function main() {
 
   const users = await prisma.user.findMany();
   const admin = users.find((user) => user.role === "ADMIN");
-  const operators = users.filter((user) => user.role === "OPERATOR");
+  const operators = users.filter((user) => user.role === "PREPARATOR");
   // Who enters the results, and who types in the identity and the weighing.
   if (!admin || operators.length === 0) {
     throw new Error("Admin/operator users are missing. Run `npm run db:seed` first.");

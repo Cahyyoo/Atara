@@ -6,7 +6,12 @@ import { route } from "@/core/lib/http/api-route";
 import { updateDatabaseRecordSchema } from "@/modules/lab/validation/records";
 import { weighingProblem } from "@/modules/lab/lib/records/mc";
 import { diffLabRecord, toLabRecordDTO } from "@/modules/lab/lib/records/lab-record";
-import { IDENTITY_FIELDS, resolveSampleIdent } from "@/modules/lab/lib/samples/sample-ident-server";
+import {
+  IDENTITY_FIELDS,
+  findIdentHolder,
+  identTakenMessage,
+  resolveSampleIdent,
+} from "@/modules/lab/lib/samples/sample-ident-server";
 import { ACTIVE_LAB_RECORD } from "@/modules/lab/lib/samples/soft-delete";
 import { readJsonBody } from "@/core/lib/http/api-request";
 import { syncSubs } from "@/modules/lab/lib/records/sub-records";
@@ -43,16 +48,8 @@ export const PATCH = route<{ id: string }>({ capability: "editDatabase" }, async
     // only that something already exists. Identities are now filled in
     // here, after the barcodes are made, so this is where clashes surface.
     if (sampleIdent && sampleIdent !== existing.sampleIdent) {
-      const holder = await tx.labRecord.findUnique({
-        where: { sampleIdent },
-        select: { id: true, labCode: true, sample: { select: { sampleCode: true } } },
-      });
-      if (holder && holder.id !== id) {
-        throw new ApiError(
-          `Sample ID ${sampleIdent} is already used by sample ${holder.sample?.sampleCode ?? holder.labCode}.`,
-          409
-        );
-      }
+      const holder = await findIdentHolder(tx, sampleIdent, id);
+      if (holder) throw new ApiError(identTakenMessage(sampleIdent, holder), 409);
     }
     const payload = sampleIdent === undefined ? data : { ...data, sampleIdent };
 

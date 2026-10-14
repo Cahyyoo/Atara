@@ -36,7 +36,7 @@ function page(...targets: string[]) {
 /** Signed in as the lab admin unless said otherwise; the admin tour is the super admin's. */
 const ACCESS = {
   ADMIN: { role: "ADMIN", department: "LAB" },
-  OPERATOR: { role: "OPERATOR", department: "LAB" },
+  PREPARATOR: { role: "PREPARATOR", department: "LAB" },
   SUPER_ADMIN: { role: "SUPER_ADMIN", department: null },
 } as const;
 
@@ -136,7 +136,7 @@ describe("the tour runner", () => {
 
   it("does not run a tour the role cannot use", async () => {
     page("users-search");
-    show("users", "OPERATOR");
+    show("users", "PREPARATOR");
     await settle();
     expect(screen.queryByRole("dialog")).toBeNull();
   });

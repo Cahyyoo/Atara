@@ -9,7 +9,7 @@ import { activeNavItem, moduleEntryPath, moduleForPath, modulesFor, navFor } fro
 
 const SUPER: Access = { role: "SUPER_ADMIN", department: null };
 const LAB_ADMIN: Access = { role: "ADMIN", department: "LAB" };
-const OPERATOR: Access = { role: "OPERATOR", department: "LAB" };
+const PREPARATOR: Access = { role: "PREPARATOR", department: "LAB" };
 
 const keyOf = (pathname: string) => moduleForPath(pathname)?.key ?? null;
 
@@ -44,8 +44,8 @@ describe("a card on the launcher", () => {
 
   it("opens the module's home when the person may open it", () => {
     expect(moduleEntryPath(SUPER, settings())).toBe("/admin");
-    const lab = modulesFor(OPERATOR).find((m) => m.key === "lab")!;
-    expect(moduleEntryPath(OPERATOR, lab)).toBe("/lab/dashboard");
+    const lab = modulesFor(PREPARATOR).find((m) => m.key === "lab")!;
+    expect(moduleEntryPath(PREPARATOR, lab)).toBe("/lab/dashboard");
   });
 
   it("opens the first page the person may, when the home is not theirs", () => {
@@ -56,8 +56,8 @@ describe("a card on the launcher", () => {
   it("lists only the menus the person may open", () => {
     expect(navFor(LAB_ADMIN, settings()).map((item) => item.href)).toEqual(["/users"]);
     expect(navFor(SUPER, settings()).map((item) => item.href)).toEqual(["/users", "/admin", "/admin/sign-ins"]);
-    const lab = modulesFor(OPERATOR).find((m) => m.key === "lab")!;
-    expect(navFor(OPERATOR, lab).map((item) => item.href)).toEqual(["/lab/dashboard"]);
+    const lab = modulesFor(PREPARATOR).find((m) => m.key === "lab")!;
+    expect(navFor(PREPARATOR, lab).map((item) => item.href)).toEqual(["/lab/dashboard"]);
   });
 });
 

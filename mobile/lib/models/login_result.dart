@@ -68,13 +68,13 @@ sealed class LoginResult {
       final user = UserModel.tryFromJson(rawUser);
       if (user == null) {
         // A role this build has never heard of is not a malformed answer — it
-        // is, whatever it turns out to be, not OPERATOR, and this app is for
+        // is, whatever it turns out to be, not PREPARATOR, and this app is for
         // nobody else. Saying "unreadable" would send someone to check a
         // server address that is fine.
         if (rawUser is Map &&
             rawUser['role'] is String &&
             UserRole.tryParse(rawUser['role']) == null) {
-          throw const OperatorOnlyException();
+          throw const PreparatorOnlyException();
         }
         throw _unreadable();
       }
@@ -133,16 +133,16 @@ sealed class LoginResult {
 /// The server issued a session, and it belongs to an account this app will not
 /// serve.
 ///
-/// Scanning and moving samples is an OPERATOR's job; ADMIN, DATABASE and
+/// Scanning and moving samples is a PREPARATOR's job; ADMIN, DATABASE and
 /// ANALISIS work on the website. The server will happily sign any of them in,
 /// so the refusal is made here, after the fact, and the token it came with is
 /// simply never stored. `SessionNotifier._adopt` raises it for the known roles,
 /// [LoginResult.parse] for a role it has never heard of.
-class OperatorOnlyException implements Exception {
-  const OperatorOnlyException();
+class PreparatorOnlyException implements Exception {
+  const PreparatorOnlyException();
 
   @override
-  String toString() => 'This app is for Operators.';
+  String toString() => 'This app is for Preparators.';
 }
 
 /// Why this phone was signed out, when the operator did not ask for it.

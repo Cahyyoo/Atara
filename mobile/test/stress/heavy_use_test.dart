@@ -63,7 +63,7 @@ const _operator = UserModel(
   id: 'op-1',
   name: 'Operator Satu',
   email: 'op@atara.local',
-  role: UserRole.operator,
+  role: UserRole.preparator,
 );
 
 const _stages = [

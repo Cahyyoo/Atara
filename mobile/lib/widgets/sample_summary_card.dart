@@ -12,9 +12,17 @@ import 'ios/inset_section.dart';
 /// The barcode leads, because it is the one thing being checked against the
 /// label in the operator's hand. Everything else is context under it.
 class SampleSummaryCard extends StatelessWidget {
-  const SampleSummaryCard({super.key, required this.sample});
+  const SampleSummaryCard({
+    super.key,
+    required this.sample,
+    this.showIdent = true,
+  });
 
   final SampleModel sample;
+
+  /// False where SampleIdentityCard follows, which shows the Sample ID with
+  /// its parts — the same id twice, one card apart, is one too many.
+  final bool showIdent;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +49,7 @@ class SampleSummaryCard extends StatelessWidget {
         // Most samples are barcoded before their identity is known, and this
         // card is read standing in front of the container — an empty row is one
         // more thing for the eye to step over.
-        if (sample.sampleIdent != null)
+        if (showIdent && sample.sampleIdent != null)
           InsetCustomRow(
             child: Row(
               children: [

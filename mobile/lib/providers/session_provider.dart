@@ -47,7 +47,7 @@ class SessionNotifier extends StateNotifier<AsyncValue<UserModel?>> {
       // A session saved by an older build, when administrators could use the
       // app too. It is a real, unexpired token — which is exactly why it cannot
       // be kept: it would open Home for an account the sign-in now turns away.
-      if (user != null && user.role != UserRole.operator) {
+      if (user != null && user.role != UserRole.preparator) {
         await SessionService.clearSession();
         user = null;
       }
@@ -75,7 +75,7 @@ class SessionNotifier extends StateNotifier<AsyncValue<UserModel?>> {
   /// challenge instead, and the caller is the only thing that can put a screen
   /// in front of it. When a session DID come back it is adopted here before
   /// returning, so a caller that ignores the result still ends up signed in —
-  /// or, for any role but OPERATOR, throws [OperatorOnlyException] instead.
+  /// or, for any role but PREPARATOR, throws [PreparatorOnlyException] instead.
   Future<LoginResult> login(String email, String password) async {
     final result = await ApiService.instance.login(
       email: email,
@@ -132,8 +132,8 @@ class SessionNotifier extends StateNotifier<AsyncValue<UserModel?>> {
   /// on the device changes. Checked last, not first, because a face or code
   /// sign-in only learns the role once the whole exchange is over.
   Future<void> _adopt(LoginSession session) async {
-    if (session.user.role != UserRole.operator) {
-      throw const OperatorOnlyException();
+    if (session.user.role != UserRole.preparator) {
+      throw const PreparatorOnlyException();
     }
     await SessionService.saveSession(session.token, session.user);
     await WorkSummaryCacheService.clear();

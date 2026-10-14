@@ -44,7 +44,7 @@ export function parseStageColumnKey(key: string): { stageId: string; part: Stage
 
 export function stageColumnHeader(stageName: string, part: StagePart): string {
   if (part === "at") return `Entered ${stageName}`;
-  return part === "duration" ? `Hours in ${stageName}` : `Operator ${stageName}`;
+  return part === "duration" ? `Hours in ${stageName}` : `Preparator ${stageName}`;
 }
 
 /** The elements the Formulir Analysis Result reports; the rest can be ticked in. */

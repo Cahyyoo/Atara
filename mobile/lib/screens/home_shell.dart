@@ -40,11 +40,12 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     ref.read(stagesProvider);
   }
 
-  Future<void> _openScanner() async {
+  /// [mode] null opens the scanner in whichever mode was used last.
+  Future<void> _openScanner([ScanMode? mode]) async {
     await Navigator.of(context, rootNavigator: true).push(
       CupertinoPageRoute(
         fullscreenDialog: true,
-        builder: (context) => const ScannerScreen(),
+        builder: (context) => ScannerScreen(mode: mode),
       ),
     );
   }
@@ -62,7 +63,10 @@ class _HomeShellState extends ConsumerState<HomeShell> {
             child: IndexedStack(
               index: _index,
               children: [
-                HomeScreen(onScan: _openScanner),
+                HomeScreen(
+                  onScan: () => _openScanner(ScanMode.update),
+                  onCheck: () => _openScanner(ScanMode.check),
+                ),
                 const SettingsScreen(isTab: true),
               ],
             ),

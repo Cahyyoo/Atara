@@ -49,9 +49,9 @@ export const DEV_EKSPLORASI_ADMIN: SeedAccount = {
   name: "Eksplorasi Admin",
   password: "Eksplorasi123!",
 };
-export const DEV_OPERATOR: SeedAccount = {
+export const DEV_PREPARATOR: SeedAccount = {
   email: "operator@atara.local",
-  name: "Field Operator",
+  name: "Field Preparator",
   password: "Operator123!",
 };
 export const DEV_DATABASE: SeedAccount = {
@@ -70,7 +70,7 @@ export const DEV_DEMO_ACCOUNTS: DemoAccount[] = [
   { account: DEV_ADMIN, role: "ADMIN", department: "LAB" },
   { account: DEV_DATABASE, role: "DATABASE", department: "LAB" },
   { account: DEV_ANALISIS, role: "ANALISIS", department: "LAB" },
-  { account: DEV_OPERATOR, role: "OPERATOR", department: "LAB" },
+  { account: DEV_PREPARATOR, role: "PREPARATOR", department: "LAB" },
   { account: DEV_EKSPLORASI_ADMIN, role: "ADMIN", department: "EKSPLORASI" },
 ];
 

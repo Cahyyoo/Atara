@@ -54,14 +54,14 @@ void main() {
          "data": {"mfaRequired": false,
                   "token": "session.jwt.value",
                   "user": {"id": "u1", "name": "Main Admin",
-                           "email": "operator@atara.local", "role": "OPERATOR"}}}
+                           "email": "operator@atara.local", "role": "PREPARATOR"}}}
       '''),
       );
 
       expect(result, isA<LoginSession>());
       final session = result as LoginSession;
       expect(session.token, 'session.jwt.value');
-      expect(session.user.role, UserRole.operator);
+      expect(session.user.role, UserRole.preparator);
       expect(session.user.email, 'operator@atara.local');
     });
 
@@ -76,7 +76,7 @@ void main() {
         {"success": true,
          "data": {"token": "session.jwt.value",
                   "user": {"id": "u1", "name": "Main Admin",
-                           "email": "operator@atara.local", "role": "OPERATOR"}}}
+                           "email": "operator@atara.local", "role": "PREPARATOR"}}}
       '''),
       );
 
@@ -164,9 +164,9 @@ void main() {
     });
 
     test('a session for any known role parses; refusing it is not its job', () {
-      // The parser reports what the server said. Turning a non-operator away is
+      // The parser reports what the server said. Turning a non-preparator away is
       // SessionNotifier._adopt's call, made once for every sign-in path.
-      for (final role in ['ADMIN', 'DATABASE', 'ANALISIS', 'OPERATOR']) {
+      for (final role in ['ADMIN', 'DATABASE', 'ANALISIS', 'PREPARATOR']) {
         final result = LoginResult.parse({
           'data': {
             'token': 't',
@@ -177,9 +177,9 @@ void main() {
       }
     });
 
-    test('a session for a role this build does not know is operator-only', () {
+    test('a session for a role this build does not know is preparator-only', () {
       // Not "unreadable": that sentence points at the server address, and the
-      // server is fine. Whatever the role is, it is not OPERATOR.
+      // server is fine. Whatever the role is, it is not PREPARATOR.
       expect(
         () => LoginResult.parse({
           'data': {
@@ -192,7 +192,7 @@ void main() {
             },
           },
         }),
-        throwsA(isA<OperatorOnlyException>()),
+        throwsA(isA<PreparatorOnlyException>()),
       );
     });
 

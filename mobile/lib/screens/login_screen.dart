@@ -114,10 +114,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           });
         }
       }
-    } on OperatorOnlyException {
+    } on PreparatorOnlyException {
       if (!mounted) return;
       setState(() {
-        _errorMessage = l10n.signInOperatorsOnly;
+        _errorMessage = l10n.signInPreparatorsOnly;
         _serverUnreachable = false;
       });
     } on ApiException catch (error) {

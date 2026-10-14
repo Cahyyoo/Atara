@@ -45,7 +45,7 @@ export const updateAnnouncementSchema = z
 export const createUserSchema = z.object({
   name: z.string().trim().min(1, "Name is required.").max(191),
   email: z.string().trim().email("Invalid email address."),
-  role: z.enum(ROLES).default("OPERATOR"),
+  role: z.enum(ROLES).default("PREPARATOR"),
   department: z.enum(DEPARTMENTS).nullable().optional(),
 });
 

@@ -14,7 +14,7 @@ function evaluate(overrides: Partial<Parameters<typeof evaluateStageTransition>[
     stages: STAGES,
     currentOrder: 0,
     targetStageId: "s1",
-    role: "OPERATOR",
+    role: "PREPARATOR",
     ...overrides,
   });
 }

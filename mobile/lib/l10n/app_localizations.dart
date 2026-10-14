@@ -140,11 +140,11 @@ abstract class AppLocalizations {
   /// **'Administrator'**
   String get roleAdmin;
 
-  /// No description provided for @roleOperator.
+  /// No description provided for @rolePreparator.
   ///
   /// In id, this message translates to:
-  /// **'Operator'**
-  String get roleOperator;
+  /// **'Preparator'**
+  String get rolePreparator;
 
   /// No description provided for @roleDatabase.
   ///
@@ -317,7 +317,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In id, this message translates to:
-  /// **'Atara Operator'**
+  /// **'Atara Preparator'**
   String get appTitle;
 
   /// No description provided for @loginSubtitle.
@@ -980,16 +980,16 @@ abstract class AppLocalizations {
   /// **'Server menjawab dalam bentuk yang tidak dikenali. Periksa alamat server atau hubungi administrator.'**
   String get errorUnreadableAnswer;
 
-  /// No description provided for @signInOperatorsOnly.
+  /// No description provided for @signInPreparatorsOnly.
   ///
   /// In id, this message translates to:
-  /// **'Aplikasi ini khusus Operator. Silakan gunakan situs web.'**
-  String get signInOperatorsOnly;
+  /// **'Aplikasi ini khusus Preparator. Silakan gunakan situs web.'**
+  String get signInPreparatorsOnly;
 
   /// No description provided for @errorForbidden.
   ///
   /// In id, this message translates to:
-  /// **'Peran akun Anda tidak mengizinkan ini. Aplikasi ini khusus Operator.'**
+  /// **'Peran akun Anda tidak mengizinkan ini. Aplikasi ini khusus Preparator.'**
   String get errorForbidden;
 
   /// No description provided for @mfaTitle.
@@ -1519,6 +1519,282 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Tutup pengumuman'**
   String get announcementDismiss;
+
+  /// No description provided for @checkBarcode.
+  ///
+  /// In id, this message translates to:
+  /// **'Cek Barcode'**
+  String get checkBarcode;
+
+  /// No description provided for @scanModeUpdate.
+  ///
+  /// In id, this message translates to:
+  /// **'Update Tahap'**
+  String get scanModeUpdate;
+
+  /// No description provided for @scanModeCheck.
+  ///
+  /// In id, this message translates to:
+  /// **'Cek Barcode'**
+  String get scanModeCheck;
+
+  /// No description provided for @barcodeInfoTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Info Barcode'**
+  String get barcodeInfoTitle;
+
+  /// No description provided for @labCodeLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Lab Code'**
+  String get labCodeLabel;
+
+  /// No description provided for @identityPlace.
+  ///
+  /// In id, this message translates to:
+  /// **'Tempat'**
+  String get identityPlace;
+
+  /// No description provided for @identityRockType.
+  ///
+  /// In id, this message translates to:
+  /// **'Ore Class'**
+  String get identityRockType;
+
+  /// No description provided for @identityNonProd.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode Non-Produksi'**
+  String get identityNonProd;
+
+  /// No description provided for @identitySir.
+  ///
+  /// In id, this message translates to:
+  /// **'Sir (Tempat Penumpukan)'**
+  String get identitySir;
+
+  /// No description provided for @identityPit.
+  ///
+  /// In id, this message translates to:
+  /// **'Lokasi Pit'**
+  String get identityPit;
+
+  /// No description provided for @identityBargingNo.
+  ///
+  /// In id, this message translates to:
+  /// **'Urutan Barging'**
+  String get identityBargingNo;
+
+  /// No description provided for @identitySequenceNo.
+  ///
+  /// In id, this message translates to:
+  /// **'No Sample'**
+  String get identitySequenceNo;
+
+  /// No description provided for @identitySampleNo.
+  ///
+  /// In id, this message translates to:
+  /// **'No Quantity'**
+  String get identitySampleNo;
+
+  /// No description provided for @identitySackCount.
+  ///
+  /// In id, this message translates to:
+  /// **'Jumlah Karung'**
+  String get identitySackCount;
+
+  /// No description provided for @identityCodesUnavailable.
+  ///
+  /// In id, this message translates to:
+  /// **'Daftar kode tidak bisa dimuat, jadi bagian-bagiannya tidak ditampilkan.'**
+  String get identityCodesUnavailable;
+
+  /// No description provided for @noSampleIdYet.
+  ///
+  /// In id, this message translates to:
+  /// **'Barcode ini belum punya Sample ID.'**
+  String get noSampleIdYet;
+
+  /// No description provided for @fillSampleId.
+  ///
+  /// In id, this message translates to:
+  /// **'Isi Sample ID'**
+  String get fillSampleId;
+
+  /// No description provided for @editSampleId.
+  ///
+  /// In id, this message translates to:
+  /// **'Ubah Sample ID'**
+  String get editSampleId;
+
+  /// No description provided for @sampleIdPreviewTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Sample ID yang akan tersimpan'**
+  String get sampleIdPreviewTitle;
+
+  /// No description provided for @sampleIdNeedsPlace.
+  ///
+  /// In id, this message translates to:
+  /// **'Isi Tempat untuk menyusun Sample ID.'**
+  String get sampleIdNeedsPlace;
+
+  /// No description provided for @sampleIdWas.
+  ///
+  /// In id, this message translates to:
+  /// **'Sebelumnya: {ident}'**
+  String sampleIdWas(String ident);
+
+  /// No description provided for @sampleIdChecking.
+  ///
+  /// In id, this message translates to:
+  /// **'Memeriksa…'**
+  String get sampleIdChecking;
+
+  /// No description provided for @sampleIdClash.
+  ///
+  /// In id, this message translates to:
+  /// **'Sample ID ini sudah dipakai oleh {sampleCode}.'**
+  String sampleIdClash(String sampleCode);
+
+  /// No description provided for @sampleIdUnchanged.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada yang diubah.'**
+  String get sampleIdUnchanged;
+
+  /// No description provided for @sampleIdSave.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan Sample ID'**
+  String get sampleIdSave;
+
+  /// No description provided for @sampleIdSaved.
+  ///
+  /// In id, this message translates to:
+  /// **'Sample ID tersimpan'**
+  String get sampleIdSaved;
+
+  /// No description provided for @sampleIdOnlineOnly.
+  ///
+  /// In id, this message translates to:
+  /// **'Sample ID disimpan langsung ke server, jadi perlu koneksi.'**
+  String get sampleIdOnlineOnly;
+
+  /// No description provided for @pickerNone.
+  ///
+  /// In id, this message translates to:
+  /// **'— tidak ada —'**
+  String get pickerNone;
+
+  /// No description provided for @pickerChoose.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih…'**
+  String get pickerChoose;
+
+  /// No description provided for @pickerSearch.
+  ///
+  /// In id, this message translates to:
+  /// **'Cari atau ketik kode baru'**
+  String get pickerSearch;
+
+  /// No description provided for @pickerClear.
+  ///
+  /// In id, this message translates to:
+  /// **'Kosongkan'**
+  String get pickerClear;
+
+  /// No description provided for @pickerCreate.
+  ///
+  /// In id, this message translates to:
+  /// **'Buat \"{code}\"'**
+  String pickerCreate(String code);
+
+  /// No description provided for @pickerRetired.
+  ///
+  /// In id, this message translates to:
+  /// **'nonaktif'**
+  String get pickerRetired;
+
+  /// No description provided for @pickerNoMatch.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada kode yang cocok.'**
+  String get pickerNoMatch;
+
+  /// No description provided for @pickerCodeRule.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode baru: huruf, angka, atau tanda hubung, maksimal 16.'**
+  String get pickerCodeRule;
+
+  /// No description provided for @pickerCreateFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode tidak bisa dibuat: {reason}'**
+  String pickerCreateFailed(String reason);
+
+  /// No description provided for @numberOutOfRange.
+  ///
+  /// In id, this message translates to:
+  /// **'Isi bilangan bulat 0–{max}.'**
+  String numberOutOfRange(int max);
+
+  /// No description provided for @bargingTooLong.
+  ///
+  /// In id, this message translates to:
+  /// **'Maksimal 32 karakter.'**
+  String get bargingTooLong;
+
+  /// No description provided for @todoTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Tugas Menunggu'**
+  String get todoTitle;
+
+  /// No description provided for @todoEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada sampel yang menunggu.'**
+  String get todoEmpty;
+
+  /// No description provided for @todoFooter.
+  ///
+  /// In id, this message translates to:
+  /// **'Sampel yang sedang ada di tiap tahap dan menunggu dipindah ke tahap berikutnya.'**
+  String get todoFooter;
+
+  /// No description provided for @todoCount.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} sampel'**
+  String todoCount(int count);
+
+  /// No description provided for @todoOverdue.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} lewat SLA'**
+  String todoOverdue(int count);
+
+  /// No description provided for @todoStageFooter.
+  ///
+  /// In id, this message translates to:
+  /// **'Menampilkan {shown} dari {total} sampel, yang paling lama menunggu di atas.'**
+  String todoStageFooter(int shown, int total);
+
+  /// No description provided for @todoWaitingHours.
+  ///
+  /// In id, this message translates to:
+  /// **'{hours} jam'**
+  String todoWaitingHours(String hours);
+
+  /// No description provided for @todoNoSampleId.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada Sample ID'**
+  String get todoNoSampleId;
 }
 
 class _AppLocalizationsDelegate

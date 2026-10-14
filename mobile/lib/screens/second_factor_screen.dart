@@ -222,7 +222,7 @@ class _SecondFactorScreenState extends ConsumerState<SecondFactorScreen>
       _ticker?.cancel();
       await Future<void>.delayed(_confirmationHold);
       if (mounted) Navigator.of(context).pop();
-    } on OperatorOnlyException {
+    } on PreparatorOnlyException {
       if (!mounted) return;
       _refuseAccount(l10n);
     } on ApiException catch (error) {
@@ -270,7 +270,7 @@ class _SecondFactorScreenState extends ConsumerState<SecondFactorScreen>
       _ticker?.cancel();
       await Future<void>.delayed(_confirmationHold);
       if (mounted) Navigator.of(context).pop();
-    } on OperatorOnlyException {
+    } on PreparatorOnlyException {
       if (!mounted) return;
       _refuseAccount(l10n);
     } on ApiException catch (error) {
@@ -292,7 +292,7 @@ class _SecondFactorScreenState extends ConsumerState<SecondFactorScreen>
   /// sign-in screen, which is where every other sign-in failure is shown.
   void _refuseAccount(AppLocalizations l10n) {
     _ticker?.cancel();
-    Navigator.of(context).pop(l10n.signInOperatorsOnly);
+    Navigator.of(context).pop(l10n.signInPreparatorsOnly);
   }
 
   void _applyRefusal(SecondFactorRefusal refusal) {

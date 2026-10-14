@@ -73,8 +73,8 @@ describe("the guided tours", () => {
   it("offer each role only the pages it can open", () => {
     const keys = (role: Role, department: Department | null = "LAB") =>
       toursFor({ role, department }).map((tour) => tour.key);
-    expect(keys("OPERATOR")).toEqual(["dashboard", "quickSearch", "sampleDetail", "account"]);
-    expect(keys("OPERATOR")).not.toContain("masterData");
+    expect(keys("PREPARATOR")).toEqual(["dashboard", "quickSearch", "sampleDetail", "account"]);
+    expect(keys("PREPARATOR")).not.toContain("masterData");
     expect(keys("ANALISIS")).toEqual(expect.arrayContaining(["assay", "grade"]));
     expect(keys("DATABASE")).toEqual(expect.arrayContaining(["generate", "labels", "database", "dataQuality"]));
     expect(keys("ADMIN")).toEqual(expect.arrayContaining(["masterData", "users", "activity"]));

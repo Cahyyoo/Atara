@@ -602,24 +602,18 @@
     "inProgress": "Sedang diproses",
     "overdue": "Lewat {hours} jam",
     "done": "Selesai (24 jam)",
-    "byStage": "Per tahap",
-    "last24h": "24 jam terakhir",
     "overdueShort": "{count} terlambat",
-    "longest": "Paling lama menunggu",
-    "allClear": "Tidak ada sampel yang melewati SLA.",
     "expired": "Sesi layar ini sudah berakhir.",
     "ytdTitle": "YTD {year}",
-    "noPlace": "Belum ada tempat",
-    "code": "Kode",
     "production": "Produksi",
-    "samples": "Sampel",
-    "assayed": "Dianalisa",
-    "avgNi": "Ni %",
-    "avgFe": "Fe %",
     "ytdEmpty": "Belum ada sampel tahun ini.",
     "signInAgain": "Masuk lagi",
     "hours": "{hours} jam",
-    "days": "{days} hr {hours} jam"
+    "days": "{days} hr {hours} jam",
+    "todoTitle": "Harus dikerjakan",
+    "more": "+{count} lainnya",
+    "noIdent": "Belum ada Sample ID",
+    "stageEmpty": "Tidak ada sampel"
   },
   "grade": {
     "title": "Kesimpulan",
@@ -850,7 +844,7 @@
           }
         }
       },
-      "OPERATOR": {
+      "PREPARATOR": {
         "steps": {
           "1": {
             "title": "Anda memindahkan sampel",
@@ -1139,7 +1133,7 @@
     "stage": "Tahap",
     "entered": "Masuk",
     "hours": "Lama (jam)",
-    "operator": "Operator",
+    "operator": "Preparator",
     "allOf": "Semua {part}",
     "noStages": "Tidak ada tahap.",
     "chosen": "{count} kolom dipilih",

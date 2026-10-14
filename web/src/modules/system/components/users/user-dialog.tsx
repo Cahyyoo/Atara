@@ -89,7 +89,7 @@ function UserForm({ target, currentUserId, manager, onClose, onSaved }: UserForm
   const roles = assignableRoles(manager);
   // Most new lab accounts are operators, so that is where the picker starts.
   const [role, setRole] = useState<UserRole>(
-    user?.role ?? (roles.includes("OPERATOR") ? "OPERATOR" : roles[0] ?? "OPERATOR")
+    user?.role ?? (roles.includes("PREPARATOR") ? "PREPARATOR" : roles[0] ?? "PREPARATOR")
   );
   const departments = assignableDepartments(manager, role);
   const [department, setDepartment] = useState<Department | null>(

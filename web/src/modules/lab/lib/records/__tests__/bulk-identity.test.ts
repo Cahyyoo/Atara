@@ -23,7 +23,13 @@ describe("where it is enforced", () => {
   });
 
   it("names the clash on a single edit instead of leaving it to the index", () => {
-    expect(read("app", "api", "(lab)", "lab-records", "[id]", "route.ts")).toContain("is already used by sample");
+    expect(read("modules", "lab", "lib", "samples", "sample-ident-server.ts")).toContain("is already used by sample");
+    for (const route of [
+      ["app", "api", "(lab)", "lab-records", "[id]", "route.ts"],
+      ["app", "api", "(lab)", "samples", "[code]", "identity", "route.ts"],
+    ]) {
+      expect(read(...route), route.join("/")).toContain("identTakenMessage(");
+    }
   });
 
   it("filters lab records by whether they have a Sample ID", () => {

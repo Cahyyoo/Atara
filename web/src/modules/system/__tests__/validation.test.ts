@@ -10,7 +10,7 @@ describe("createUserSchema", () => {
   });
 
   it("defaults new accounts to operator", () => {
-    expect(createUserSchema.parse(base).role).toBe("OPERATOR");
+    expect(createUserSchema.parse(base).role).toBe("PREPARATOR");
   });
 
   it("rejects a malformed email", () => {
@@ -26,8 +26,8 @@ describe("updateUserSchema", () => {
 
 describe("rolePasswordSchema", () => {
   it("requires a known role and at least eight characters", () => {
-    expect(rolePasswordSchema.safeParse({ role: "OPERATOR", password: "1234567" }).success).toBe(false);
-    expect(rolePasswordSchema.safeParse({ role: "OPERATOR", password: "12345678" }).success).toBe(true);
+    expect(rolePasswordSchema.safeParse({ role: "PREPARATOR", password: "1234567" }).success).toBe(false);
+    expect(rolePasswordSchema.safeParse({ role: "PREPARATOR", password: "12345678" }).success).toBe(true);
     expect(rolePasswordSchema.safeParse({ role: "GUEST", password: "12345678" }).success).toBe(false);
   });
 });

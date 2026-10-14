@@ -49,7 +49,7 @@ class AtaraApp extends ConsumerWidget {
     // host preserves the Overlay, the localisation delegates and the page
     // transition machinery the rest of the app already relies on.
     return MaterialApp(
-      title: 'Atara Operator',
+      title: 'Atara Preparator',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
