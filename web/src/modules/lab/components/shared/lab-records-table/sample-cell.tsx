@@ -25,8 +25,30 @@ function HistoryButton({ label, onClick }: { label: string; onClick: () => void 
 }
 
 /**
- * The pinned cell that names the row: a sample's code with its lab code and
- * Sample ID beneath, or a sub-sample tucked under the sample it came from.
+ * The row's two other codes, a line each: the Sample ID the lab reads by,
+ * then the lab code. Each wraps on its own rather than running into the other.
+ */
+function Codes({ record }: { record: LabRecordListItemDTO }) {
+  const t = useTranslations("database");
+  return (
+    <>
+      {record.sampleIdent ? (
+        <span className="block max-w-full font-mono text-xs font-medium text-foreground [overflow-wrap:anywhere]">
+          {record.sampleIdent}
+        </span>
+      ) : (
+        <span className="block max-w-full text-xs text-muted-foreground/70 italic">{t("sampleIdMissing")}</span>
+      )}
+      <span className="block max-w-full font-mono text-[11px] text-muted-foreground [overflow-wrap:anywhere]">
+        {record.labCode}
+      </span>
+    </>
+  );
+}
+
+/**
+ * The pinned cell that names the row: a sample's code with its Sample ID and
+ * lab code beneath, or a sub-sample tucked under the sample it came from.
  */
 export function SampleCell({
   record,
@@ -79,10 +101,7 @@ export function SampleCell({
               onClick={() => onHistory(record)}
             />
           </span>
-          <span className="max-w-full font-mono text-xs text-muted-foreground [overflow-wrap:anywhere]">
-            {record.labCode}
-            {record.sampleIdent ? ` · ${record.sampleIdent}` : ""}
-          </span>
+          <Codes record={record} />
         </div>
       ) : (
       <div className="flex min-w-0 items-start gap-1">
@@ -143,10 +162,7 @@ export function SampleCell({
             onClick={() => onHistory(record)}
           />
         </span>
-        <span className="max-w-full font-mono text-xs text-muted-foreground [overflow-wrap:anywhere]">
-          {record.labCode}
-          {record.sampleIdent ? ` · ${record.sampleIdent}` : ""}
-        </span>
+        <Codes record={record} />
       </div>
       </div>
       )}

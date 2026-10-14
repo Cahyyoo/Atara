@@ -60,7 +60,7 @@ const THREE_PLACES = new Set(["co", "cao"]);
 function numberFormat(column: ReportColumn): string | undefined {
   if (column.band === "results") return THREE_PLACES.has(column.key) ? "0.000" : "0.00";
   if (column.band === "mc") return column.key === "mcDate" ? DATE_TIME : "0.0";
-  if (column.key === "leadTime") return "0";
+  if (column.key === "leadTime") return "0.0";
   return undefined;
 }
 

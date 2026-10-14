@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { leadTimeDays, moistureContent, smRatio, weighingProblem } from "@/modules/lab/lib/records/mc";
+import { leadTimeHours, moistureContent, smRatio, stageMoments, weighingProblem } from "@/modules/lab/lib/records/mc";
 import { parseWeightsPaste } from "@/modules/lab/lib/records/weights-paste";
 
 /** The figures the Formulir Analysis Result works out, checked against the lab's own sheet. */
@@ -30,18 +30,46 @@ describe("smRatio", () => {
   });
 });
 
-describe("leadTimeDays", () => {
-  const wita = (day: number, hour: number) => new Date(Date.UTC(2025, 11, day, hour - 8));
+describe("leadTimeHours", () => {
+  const wita = (day: number, hour: number, minute = 0) => new Date(Date.UTC(2025, 11, day, hour - 8, minute));
 
-  it("counts calendar days on the lab's clock from wet preparation to the report", () => {
-    expect(leadTimeDays(wita(17, 9), wita(19, 8))).toBe(2);
-    expect(leadTimeDays(wita(18, 23), wita(19, 1))).toBe(1);
-    expect(leadTimeDays(wita(19, 7), wita(19, 15))).toBe(0);
+  it("counts the hours from receipt to the report, to one decimal", () => {
+    expect(leadTimeHours(wita(17, 9), wita(19, 13))).toBe(52);
+    expect(leadTimeHours(wita(17, 9), wita(17, 10, 20))).toBe(1.3);
   });
 
-  it("is empty until both have happened", () => {
-    expect(leadTimeDays(wita(17, 9), null)).toBeNull();
-    expect(leadTimeDays(undefined, wita(19, 9))).toBeNull();
+  it("is empty until both have happened, or when they run backwards", () => {
+    expect(leadTimeHours(wita(17, 9), null)).toBeNull();
+    expect(leadTimeHours(undefined, wita(19, 9))).toBeNull();
+    expect(leadTimeHours(wita(19, 9), wita(17, 9))).toBeNull();
+  });
+});
+
+describe("stageMoments", () => {
+  const at = (hour: number) => new Date(Date.UTC(2025, 11, 17, hour));
+  const ids = { receivedId: "rec", wetPrepId: "wet", reportId: "rep" };
+
+  it("keeps the first receipt and wet preparation, and the last report", () => {
+    const moments = stageMoments(
+      [
+        { stageId: "rep", scannedAt: at(9) },
+        { stageId: "wet", scannedAt: at(3) },
+        { stageId: "rec", scannedAt: at(1) },
+        { stageId: "wet", scannedAt: at(5) },
+        { stageId: "rec", scannedAt: at(2) },
+        { stageId: "rep", scannedAt: at(7) },
+      ],
+      ids
+    );
+    expect(moments).toEqual({ receivedAt: at(1), wetPrepAt: at(3), reportAt: at(9) });
+  });
+
+  it("leaves a stage never scanned empty", () => {
+    expect(stageMoments([{ stageId: "rec", scannedAt: at(1) }], ids)).toEqual({
+      receivedAt: at(1),
+      wetPrepAt: null,
+      reportAt: null,
+    });
   });
 });
 

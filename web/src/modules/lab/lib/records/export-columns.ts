@@ -72,7 +72,7 @@ export const LAB_RECORD_EXPORT_COLUMNS: ExportColumnSpec[] = [
   { key: "labCode", group: "sample", header: "Lab Code", width: 24, defaultOn: false },
   { key: "sampleCode", group: "sample", header: "Barcode Code", width: 18, defaultOn: false },
   { key: "shiftDate", group: "sample", header: "Shift Date", width: 12, defaultOn: false },
-  // Days from wet preparation to the report.
+  // Hours from the first scan into Received to the last into Report.
   { key: "leadTime", group: "stages", header: "Lead Time", width: 9, defaultOn: true },
   ...ASSAY_COLUMNS,
   { key: "smRatio", group: "results", header: "SM Ratio", width: 9, defaultOn: true },
@@ -83,7 +83,7 @@ export const LAB_RECORD_EXPORT_COLUMNS: ExportColumnSpec[] = [
   { key: "xrayInstrument", group: "instrument", header: "Xray Instrument", width: 16, defaultOn: true },
   { key: "solutionId", group: "instrument", header: "Solution ID", width: 12, defaultOn: false },
   { key: "measurementFinished", group: "instrument", header: "Measurement Finished", width: 20, defaultOn: false },
-  // The day of the weighing: when the sample went into wet preparation.
+  // The day of the weighing: the first scan into wet preparation.
   { key: "mcDate", group: "mc", header: "Tanggal", width: 15, defaultOn: true },
   { key: "wp", group: "mc", header: "Wp", width: 9, defaultOn: true },
   { key: "w0", group: "mc", header: "W0", width: 9, defaultOn: true },

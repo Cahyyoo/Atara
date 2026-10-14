@@ -4,6 +4,7 @@ import { getFormatter, getTranslations } from "next-intl/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/core/components/ui/card";
 import { Badge } from "@/core/components/ui/badge";
 import { ASSAY_FIELDS } from "@/modules/lab/lib/records/assay";
+import { moistureContent } from "@/modules/lab/lib/records/mc";
 import { LabRecordIdentity } from "@/modules/lab/components/samples/lab-record-identity";
 import { prisma } from "@/core/lib/prisma";
 import { formatWitaDateTime } from "@/core/lib/wita-time";
@@ -62,7 +63,17 @@ export async function LabRecordPanel({
   const format = await getFormatter();
   const formatDateTime = (value: string) =>
     format.dateTime(new Date(value), { dateStyle: "medium", timeStyle: "short" });
-  const hasResults = ASSAY_FIELDS.some((field) => record[field.key] !== null);
+  const mc = moistureContent(record.wp, record.w0, record.wd);
+  // The weighing is a result too: its cards show even before the assay is in.
+  const weighed = record.wp !== null || record.w0 !== null || record.wd !== null;
+  const hasResults = weighed || ASSAY_FIELDS.some((field) => record[field.key] !== null);
+  /** The moisture-content weighing and what it comes to, after the elements. */
+  const mcCards = [
+    { key: "wp", label: tDatabase("wp"), value: record.wp === null ? "—" : String(record.wp) },
+    { key: "w0", label: tDatabase("w0"), value: record.w0 === null ? "—" : String(record.w0) },
+    { key: "wd", label: tDatabase("wd"), value: record.wd === null ? "—" : String(record.wd) },
+    { key: "mc", label: tDatabase("mc"), value: mc === null ? "—" : mc.toFixed(2) },
+  ];
 
   // Both the identity below and the history store master options by id. Printed
   // raw that is a cuid, which tells the reader nothing — so every id either of
@@ -159,6 +170,12 @@ export async function LabRecordPanel({
                   <p className="tabular-nums text-sm font-semibold">
                     {formatAssay(record[field.key])}
                   </p>
+                </div>
+              ))}
+              {mcCards.map((card) => (
+                <div key={card.key} className="rounded-lg border px-3 py-2">
+                  <p className="text-xs text-muted-foreground">{card.label}</p>
+                  <p className="tabular-nums text-sm font-semibold">{card.value}</p>
                 </div>
               ))}
             </div>

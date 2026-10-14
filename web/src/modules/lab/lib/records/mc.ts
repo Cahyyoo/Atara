@@ -31,18 +31,45 @@ export function smRatio(sio2: number | null | undefined, mgo: number | null | un
   return sio2 / mgo;
 }
 
-/** A WITA calendar day as a day count, so two of them subtract to whole days. */
-function witaDay(at: Date): number {
-  return Math.floor((at.getTime() + 8 * 60 * 60 * 1000) / 86_400_000);
+const HOUR_MS = 60 * 60 * 1000;
+
+/**
+ * Lead time, in hours: from the sample being received to its report, to one
+ * decimal. Empty until both have happened, and for scans that run backwards.
+ */
+export function leadTimeHours(receivedAt: Date | null | undefined, reportAt: Date | null | undefined): number | null {
+  if (!receivedAt || !reportAt) return null;
+  const hours = (reportAt.getTime() - receivedAt.getTime()) / HOUR_MS;
+  return hours < 0 ? null : Math.round(hours * 10) / 10;
+}
+
+/** The moments the form reads off a sample's scans. */
+export interface StageMoments {
+  /** The first scan into Received: when the sample arrived. */
+  receivedAt: Date | null;
+  /** The first scan into wet preparation: the day it was weighed. */
+  wetPrepAt: Date | null;
+  /** The last scan into Report: after a correction, the one that stands. */
+  reportAt: Date | null;
 }
 
 /**
- * Lead time, in days: from wet preparation to the report, counted in WITA
- * calendar days the way the form does (17 Dec to 19 Dec is 2).
+ * Received, wet preparation and report, from a sample's scans in any order.
+ * A stage scanned twice keeps its first scan, except the report: a sample sent
+ * back from it was only reported once it was scanned there again.
  */
-export function leadTimeDays(wetPrepAt: Date | null | undefined, reportAt: Date | null | undefined): number | null {
-  if (!wetPrepAt || !reportAt) return null;
-  return witaDay(reportAt) - witaDay(wetPrepAt);
+export function stageMoments(
+  logs: readonly { stageId: string; scannedAt: Date }[],
+  ids: { receivedId?: string; wetPrepId?: string; reportId?: string }
+): StageMoments {
+  const moments: StageMoments = { receivedAt: null, wetPrepAt: null, reportAt: null };
+  const ordered = [...logs].sort((a, b) => a.scannedAt.getTime() - b.scannedAt.getTime());
+  for (const log of ordered) {
+    if (log.stageId === ids.receivedId && !moments.receivedAt) moments.receivedAt = log.scannedAt;
+    if (log.stageId === ids.wetPrepId && !moments.wetPrepAt) moments.wetPrepAt = log.scannedAt;
+    if (log.stageId === ids.reportId) moments.reportAt = log.scannedAt;
+  }
+  return moments;
 }
 
 /**

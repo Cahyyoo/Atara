@@ -139,6 +139,8 @@ export interface LabRecordListItemDTO extends LabRecordDTO {
     sampleCode: string;
     status: SampleStatus;
     currentStage: StageDTO | null;
+    /** Hours from its first Received scan to its last Report scan, once both happened. */
+    leadTimeHours?: number | null;
   };
   /** On a parent, its sub-samples, listed beneath it. */
   subs?: LabRecordListItemDTO[];

@@ -60,6 +60,7 @@ describe.skipIf(!reachable)("the moisture-content weighing and the analysis form
     }
     const placeId = place.id;
     const stages = await prisma.stage.findMany();
+    const received = stages.find((stage) => stage.key === "RECEIVED")!;
     const wetPrep = stages.find((stage) => stage.key === "WET_PREP")!;
     const report = stages.find((stage) => stage.key === "REPORT")!;
 
@@ -72,8 +73,11 @@ describe.skipIf(!reachable)("the moisture-content weighing and the analysis form
           currentStageId: report.id,
           logs: {
             create: [
-              // 09:00 on 17 Dec and 08:00 on 19 Dec, on the lab's clock.
+              // Received 08:00 on 17 Dec, wet preparation 09:00 (and again a
+              // day later), the report 08:00 on 19 Dec, on the lab's clock.
+              { stageId: received.id, operatorId: database.id, scannedAt: new Date("2000-12-17T00:00:00Z") },
               { stageId: wetPrep.id, operatorId: database.id, scannedAt: new Date("2000-12-17T01:00:00Z") },
+              { stageId: wetPrep.id, operatorId: database.id, scannedAt: new Date("2000-12-18T01:00:00Z") },
               { stageId: report.id, operatorId: database.id, scannedAt: new Date("2000-12-19T00:00:00Z") },
             ],
           },
@@ -166,8 +170,9 @@ describe.skipIf(!reachable)("the moisture-content weighing and the analysis form
     expect(sheet.getRow(7).getCell(column("Sample")).value).toBe(records[1].ident);
     expect(sheet.getRow(6).getCell(column("Operator")).value).toBe(`${tag} Analyst`);
     expect(sheet.getRow(6).getCell(column("Xray Instrument")).value).toBe("S2 PUMA");
-    expect(sheet.getRow(6).getCell(column("Days")).value).toBe(2);
-    // Wet preparation at 09:00 on the lab's clock, time included.
+    // Received to the report: 48 hours.
+    expect(sheet.getRow(6).getCell(column("Jam")).value).toBe(48);
+    // The first wet-preparation scan, 09:00 on the lab's clock, not the second.
     const weighed = sheet.getRow(6).getCell(column("Tanggal"));
     expect((weighed.value as Date).toISOString()).toBe("2000-12-17T09:00:00.000Z");
     expect(weighed.numFmt).toBe("d-mmm-yy hh:mm");    expect((sheet.getRow(6).getCell(column("MC")).value as { result: number }).result.toFixed(2)).toBe("39.80");

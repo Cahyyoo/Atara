@@ -2,7 +2,6 @@
 
 import { useTranslations } from "next-intl";
 import { formatWitaDateTime } from "@/core/lib/wita-time";
-import { moistureContent } from "@/modules/lab/lib/records/mc";
 import type { LabRecordDTO, MasterKind } from "@/modules/lab/types";
 
 /** The five identity columns, in the order the Sample ID composes them. */
@@ -30,7 +29,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 /**
  * The nine parts a Sample ID is built from, plus what the instrument reported
- * alongside the numbers.
+ * alongside the numbers. The moisture-content weighing sits with the results.
  *
  * Split out from the panel because the panel is an async server component that
  * reads the database — this half is pure, so the rule that matters here can be
@@ -48,7 +47,6 @@ export function LabRecordIdentity({
   const t = useTranslations("database");
   const tIdentity = useTranslations("database.identity");
   const tMaster = useTranslations("masterData");
-  const mc = moistureContent(record.wp, record.w0, record.wd);
 
   return (
     <div className="flex flex-col gap-2 rounded-lg border p-3">
@@ -79,11 +77,6 @@ export function LabRecordIdentity({
             : DASH}
         </Field>
         <Field label={t("xrayInstrument")}>{record.xrayInstrument ?? DASH}</Field>
-        {/* The moisture-content weighing, and what it comes to. */}
-        <Field label={t("wp")}>{record.wp ?? DASH}</Field>
-        <Field label={t("w0")}>{record.w0 ?? DASH}</Field>
-        <Field label={t("wd")}>{record.wd ?? DASH}</Field>
-        <Field label={t("mc")}>{mc === null ? DASH : mc.toFixed(2)}</Field>
       </div>
     </div>
   );

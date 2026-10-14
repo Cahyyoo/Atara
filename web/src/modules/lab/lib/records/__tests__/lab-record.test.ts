@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { LabRecord } from "@prisma/client";
-import { diffLabRecord } from "@/modules/lab/lib/records/lab-record";
+import { diffLabRecord, toLabRecordListItem } from "@/modules/lab/lib/records/lab-record";
 
 /**
  * Prisma hands back Decimal objects, but toLabRecordDTO only ever calls
@@ -88,5 +88,29 @@ describe("diffLabRecord", () => {
   it("collects several changes in one pass", () => {
     const changes = diffLabRecord(makeRecord(), { ni: 2, fe: 21, co: 0.1 });
     expect(Object.keys(changes).sort()).toEqual(["co", "fe", "ni"]);
+  });
+});
+
+describe("toLabRecordListItem", () => {
+  const sample = { id: "sample1", sampleCode: "NKL-1", status: "COMPLETED", currentStage: null };
+  const listed = (leadTimes?: Map<string, number | null>) =>
+    toLabRecordListItem(
+      {
+        ...makeRecord(),
+        sample,
+        subs: [makeRecord({ id: "sub1", parentId: "rec1", subCode: "-20" })],
+      } as unknown as Parameters<typeof toLabRecordListItem>[0],
+      leadTimes,
+    );
+
+  it("carries the sample's lead time, on its sub-samples too", () => {
+    const item = listed(new Map([["sample1", 52.3]]));
+    expect(item.sample.leadTimeHours).toBe(52.3);
+    expect(item.subs[0].sample.leadTimeHours).toBe(52.3);
+  });
+
+  it("says none for a sample not reported yet, and leaves it out when not asked", () => {
+    expect(listed(new Map()).sample.leadTimeHours).toBeNull();
+    expect("leadTimeHours" in listed().sample).toBe(false);
   });
 });

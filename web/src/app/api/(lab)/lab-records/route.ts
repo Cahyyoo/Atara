@@ -7,6 +7,8 @@ import { listLabRecordsQuerySchema } from "@/modules/lab/validation/records";
 import { buildLabRecordWhere, labRecordInclude, toLabRecordListItem } from "@/modules/lab/lib/records/lab-record";
 import { TtlCache } from "@/core/lib/ttl-cache";
 import { DEEP_OFFSET_ROWS, listScanGate } from "@/modules/lab/lib/gates";
+import { loadStages } from "@/modules/lab/lib/stages/stages-cache";
+import { leadTimeHours, stageMoments } from "@/modules/lab/lib/records/mc";
 
 /** How long a page count or filter label may lag behind the rows. */
 const COUNT_TTL_MS = 15_000;
@@ -27,6 +29,31 @@ function listPage(
     skip: (query.page - 1) * query.pageSize,
     take: query.pageSize,
   });
+}
+
+/**
+ * Each listed sample's lead time, from receipt to report: one query for the
+ * page, over only those two stages' scans.
+ */
+async function leadTimesOf(sampleIds: string[]): Promise<Map<string, number | null>> {
+  const stages = await loadStages();
+  const receivedId = stages.find((stage) => stage.key === "RECEIVED")?.id;
+  const reportId = stages.find((stage) => stage.key === "REPORT")?.id;
+  const times = new Map<string, number | null>();
+  if (!receivedId || !reportId || sampleIds.length === 0) return times;
+
+  const logs = await prisma.sampleLog.findMany({
+    where: { sampleId: { in: sampleIds }, stageId: { in: [receivedId, reportId] } },
+    select: { sampleId: true, stageId: true, scannedAt: true },
+    orderBy: { scannedAt: "asc" },
+  });
+  const bySample = new Map<string, typeof logs>();
+  for (const log of logs) bySample.set(log.sampleId, [...(bySample.get(log.sampleId) ?? []), log]);
+  for (const [sampleId, own] of bySample) {
+    const { receivedAt, reportAt } = stageMoments(own, { receivedId, reportId });
+    times.set(sampleId, leadTimeHours(receivedAt, reportAt));
+  }
+  return times;
 }
 
 export async function GET(request: NextRequest) {
@@ -95,6 +122,7 @@ export async function GET(request: NextRequest) {
     } finally {
       release();
     }
+    const leadTimes = await leadTimesOf([...new Set(rows.flatMap((row) => (row.sample ? [row.sample.id] : [])))]);
 
     return jsonSuccess({
       ...(counts
@@ -105,7 +133,7 @@ export async function GET(request: NextRequest) {
             },
           }
         : {}),
-      records: rows.map(toLabRecordListItem),
+      records: rows.map((row) => toLabRecordListItem(row, leadTimes)),
       pagination: {
         page: query.page,
         pageSize: query.pageSize,

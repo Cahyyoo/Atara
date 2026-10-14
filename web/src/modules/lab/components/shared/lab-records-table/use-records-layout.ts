@@ -1,26 +1,45 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { usePersistedColumns } from "@/core/hooks/use-persisted-columns";
 import { useTableLayout } from "@/core/hooks/use-table-layout";
 import { clampWidth, moveBefore, normalizeOrder, nudge } from "@/core/lib/ui/column-layout";
 import { ASSAY_TABLE_FIELDS } from "@/modules/lab/lib/records/assay";
 import {
-  ALL_COLUMNS,
   CHEVRON_WIDTH,
+  DERIVED_COLUMNS,
+  STORED_COLUMNS,
   DEFAULT_ORDER,
   DEFAULT_WIDTHS,
   TICK_WIDTH,
   type Column,
+  type Derived,
   type Movable,
+  type StoredColumn,
 } from "@/modules/lab/components/shared/lab-records-table/columns";
 
 /** Which columns show, in what order, how wide -- and dragging them about. */
 export function useRecordsLayout(mode: "database" | "assay", canSelect: boolean, isAssay: boolean) {
-  const [visibleFields, setVisibleFields] = usePersistedColumns<Column>(
+  const [storedFields, setStoredFields] = usePersistedColumns<StoredColumn>(
     "atara.columns.database",
     ASSAY_TABLE_FIELDS,
-    ALL_COLUMNS
+    STORED_COLUMNS
+  );
+  // Remembered apart from the others: a choice saved before these columns
+  // existed does not name them, and they should show until switched off.
+  const [derivedFields, setDerivedFields] = usePersistedColumns<Derived>(
+    "atara.columns.database.derived",
+    DERIVED_COLUMNS,
+    DERIVED_COLUMNS
+  );
+  const visibleFields = useMemo<Column[]>(() => [...storedFields, ...derivedFields], [storedFields, derivedFields]);
+  const setVisibleFields = useCallback(
+    (next: Column[]) => {
+      const isDerived = (key: Column): key is Derived => (DERIVED_COLUMNS as Column[]).includes(key);
+      setStoredFields(next.filter((key): key is StoredColumn => !isDerived(key)));
+      setDerivedFields(next.filter(isDerived));
+    },
+    [setStoredFields, setDerivedFields]
   );
 
   /**

@@ -13,7 +13,11 @@ import {
   DropdownMenuTrigger,
 } from "@/core/components/ui/dropdown-menu";
 import { ASSAY_FIELDS, ASSAY_TABLE_FIELDS, INSTRUMENT_FIELDS } from "@/modules/lab/lib/records/assay";
-import { ALL_COLUMNS, type Column } from "@/modules/lab/components/shared/lab-records-table/columns";
+import {
+  ALL_COLUMNS,
+  DERIVED_COLUMNS,
+  type Column,
+} from "@/modules/lab/components/shared/lab-records-table/columns";
 import { IoOptionsOutline, IoRefreshOutline } from "react-icons/io5";
 
 /** Which element and instrument columns show, and a way back to the defaults. */
@@ -48,7 +52,9 @@ export function ColumnPicker({
             checked={ALL_COLUMNS.every((key) => visibleFields.includes(key))}
             onCheckedChange={() =>
               onVisibleFieldsChange(
-                ALL_COLUMNS.every((key) => visibleFields.includes(key)) ? [...ASSAY_TABLE_FIELDS] : [...ALL_COLUMNS]
+                ALL_COLUMNS.every((key) => visibleFields.includes(key))
+                  ? [...ASSAY_TABLE_FIELDS, ...DERIVED_COLUMNS]
+                  : [...ALL_COLUMNS]
               )
             }
             closeOnClick={false}
@@ -65,6 +71,17 @@ export function ColumnPicker({
               closeOnClick={false}
             >
               {field.label}
+            </DropdownMenuCheckboxItem>
+          ))}
+          <DropdownMenuLabel>{t("derivedColumns")}</DropdownMenuLabel>
+          {DERIVED_COLUMNS.map((key) => (
+            <DropdownMenuCheckboxItem
+              key={key}
+              checked={visibleFields.includes(key)}
+              onCheckedChange={() => onToggleField(key)}
+              closeOnClick={false}
+            >
+              {t(key === "mc" ? "mc" : "leadTimeHours")}
             </DropdownMenuCheckboxItem>
           ))}
           <DropdownMenuLabel>{t("instrumentColumns")}</DropdownMenuLabel>

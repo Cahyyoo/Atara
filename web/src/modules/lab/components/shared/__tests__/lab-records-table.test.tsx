@@ -30,11 +30,16 @@ const RECORDS = [
     solutionId: "866",
     // 12:28 on the lab's clock, which is UTC+8.
     measurementFinished: "2026-09-11T04:28:00.000Z",
+    // MC 39.80, the lab's own sheet's row 11.
+    wp: 579,
+    w0: 2810,
+    wd: 1922,
     sample: {
       id: "s1",
       sampleCode: "NKL-2026-00001",
       status: "PENDING",
       currentStage: null,
+      leadTimeHours: 52.25,
     },
   },
   // Nothing entered yet.
@@ -167,6 +172,28 @@ describe("one column names the row", () => {
     expect(cell.textContent).toContain("NKL-2026-00001");
     expect(cell.textContent).toContain("SPR.QLAB.20260918.001");
     expect(cell.textContent).toContain("MOL/LIM/S2/PA4/B489/1.1/25");
+  });
+
+  it("gives each code its own line: the sample, its Sample ID, then the lab code", async () => {
+    show(false);
+    const [, first, second] = await (async () => {
+      await row();
+      return screen.getAllByRole("row");
+    })();
+    const lines = (cell: Element) =>
+      [...cell.querySelectorAll("span.block")].map((line) => line.textContent?.trim());
+    expect(lines(first.querySelectorAll("td")[0])).toEqual(["MOL/LIM/S2/PA4/B489/1.1/25", "SPR.QLAB.20260918.001"]);
+    expect(lines(second.querySelectorAll("td")[0])).toEqual([en.database.sampleIdMissing, "SPR.QLAB.20260918.002"]);
+    expect(first.textContent).not.toContain(" · ");
+  });
+
+  it("shows MC and the lead time from receipt to report, without being switched on", async () => {
+    show(false);
+    const first = await row();
+    expect(screen.getByRole("columnheader", { name: /MC \(%\)/ })).toBeTruthy();
+    expect(screen.getByRole("columnheader", { name: /Lead time \(h\)/ })).toBeTruthy();
+    expect(within(first).getByText("39.80")).toBeTruthy();
+    expect(within(first).getByText("52.3")).toBeTruthy();
   });
 
   it("puts the unit on the header, not on every value", async () => {
@@ -692,13 +719,16 @@ describe("arranging the columns", () => {
 
     await openPicker(user);
     await user.click(await screen.findByRole("menuitemcheckbox", { name: en.database.layout.selectAll }));
-    await waitFor(() => expect(headingOrder()).toHaveLength(2 + ASSAY_FIELDS.length + INSTRUMENT_FIELDS.length));
+    // The elements, MC and the lead time, and the instrument's columns.
+    await waitFor(() => expect(headingOrder()).toHaveLength(2 + ASSAY_FIELDS.length + 2 + INSTRUMENT_FIELDS.length));
     expect(
       screen.getByRole("menuitemcheckbox", { name: en.database.layout.selectAll }).getAttribute("aria-checked")
     ).toBe("true");
 
     await user.click(screen.getByRole("menuitemcheckbox", { name: en.database.layout.selectAll }));
-    await waitFor(() => expect(headingOrder()).toEqual(["shiftDate", "status", "ni", "fe", "co", "sio2", "mgo"]));
+    await waitFor(() =>
+      expect(headingOrder()).toEqual(["shiftDate", "status", "ni", "fe", "co", "sio2", "mgo", "mc", "leadTime"])
+    );
   });
 
   it("moves a column by dragging its heading onto another, and remembers it", async () => {
@@ -876,8 +906,8 @@ describe("the Sample column when narrowed", () => {
 
     expect(cell.className).toContain("whitespace-normal");
     expect(cell.querySelector(".truncate")).toBeNull();
-    const codes = within(cell).getByText(/SPR\.QLAB\.20260918\.001/);
-    expect(codes.textContent).toBe("SPR.QLAB.20260918.001 · MOL/LIM/S2/PA4/B489/1.1/25");
-    expect(codes.className).toContain("[overflow-wrap:anywhere]");
+    for (const code of ["SPR.QLAB.20260918.001", "MOL/LIM/S2/PA4/B489/1.1/25"]) {
+      expect(within(cell).getByText(code).className).toContain("[overflow-wrap:anywhere]");
+    }
   });
 });

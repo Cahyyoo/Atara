@@ -17,7 +17,7 @@ import {
   sheetColumnsFor,
 } from "@/modules/lab/lib/records/export-columns";
 import { stageTimeline, type StageVisit } from "@/modules/lab/lib/stages/stage-timeline";
-import { leadTimeDays, moistureContent, smRatio } from "@/modules/lab/lib/records/mc";
+import { leadTimeHours, moistureContent, smRatio, stageMoments } from "@/modules/lab/lib/records/mc";
 import { arrangeReport, batchKey, type ReportRecord, type ReportValue } from "@/modules/lab/lib/analytics/analysis-report";
 import { readBrandLogo } from "@/core/lib/sheets/xlsx-brand";
 import { buildAnalysisReport, type ReportBand, type ReportColumn } from "@/modules/lab/lib/analytics/analysis-report-xlsx";
@@ -109,8 +109,11 @@ async function exportLabRecords(request: NextRequest) {
     if (keys.length === 0) throw new ApiError("Choose at least one column to export.", 422);
 
     const stageName = new Map(stages.map((stage) => [stage.id, stage.name]));
-    const wetPrep = stages.find((stage) => stage.key === "WET_PREP")?.id;
-    const report = stages.find((stage) => stage.key === "REPORT")?.id;
+    const momentIds = {
+      receivedId: stages.find((stage) => stage.key === "RECEIVED")?.id,
+      wetPrepId: stages.find((stage) => stage.key === "WET_PREP")?.id,
+      reportId: stages.find((stage) => stage.key === "REPORT")?.id,
+    };
     const wantsOperator = keys.includes("operator");
     const codeOf = new Map(
       (await prisma.masterOption.findMany({ select: { id: true, code: true } })).map((option) => [option.id, option.code])
@@ -152,14 +155,17 @@ async function exportLabRecords(request: NextRequest) {
           sample.logs.map((log) => ({ stageId: log.stageId, scannedAt: log.scannedAt, operator: log.operator.name })),
           { now, completed: sample.status === "COMPLETED" }
         );
+        const moments = stageMoments(sample.logs, momentIds);
         for (const record of [toLabRecordDTO(row), ...(query.subs ? row.subs.map(toLabRecordDTO) : [])]) {
-          const wetAt = wetPrep ? visits.get(wetPrep)?.at : undefined;
+          // The MC table's date is the first wet-preparation scan: the day the
+          // sample was weighed, even if it was scanned there again later.
+          const { receivedAt, wetPrepAt: wetAt, reportAt } = moments;
           const cells: Record<string, ReportValue> = {
             sampleIdent: record.sampleIdent ?? record.labCode,
             labCode: record.labCode,
             sampleCode: sample.sampleCode,
             shiftDate: record.shiftDate,
-            leadTime: leadTimeDays(wetAt, report ? visits.get(report)?.at : undefined),
+            leadTime: leadTimeHours(receivedAt, reportAt),
             ...Object.fromEntries(ASSAY_FIELDS.map((field) => [field.key, record[field.key]])),
             smRatio: smRatio(record.sio2, record.mgo),
             mc: moistureContent(record.wp, record.w0, record.wd),
@@ -304,7 +310,7 @@ async function exportLabRecords(request: NextRequest) {
           : group === "sample" || group === "results" || group === "instrument" || group === "mc"
             ? group
             : "other";
-      return { key: column.key, header: column.key === "leadTime" ? "Days" : column.header, band, width: column.width };
+      return { key: column.key, header: column.key === "leadTime" ? "Jam" : column.header, band, width: column.width };
     });
 
     const logo = await readBrandLogo();

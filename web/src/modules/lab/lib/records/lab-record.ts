@@ -161,12 +161,13 @@ export const labRecordInclude = {
 type IncludedRecord = Prisma.LabRecordGetPayload<{ include: typeof labRecordInclude }>;
 type IncludedSample = NonNullable<IncludedRecord["sample"]>;
 
-export function toLabRecordSampleSummary(sample: IncludedSample) {
+export function toLabRecordSampleSummary(sample: IncludedSample, leadTimeHours?: number | null) {
   return {
     id: sample.id,
     sampleCode: sample.sampleCode,
     status: sample.status,
     currentStage: sample.currentStage,
+    ...(leadTimeHours !== undefined ? { leadTimeHours } : {}),
   };
 }
 
@@ -175,8 +176,11 @@ export function toLabRecordSampleSummary(sample: IncludedSample) {
  * carries its parent's sample: it is the same container, and every row in the
  * table links to one.
  */
-export function toLabRecordListItem(record: IncludedRecord) {
-  const sample = toLabRecordSampleSummary(record.sample!);
+export function toLabRecordListItem(record: IncludedRecord, leadTimes?: ReadonlyMap<string, number | null>) {
+  const sample = toLabRecordSampleSummary(
+    record.sample!,
+    leadTimes ? (leadTimes.get(record.sample!.id) ?? null) : undefined
+  );
   return {
     ...toLabRecordDTO(record),
     sample,

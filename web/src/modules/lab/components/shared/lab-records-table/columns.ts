@@ -5,13 +5,26 @@ import {
   type InstrumentField,
 } from "@/modules/lab/lib/records/assay";
 import { formatWitaDateTime } from "@/core/lib/wita-time";
+import { moistureContent } from "@/modules/lab/lib/records/mc";
 import type { LabRecordListItemDTO } from "@/modules/lab/types";
 import type { LabRecordFilterValues } from "@/modules/lab/components/shared/lab-record-filters";
 import { cn } from "@/core/lib/utils";
 
-export type Column = AssayField | InstrumentField;
+/** Worked out rather than stored: the moisture content, and receipt to report. */
+export type Derived = "mc" | "leadTime";
+export const DERIVED_COLUMNS: Derived[] = ["mc", "leadTime"];
+
+/** The element and instrument columns, whose choice is remembered as it always was. */
+export type StoredColumn = AssayField | InstrumentField;
+export const STORED_COLUMNS: StoredColumn[] = [
+  ...ASSAY_FIELDS.map((field) => field.key),
+  ...INSTRUMENT_FIELDS.map((field) => field.key),
+];
+
+export type Column = StoredColumn | Derived;
 export const ALL_COLUMNS: Column[] = [
   ...ASSAY_FIELDS.map((field) => field.key),
+  ...DERIVED_COLUMNS,
   ...INSTRUMENT_FIELDS.map((field) => field.key),
 ];
 
@@ -25,6 +38,8 @@ export const DEFAULT_WIDTHS: Record<string, number> = {
   shiftDate: 128,
   status: 148,
   ...Object.fromEntries(ASSAY_FIELDS.map((field) => [field.key, 88])),
+  mc: 88,
+  leadTime: 120,
   measurementMethod: 176,
   solutionId: 132,
   measurementFinished: 176,
@@ -39,6 +54,17 @@ export const MATCH_LIMIT = 200;
 
 export function formatAssay(value: number | null): string {
   return value === null ? "—" : value.toFixed(2);
+}
+
+/** MC, %, from the record's own weighing. */
+export function formatMc(record: LabRecordListItemDTO): string {
+  const mc = moistureContent(record.wp, record.w0, record.wd);
+  return mc === null ? "—" : mc.toFixed(2);
+}
+
+/** Receipt to report, in hours. */
+export function formatLeadTime(hours: number | null | undefined): string {
+  return hours == null ? "—" : hours.toFixed(1);
 }
 
 /** The instrument's own columns: two plain strings and one instant. */

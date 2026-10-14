@@ -10,6 +10,8 @@ import { cn } from "@/core/lib/utils";
 import {
   formatAssay,
   formatInstrument,
+  formatLeadTime,
+  formatMc,
   type Movable,
 } from "@/modules/lab/components/shared/lab-records-table/columns";
 
@@ -54,6 +56,18 @@ export function RecordCells({
                 : tSamples("notStarted")}
             </span>
           </div>
+        </TableCell>
+      );
+    }
+    if (key === "mc" || key === "leadTime") {
+      // Lead time belongs to the container: a sub-sample has none of its own.
+      const text = key === "mc" ? formatMc(record) : record.parentId ? "—" : formatLeadTime(record.sample.leadTimeHours);
+      return (
+        <TableCell
+          key={key}
+          className={cn("overflow-hidden text-right tabular-nums", text === "—" && "text-muted-foreground/60")}
+        >
+          {text}
         </TableCell>
       );
     }

@@ -51,6 +51,9 @@ export function RecordsTableHead({
   function headFor(key: Movable): { label: string; sortField?: string; align: "left" | "right" } {
     if (key === "shiftDate") return { label: t("shiftDate"), sortField: "shiftDate", align: "left" };
     if (key === "status") return { label: tCommon("status"), align: "left" };
+    // Worked out on the way out, so there is nothing stored to sort them by.
+    if (key === "mc") return { label: t("mc"), align: "right" };
+    if (key === "leadTime") return { label: t("leadTimeHours"), align: "right" };
     const assay = ASSAY_FIELDS.find((field) => field.key === key);
     if (assay) {
       // The unit on the header rather than on every value.
