@@ -4,9 +4,10 @@ import { memo, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Input } from "@/core/components/ui/input";
 import { Label } from "@/core/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/components/ui/select";
 import { cn } from "@/core/lib/utils";
 import { IoArrowUndoOutline } from "react-icons/io5";
+import { MasterCombobox } from "@/modules/lab/components/shared/master-combobox";
+import type { MasterKind, MasterOptionDTO } from "@/modules/lab/types";
 import {
   NONE,
   fieldStatus,
@@ -92,30 +93,30 @@ export const PickerField = memo(function PickerField({
   start,
   mixed,
   items,
+  kind,
+  options,
+  canCreate,
   onSet,
-}: FieldProps & { items: Record<string, string> }) {
+}: FieldProps & {
+  items: Record<string, string>;
+  kind: MasterKind;
+  options: readonly MasterOptionDTO[];
+  /** Whether a code missing from the list may be added from here. */
+  canCreate: boolean;
+}) {
   const status = fieldStatus(fieldKey, value, start, mixed);
   return (
     <FieldFrame index={index} fieldKey={fieldKey} label={label} status={status} onRevert={() => onSet(fieldKey, start)}>
-      {/* Not modal: the dialog already is, and a modal picker locks the page
-          scroll, which reflows the whole table behind on every open. */}
-      <Select
-        modal={false}
+      <MasterCombobox
+        id={`bulk-ident-${index}-${fieldKey}`}
+        kind={kind}
         value={value}
         items={items}
-        onValueChange={(next) => onSet(fieldKey, typeof next === "string" ? next : NONE)}
-      >
-        <SelectTrigger id={`bulk-ident-${index}-${fieldKey}`} className={cn("w-full", ringFor(status))}>
-          <SelectValue>{(selected) => items[selected as string] ?? ""}</SelectValue>
-        </SelectTrigger>
-        <SelectContent alignItemWithTrigger={false}>
-          {Object.entries(items).map(([itemValue, itemLabel]) => (
-            <SelectItem key={itemValue} value={itemValue}>
-              {itemLabel}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        options={options}
+        canCreate={canCreate}
+        onValueChange={(next) => onSet(fieldKey, next || NONE)}
+        className={ringFor(status)}
+      />
     </FieldFrame>
   );
 });

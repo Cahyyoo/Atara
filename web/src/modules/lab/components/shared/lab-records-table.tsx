@@ -268,6 +268,7 @@ export function LabRecordsTable({
         dialogs={dialogs}
         openRecord={openRecord}
         canEdit={access.canEdit}
+        canAddOption={access.canAddOption ?? false}
         formatDate={formatDate}
         onSaved={query.handleSaved}
         onReload={reload}

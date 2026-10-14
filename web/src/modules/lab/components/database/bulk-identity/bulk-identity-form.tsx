@@ -20,6 +20,7 @@ export function BulkIdentityForm({
   onBusy,
   onCancel,
   onSaved,
+  canCreateOption = false,
 }: {
   records: LabRecordListItemDTO[];
   busy: boolean;
@@ -28,6 +29,8 @@ export function BulkIdentityForm({
   onBusy: (busy: boolean) => void;
   onCancel: () => void;
   onSaved: () => void;
+  /** Whether a code missing from a picker may be added to the master data. */
+  canCreateOption?: boolean;
 }) {
   const t = useTranslations("database.bulkIdentity");
   const form = useBulkIdentityForm({ records, onBusy, onSaved });
@@ -89,6 +92,7 @@ export function BulkIdentityForm({
               initial={initials[shownActive]}
               state={eachStates[shownActive]}
               options={options}
+              canCreate={canCreateOption}
               onPick={form.setActive}
               onChange={form.changeEach}
             />
@@ -107,6 +111,7 @@ export function BulkIdentityForm({
               initial={form.togetherInitial}
               state={form.togetherState}
               options={options}
+              canCreate={canCreateOption}
               onChange={form.changeTogether}
             />
           ) : (
@@ -116,6 +121,7 @@ export function BulkIdentityForm({
               initial={initials[0]}
               state={eachStates[0]}
               options={options}
+              canCreate={canCreateOption}
               onChange={form.changeEach}
             />
           )}

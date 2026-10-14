@@ -8,6 +8,8 @@ export interface LabRecordsAccess {
   canExport: boolean;
   /** The Active / Deleted switch. Read-only unless canEdit is also held. */
   canViewDeleted: boolean;
+  /** Add a missing code to the master data from an identity picker. */
+  canAddOption?: boolean;
 }
 
 export type Confirming = false | "samples" | "subs";

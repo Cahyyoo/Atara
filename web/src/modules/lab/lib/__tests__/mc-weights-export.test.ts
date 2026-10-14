@@ -174,4 +174,19 @@ describe.skipIf(!reachable)("the moisture-content weighing and the analysis form
     // The batch's average, MC of 39.80 and 33.33.
     expect((sheet.getRow(8).getCell(column("MC")).value as { result: number }).result.toFixed(2)).toBe("36.56");
   });
+
+  it("previews the same rows, in the same order, before the file is made", async () => {
+    const response = await exportRecords(
+      new NextRequest(`http://localhost/api/lab-records/export?format=preview&search=${tag}&columns=rowNo,sampleIdent,operator`)
+    );
+    expect(response.status).toBe(200);
+    const { data } = await response.json();
+    expect(data.total).toBe(2);
+    expect(data.columns.map((column: { header: string }) => column.header)).toEqual(["No.", "Sample", "Operator"]);
+    expect(data.rows.map((row: { sheet: string }) => row.sheet)).toEqual(["MOL. Prod.", "MOL. Prod."]);
+    expect(data.rows.map((row: { cells: Record<string, unknown> }) => row.cells)).toEqual([
+      { rowNo: 1, sampleIdent: records[0].ident, operator: `${tag} Analyst` },
+      { rowNo: 2, sampleIdent: records[1].ident, operator: `${tag} Analyst` },
+    ]);
+  });
 });

@@ -17,6 +17,7 @@ export default async function SampleDatabasePage() {
     canEdit: can(session, "editDatabase"),
     canExport: can(session, "exportDatabase"),
     canViewDeleted: can(session, "viewDeletedRecords"),
+    canAddOption: can(session, "addMasterOption"),
   };
 
   return (

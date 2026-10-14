@@ -27,6 +27,7 @@ export const GroupFields = memo(function GroupFields({
   initial,
   state,
   options,
+  canCreate,
   onChange,
 }: {
   index: number;
@@ -34,6 +35,8 @@ export const GroupFields = memo(function GroupFields({
   initial: Initial;
   state: GroupState;
   options: MasterOptionDTO[];
+  /** Whether a missing code may be added to the master data from a picker. */
+  canCreate: boolean;
   onChange: GroupUpdate;
 }) {
   const t = useTranslations("database.bulkIdentity");
@@ -87,6 +90,9 @@ export const GroupFields = memo(function GroupFields({
             start={initial[fieldKey].start}
             mixed={initial[fieldKey].mixed}
             items={itemsByKey[fieldKey]}
+            kind={kind}
+            options={options}
+            canCreate={canCreate}
             onSet={setValue}
           />
         ))}

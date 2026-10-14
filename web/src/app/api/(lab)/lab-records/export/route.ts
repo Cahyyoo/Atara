@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/core/lib/prisma";
 import { listLabRecordsQuerySchema } from "@/modules/lab/validation/records";
-import { handleApiError, ApiError } from "@/core/lib/http/api-response";
+import { handleApiError, ApiError, jsonSuccess } from "@/core/lib/http/api-response";
 import { route } from "@/core/lib/http/api-route";
 import { labRecordExportGate } from "@/modules/lab/lib/gates";
 import { exportResponse, EXPORT_ROW_LIMIT } from "@/core/lib/sheets/export-response";
@@ -25,6 +25,9 @@ import { XLSX_CONTENT_TYPE, type SheetRow } from "@/core/lib/sheets/xlsx";
 
 /** Read a page at a time so the query never holds everything at once. */
 const PAGE_SIZE = 2_000;
+
+/** How many rows a preview shows: enough to judge the file by, not the file. */
+const PREVIEW_ROWS = 50;
 
 /** The identity columns, by the option kind each names. */
 const OPTION_COLUMNS = {
@@ -113,7 +116,10 @@ async function exportLabRecords(request: NextRequest) {
       (await prisma.masterOption.findMany({ select: { id: true, code: true } })).map((option) => [option.id, option.code])
     );
     const now = new Date();
-    const xlsx = searchParams.get("format") !== "csv";
+    const format = searchParams.get("format");
+    // A preview is the CSV's rows, as JSON: the same arrangement, the first few.
+    const preview = format === "preview";
+    const xlsx = format !== "csv" && !preview;
 
     // Every row first: the form groups samples by batch, whatever order they
     // were listed in, and averages each batch.
@@ -215,14 +221,50 @@ async function exportLabRecords(request: NextRequest) {
       cursor = page[page.length - 1].id;
     }
 
+    const sheets = arrangeReport(records);
+    const sheetColumns = sheetColumnsFor(keys, LAB_RECORD_EXPORT_COLUMNS, stages);
+    const filename = `formulir-analysis-result-${Date.now()}`;
+
+    if (preview) {
+      const shown: { sheet: string; record: ReportRecord }[] = [];
+      for (const sheet of sheets) {
+        for (const record of sheet.batches.flat()) {
+          if (shown.length >= PREVIEW_ROWS) break;
+          shown.push({ sheet: sheet.name, record });
+        }
+      }
+      // Who entered the results is a query of its own: asked only for the rows shown.
+      const analysts = wantsOperator ? await analystsOf(shown.map(({ record }) => record.id)) : null;
+      let number = 0;
+      const rows = shown.map(({ sheet, record }) => {
+        const isSub = Boolean(record.parentId);
+        if (!isSub) number += 1;
+        const cells = Object.fromEntries(
+          sheetColumns.map((column) => {
+            const value =
+              column.key === "rowNo"
+                ? isSub
+                  ? null
+                  : number
+                : column.key === "operator"
+                  ? (analysts?.get(record.id) ?? null)
+                  : (record.cells[column.key] ?? null);
+            return [column.key, value instanceof Date ? formatWitaDateTime(value) : value];
+          })
+        );
+        return { id: record.id, sheet, sub: isSub, cells };
+      });
+      return jsonSuccess({
+        total: records.length,
+        columns: sheetColumns.map(({ key, header }) => ({ key, header })),
+        rows,
+      });
+    }
+
     if (wantsOperator) {
       const analysts = await analystsOf(records.map((record) => record.id));
       for (const record of records) record.cells.operator = analysts.get(record.id) ?? null;
     }
-
-    const sheets = arrangeReport(records);
-    const sheetColumns = sheetColumnsFor(keys, LAB_RECORD_EXPORT_COLUMNS, stages);
-    const filename = `formulir-analysis-result-${Date.now()}`;
 
     if (!xlsx) {
       const ordered = sheets.flatMap((sheet) => sheet.batches.flat());

@@ -54,11 +54,13 @@ function toInputs(record: LabRecordListItemDTO): AssayInputs {
 
 interface LabRecordDialogProps {
   record: LabRecordListItemDTO | null;
+  /** Whether the identity pickers may add a missing code to the master data. */
+  canAddOption?: boolean;
   onClose: () => void;
   onSaved: (record: LabRecordDTO) => void;
 }
 
-export function LabRecordDialog({ record, onClose, onSaved }: LabRecordDialogProps) {
+export function LabRecordDialog({ record, canAddOption = false, onClose, onSaved }: LabRecordDialogProps) {
   return (
     <Dialog
       open={record !== null}
@@ -71,7 +73,13 @@ export function LabRecordDialog({ record, onClose, onSaved }: LabRecordDialogPro
       <DialogContent className="sm:max-w-4xl">
         {record ? (
           // Keyed by record id so opening another row starts from that row's values.
-          <LabRecordForm key={record.id} record={record} onClose={onClose} onSaved={onSaved} />
+          <LabRecordForm
+            key={record.id}
+            record={record}
+            canAddOption={canAddOption}
+            onClose={onClose}
+            onSaved={onSaved}
+          />
         ) : null}
       </DialogContent>
     </Dialog>
@@ -80,11 +88,12 @@ export function LabRecordDialog({ record, onClose, onSaved }: LabRecordDialogPro
 
 interface LabRecordFormProps {
   record: LabRecordListItemDTO;
+  canAddOption: boolean;
   onClose: () => void;
   onSaved: (record: LabRecordDTO) => void;
 }
 
-function LabRecordForm({ record, onClose, onSaved }: LabRecordFormProps) {
+function LabRecordForm({ record, canAddOption, onClose, onSaved }: LabRecordFormProps) {
   const t = useTranslations("database.dialog");
   const tIdentity = useTranslations("database.identity");
   const tDatabase = useTranslations("database");
@@ -210,6 +219,7 @@ function LabRecordForm({ record, onClose, onSaved }: LabRecordFormProps) {
                   values={identity}
                   onChange={setIdentity}
                   options={options}
+                  canCreate={canAddOption}
                 />
               )}
             </div>

@@ -18,7 +18,10 @@ const EMPTY_COUNT = {
   sirRecords: 0,
 };
 
-/** Everyone picking from a dropdown needs to read these; only admins change them. */
+/**
+ * Everyone picking from a dropdown needs to read these. Adding a code is open
+ * to whoever fills in identities; changing or removing one is for admins.
+ */
 export async function GET(request: NextRequest) {
   try {
     // Lab data: only the people who work in the lab module.
@@ -60,7 +63,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export const POST = route({ capability: "manageMasterData" }, async ({ request }) => {
+export const POST = route({ capability: "addMasterOption" }, async ({ request }) => {
   const body = createMasterOptionSchema.parse(await readJsonBody(request));
 
   const code = body.code.toUpperCase();

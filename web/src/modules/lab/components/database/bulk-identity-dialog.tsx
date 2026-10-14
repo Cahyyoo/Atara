@@ -46,6 +46,7 @@ export function BulkIdentityDialog({
   onMinimizedChange,
   onClose,
   onSaved,
+  canAddOption = false,
 }: {
   /** In table order: the order sample numbers are given in. */
   records: LabRecordListItemDTO[];
@@ -55,6 +56,8 @@ export function BulkIdentityDialog({
   onMinimizedChange?: (minimized: boolean) => void;
   onClose: () => void;
   onSaved: () => void;
+  /** Whether a picker may add a missing code to the master data. */
+  canAddOption?: boolean;
 }) {
   const t = useTranslations("database.bulkIdentity");
   const [busy, setBusy] = useState(false);
@@ -103,6 +106,7 @@ export function BulkIdentityDialog({
             minimized={minimized}
             onRestore={() => onMinimizedChange?.(false)}
             onBusy={setBusy}
+            canCreateOption={canAddOption}
             onCancel={onClose}
             onSaved={() => {
               onSaved();

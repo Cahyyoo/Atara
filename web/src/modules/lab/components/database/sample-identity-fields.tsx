@@ -3,13 +3,7 @@
 import { useTranslations } from "next-intl";
 import { Input } from "@/core/components/ui/input";
 import { Label } from "@/core/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/core/components/ui/select";
+import { MasterCombobox } from "@/modules/lab/components/shared/master-combobox";
 import { composeSampleIdent } from "@/modules/lab/lib/samples/sample-ident";
 import type { MasterKind, MasterOptionDTO } from "@/modules/lab/types";
 
@@ -133,12 +127,15 @@ export function SampleIdentityFields({
   options,
   /** Off where the caller already prints the composed id beside the block. */
   showPreview = true,
+  canCreate = false,
 }: {
   values: IdentityValues;
   onChange: (values: IdentityValues) => void;
   /** Read once by the caller: a generate holds many of these at a time. */
   options: MasterOptionDTO[];
   showPreview?: boolean;
+  /** Whether a code missing from a picker may be added to the master data. */
+  canCreate?: boolean;
 }) {
   const t = useTranslations("database.identity");
   const tMaster = useTranslations("masterData");
@@ -164,29 +161,23 @@ export function SampleIdentityFields({
           const forKind = options.filter((option) => option.kind === kind);
           const items: Record<string, string> = {
             [NONE]: optional ? t("none") : t("choose"),
-            ...Object.fromEntries(forKind.map((option) => [option.id, option.code])),
+            ...Object.fromEntries(
+              forKind.map((option) => [option.id, option.label ? `${option.code} — ${option.label}` : option.code])
+            ),
           };
 
           return (
             <div key={field} className="flex flex-col gap-1.5">
               <Label htmlFor={`ident-${field}`}>{tMaster(`kind.${kind}`)}</Label>
-              <Select
+              <MasterCombobox
+                id={`ident-${field}`}
+                kind={kind}
                 value={values[field]}
                 items={items}
-                onValueChange={(value) => set(field, value ?? NONE)}
-              >
-                <SelectTrigger id={`ident-${field}`} className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={NONE}>{optional ? t("none") : t("choose")}</SelectItem>
-                  {forKind.map((option) => (
-                    <SelectItem key={option.id} value={option.id}>
-                      {option.label ? `${option.code} — ${option.label}` : option.code}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                options={options}
+                canCreate={canCreate}
+                onValueChange={(value) => set(field, value || NONE)}
+              />
             </div>
           );
         })}

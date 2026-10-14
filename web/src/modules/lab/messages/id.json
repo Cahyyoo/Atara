@@ -203,8 +203,8 @@
       "choose": "Pilih…",
       "none": "— tidak ada —",
       "bargingNo": "Urutan Barging",
-      "sequenceNo": "No Urutan",
-      "sampleNo": "No Sample",
+      "sequenceNo": "No Sample",
+      "sampleNo": "No Quantity",
       "sackCount": "Jumlah Karung",
       "preview": "Sample ID yang akan tersimpan",
       "incomplete": "Isi Tempat untuk menyusun Sample ID.",
@@ -1115,6 +1115,27 @@
     "reset": "Kembalikan default",
     "excel": "Excel (.xlsx)",
     "csv": "CSV",
-    "place": "Tempat"
+    "place": "Tempat",
+    "preview": "Preview",
+    "previewTitle": "Preview export",
+    "previewShowing": "Menampilkan {shown} baris pertama dari {total} baris, sesuai urutan di file.",
+    "previewSheet": "Sheet",
+    "previewEmpty": "Tidak ada baris yang cocok dengan filter saat ini.",
+    "backToColumns": "Kembali ke kolom"
+  },
+  "masterCombobox": {
+    "search": "Cari atau ketik kode baru…",
+    "noResults": "Kode tidak ditemukan.",
+    "create": "Buat \"{code}\"",
+    "createAndEdit": "Buat dan edit…",
+    "creating": "Membuat…",
+    "codeInvalid": "Kode berupa huruf, angka dan tanda minus, maksimal 16 karakter.",
+    "createFailed": "Kode tidak bisa ditambahkan.",
+    "dialogTitle": "{kind} baru",
+    "dialogDescription": "Ditambahkan ke master data, lalu langsung dipilih di sini.",
+    "code": "Kode",
+    "label": "Label (opsional)",
+    "save": "Buat",
+    "cancel": "Batal"
   }
 }

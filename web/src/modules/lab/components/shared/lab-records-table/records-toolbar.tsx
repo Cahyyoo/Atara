@@ -44,7 +44,7 @@ export function RecordsToolbar({
   onOpenWeights: () => void;
 }) {
   const t = useTranslations("database");
-  const { exportSubs, setExportSubs, exportPlace, setExportPlace, handleExport } = useRecordsExport({
+  const { exportSubs, setExportSubs, exportPlace, setExportPlace, handleExport, handlePreview } = useRecordsExport({
     buildParams,
     placeId: filters.placeId,
     setError,
@@ -96,6 +96,7 @@ export function RecordsToolbar({
               kind="labRecords"
               tourId="records-export"
               onExport={handleExport}
+              onPreview={handlePreview}
               option={{ label: t("subs.exportOption"), checked: exportSubs, onChange: setExportSubs }}
               place={{ value: exportPlace ?? filters.placeId, onChange: (id) => setExportPlace(id ?? "ALL") }}
             />

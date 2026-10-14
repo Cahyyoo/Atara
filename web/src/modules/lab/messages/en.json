@@ -203,8 +203,8 @@
       "choose": "Choose…",
       "none": "— none —",
       "bargingNo": "Barging Run",
-      "sequenceNo": "Running No.",
-      "sampleNo": "Sample No.",
+      "sequenceNo": "Sample No.",
+      "sampleNo": "Quantity No.",
       "sackCount": "Sacks",
       "preview": "Sample ID that will be stored",
       "incomplete": "Fill in Place to compose a Sample ID.",
@@ -1115,6 +1115,27 @@
     "reset": "Back to default",
     "excel": "Excel (.xlsx)",
     "csv": "CSV",
-    "place": "Place"
+    "place": "Place",
+    "preview": "Preview",
+    "previewTitle": "Preview of the export",
+    "previewShowing": "Showing the first {shown} of {total, plural, one {# row} other {# rows}}, in the order of the file.",
+    "previewSheet": "Sheet",
+    "previewEmpty": "No rows match the current filters.",
+    "backToColumns": "Back to columns"
+  },
+  "masterCombobox": {
+    "search": "Search or type a new code…",
+    "noResults": "No matching code.",
+    "create": "Create \"{code}\"",
+    "createAndEdit": "Create and edit…",
+    "creating": "Creating…",
+    "codeInvalid": "Codes are letters, digits and dashes, up to 16 characters.",
+    "createFailed": "The code could not be added.",
+    "dialogTitle": "New {kind}",
+    "dialogDescription": "Added to the master data, then picked here.",
+    "code": "Code",
+    "label": "Label (optional)",
+    "save": "Create",
+    "cancel": "Cancel"
   }
 }

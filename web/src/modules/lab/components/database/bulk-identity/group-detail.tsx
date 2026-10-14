@@ -22,6 +22,7 @@ export function GroupDetail({
   initial,
   state,
   options,
+  canCreate,
   onPick,
   onChange,
 }: {
@@ -32,6 +33,7 @@ export function GroupDetail({
   initial: Initial;
   state: GroupState;
   options: MasterOptionDTO[];
+  canCreate: boolean;
   onPick: (index: number) => void;
   onChange: GroupUpdate;
 }) {
@@ -84,6 +86,7 @@ export function GroupDetail({
         initial={initial}
         state={state}
         options={options}
+        canCreate={canCreate}
         onChange={onChange}
       />
     </section>

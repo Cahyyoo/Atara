@@ -6,7 +6,7 @@ import { NextIntlClientProvider } from "next-intl";
 
 import { en } from "@/core/i18n/test-messages";
 import { id } from "@/core/i18n/test-messages";
-import { ExportDialog } from "@/modules/lab/components/shared/export-dialog";
+import { ExportDialog, type ExportPreviewResult } from "@/modules/lab/components/shared/export-dialog";
 import { stageColumnKey } from "@/modules/lab/lib/records/export-columns";
 
 const STAGES = [
@@ -164,5 +164,78 @@ describe("choosing which place the file covers", () => {
     await user.click(dialog.getByRole("combobox", { name: allPlaces }));
     await user.click(await screen.findByRole("option", { name: "MOL" }));
     expect(onChange).toHaveBeenCalledWith("p-mol");
+  });
+});
+
+describe("previewing the file before it is downloaded", () => {
+  const PREVIEW = {
+    total: 120,
+    columns: [
+      { key: "rowNo", header: "No." },
+      { key: "sampleIdent", header: "Sample" },
+      { key: "sequenceNo", header: "Sample No" },
+      { key: "sampleNo", header: "Quantity No" },
+    ],
+    rows: [
+      { id: "r1", sheet: "MOL. Prod.", sub: false, cells: { rowNo: 1, sampleIdent: "MOL B7/1.1", sequenceNo: 1, sampleNo: 1 } },
+      { id: "r2", sheet: "MOL. Prod.", sub: false, cells: { rowNo: 2, sampleIdent: "MOL B7/1.2", sequenceNo: 1, sampleNo: null } },
+    ],
+  };
+
+  function showWithPreview(
+    onPreview = vi.fn<(columns: string[]) => Promise<ExportPreviewResult>>(async () => ({ ok: true, preview: PREVIEW }))
+  ) {
+    const onExport = vi.fn();
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <ExportDialog kind="samples" onExport={onExport} onPreview={onPreview} />
+      </NextIntlClientProvider>
+    );
+    return { onPreview, onExport };
+  }
+
+  it("shows the first rows with the chosen columns, and downloads from there", async () => {
+    const user = userEvent.setup();
+    const { onPreview, onExport } = showWithPreview();
+    const dialog = await open(user);
+    await user.click(dialog.getByRole("button", { name: t.preview }));
+
+    expect(onPreview).toHaveBeenCalledTimes(1);
+    const table = await screen.findByRole("table");
+    expect(within(table).getAllByRole("columnheader").map((cell) => cell.textContent)).toEqual([
+      t.previewSheet,
+      "No.",
+      "Sample",
+      "Sample No",
+      "Quantity No",
+    ]);
+    expect(within(table).getAllByRole("row")).toHaveLength(3);
+    expect(screen.getByText(/Showing the first 2 of 120 rows/)).toBeTruthy();
+
+    await user.click(screen.getByRole("button", { name: /CSV/ }));
+    await waitFor(() => expect(onExport).toHaveBeenCalledWith("csv", onPreview.mock.calls[0][0]));
+  });
+
+  it("goes back to the columns, and says why when the preview fails", async () => {
+    const user = userEvent.setup();
+    showWithPreview(
+      vi.fn<(columns: string[]) => Promise<ExportPreviewResult>>(async () => ({
+        ok: false,
+        error: "This export would contain 60000 rows.",
+      }))
+    );
+    const dialog = await open(user);
+    await user.click(dialog.getByRole("button", { name: t.preview }));
+    expect((await screen.findByRole("alert")).textContent).toContain("60000 rows");
+
+    await user.click(screen.getByRole("button", { name: t.backToColumns }));
+    expect(await screen.findByText("Preparation")).toBeTruthy();
+  });
+
+  it("offers no preview where none is wired", async () => {
+    const user = userEvent.setup();
+    show();
+    const dialog = await open(user);
+    expect(dialog.queryByRole("button", { name: t.preview })).toBeNull();
   });
 });

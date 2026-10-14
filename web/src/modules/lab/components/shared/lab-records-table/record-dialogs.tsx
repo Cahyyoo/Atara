@@ -39,6 +39,7 @@ export function RecordDialogs({
   dialogs,
   openRecord,
   canEdit,
+  canAddOption,
   formatDate,
   onSaved,
   onReload,
@@ -47,6 +48,8 @@ export function RecordDialogs({
   dialogs: ReturnType<typeof useRecordDialogs>;
   openRecord: LabRecordListItemDTO | null;
   canEdit: boolean;
+  /** Whether the identity pickers may add a missing code to the master data. */
+  canAddOption: boolean;
   formatDate: (shiftDate: string) => string;
   onSaved: (updated: LabRecordDTO) => void;
   onReload: () => void;
@@ -69,7 +72,12 @@ export function RecordDialogs({
       ) : null}
 
       {dialogs.dialogMounted ? (
-        <LabRecordDialog record={dialogs.editing} onClose={dialogs.closeEditing} onSaved={onSaved} />
+        <LabRecordDialog
+          record={dialogs.editing}
+          canAddOption={canAddOption}
+          onClose={dialogs.closeEditing}
+          onSaved={onSaved}
+        />
       ) : null}
 
       {dialogs.weightsMounted ? (
@@ -80,6 +88,7 @@ export function RecordDialogs({
         <BulkIdentityDialog
           open={dialogs.bulkOpen}
           records={dialogs.bulkRecords}
+          canAddOption={canAddOption}
           minimized={dialogs.bulkMinimized}
           onMinimizedChange={dialogs.setBulkMinimized}
           onClose={dialogs.closeBulkIdentity}

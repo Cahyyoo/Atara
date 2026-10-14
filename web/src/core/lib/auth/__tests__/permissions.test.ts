@@ -39,6 +39,7 @@ const AGREED: Record<Persona, Capability[]> = {
     "viewActivity",
     "manageUsers",
     "manageMasterData",
+    "addMasterOption",
     "correctStage",
   ],
   DATABASE: [
@@ -51,6 +52,7 @@ const AGREED: Record<Persona, Capability[]> = {
     "generateSamples",
     "printLabels",
     "readLabRecords",
+    "addMasterOption",
   ],
   ANALISIS: ["viewDashboard", "viewRecordHistory", "enterResults", "readLabRecords"],
   OPERATOR: ["viewDashboard", "scanSamples", "overrideStage"],
@@ -190,6 +192,13 @@ describe("where the table is enforced", () => {
       expect(can(ACCOUNTS[persona], "correctStage"), persona).toBe(persona === "LAB_ADMIN");
     }
     expect(read("app", "api", "(lab)", "samples", "[code]", "stage", "route.ts")).toMatch(guard("correctStage"));
+  });
+
+  it("lets whoever fills in identities add a code, and only admins change or remove one", () => {
+    for (const persona of PERSONAS) {
+      expect(can(ACCOUNTS[persona], "addMasterOption"), persona).toBe(persona === "LAB_ADMIN" || persona === "DATABASE");
+    }
+    expect(read("app", "api", "(lab)", "master-options", "route.ts")).toMatch(guard("addMasterOption"));
   });
 
   it("lets only the operator scan", () => {

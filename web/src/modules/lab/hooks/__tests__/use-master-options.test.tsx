@@ -59,6 +59,27 @@ describe("useMasterOptions", () => {
     expect(calls).toBe(1);
   });
 
+  it("shows a code added from one form in every form that is open", async () => {
+    const { Codes, createMasterOption } = await load();
+    render(<Codes />);
+    await waitFor(() => expect(screen.getByTestId("codes").textContent).toBe("MOL"));
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        status: 201,
+        json: async () => ({
+          success: true,
+          data: { id: "p2", kind: "PLACE", code: "ALG", label: null, sortOrder: 1, isActive: true },
+        }),
+      }))
+    );
+    const result = await createMasterOption("PLACE", "alg");
+    expect(result).toMatchObject({ ok: true, option: { id: "p2" } });
+    await waitFor(() => expect(screen.getByTestId("codes").textContent).toBe("MOL,ALG"));
+  });
+
   it("answers null, and remembers nothing, when the request fails", async () => {
     vi.stubGlobal(
       "fetch",
