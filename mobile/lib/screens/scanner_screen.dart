@@ -10,6 +10,7 @@ import '../services/scan_gate.dart';
 import '../theme/app_theme.dart';
 import '../widgets/ios/app_page.dart';
 import '../widgets/ios/ios_button.dart';
+import '../widgets/check_mode_geometry.dart';
 import '../widgets/manual_code_dialog.dart';
 import '../widgets/scan_check_pill.dart';
 import '../widgets/status_view.dart';
@@ -291,7 +292,12 @@ class _ScannerScreenState extends State<ScannerScreen> {
               return const ColoredBox(color: CupertinoColors.black);
             },
           ),
-          const Center(child: _Viewfinder()),
+          // Check mode: the answer and the frame as one group, centred.
+          // Update mode: the frame alone, in the middle, as always.
+          if (_mode == ScanMode.check)
+            Positioned.fill(child: _buildCheckLayout(l10n))
+          else
+            const Center(child: _Viewfinder()),
           Positioned(
             left: AppSpacing.xl,
             right: AppSpacing.xl,
@@ -301,15 +307,10 @@ class _ScannerScreenState extends State<ScannerScreen> {
               children: [
                 _ModeSwitch(mode: _mode, onChanged: _setMode),
                 const SizedBox(height: AppSpacing.md),
+                // In check mode the hint sits where the answer will appear,
+                // above the frame (_buildCheckLayout), not down here.
                 if (_mode == ScanMode.check)
-                  if (_check == null)
-                    _ScannerHint(text: l10n.scanHint)
-                  else
-                    ScanCheckPill(
-                      check: _check!,
-                      onOpen: _openChecked,
-                      onDismiss: () => setState(() => _check = null),
-                    )
+                  const SizedBox.shrink()
                 // Says why the same label is being ignored, and offers the way
                 // past it — otherwise the guard would look like the scanner had
                 // frozen.
@@ -361,6 +362,81 @@ class _ScannerScreenState extends State<ScannerScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  /// The answer card just above the frame, the pair centred between the bar
+  /// and the controls (see checkModeGeometry). The card's slot is kept whether
+  /// or not there is an answer — the hint stands in it until there is — so
+  /// the frame stays put while answers come and go.
+  Widget _buildCheckLayout(AppLocalizations l10n) {
+    final topInset = MediaQuery.paddingOf(context).top;
+    final animate = !MediaQuery.disableAnimationsOf(context);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final geometry = checkModeGeometry(
+          height: constraints.maxHeight,
+          topInset: topInset,
+        );
+        final width = constraints.maxWidth - AppSpacing.xl * 2;
+        final check = _check;
+
+        return Stack(
+          children: [
+            Positioned(
+              top: geometry.slotTop,
+              left: AppSpacing.xl,
+              right: AppSpacing.xl,
+              height: geometry.slotHeight,
+              // Scaled down, never cut, on a phone too short for the slot.
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.bottomCenter,
+                child: SizedBox(
+                  width: width,
+                  child: AnimatedSwitcher(
+                    duration: animate
+                        ? const Duration(milliseconds: 200)
+                        : Duration.zero,
+                    layoutBuilder: (current, previous) => Stack(
+                      alignment: Alignment.bottomCenter,
+                      children: [...previous, ?current],
+                    ),
+                    transitionBuilder: (child, animation) => FadeTransition(
+                      opacity: animation,
+                      child: SlideTransition(
+                        position: Tween(
+                          begin: const Offset(0, 0.06),
+                          end: Offset.zero,
+                        ).animate(animation),
+                        child: child,
+                      ),
+                    ),
+                    child: check == null
+                        ? _ScannerHint(
+                            key: const ValueKey('hint'),
+                            text: l10n.scanHint,
+                          )
+                        : ScanCheckPill(
+                            key: ValueKey('${check.code}|${check.state}'),
+                            check: check,
+                            onOpen: _openChecked,
+                            onDismiss: () => setState(() => _check = null),
+                          ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: geometry.frameTop,
+              left: 0,
+              right: 0,
+              child: Center(child: _Viewfinder(size: geometry.frameSize)),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -458,18 +534,20 @@ class _CameraAction extends StatelessWidget {
 /// back away from small labels until the code was too small to decode. Brackets
 /// say "aim here" without implying a size.
 class _Viewfinder extends StatelessWidget {
-  const _Viewfinder();
+  const _Viewfinder({this.size = 250});
 
-  static const double _size = 250;
+  /// Smaller in check mode, where the answer card takes the top of the screen.
+  final double size;
+
   static const double _arm = 34;
   static const double _thickness = 4;
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(
-      width: _size,
-      height: _size,
-      child: Stack(
+    return SizedBox(
+      width: size,
+      height: size,
+      child: const Stack(
         children: [
           Align(
             alignment: Alignment.topLeft,
@@ -534,7 +612,7 @@ class _Corner extends StatelessWidget {
 /// lighting the text washed out entirely. The scrim gives it a surface of its
 /// own, so it stays readable whatever the camera happens to be looking at.
 class _ScannerHint extends StatelessWidget {
-  const _ScannerHint({required this.text});
+  const _ScannerHint({super.key, required this.text});
 
   final String text;
 
