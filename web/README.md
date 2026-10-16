@@ -140,8 +140,8 @@ Setiap akun punya **peran** dan **departemen** (kolom `users.department`; null h
 | Persona (peran + departemen) | Website | Aplikasi mobile |
 | ---------------------------- | ------- | --------------- |
 | **SUPER_ADMIN** (tanpa departemen) | Pemilih aplikasi, Pengaturan: Pengguna (kelola admin Lab & Eksplorasi + password default role ADMIN), Administrasi (pengumuman, backup), Audit Login. Tidak masuk ke fitur modul. | — |
-| **Admin Lab** (ADMIN + LAB) | Dashboard lab (termasuk pengaturan SLA & export), Database Sampel (hanya lihat, export, data terhapus), Kualitas Data, Kesimpulan, Aktivitas, Master Data, Pengguna di tile Pengaturan (staf lab + password default-nya), koreksi tahap dari halaman sampel | — |
-| DATABASE (LAB) | Dashboard, Buat Barcode, Cetak Ulang Label, Database Sampel (edit, hapus/pulihkan, export), Kualitas Data, Kesimpulan | — |
+| **Admin Lab** (ADMIN + LAB) | Dashboard lab (termasuk pengaturan SLA & export), Database Sampel (hanya lihat, export, data terhapus), Kesimpulan, Aktivitas, Master Data, Pengguna di tile Pengaturan (staf lab + password default-nya), koreksi tahap dari halaman sampel | — |
+| DATABASE (LAB) | Dashboard, Buat Barcode, Cetak Ulang Label, Database Sampel (edit, hapus/pulihkan, export), Kesimpulan | — |
 | ANALISIS (LAB) | Dashboard, Input Hasil Uji, Kesimpulan | — |
 | PREPARATOR (LAB) | Dashboard | Scan & perbarui tahap, termasuk koreksi (mundur/lompat tahap) dengan alasan |
 | **Admin Eksplorasi** (ADMIN + EKSPLORASI) | Data Drilling (tambah, ubah, cari, hapus) | — |
@@ -179,7 +179,6 @@ Akun baru dan akun yang kata sandinya direset memakai kata sandi default per per
 | `/lab/samples/[code]`               | Detail sampel, hasil uji, timeline perpindahan tahapan, koreksi tahap (admin lab). |
 | `/lab/samples/[code]/sub/[subCode]` | Detail sub-sampel. |
 | `/lab/database`                     | Database Sampel: cari, edit identitas, hapus/pulihkan, export. |
-| `/lab/data-quality`                 | Sampel dengan identitas belum lengkap atau belum ada hasil setelah sekian hari. |
 | `/lab/assay`                        | Input Hasil Uji dengan grid seperti Excel: blok dari Excel ditempel langsung ke sel (Ctrl+V), sel bisa diseleksi lalu di-copy ke Excel (Ctrl+C) atau dikosongkan (Delete). Sampel tercentang diisi di grid; tanpa centang, "Tempel per Sample ID" membuka lembar hingga 5.000 baris berkolom persis seperti ekspor instrumen (Sample ID, Measurement Finished seperti `9/1/2026 8:54`, Ni (%) … Sum (%), Measurement Method, Solution ID), dicek server hanya untuk baris yang berubah, dengan progres pengecekan dan penyimpanan yang terlihat. Impor file CSV/XLSX tetap tersedia. |
 | `/lab/assay/history`                | Riwayat perubahan hasil uji. |
 | `/lab/grade`                        | Kesimpulan: rata-rata kadar per pit, SIR, lokasi, jenis batuan, kode non-prod, atau barging run. |
@@ -310,7 +309,6 @@ Lihat `src/modules/eksplorasi/lib/__tests__/drill-hole-import-db.test.ts`.
 | ------ | --------------------------- | --------- |
 | GET    | `/api/analytics`            | Angka dan grafik dashboard. |
 | GET    | `/api/analytics/report`     | Angka dashboard sebagai workbook, sama persis dengan layar. |
-| GET    | `/api/data-quality`         | Daftar Kualitas Data (+ `/export`). |
 
 ### Administrasi
 

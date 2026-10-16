@@ -364,26 +364,13 @@
     "weights": {
       "open": "Paste Wp/W0/Wd",
       "title": "Paste Wp, W0 and Wd",
-      "description": "Copy the columns Sample ID, Wp, W0 and Wd from Excel and paste them here. The header row is optional; the sack count in the Sample ID may be left out. A blank weight keeps the one already stored.",
-      "label": "Data from Excel",
-      "hint": "Without a header row the columns are read as Sample ID, Wp, W0, Wd.",
-      "check": "Check",
-      "back": "Back",
-      "save": "Save {count, plural, one {# row} other {# rows}}",
+      "description": "Copy a block of Sample ID, Wp, W0 and Wd from Excel (with or without its header row), click any box and press Ctrl+V — or type straight in. The sack count in the Sample ID may be left out; a blank weight box keeps the one already stored. Red boxes need fixing, yellow ones replace a stored weight. At most {max, number} rows at a time.",
       "saved": "{count, plural, one {# weighing} other {# weighings}} saved.",
-      "empty": "Paste at least one row.",
-      "unreadable": "Row {line}: {reason}",
-      "tooMany": "At most 500 rows at a time.",
-      "summary": "{update} to save · {unchanged} unchanged · {unknown} not found · {invalid} invalid",
-      "line": "Row",
-      "status": "Status",
-      "statuses": {
-        "update": "Will be saved",
-        "unchanged": "No change",
-        "unknown": "Not found",
-        "ambiguous": "Matches more than one sample",
-        "invalid": "Invalid"
-      },
+      "tooManyRows": "The pasted block runs past {max, number} rows; the rows after that were left out. Save first, then paste the rest.",
+      "notNumber": "Not a number.",
+      "negative": "A weight cannot be negative.",
+      "noSampleId": "No Sample ID yet.",
+      "listedTwice": "This sample is on the sheet more than once.",
       "notFoundHint": "No sample has this Sample ID. It must match the Sample ID in the database; the sack count may be left out.",
       "ambiguousHint": "Without the sack count this fits more than one sample. Add the sack count."
     }
@@ -454,16 +441,13 @@
       "save": "Save and continue"
     },
     "paste": {
-      "step1": "In Excel, select the result rows together with their header row, then press Ctrl+C.",
-      "step2": "Press Ctrl+V on this page — or drop a CSV file onto the box below.",
+      "step1": "In Excel, save the results sheet with its header row as .xlsx or .csv.",
+      "step2": "Choose that file — or drop it onto the box below.",
       "step3": "Check the preview, then press Save.",
-      "boxLabel": "Results from Excel",
-      "placeholder": "Paste here (Ctrl+V)…\n\nSample ID\tNi\tFe\tCo\tSiO2\tMgO\nLAM SAM S2/PA4/B10/3778.1\t1.86\t42.25\t0.14\t9.96\t2.37",
       "chooseFile": "Choose a CSV or Excel file",
-      "copyHeader": "Copy an example header row",
+      "dropFile": "or drag and drop an .xlsx / .csv file here",
+      "changeFile": "Change file",
       "headerHint": "The first row must be headings: Sample ID (the sack count may be left out), then any of the elements, Measurement Finished, Measurement Method or Solution ID.",
-      "headerCopied": "Header row copied. Paste it into the first row of your Excel sheet.",
-      "headerCopyFailed": "Could not copy automatically. The headings are: {header}",
       "checking": "Checking…",
       "rowsRead": "{count} row(s) read",
       "toUpdate": "{count} to update",
@@ -492,7 +476,7 @@
       "auditReason": "Pasted from Excel",
       "doneTitle": "{count} sample(s) updated",
       "doneBody": "The results are saved and recorded in each sample's change history.",
-      "pasteAnother": "Paste more",
+      "importAnother": "Import another file",
       "openDatabase": "View in Sample Database",
       "errors": {
         "empty": "Nothing to read yet. Copy the header row and at least one row of results.",
@@ -642,38 +626,6 @@
     "niRange": "Ni min – max",
     "avgOf": "{field} avg"
   },
-  "dataQuality": {
-    "title": "Data Quality",
-    "subtitle": "Samples whose records need attention: gaps in the identity, or no result long after the sample was made.",
-    "identityCard": "Identity incomplete",
-    "resultsCard": "No Ni result after {days} days",
-    "anyExpected": "Any required",
-    "optional": "optional",
-    "gaps": {
-      "place": "Place",
-      "rockType": "Ore class",
-      "pit": "Pit",
-      "bargingNo": "Barging",
-      "sampleIdent": "Sample ID",
-      "nonProd": "Non-prod",
-      "sir": "SIR"
-    },
-    "olderThan": "Created more than",
-    "daysOption": "{days} d ago",
-    "columns": {
-      "sample": "Barcode",
-      "labCode": "Lab Code",
-      "sampleIdent": "Sample ID",
-      "stage": "Stage",
-      "age": "Age",
-      "missing": "Missing"
-    },
-    "allGood": "Nothing to fix here.",
-    "ageValue": "{days} d",
-    "pageOf": "Page {page} of {pages} · {total} records",
-    "previous": "Previous page",
-    "next": "Next page"
-  },
   "help": {
     "sections": {
       "dashboard": {
@@ -735,15 +687,6 @@
           "5": "Barcodes without a Sample ID: filter Sample ID → Not yet and press Fill in all. To correct many records at once, tick them (or select all that match) and use Fill in / change identity: the fields hold the current values — change one to set it on all of them, empty it to clear it. Drag a column heading to move it, drag its edge to resize it."
         },
         "tip": "Changing a sample's place, pit or other identity rewrites its Sample ID automatically; there is no need to edit the ID by hand."
-      },
-      "dataQuality": {
-        "title": "Data Quality",
-        "intro": "Records that need someone: gaps in the identity, or no result long after the sample was made.",
-        "steps": {
-          "1": "\"Identity incomplete\" counts records missing a required column; click a column to list only those.",
-          "2": "\"No Ni result\" lists samples older than the chosen number of days without a result.",
-          "3": "Open a sample from the list to fix it, or export the list."
-        }
       },
       "assay": {
         "title": "Enter Results",
@@ -820,7 +763,7 @@
           },
           "2": {
             "title": "The Sample Database",
-            "body": "Fill in identities — many records at once — remove or restore samples and export. Data Quality lists what still needs something."
+            "body": "Fill in identities — many records at once — remove or restore samples and export."
           },
           "3": {
             "title": "Help is always here",
@@ -995,24 +938,6 @@
         "body": "Click a row to see the record. The Database role can edit the identity from there."
       }
     },
-    "dataQuality": {
-      "1": {
-        "title": "Two checks",
-        "body": "Incomplete identities, and samples still without a result. Click a card to switch."
-      },
-      "2": {
-        "title": "Narrow it down",
-        "body": "Pick the empty column, or the sample age in days."
-      },
-      "3": {
-        "title": "What needs fixing",
-        "body": "Oldest first. Click a barcode to open the sample and fix it."
-      },
-      "4": {
-        "title": "Export the list",
-        "body": "Download this list to share with the team."
-      }
-    },
     "assay": {
       "1": {
         "title": "What still needs results",
@@ -1028,7 +953,7 @@
       },
       "4": {
         "title": "Import a file",
-        "body": "Upload the instrument's workbook, or paste a block at once. A preview comes before anything is saved."
+        "body": "Upload the instrument workbook (.xlsx) or a CSV file. There is a preview before anything is saved."
       }
     },
     "grade": {

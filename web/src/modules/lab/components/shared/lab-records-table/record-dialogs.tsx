@@ -25,7 +25,7 @@ const RecordHistoryDialog = dynamic(
 
 /** Wp/W0/Wd pasted from a sheet: the Database role's optional shortcut. */
 const PasteWeightsDialog = dynamic(
-  () => import("@/modules/lab/components/database/paste-weights").then((m) => m.PasteWeightsDialog),
+  () => import("@/modules/lab/components/database/weights-sheet/weights-sheet-dialog").then((m) => m.PasteWeightsDialog),
   { ssr: false }
 );
 

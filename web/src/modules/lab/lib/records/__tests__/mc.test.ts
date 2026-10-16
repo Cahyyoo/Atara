@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { leadTimeHours, moistureContent, smRatio, stageMoments, weighingProblem } from "@/modules/lab/lib/records/mc";
-import { parseWeightsPaste } from "@/modules/lab/lib/records/weights-paste";
+import { WEIGHTS_SHEET_KEYS, weightsHeader } from "@/modules/lab/lib/records/weights-paste";
+import { spreadPaste } from "@/modules/lab/lib/records/sheet-paste";
 
 /** The figures the Formulir Analysis Result works out, checked against the lab's own sheet. */
 
@@ -86,46 +87,42 @@ describe("weighingProblem", () => {
   });
 });
 
-describe("parseWeightsPaste", () => {
-  it("reads Sample ID, Wp, W0, Wd in that order without a header", () => {
-    const { rows, hasHeader } = parseWeightsPaste("MOL/SAP/A4/PA11/B78/779.1\t564.5\t3131.5\t2276\n");
-    expect(hasHeader).toBe(false);
-    expect(rows).toEqual([{ line: 1, key: "MOL/SAP/A4/PA11/B78/779.1", values: { wp: 564.5, w0: 3131.5, wd: 2276 } }]);
+describe("pasting weighings into the sheet", () => {
+  const target = (start = { row: 0, col: 0 }) => ({
+    visible: [...WEIGHTS_SHEET_KEYS],
+    known: [...WEIGHTS_SHEET_KEYS],
+    start,
+    rawDates: true,
+    readHeader: weightsHeader,
   });
+  const cells = (text: string, start?: { row: number; col: number }) =>
+    spreadPaste(text, target(start)).writes.map(({ row, key, value }) => `${row}:${key}=${value}`);
 
-  it("finds the columns by their header, in any order, and reads a decimal comma", () => {
-    const { rows, hasHeader } = parseWeightsPaste("Wd\tSample ID\tW0\tWp\n2276,0\tA/1\t3.131,5\t564,5\n");
-    expect(hasHeader).toBe(true);
-    expect(rows[0]).toEqual({ line: 2, key: "A/1", values: { wp: 564.5, w0: 3131.5, wd: 2276 } });
-  });
-
-  it("reads a line typed with spaces: the numbers at the end, the Sample ID before them", () => {
-    const { rows, hasHeader } = parseWeightsPaste("MOL SAP A4/PITA11/B78/779.3 583.5 3073.5 2124.0");
-    expect(hasHeader).toBe(false);
-    expect(rows).toEqual([
-      { line: 1, key: "MOL SAP A4/PITA11/B78/779.3", values: { wp: 583.5, w0: 3073.5, wd: 2124 } },
+  it("lays a block without a header down from the box it was pasted into", () => {
+    expect(cells("MOL/SAP/A4/PA11/B78/779.1\t564.5\t3131.5\t2276\n")).toEqual([
+      "0:sampleIdent=MOL/SAP/A4/PA11/B78/779.1",
+      "0:wp=564.5",
+      "0:w0=3131.5",
+      "0:wd=2276",
     ]);
+    expect(cells("583,5\t3073,5", { row: 2, col: 1 })).toEqual(["2:wp=583,5", "2:w0=3073,5"]);
   });
 
-  it("keeps a sack count written with a space in the Sample ID, and reads a decimal comma", () => {
-    const { rows } = parseWeightsPaste("LAM SAM S2 PA4 B10 3778.1 25  583,5 3073,5 2124\n");
-    expect(rows[0]).toEqual({ line: 1, key: "LAM SAM S2 PA4 B10 3778.1 25", values: { wp: 583.5, w0: 3073.5, wd: 2124 } });
+  it("finds the columns by their header, in any order, and takes Wo and Lab Code", () => {
+    expect(cells("Wd\tSample ID\tW0\tWp\n2276,0\tA/1\t3.131,5\t564,5\n")).toEqual([
+      "0:wd=2276,0",
+      "0:sampleIdent=A/1",
+      "0:w0=3.131,5",
+      "0:wp=564,5",
+    ]);
+    expect(weightsHeader(["Lab Code", "Wo"])).toEqual([
+      { index: 0, key: "sampleIdent" },
+      { index: 1, key: "w0" },
+    ]);
+    expect(weightsHeader(["A/1", "564.5"])).toBeNull();
   });
 
-  it("finds a header typed with spaces", () => {
-    const { rows, hasHeader } = parseWeightsPaste("Sample ID Wd W0 Wp\nA/1 2124 3073.5 583.5");
-    expect(hasHeader).toBe(true);
-    expect(rows[0]).toEqual({ line: 2, key: "A/1", values: { wp: 583.5, w0: 3073.5, wd: 2124 } });
-  });
-
-  it("asks for all three weights on a line typed with spaces", () => {
-    expect(parseWeightsPaste("A/1 583.5 3073.5").rows[0].error).toMatch(/Wp, W0 and Wd/);
-  });
-
-  it("leaves a blank weight out, and names a cell it cannot read", () => {
-    const { rows } = parseWeightsPaste("A/1\t564.5\t\t2276\nA/2\tabc\t3000\t2000\n\n");
-    expect(rows[0].values).toEqual({ wp: 564.5, wd: 2276 });
-    expect(rows[1].error).toMatch(/WP "abc"/);
-    expect(rows).toHaveLength(2);
+  it("leaves a blank weight out, so the stored one stays", () => {
+    expect(cells("A/1\t564.5\t\t2276")).toEqual(["0:sampleIdent=A/1", "0:wp=564.5", "0:wd=2276"]);
   });
 });

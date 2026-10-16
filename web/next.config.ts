@@ -117,7 +117,6 @@ const nextConfig: NextConfig = {
       "/dashboard",
       "/samples",
       "/database",
-      "/data-quality",
       "/assay",
       "/grade",
       "/master-data",

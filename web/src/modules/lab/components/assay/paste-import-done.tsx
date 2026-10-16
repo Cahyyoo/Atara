@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Button, buttonVariants } from "@/core/components/ui/button";
-import { IoCheckmarkCircle, IoClipboardOutline } from "react-icons/io5";
+import { IoCheckmarkCircle, IoDocumentAttachOutline } from "react-icons/io5";
 
 /** What the import screen shows once a sheet has been saved. */
-export function PasteImportDone({ count, onPasteAnother }: { count: number; onPasteAnother: () => void }) {
+export function PasteImportDone({ count, onImportAnother }: { count: number; onImportAnother: () => void }) {
   const t = useTranslations("assay.paste");
 
   return (
@@ -15,9 +15,9 @@ export function PasteImportDone({ count, onPasteAnother }: { count: number; onPa
       <p className="text-lg font-medium">{t("doneTitle", { count })}</p>
       <p className="max-w-md text-sm text-muted-foreground">{t("doneBody")}</p>
       <div className="flex flex-wrap justify-center gap-2 pt-2">
-        <Button className="gap-2" onClick={onPasteAnother}>
-          <IoClipboardOutline className="size-4" />
-          {t("pasteAnother")}
+        <Button className="gap-2" onClick={onImportAnother}>
+          <IoDocumentAttachOutline className="size-4" />
+          {t("importAnother")}
         </Button>
         <Link href="/lab/database" className={buttonVariants({ variant: "outline" })}>
           {t("openDatabase")}

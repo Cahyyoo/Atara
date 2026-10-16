@@ -169,7 +169,6 @@ describe("where the table is enforced", () => {
       [["app", "(app)", "lab", "samples", "generate", "layout.tsx"], "generateSamples"],
       [["app", "(app)", "lab", "samples", "labels", "layout.tsx"], "printLabels"],
       [["app", "(app)", "lab", "grade", "page.tsx"], "readLabRecords"],
-      [["app", "(app)", "lab", "data-quality", "page.tsx"], "viewDatabase"],
       [["app", "(app)", "lab", "dashboard", "page.tsx"], "viewDashboard"],
       [["app", "(app)", "eksplorasi", "drilling", "page.tsx"], "manageDrilling"],
       [["app", "(app)", "admin", "page.tsx"], "manageAnnouncements"],

@@ -16,19 +16,18 @@ function downloadTemplate() {
 }
 
 /**
- * Entering results by pasting them out of Excel -- the way most results
- * arrive, because the instrument writes them into a sheet.
+ * Entering results from a file -- the instrument's sheet, saved as Excel or
+ * CSV. (Pasting from Excel has its own sheet: Tempel per Sample ID.)
  *
  * Matched on the server against every sample, by Lab Code or Sample ID. The
  * old dialog matched only the twenty-five rows on screen, so a sheet covering
- * two shifts came back half "unknown". A saved CSV goes through the same box:
- * one way in, one set of rules.
+ * two shifts came back half "unknown".
  *
  * Nothing is written until the preview has been seen and Save pressed.
  */
 export function PasteImport() {
   const {
-    text,
+    fileName,
     preview,
     error,
     isChecking,
@@ -40,17 +39,15 @@ export function PasteImport() {
     done,
     confirmOverwrite,
     setConfirmOverwrite,
-    boxRef,
-    replaceText,
+    clear,
     readFile,
     handleDrop,
-    copyHeader,
     summary,
     writes,
     canSave,
     save,
     rows,
-    pasteAnother,
+    importAnother,
   } = usePasteImport();
 
   const hasDuplicates = (summary?.duplicate ?? 0) > 0;
@@ -64,22 +61,18 @@ export function PasteImport() {
   );
 
   if (done !== null) {
-    return <PasteImportDone count={done} onPasteAnother={pasteAnother} />;
+    return <PasteImportDone count={done} onImportAnother={importAnother} />;
   }
 
   return (
     <div className="flex flex-col gap-4">
       <PasteImportInput
-        text={text}
-        hasPreview={Boolean(preview)}
+        fileName={fileName}
         isDragging={isDragging}
         isChecking={isChecking}
-        boxRef={boxRef}
         onDraggingChange={setIsDragging}
         onDrop={handleDrop}
-        onTextChange={replaceText}
         onFile={readFile}
-        onCopyHeader={copyHeader}
         onDownloadTemplate={downloadTemplate}
       />
 
@@ -102,7 +95,7 @@ export function PasteImport() {
             canSave={canSave}
             onCancelOverwrite={() => setConfirmOverwrite(false)}
             onSave={save}
-            onClear={() => replaceText("")}
+            onClear={clear}
           />
           <DuplicateConfirmDialog
             open={confirmOverwrite && hasDuplicates}

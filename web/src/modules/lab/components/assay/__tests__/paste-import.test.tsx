@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 
@@ -50,16 +50,19 @@ function show() {
   );
 }
 
-const box = () => screen.getByLabelText(en.assay.paste.boxLabel) as HTMLTextAreaElement;
-
-function paste(text: string) {
-  fireEvent.change(box(), { target: { value: text } });
+/** Chooses a CSV holding this text, as the file picker would. */
+function upload(text: string, name = "results.csv") {
+  const input = screen.getByLabelText(en.assay.paste.chooseFile) as HTMLInputElement;
+  const file = new File([text], name, { type: "text/csv" });
+  // jsdom's File may lack text(); the browser's has it.
+  Object.defineProperty(file, "text", { value: async () => text });
+  fireEvent.change(input, { target: { files: [file] } });
 }
 
-describe("pasting results from Excel", () => {
-  it("checks the pasted block against the server, without saving", async () => {
+describe("importing a results file", () => {
+  it("checks the file against the server, without saving", async () => {
     show();
-    paste(SHEET);
+    upload(SHEET);
 
     await screen.findByText("2 to update");
     expect(calls).toEqual([
@@ -70,7 +73,7 @@ describe("pasting results from Excel", () => {
 
   it("lists the rows that need attention first", async () => {
     show();
-    paste(SHEET);
+    upload(SHEET);
     await screen.findByText("2 to update");
 
     const rows = screen.getAllByRole("row").slice(1);
@@ -83,7 +86,7 @@ describe("pasting results from Excel", () => {
   it("saves the matched rows and skips what was not found", async () => {
     const user = userEvent.setup({ delay: null });
     show();
-    paste(SHEET);
+    upload(SHEET);
     await screen.findByText("2 to update");
 
     expect(screen.getByText(/1 not found will be skipped/)).toBeTruthy();
@@ -103,7 +106,7 @@ describe("pasting results from Excel", () => {
     };
     const user = userEvent.setup({ delay: null });
     show();
-    paste(SHEET);
+    upload(SHEET);
 
     const banner = await screen.findByRole("alert");
     expect(banner.textContent).toContain("2 rows have results identical to another");
@@ -121,7 +124,7 @@ describe("pasting results from Excel", () => {
   it("will not save while a row is not valid", async () => {
     respond = () => ({ success: true, data: previewOf({ invalid: 1 }) });
     show();
-    paste(SHEET);
+    upload(SHEET);
     await screen.findByText("1 not valid");
 
     expect(screen.getByRole("button", { name: "Save 2 row(s)" })).toHaveProperty("disabled", true);
@@ -131,28 +134,23 @@ describe("pasting results from Excel", () => {
   it("explains a block copied without its header row", async () => {
     respond = () => ({ success: false, error: "The sheet needs a column", code: "import-noKey" });
     show();
-    paste("SPR.001\t1,86\n");
+    upload("SPR.001\t1,86\n");
     expect(await screen.findByText(en.assay.paste.errors.noKey)).toBeTruthy();
   });
 
-  it("takes Ctrl+V from anywhere on the page into the box", async () => {
+  it("has no box to paste into: the file is read, named, and previewed", async () => {
     show();
-    const event = new Event("paste", { bubbles: true, cancelable: true }) as Event & {
-      clipboardData: { getData: () => string };
-    };
-    event.clipboardData = { getData: () => SHEET };
-    await act(async () => {
-      document.body.dispatchEvent(event);
-    });
-
-    expect(box().value).toBe(SHEET);
+    expect(screen.queryByRole("textbox")).toBeNull();
+    upload(SHEET, "hasil-alat.csv");
+    expect(await screen.findByText("hasil-alat.csv")).toBeTruthy();
     await screen.findByText("2 to update");
+    expect(screen.getByText(en.assay.paste.changeFile)).toBeTruthy();
   });
 
   it("can show only the rows with problems", async () => {
     const user = userEvent.setup({ delay: null });
     show();
-    paste(SHEET);
+    upload(SHEET);
     await screen.findByText("2 to update");
 
     await user.click(screen.getByRole("checkbox", { name: en.assay.paste.problemsOnly }));

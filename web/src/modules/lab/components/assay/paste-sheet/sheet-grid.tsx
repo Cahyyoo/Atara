@@ -17,6 +17,8 @@ export interface SheetColumn {
   kind: "key" | "number" | "text" | "date";
   /** For a number: the most it may be (100, or 1000 for Sum). */
   max?: number;
+  /** Typed into as well as pasted: a value written down by hand, not read off an instrument. */
+  typed?: boolean;
 }
 
 /** What is wrong with a box before the server has said anything, and what a date was read as. */
@@ -130,8 +132,9 @@ const SheetRowView = memo(function SheetRowView({
               autoComplete="off"
               // Results arrive by pasting only: typed over, a figure from the
               // instrument becomes one nobody measured. The Sample ID is the
-              // one box that is typed, to fix a match.
-              readOnly={locked || column.kind !== "key"}
+              // one box that is typed, to fix a match -- unless the column is
+              // one that is written down by hand anyway (the weighings).
+              readOnly={locked || (column.kind !== "key" && !column.typed)}
               data-cell-row={index}
               data-cell-col={col}
               data-selected={inSelection(selection, col) ? "" : undefined}
@@ -142,7 +145,7 @@ const SheetRowView = memo(function SheetRowView({
               // A read-only box takes no paste of its own; one value pasted
               // into it is laid down here (a block is the grid's to spread).
               onPaste={
-                column.kind === "key" || locked
+                column.kind === "key" || column.typed || locked
                   ? undefined
                   : (event) => {
                       const text = event.clipboardData.getData("text/plain");

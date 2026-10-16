@@ -364,26 +364,13 @@
     "weights": {
       "open": "Tempel Wp/W0/Wd",
       "title": "Tempel Wp, W0 dan Wd",
-      "description": "Salin kolom Sample ID, Wp, W0 dan Wd dari Excel lalu tempel di sini. Baris judul boleh ada atau tidak; jumlah karung di Sample ID boleh tidak ditulis. Bobot yang kosong tidak mengubah nilai yang sudah ada.",
-      "label": "Data dari Excel",
-      "hint": "Tanpa baris judul, kolom dibaca berurutan: Sample ID, Wp, W0, Wd.",
-      "check": "Periksa",
-      "back": "Kembali",
-      "save": "Simpan {count} baris",
+      "description": "Salin blok Sample ID, Wp, W0 dan Wd dari Excel (dengan atau tanpa baris judul), klik sel mana pun, lalu Ctrl+V — atau ketik langsung. Jumlah karung di Sample ID boleh tidak ditulis; sel bobot yang kosong tidak mengubah nilai yang sudah ada. Sel merah perlu diperbaiki, sel kuning akan menimpa bobot lama. Maksimal {max, number} baris sekaligus.",
       "saved": "{count} data timbangan disimpan.",
-      "empty": "Tempel minimal satu baris.",
-      "unreadable": "Baris {line}: {reason}",
-      "tooMany": "Maksimal 500 baris sekaligus.",
-      "summary": "{update} akan disimpan · {unchanged} tidak berubah · {unknown} tidak ditemukan · {invalid} tidak valid",
-      "line": "Baris",
-      "status": "Status",
-      "statuses": {
-        "update": "Akan disimpan",
-        "unchanged": "Tidak berubah",
-        "unknown": "Tidak ditemukan",
-        "ambiguous": "Cocok dengan lebih dari satu sampel",
-        "invalid": "Tidak valid"
-      },
+      "tooManyRows": "Blok yang ditempel melebihi {max, number} baris; baris setelahnya tidak dipakai. Simpan dulu, lalu tempel sisanya.",
+      "notNumber": "Bukan angka.",
+      "negative": "Bobot tidak boleh negatif.",
+      "noSampleId": "Sample ID belum diisi.",
+      "listedTwice": "Sampel ini ada lebih dari sekali di lembar.",
       "notFoundHint": "Tidak ada sampel dengan Sample ID ini. Harus sama dengan Sample ID di database; jumlah karung boleh tidak ditulis.",
       "ambiguousHint": "Tanpa jumlah karung, ini cocok dengan lebih dari satu sampel. Tambahkan jumlah karungnya."
     }
@@ -454,16 +441,13 @@
       "save": "Simpan lalu lanjutkan"
     },
     "paste": {
-      "step1": "Di Excel, blok baris hasil beserta baris judul kolomnya, lalu tekan Ctrl+C.",
-      "step2": "Tekan Ctrl+V di halaman ini — atau jatuhkan berkas CSV ke kotak di bawah.",
+      "step1": "Di Excel, simpan sheet hasil beserta baris judul kolomnya sebagai .xlsx atau .csv.",
+      "step2": "Pilih berkas itu — atau jatuhkan ke kotak di bawah.",
       "step3": "Periksa pratinjaunya, lalu tekan Simpan.",
-      "boxLabel": "Data hasil dari Excel",
-      "placeholder": "Tempel di sini (Ctrl+V)…\n\nSample ID\tNi\tFe\tCo\tSiO2\tMgO\nLAM SAM S2/PA4/B10/3778.1\t1,86\t42,25\t0,14\t9,96\t2,37",
       "chooseFile": "Pilih berkas CSV atau Excel",
-      "copyHeader": "Salin judul kolom contoh",
+      "dropFile": "atau seret dan jatuhkan berkas .xlsx / .csv ke sini",
+      "changeFile": "Ganti berkas",
       "headerHint": "Baris pertama harus berisi judul kolom: Sample ID (jumlah karung boleh tidak ditulis), lalu unsur mana pun, Measurement Finished, Measurement Method, atau Solution ID.",
-      "headerCopied": "Judul kolom disalin. Tempel di baris pertama sheet Excel Anda.",
-      "headerCopyFailed": "Tidak bisa menyalin otomatis. Judul kolomnya: {header}",
       "checking": "Memeriksa…",
       "rowsRead": "{count} baris dibaca",
       "toUpdate": "{count} akan diperbarui",
@@ -492,7 +476,7 @@
       "auditReason": "Tempel dari Excel",
       "doneTitle": "{count} sampel diperbarui",
       "doneBody": "Hasilnya sudah tersimpan dan tercatat di riwayat perubahan tiap sampel.",
-      "pasteAnother": "Tempel data lain",
+      "importAnother": "Impor berkas lain",
       "openDatabase": "Lihat di Database Sampel",
       "errors": {
         "empty": "Belum ada data untuk dibaca. Salin baris judul kolom beserta minimal satu baris hasil.",
@@ -642,38 +626,6 @@
     "niRange": "Ni min – maks",
     "avgOf": "Rata-rata {field}"
   },
-  "dataQuality": {
-    "title": "Kualitas Data",
-    "subtitle": "Sampel yang datanya perlu dibereskan: identitas belum lengkap, atau belum ada hasil lama setelah sampel dibuat.",
-    "identityCard": "Identitas belum lengkap",
-    "resultsCard": "Belum ada hasil Ni setelah {days} hari",
-    "anyExpected": "Semua kolom wajib",
-    "optional": "opsional",
-    "gaps": {
-      "place": "Lokasi",
-      "rockType": "Ore class",
-      "pit": "Pit",
-      "bargingNo": "Barging",
-      "sampleIdent": "Sample ID",
-      "nonProd": "Non-prod",
-      "sir": "SIR"
-    },
-    "olderThan": "Dibuat lebih dari",
-    "daysOption": "{days} hari lalu",
-    "columns": {
-      "sample": "Barcode",
-      "labCode": "Lab Code",
-      "sampleIdent": "Sample ID",
-      "stage": "Tahap",
-      "age": "Umur",
-      "missing": "Kosong"
-    },
-    "allGood": "Tidak ada yang perlu dibereskan.",
-    "ageValue": "{days} hr",
-    "pageOf": "Halaman {page} dari {pages} · {total} record",
-    "previous": "Halaman sebelumnya",
-    "next": "Halaman berikutnya"
-  },
   "help": {
     "sections": {
       "dashboard": {
@@ -735,15 +687,6 @@
           "5": "Barcode tanpa Sample ID: saring Sample ID → Belum ada, lalu tekan Isi identitas semuanya. Untuk mengoreksi banyak record sekaligus, centang barisnya (atau pilih semua yang cocok) lalu Isi / ubah identitas: field berisi nilai saat ini — ubah untuk mengganti di semua record, kosongkan untuk menghapus. Seret judul kolom untuk memindahnya, seret tepinya untuk mengubah lebar."
         },
         "tip": "Mengubah lokasi, pit, atau identitas lain otomatis menulis ulang Sample ID; tidak perlu mengedit ID secara manual."
-      },
-      "dataQuality": {
-        "title": "Kualitas Data",
-        "intro": "Record yang perlu dibereskan: identitas belum lengkap, atau belum ada hasil lama setelah sampel dibuat.",
-        "steps": {
-          "1": "\"Identitas belum lengkap\" menghitung record yang kosong di kolom wajib; klik nama kolom untuk menampilkan itu saja.",
-          "2": "\"Belum ada hasil Ni\" berisi sampel yang lebih tua dari jumlah hari yang dipilih dan belum punya hasil.",
-          "3": "Buka sampel dari daftar untuk memperbaikinya, atau ekspor daftarnya."
-        }
       },
       "assay": {
         "title": "Input Hasil Uji",
@@ -820,7 +763,7 @@
           },
           "2": {
             "title": "Database Sampel",
-            "body": "Isi identitas — banyak record sekaligus — hapus atau pulihkan sampel, dan ekspor. Kualitas Data berisi yang masih perlu dibereskan."
+            "body": "Isi identitas — banyak record sekaligus — hapus atau pulihkan sampel, dan ekspor."
           },
           "3": {
             "title": "Bantuan selalu ada",
@@ -995,24 +938,6 @@
         "body": "Klik baris untuk melihat record. Peran Database bisa mengedit identitas dari sana."
       }
     },
-    "dataQuality": {
-      "1": {
-        "title": "Dua pemeriksaan",
-        "body": "Identitas belum lengkap, dan sampel yang belum punya hasil. Klik kartu untuk beralih."
-      },
-      "2": {
-        "title": "Persempit",
-        "body": "Pilih kolom yang kosong, atau umur sampel dalam hari."
-      },
-      "3": {
-        "title": "Yang perlu dibereskan",
-        "body": "Yang tertua di atas. Klik barcode untuk membuka sampel dan memperbaikinya."
-      },
-      "4": {
-        "title": "Ekspor daftar",
-        "body": "Unduh daftar ini untuk dibagikan ke tim."
-      }
-    },
     "assay": {
       "1": {
         "title": "Mana yang belum ada hasil",
@@ -1028,7 +953,7 @@
       },
       "4": {
         "title": "Impor file",
-        "body": "Unggah workbook dari alat, atau tempel satu blok sekaligus. Ada pratinjau sebelum disimpan."
+        "body": "Unggah workbook dari alat (.xlsx) atau berkas CSV. Ada pratinjau sebelum disimpan."
       }
     },
     "grade": {

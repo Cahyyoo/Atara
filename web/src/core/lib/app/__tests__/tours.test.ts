@@ -76,7 +76,7 @@ describe("the guided tours", () => {
     expect(keys("PREPARATOR")).toEqual(["dashboard", "quickSearch", "sampleDetail", "account"]);
     expect(keys("PREPARATOR")).not.toContain("masterData");
     expect(keys("ANALISIS")).toEqual(expect.arrayContaining(["assay", "grade"]));
-    expect(keys("DATABASE")).toEqual(expect.arrayContaining(["generate", "labels", "database", "dataQuality"]));
+    expect(keys("DATABASE")).toEqual(expect.arrayContaining(["generate", "labels", "database"]));
     expect(keys("ADMIN")).toEqual(expect.arrayContaining(["masterData", "users", "activity"]));
     expect(keys("SUPER_ADMIN", null)).toEqual(expect.arrayContaining(["users", "admin", "account"]));
     expect(keys("ADMIN", "EKSPLORASI")).toEqual(["account"]);

@@ -120,7 +120,7 @@ async function main() {
         nonProdId: nonProds.length > 0 && rng.random() < 0.15 ? rng.pick(nonProds).id : null,
         sirId: rng.pick(sirs).id,
         pitId: rng.pick(pits).id,
-        bargingNo: `B${(barging += rng.int(1, 9))}`,
+        bargingNo: `${(barging += rng.int(1, 9))}`,
         sequenceNo: rng.int(100, 9999),
       };
       batch.forEach((record, index) => {

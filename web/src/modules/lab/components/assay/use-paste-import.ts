@@ -2,16 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent } from "react";
 import { useTranslations } from "next-intl";
-import { toast } from "@/core/components/ui/toast";
 import type { ApiResult } from "@/core/types";
 import type { ImportPreviewDTO } from "@/modules/lab/types";
 import { withBasePath } from "@/core/lib/http/base-path";
-import {
-  EXAMPLE_HEADER,
-  PREVIEW_DELAY_MS,
-  STATUS_ORDER,
-  pastingElsewhere,
-} from "@/modules/lab/components/assay/paste-import-utils";
+import { PREVIEW_DELAY_MS, STATUS_ORDER } from "@/modules/lab/components/assay/paste-import-utils";
 
 /** The import endpoint, and its refusals in words. */
 function useImportRequest() {
@@ -54,27 +48,27 @@ function useImportRequest() {
 }
 
 /**
- * Everything the import screen holds: the box, the preview that follows it,
- * and the save that writes it.
+ * Everything the import screen holds: the file read, the preview that follows
+ * it, and the save that writes it.
  */
 export function usePasteImport() {
-  const t = useTranslations("assay.paste");
   const tCommon = useTranslations("common");
+  /** The file's rows as tab-separated text: what the import reads. */
   const [text, setText] = useState("");
+  const [fileName, setFileName] = useState<string | null>(null);
   const [preview, setPreview] = useState<ImportPreviewDTO | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isChecking, setIsChecking] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [problemsOnly, setProblemsOnly] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  /** Set after a save, until somebody pastes again. */
+  /** Set after a save, until another file is chosen. */
   const [done, setDone] = useState<number | null>(null);
   /** Shown before saving a sheet that would replace results already there. */
   const [confirmOverwrite, setConfirmOverwrite] = useState(false);
-  const boxRef = useRef<HTMLTextAreaElement>(null);
   const { requestIdRef, errorFor, send } = useImportRequest();
 
-  // The preview follows the box: paste, and it is checked a moment later.
+  // The preview follows the file: chosen, and it is checked a moment later.
   useEffect(() => {
     if (text.trim() === "") return;
     const timer = setTimeout(async () => {
@@ -98,12 +92,13 @@ export function usePasteImport() {
     return () => clearTimeout(timer);
   }, [text, send, errorFor, tCommon, requestIdRef]);
 
-  function replaceText(next: string) {
+  function replaceText(next: string, name: string | null = null) {
     setText(next);
+    setFileName(next.trim() === "" ? null : name);
     setDone(null);
     setConfirmOverwrite(false);
     if (next.trim() === "") {
-      // A check still in flight belongs to text that is gone.
+      // A check still in flight belongs to a file that is gone.
       requestIdRef.current += 1;
       setPreview(null);
       setError(null);
@@ -111,38 +106,17 @@ export function usePasteImport() {
   }
 
   /**
-   * Ctrl+V anywhere on the page lands in the box. Pasting is what this page is
-   * for, and having to find and click the box first is one step too many --
-   * unless the paste is meant for some other field, which keeps it.
-   */
-  useEffect(() => {
-    const onPaste = (event: ClipboardEvent) => {
-      if (pastingElsewhere(event.target, boxRef.current)) return;
-      if (event.target === boxRef.current) return;
-      const pasted = event.clipboardData?.getData("text/plain");
-      if (!pasted) return;
-      event.preventDefault();
-      setText(pasted);
-      setDone(null);
-      boxRef.current?.focus();
-    };
-    window.addEventListener("paste", onPaste);
-    return () => window.removeEventListener("paste", onPaste);
-  }, []);
-
-  /**
    * A spreadsheet is read on the server; anything else is already text.
    *
-   * The workbook comes back as the same tab-separated rows a paste would be
-   * and lands in the same box, so the preview, the matching and the save all
-   * stay on one path -- and whoever uploaded it can see what was read out
-   * before anything is written.
+   * The workbook comes back as tab-separated rows, as a CSV is read here, so
+   * the preview, the matching and the save all stay on one path -- and
+   * whoever uploaded it sees what was read out before anything is written.
    */
   async function readFile(file: File | undefined) {
     if (!file) return;
 
     if (!/\.xlsx$/i.test(file.name)) {
-      replaceText(await file.text());
+      replaceText(await file.text(), file.name);
       return;
     }
 
@@ -158,7 +132,7 @@ export function usePasteImport() {
         setError(result.error ?? tCommon("networkError"));
         return;
       }
-      replaceText(result.data.text);
+      replaceText(result.data.text, file.name);
     } catch {
       setError(tCommon("networkError"));
     } finally {
@@ -170,15 +144,6 @@ export function usePasteImport() {
     event.preventDefault();
     setIsDragging(false);
     void readFile(event.dataTransfer.files?.[0]);
-  }
-
-  async function copyHeader() {
-    try {
-      await navigator.clipboard.writeText(EXAMPLE_HEADER);
-      toast(t("headerCopied"));
-    } catch {
-      setError(t("headerCopyFailed", { header: EXAMPLE_HEADER.replaceAll("\t", ", ") }));
-    }
   }
 
   const summary = preview?.summary;
@@ -209,6 +174,7 @@ export function usePasteImport() {
         setDone(body.data.summary.update + (body.data.summary.create ?? 0));
         setConfirmOverwrite(false);
         setText("");
+        setFileName(null);
         setPreview(null);
       } catch {
         setError(tCommon("networkError"));
@@ -240,13 +206,13 @@ export function usePasteImport() {
       : all;
   }, [preview, problemsOnly]);
 
-  function pasteAnother() {
+  function importAnother() {
     setDone(null);
-    requestAnimationFrame(() => boxRef.current?.focus());
   }
 
   return {
     text,
+    fileName,
     preview,
     error,
     isChecking,
@@ -258,16 +224,14 @@ export function usePasteImport() {
     done,
     confirmOverwrite,
     setConfirmOverwrite,
-    boxRef,
-    replaceText,
+    clear: () => replaceText(""),
     readFile,
     handleDrop,
-    copyHeader,
     summary,
     writes,
     canSave,
     save,
     rows,
-    pasteAnother,
+    importAnother,
   };
 }

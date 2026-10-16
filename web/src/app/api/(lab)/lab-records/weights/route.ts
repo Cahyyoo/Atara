@@ -53,7 +53,9 @@ export const POST = route({ capability: "editDatabase" }, async ({ request, sess
     }
     const result = { ...base, record: target, from, to, mc: moistureContent(to.wp, to.w0, to.wd) };
 
-    if (seen.has(record.id)) {
+    // Only a save is told about a sample listed twice: a check is sent just
+    // the rows that changed, so the sheet works repeats out over all of it.
+    if (!body.dryRun && seen.has(record.id)) {
       return { ...result, status: "invalid", message: "This sample is listed more than once." };
     }
     seen.add(record.id);

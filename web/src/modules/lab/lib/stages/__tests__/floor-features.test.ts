@@ -8,13 +8,11 @@ import { applyStageMove } from "@/modules/lab/lib/stages/stage-move";
 import { evaluateStageTransition } from "@/modules/lab/lib/stages/stage-transition";
 import { buildStageBoard } from "@/modules/lab/lib/stages/stage-board";
 import { buildGradeControl } from "@/modules/lab/lib/analytics/grade-control";
-import { qualityWhere } from "@/modules/lab/lib/analytics/data-quality";
 
 /**
- * The stage correction, the stage board, grade control and the data-quality
- * checks, against the real database. Fixtures are dated in 2000-2001 so they
- * sort first (the board shows the oldest) and fall in a window no real
- * sample is in (grade control). Skipped when there is no database.
+ * The stage correction, the stage board and grade control, against the real
+ * database. Fixtures are dated in 2000-2001 so they sort first (the board
+ * shows the oldest) and fall in a window no real sample is in (grade control). Skipped when there is no database.
  */
 
 const read = (...parts: string[]) => readFileSync(join(process.cwd(), "src", ...parts), "utf8");
@@ -34,7 +32,6 @@ describe("where it is enforced", () => {
   it("guards each new route with its capability", () => {
     expect(read("app", "api", "(lab)", "samples", "board", "route.ts")).toMatch(guard("viewDashboard"));
     expect(read("app", "api", "(lab)", "grade-control", "route.ts")).toMatch(guard("readLabRecords"));
-    expect(read("app", "api", "(lab)", "data-quality", "route.ts")).toMatch(guard("viewDatabase"));
   });
 });
 
@@ -241,21 +238,5 @@ describe.skipIf(!reachable)("against the database", () => {
       [`${tag}P2`, `${tag}R1`, 0.8, 1],
     ]);
     expect(new Set(result.rows.map((row) => row.key)).size).toBe(4);
-  });
-
-  it("finds records with a missing column, and old records without a result", async () => {
-    const old = new Date("2000-06-01T00:00:00Z");
-    const noPit = await sample({ createdAt: old, record: { pitId: null, ni: 1.2 } });
-    const fresh = await sample({ createdAt: new Date(), record: { ni: null } });
-
-    const find = (where: object, labCode: string) =>
-      prisma.labRecord.count({ where: { AND: [where, { labCode }] } });
-
-    expect(await find(qualityWhere({ check: "identity", gap: "pit", days: 3, page: 1 }), noPit.record.labCode)).toBe(1);
-    expect(await find(qualityWhere({ check: "results", days: 3, page: 1 }), noPit.record.labCode)).toBe(0);
-    expect(await find(qualityWhere({ check: "results", days: 3, page: 1 }), fresh.record.labCode)).toBe(0);
-
-    const oldNoResult = await sample({ createdAt: old, record: { ni: null } });
-    expect(await find(qualityWhere({ check: "results", days: 3, page: 1 }), oldNoResult.record.labCode)).toBe(1);
   });
 });

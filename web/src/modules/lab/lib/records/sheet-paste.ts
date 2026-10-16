@@ -43,6 +43,8 @@ export interface SpreadTarget {
   range?: { top: number; left: number; bottom: number; right: number };
   /** Dates kept as the sheet wrote them, for a grid whose date box is text. */
   rawDates?: boolean;
+  /** How this grid recognises a header row; the results' own headings when absent. */
+  readHeader?: (row: string[]) => { index: number; key: SheetKey }[] | null;
 }
 
 /** Rows as Excel puts them on the clipboard: tab-separated, the trailing newline dropped. */
@@ -71,8 +73,12 @@ function boxValue(key: SheetKey, cell: string, rawDates = false): string {
 }
 
 /** The columns a header row names, by position in the block; null when the block has none. */
-function headerKeys(row: string[], known: readonly SheetKey[]): (SheetKey | null)[] | null {
-  const columns = readHeader(row);
+function headerKeys(
+  row: string[],
+  known: readonly SheetKey[],
+  read: (row: string[]) => { index: number; key: SheetKey }[] | null = readHeader
+): (SheetKey | null)[] | null {
+  const columns = read(row);
   if (!columns) return null;
   const keys: (SheetKey | null)[] = row.map(() => null);
   for (const column of columns) {
@@ -100,7 +106,7 @@ export function spreadPaste(text: string, target: SpreadTarget): SpreadResult {
   const empty: SpreadResult = { writes: [], rowsNeeded: 0, extraRows: 0, hiddenFilled: [] };
   if (block.length === 0) return empty;
 
-  const { visible, known, start, rowCount, range, rawDates } = target;
+  const { visible, known, start, rowCount, range, rawDates, readHeader: read } = target;
   const fits = (row: number) => rowCount === undefined || row < rowCount;
 
   if (block.length === 1 && block[0].length === 1 && range) {
@@ -114,7 +120,7 @@ export function spreadPaste(text: string, target: SpreadTarget): SpreadResult {
     return { writes, rowsNeeded: range.bottom + 1, extraRows: 0, hiddenFilled: [] };
   }
 
-  const header = headerKeys(block[0], known);
+  const header = headerKeys(block[0], known, read);
   const data = header ? block.slice(1) : block;
   // A block copied straight out of the instrument's export opens with the
   // time it was measured, and has no header: laid down from Ni it would put a

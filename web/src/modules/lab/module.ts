@@ -7,7 +7,6 @@ import {
   IoPrintOutline,
   IoQrCodeOutline,
   IoServerOutline,
-  IoShieldCheckmarkOutline,
   IoStatsChartOutline,
   IoTimeOutline,
 } from "react-icons/io5";
@@ -33,7 +32,6 @@ export const labModule = {
     { href: "/lab/samples/generate", key: "generateSamples", icon: IoQrCodeOutline, capability: "generateSamples" },
     { href: "/lab/samples/labels", key: "reprintLabels", icon: IoPrintOutline, capability: "printLabels" },
     { href: "/lab/database", key: "sampleDatabase", icon: IoServerOutline, capability: "viewDatabase" },
-    { href: "/lab/data-quality", key: "dataQuality", icon: IoShieldCheckmarkOutline, capability: "viewDatabase" },
     { href: "/lab/assay", key: "assayEntry", icon: IoCreateOutline, capability: "enterResults" },
     { href: "/lab/grade", key: "gradeControl", icon: IoStatsChartOutline, capability: "readLabRecords" },
     { href: "/lab/master-data", key: "masterData", icon: IoListOutline, capability: "manageMasterData" },

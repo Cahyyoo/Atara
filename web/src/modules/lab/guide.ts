@@ -8,7 +8,6 @@ import {
   IoQrCodeOutline,
   IoSearchOutline,
   IoServerOutline,
-  IoShieldCheckmarkOutline,
   IoStatsChartOutline,
   IoTimeOutline,
 } from "react-icons/io5";
@@ -31,7 +30,6 @@ export const LAB_HELP_SECTIONS: readonly HelpSection[] = [
   { key: "generate", icon: IoQrCodeOutline, href: "/lab/samples/generate", capability: "generateSamples" },
   { key: "labels", icon: IoPrintOutline, href: "/lab/samples/labels", capability: "printLabels" },
   { key: "database", icon: IoServerOutline, href: "/lab/database", capability: "viewDatabase" },
-  { key: "dataQuality", icon: IoShieldCheckmarkOutline, href: "/lab/data-quality", capability: "viewDatabase" },
   { key: "assay", icon: IoCreateOutline, href: "/lab/assay", capability: "enterResults" },
   { key: "grade", icon: IoStatsChartOutline, href: "/lab/grade", capability: "readLabRecords" },
   { key: "masterData", icon: IoListOutline, href: "/lab/master-data", capability: "manageMasterData" },
@@ -114,16 +112,6 @@ export const LAB_TOURS: readonly Tour[] = [
       { target: "records-view", optional: true },
       { target: "records-export", optional: true },
       { target: "records-row", optional: true },
-    ],
-  },
-  {
-    key: "dataQuality",
-    path: "/lab/data-quality",
-    steps: [
-      { target: "quality-cards" },
-      { target: "quality-filters" },
-      { target: "quality-table" },
-      { target: "quality-export", optional: true },
     ],
   },
   {
