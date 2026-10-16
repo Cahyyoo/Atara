@@ -127,3 +127,24 @@ class IdentityCheck {
     );
   }
 }
+
+/// A sample's identity as the form that fills it in reads it: always whole,
+/// Sample ID included, whatever the lab admin keeps off the rest of the app.
+class IdentitySnapshot {
+  final String? sampleIdent;
+  final SampleIdentity identity;
+
+  const IdentitySnapshot({required this.sampleIdent, required this.identity});
+
+  /// Null when the reply carries no whole lab record to edit.
+  static IdentitySnapshot? tryFromJson(Object? json) {
+    if (json is! Map) return null;
+    final identity = SampleIdentity.tryFromJson(json['labRecord']);
+    if (identity == null) return null;
+    final ident = json['sampleIdent'];
+    return IdentitySnapshot(
+      sampleIdent: ident is String ? ident : null,
+      identity: identity,
+    );
+  }
+}

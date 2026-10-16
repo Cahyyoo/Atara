@@ -1565,7 +1565,7 @@ abstract class AppLocalizations {
   /// No description provided for @identitySampleNo.
   ///
   /// In id, this message translates to:
-  /// **'No Quantity'**
+  /// **'No Quality'**
   String get identitySampleNo;
 
   /// No description provided for @identitySackCount.
@@ -1777,6 +1777,48 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Sampel ini belum punya Sample ID, dan mengisinya perlu koneksi.'**
   String get sampleIdRequiredOffline;
+
+  /// No description provided for @scanModeUpdate.
+  ///
+  /// In id, this message translates to:
+  /// **'Update Tahap'**
+  String get scanModeUpdate;
+
+  /// No description provided for @scanModeCheck.
+  ///
+  /// In id, this message translates to:
+  /// **'Cek Barcode'**
+  String get scanModeCheck;
+
+  /// No description provided for @checkHasIdent.
+  ///
+  /// In id, this message translates to:
+  /// **'Sudah ada Sample ID'**
+  String get checkHasIdent;
+
+  /// No description provided for @checkNotRegistered.
+  ///
+  /// In id, this message translates to:
+  /// **'Barcode tidak terdaftar'**
+  String get checkNotRegistered;
+
+  /// No description provided for @checkOffline.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak bisa dicek tanpa koneksi'**
+  String get checkOffline;
+
+  /// No description provided for @checkOpen.
+  ///
+  /// In id, this message translates to:
+  /// **'Ketuk untuk membuka'**
+  String get checkOpen;
+
+  /// No description provided for @checkDismiss.
+  ///
+  /// In id, this message translates to:
+  /// **'Tutup'**
+  String get checkDismiss;
 }
 
 class _AppLocalizationsDelegate

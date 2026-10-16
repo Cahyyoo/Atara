@@ -208,7 +208,7 @@
       "none": "— tidak ada —",
       "bargingNo": "Urutan Barging",
       "sequenceNo": "No Sample",
-      "sampleNo": "No Quantity",
+      "sampleNo": "No Quality",
       "sackCount": "Jumlah Karung",
       "preview": "Sample ID yang akan tersimpan",
       "incomplete": "Isi Tempat untuk menyusun Sample ID.",
@@ -1162,5 +1162,15 @@
     "label": "Label (opsional)",
     "save": "Buat",
     "cancel": "Batal"
+  },
+  "labSettings": {
+    "title": "Pengaturan Lab",
+    "subtitle": "Sakelar untuk modul lab. Perubahan tersimpan saat diklik.",
+    "mobileTitle": "Aplikasi mobile",
+    "mobileSubtitle": "Yang dilihat preparator di aplikasi mobile. Website tidak terpengaruh.",
+    "mobileShowSampleIdent": "Tampilkan Sample ID di aplikasi mobile",
+    "mobileShowSampleIdentOn": "Aplikasi mobile menampilkan Sample ID setiap sampel.",
+    "mobileShowSampleIdentOff": "Aplikasi mobile hanya menampilkan kode barcode dan apakah Sample ID sudah ada. Sample ID tetap terlihat saat preparator mengisi atau mengubahnya, dan selalu terlihat di website.",
+    "saved": "Pengaturan tersimpan"
   }
 }

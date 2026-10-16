@@ -50,6 +50,8 @@ export const LAB_CAPABILITIES = {
   /** Who moved which sample, and when. */
   viewActivity: ["LAB_ADMIN"],
   manageMasterData: ["LAB_ADMIN"],
+  /** The lab's own switches: whether the mobile app shows Sample IDs, for one. */
+  manageLabSettings: ["LAB_ADMIN"],
   /**
    * Adding a code to a master list straight from a picker, the way the
    * identity forms offer it. Adding only: renaming, retiring and removing a

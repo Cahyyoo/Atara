@@ -96,6 +96,10 @@ class BoardCard {
   final String sampleCode;
   final String? labCode;
   final String? sampleIdent;
+
+  /// Whether it has a Sample ID, even when the lab admin keeps the id itself
+  /// off the app and [sampleIdent] is null.
+  final bool hasSampleIdent;
   final DateTime since;
   final double hours;
   final bool overdue;
@@ -104,16 +108,18 @@ class BoardCard {
     required this.sampleCode,
     required this.labCode,
     required this.sampleIdent,
+    bool? hasSampleIdent,
     required this.since,
     required this.hours,
     required this.overdue,
-  });
+  }) : hasSampleIdent = hasSampleIdent ?? sampleIdent != null;
 
   factory BoardCard.fromJson(Map<String, dynamic> json) {
     return BoardCard(
       sampleCode: json['sampleCode'] as String,
       labCode: json['labCode'] as String?,
       sampleIdent: json['sampleIdent'] as String?,
+      hasSampleIdent: json['hasSampleIdent'] as bool?,
       since:
           DateTime.tryParse(json['since'] as String? ?? '') ?? DateTime.now(),
       hours: (json['hours'] as num?)?.toDouble() ?? 0,
@@ -125,6 +131,7 @@ class BoardCard {
     'sampleCode': sampleCode,
     'labCode': labCode,
     'sampleIdent': sampleIdent,
+    'hasSampleIdent': hasSampleIdent,
     'since': since.toIso8601String(),
     'hours': hours,
     'overdue': overdue,

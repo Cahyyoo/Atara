@@ -392,7 +392,7 @@
   "identityPit": "Lokasi Pit",
   "identityBargingNo": "Urutan Barging",
   "identitySequenceNo": "No Sample",
-  "identitySampleNo": "No Quantity",
+  "identitySampleNo": "No Quality",
   "identitySackCount": "Jumlah Karung",
   "identityCodesUnavailable": "Daftar kode tidak bisa dimuat, jadi bagian-bagiannya tidak ditampilkan.",
   "noSampleIdYet": "Barcode ini belum punya Sample ID.",
@@ -493,5 +493,12 @@
   },
   "todoNoSampleId": "Belum ada Sample ID",
   "sampleIdRequired": "Isi Sample ID dulu sebelum memperbarui tahap.",
-  "sampleIdRequiredOffline": "Sampel ini belum punya Sample ID, dan mengisinya perlu koneksi."
+  "sampleIdRequiredOffline": "Sampel ini belum punya Sample ID, dan mengisinya perlu koneksi.",
+  "scanModeUpdate": "Update Tahap",
+  "scanModeCheck": "Cek Barcode",
+  "checkHasIdent": "Sudah ada Sample ID",
+  "checkNotRegistered": "Barcode tidak terdaftar",
+  "checkOffline": "Tidak bisa dicek tanpa koneksi",
+  "checkOpen": "Ketuk untuk membuka",
+  "checkDismiss": "Tutup"
 }

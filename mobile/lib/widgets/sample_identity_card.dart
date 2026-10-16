@@ -51,7 +51,7 @@ class SampleIdentityCard extends ConsumerWidget {
       header: l10n.barcodeInfoTitle,
       footer: options?.hasError == true ? l10n.identityCodesUnavailable : null,
       children: [
-        if (ident == null)
+        if (!sample.hasSampleIdent)
           InsetCustomRow(
             child: Row(
               children: [
@@ -64,6 +64,27 @@ class SampleIdentityCard extends ConsumerWidget {
                 Expanded(
                   child: Text(
                     l10n.noSampleIdYet,
+                    style: AppText.body.copyWith(color: palette.label),
+                  ),
+                ),
+              ],
+            ),
+          )
+        else if (ident == null)
+          // The lab admin keeps the Sample ID itself off the app: it is said
+          // to exist, and the form still shows it to whoever edits it.
+          InsetCustomRow(
+            child: Row(
+              children: [
+                Icon(
+                  CupertinoIcons.checkmark_seal_fill,
+                  size: 18,
+                  color: palette.success.foreground,
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Text(
+                    l10n.checkHasIdent,
                     style: AppText.body.copyWith(color: palette.label),
                   ),
                 ),
@@ -107,12 +128,14 @@ class SampleIdentityCard extends ConsumerWidget {
           _PartRow(label: part.label, value: part.value),
         if (onEdit != null)
           InsetRow(
-            title: ident == null ? l10n.fillSampleId : l10n.editSampleId,
+            title: sample.hasSampleIdent
+                ? l10n.editSampleId
+                : l10n.fillSampleId,
             titleStyle: AppText.body.copyWith(color: palette.accent),
             leading: Icon(
-              ident == null
-                  ? CupertinoIcons.plus_circle
-                  : CupertinoIcons.pencil,
+              sample.hasSampleIdent
+                  ? CupertinoIcons.pencil
+                  : CupertinoIcons.plus_circle,
               size: 20,
               color: palette.accent,
             ),

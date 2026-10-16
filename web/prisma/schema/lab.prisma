@@ -259,3 +259,16 @@ model AllocationLock {
 
   @@map("allocation_locks")
 }
+
+/// The lab admin's switches, one row per setting, read through
+/// src/modules/lab/lib/settings/lab-settings.ts. A setting with no row holds
+/// its default there, so a new one needs no migration of its own.
+model LabSetting {
+  key         String   @id
+  value       Json
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  /// Who last changed it. Kept as a plain id: the row outlives an account.
+  updatedById String?  @map("updated_by")
+
+  @@map("lab_settings")
+}

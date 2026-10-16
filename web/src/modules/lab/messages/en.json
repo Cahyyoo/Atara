@@ -208,7 +208,7 @@
       "none": "— none —",
       "bargingNo": "Barging Run",
       "sequenceNo": "Sample No.",
-      "sampleNo": "Quantity No.",
+      "sampleNo": "Quality No.",
       "sackCount": "Sacks",
       "preview": "Sample ID that will be stored",
       "incomplete": "Fill in Place to compose a Sample ID.",
@@ -1162,5 +1162,15 @@
     "label": "Label (optional)",
     "save": "Create",
     "cancel": "Cancel"
+  },
+  "labSettings": {
+    "title": "Lab Settings",
+    "subtitle": "Switches for the lab module. Changes save as you click.",
+    "mobileTitle": "Mobile app",
+    "mobileSubtitle": "What preparators see in the mobile app. The website is not affected.",
+    "mobileShowSampleIdent": "Show the Sample ID in the mobile app",
+    "mobileShowSampleIdentOn": "The mobile app shows each sample's Sample ID.",
+    "mobileShowSampleIdentOff": "The mobile app shows only the barcode and whether a Sample ID exists. The Sample ID is still shown while a preparator fills it in or edits it, and always on the website.",
+    "saved": "Settings saved"
   }
 }

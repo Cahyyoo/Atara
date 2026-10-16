@@ -847,7 +847,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get identitySequenceNo => 'Sample No.';
 
   @override
-  String get identitySampleNo => 'Quantity No.';
+  String get identitySampleNo => 'Quality No.';
 
   @override
   String get identitySackCount => 'Sacks';
@@ -977,4 +977,25 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get sampleIdRequiredOffline =>
       'This sample has no Sample ID yet, and filling it in needs a connection.';
+
+  @override
+  String get scanModeUpdate => 'Update Stage';
+
+  @override
+  String get scanModeCheck => 'Check Barcode';
+
+  @override
+  String get checkHasIdent => 'Has a Sample ID';
+
+  @override
+  String get checkNotRegistered => 'Barcode not registered';
+
+  @override
+  String get checkOffline => 'Can\'t check without a connection';
+
+  @override
+  String get checkOpen => 'Tap to open';
+
+  @override
+  String get checkDismiss => 'Close';
 }

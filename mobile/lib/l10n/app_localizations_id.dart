@@ -849,7 +849,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get identitySequenceNo => 'No Sample';
 
   @override
-  String get identitySampleNo => 'No Quantity';
+  String get identitySampleNo => 'No Quality';
 
   @override
   String get identitySackCount => 'Jumlah Karung';
@@ -979,4 +979,25 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get sampleIdRequiredOffline =>
       'Sampel ini belum punya Sample ID, dan mengisinya perlu koneksi.';
+
+  @override
+  String get scanModeUpdate => 'Update Tahap';
+
+  @override
+  String get scanModeCheck => 'Cek Barcode';
+
+  @override
+  String get checkHasIdent => 'Sudah ada Sample ID';
+
+  @override
+  String get checkNotRegistered => 'Barcode tidak terdaftar';
+
+  @override
+  String get checkOffline => 'Tidak bisa dicek tanpa koneksi';
+
+  @override
+  String get checkOpen => 'Ketuk untuk membuka';
+
+  @override
+  String get checkDismiss => 'Tutup';
 }

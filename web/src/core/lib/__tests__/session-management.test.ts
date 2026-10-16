@@ -109,7 +109,13 @@ describe.skipIf(!reachable)("ending sessions (database)", () => {
 
     expect(await endUserSessions(userId, "PASSWORD_CHANGED", { exceptSessionId: here })).toBe(1);
 
-    expect(await loadSession(here, userId)).toEqual({ status: "active", role: "PREPARATOR", department: "LAB" as const, mustChangePassword: false });
+    expect(await loadSession(here, userId)).toEqual({
+      status: "active",
+      role: "PREPARATOR",
+      department: "LAB" as const,
+      mustChangePassword: false,
+      client: "WEB",
+    });
     expect(await loadSession(phone, userId)).toMatchObject({
       status: "ended",
       reason: "PASSWORD_CHANGED",

@@ -46,7 +46,7 @@ export const backupSection: BackupSection = {
           { header: "Pit", key: "pit" },
           { header: "Barging", key: "bargingNo" },
           { header: "Sample No", key: "sequenceNo" },
-          { header: "Quantity No", key: "sampleNo" },
+          { header: "Quality No", key: "sampleNo" },
           { header: "Sacks", key: "sackCount" },
           { header: "Sample ID", key: "sampleIdent", width: 32 },
           ...ASSAY_FIELDS.map((field) => ({ header: field.csvLabel, key: field.key, width: 10 })),

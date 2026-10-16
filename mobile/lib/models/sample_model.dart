@@ -35,6 +35,15 @@ class SampleModel {
   /// no identity: that has an identity whose parts are all empty.
   final SampleIdentity? identity;
 
+  /// Whether the sample has a Sample ID at all — the fact the scan rules turn
+  /// on. Not the same as [sampleIdent] being set: the lab admin can keep the
+  /// id itself off the app ([identHidden]), and the server still says it exists.
+  final bool hasSampleIdent;
+
+  /// True when the server withheld the Sample ID and its parts from this app.
+  /// The page says the sample has one without saying what it is.
+  final bool identHidden;
+
   final SampleStatus status;
   final StageModel? currentStage;
   final String createdByName;
@@ -60,9 +69,11 @@ class SampleModel {
     required this.updatedAt,
     this.sampleIdent,
     this.identity,
+    bool? hasSampleIdent,
+    this.identHidden = false,
     this.logs = const [],
     this.isFromCache = false,
-  });
+  }) : hasSampleIdent = hasSampleIdent ?? sampleIdent != null;
 
   SampleModel asCached() {
     return SampleModel(
@@ -70,6 +81,8 @@ class SampleModel {
       sampleCode: sampleCode,
       sampleIdent: sampleIdent,
       identity: identity,
+      hasSampleIdent: hasSampleIdent,
+      identHidden: identHidden,
       status: status,
       currentStage: currentStage,
       createdByName: createdByName,
@@ -85,6 +98,8 @@ class SampleModel {
       'sampleCode': sampleCode,
       'sampleIdent': sampleIdent,
       if (identity != null) 'labRecord': identity!.toJson(),
+      'hasSampleIdent': hasSampleIdent,
+      'identHidden': identHidden,
       'status': status.name,
       'currentStage': currentStage?.toJson(),
       'createdBy': {'name': createdByName},
@@ -106,6 +121,19 @@ class SampleModel {
 
     final labRecord = json['labRecord'];
     if (labRecord is Map<String, dynamic>) return labRecord['sampleIdent'] as String?;
+    return null;
+  }
+
+  /// A flag the server sets on the lab record, or the cache keeps flat. Absent
+  /// from older servers and caches, where it reads as null and the caller
+  /// falls back to what the Sample ID itself says.
+  static bool? _flagFrom(Map<String, dynamic> json, String key) {
+    final flat = json[key];
+    if (flat is bool) return flat;
+    final labRecord = json['labRecord'];
+    if (labRecord is Map<String, dynamic> && labRecord[key] is bool) {
+      return labRecord[key] as bool;
+    }
     return null;
   }
 
@@ -134,6 +162,8 @@ class SampleModel {
       sampleCode: json['sampleCode'] as String,
       sampleIdent: _identFrom(json),
       identity: SampleIdentity.tryFromJson(json['labRecord']),
+      hasSampleIdent: _flagFrom(json, 'hasSampleIdent'),
+      identHidden: _flagFrom(json, 'identHidden') ?? false,
       status: sampleStatusFromString(json['status'] as String),
       currentStage: json['currentStage'] == null
           ? null

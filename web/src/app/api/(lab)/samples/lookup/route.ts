@@ -6,6 +6,7 @@ import { ACTIVE_SAMPLE } from "@/modules/lab/lib/samples/soft-delete";
 import { normalizeLookupQuery, rankLookupMatches } from "@/modules/lab/lib/samples/sample-lookup";
 import { searchIdentForms } from "@/modules/lab/lib/samples/sample-ident";
 import type { SampleLookupDTO } from "@/modules/lab/types";
+import { hidesSampleIdent, visibleIdent } from "@/modules/lab/lib/settings/ident-visibility";
 
 /** Typing fires a request per pause; this is far above any person's pace. */
 const LOOKUP_LIMIT = { limit: 120, windowMs: 60_000 };
@@ -39,7 +40,11 @@ export const GET = route({ capability: "viewDashboard" }, async ({ request, sess
   // The Sample ID is asked for in every hand it could have been written in:
   // the stored id separates its leading group with spaces, and someone
   // reading one off an older sheet types slashes throughout.
-  const forms = searchIdentForms(query);
+  //
+  // Not for a caller kept from Sample IDs: a hit on a piece of one would
+  // spell it back out a guess at a time.
+  const hide = await hidesSampleIdent(session);
+  const forms = hide ? [] : searchIdentForms(query);
 
   // Exact hits are asked for on their own: a short query can match more
   // loose candidates than are fetched, and the one the scanner typed in
@@ -51,7 +56,7 @@ export const GET = route({ capability: "viewDashboard" }, async ({ request, sess
         OR: [
           { sampleCode: query },
           { labRecord: { is: { labCode: query } } },
-          { labRecord: { is: { sampleIdent: { in: forms } } } },
+          ...(forms.length ? [{ labRecord: { is: { sampleIdent: { in: forms } } } }] : []),
         ],
       },
       select,
@@ -85,5 +90,5 @@ export const GET = route({ capability: "viewDashboard" }, async ({ request, sess
     }))
   );
 
-  return jsonSuccess({ results });
+  return jsonSuccess({ results: results.map((result) => visibleIdent(result, hide)) });
 });

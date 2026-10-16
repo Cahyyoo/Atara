@@ -366,7 +366,7 @@
   "identityPit": "Pit Location",
   "identityBargingNo": "Barging Run",
   "identitySequenceNo": "Sample No.",
-  "identitySampleNo": "Quantity No.",
+  "identitySampleNo": "Quality No.",
   "identitySackCount": "Sacks",
   "identityCodesUnavailable": "The code lists couldn't be loaded, so the parts aren't shown.",
   "noSampleIdYet": "This barcode has no Sample ID yet.",
@@ -401,5 +401,12 @@
   "todoWaitingHours": "{hours} h",
   "todoNoSampleId": "No Sample ID yet",
   "sampleIdRequired": "Fill in the Sample ID before updating the stage.",
-  "sampleIdRequiredOffline": "This sample has no Sample ID yet, and filling it in needs a connection."
+  "sampleIdRequiredOffline": "This sample has no Sample ID yet, and filling it in needs a connection.",
+  "scanModeUpdate": "Update Stage",
+  "scanModeCheck": "Check Barcode",
+  "checkHasIdent": "Has a Sample ID",
+  "checkNotRegistered": "Barcode not registered",
+  "checkOffline": "Can't check without a connection",
+  "checkOpen": "Tap to open",
+  "checkDismiss": "Close"
 }

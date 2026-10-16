@@ -49,6 +49,13 @@ export interface SessionPayload {
    * loadSession in session-user.ts.
    */
   sessionId: string;
+  /**
+   * Which app is asking: the website or the mobile app. Read from the session
+   * row on every request (requireSession), never from the token or a header,
+   * so it cannot be claimed; absent on a payload that has not been through
+   * that check, which reads as the website.
+   */
+  client?: "WEB" | "MOBILE";
 }
 
 /**

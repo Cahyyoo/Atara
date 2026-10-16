@@ -2,8 +2,9 @@ import { prisma } from "@/core/lib/prisma";
 import { jsonSuccess, jsonError } from "@/core/lib/http/api-response";
 import { route } from "@/core/lib/http/api-route";
 import { toLabRecordDTO } from "@/modules/lab/lib/records/lab-record";
+import { hidesSampleIdent, visibleLabRecord } from "@/modules/lab/lib/settings/ident-visibility";
 
-export const GET = route<{ code: string }>({ capability: "viewDashboard" }, async ({ params }) => {
+export const GET = route<{ code: string }>({ capability: "viewDashboard" }, async ({ params, session }) => {
   const { code } = params;
 
   const sample = await prisma.sample.findUnique({
@@ -26,8 +27,11 @@ export const GET = route<{ code: string }>({ capability: "viewDashboard" }, asyn
     return jsonError("Sample not found.", 404);
   }
 
+  // The mobile app may be kept from the Sample ID (lab settings); it is still
+  // told that one exists, which is what the scan rules turn on.
+  const hide = await hidesSampleIdent(session);
   return jsonSuccess({
     ...sample,
-    labRecord: sample.labRecord ? toLabRecordDTO(sample.labRecord) : null,
+    labRecord: sample.labRecord ? visibleLabRecord(toLabRecordDTO(sample.labRecord), hide) : null,
   });
 });

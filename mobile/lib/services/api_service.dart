@@ -642,6 +642,27 @@ class ApiService {
     }
   }
 
+  /// A sample's identity for the form that edits it: whole, with the Sample ID,
+  /// even when the lab admin keeps Sample IDs off the rest of the app. Needs
+  /// the server, like saving does; nothing here comes from the cache.
+  Future<IdentitySnapshot> getSampleIdentity(String sampleCode) async {
+    try {
+      final response = await _dio.get(
+        '/samples/${Uri.encodeComponent(sampleCode)}/identity',
+      );
+      final snapshot = IdentitySnapshot.tryFromJson(response.data['data']);
+      if (snapshot == null) {
+        throw const ApiException(
+          'Unreadable reply.',
+          kind: ApiErrorKind.malformed,
+        );
+      }
+      return snapshot;
+    } on DioException catch (error) {
+      throw _mapError(error);
+    }
+  }
+
   /// Fills in or corrects a sample's identity by barcode.
   ///
   /// With [dryRun] nothing is written: the server answers with the Sample ID

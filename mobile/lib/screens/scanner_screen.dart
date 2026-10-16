@@ -5,13 +5,25 @@ import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../l10n/app_localizations.dart';
+import '../services/barcode_check.dart';
 import '../services/scan_gate.dart';
 import '../theme/app_theme.dart';
 import '../widgets/ios/app_page.dart';
 import '../widgets/ios/ios_button.dart';
 import '../widgets/manual_code_dialog.dart';
+import '../widgets/scan_check_pill.dart';
 import '../widgets/status_view.dart';
 import 'update_status_screen.dart';
+
+/// What a scanned code is for.
+enum ScanMode {
+  /// Open the sample's page and record its next stage.
+  update,
+
+  /// Only say whether the barcode has a Sample ID, over the camera, without
+  /// leaving it: a rack is checked by sweeping the phone along it.
+  check,
+}
 
 class ScannerScreen extends StatefulWidget {
   const ScannerScreen({super.key});
@@ -21,6 +33,23 @@ class ScannerScreen extends StatefulWidget {
 }
 
 class _ScannerScreenState extends State<ScannerScreen> {
+  /// The mode last chosen, for as long as the app runs: checking a rack of
+  /// labels should not need switching back on every reopen.
+  static ScanMode _rememberedMode = ScanMode.update;
+
+  ScanMode _mode = _rememberedMode;
+
+  /// What the pill says, in check mode: the last barcode seen and its answer.
+  BarcodeCheck? _check;
+
+  /// Answers already given while the scanner is open, so sweeping back over a
+  /// label answers at once instead of asking the server again.
+  final Map<String, BarcodeCheck> _checked = {};
+
+  /// Which lookup is the latest: a slow answer for a label already swept past
+  /// must not replace the one now in front of the lens.
+  int _checkSeq = 0;
+
   final MobileScannerController _controller = MobileScannerController(
     detectionSpeed: DetectionSpeed.noDuplicates,
   );
@@ -55,6 +84,10 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
   Future<void> _handleDetect(BarcodeCapture capture) async {
     final rawValue = capture.barcodes.firstOrNull?.rawValue;
+    if (_mode == ScanMode.check) {
+      if (rawValue != null && rawValue.isNotEmpty) await _showCheck(rawValue);
+      return;
+    }
     if (!shouldOpenScannedCode(
       rawValue: rawValue,
       isHandling: _hasHandledCode,
@@ -69,6 +102,50 @@ class _ScannerScreenState extends State<ScannerScreen> {
     SystemSound.play(SystemSoundType.click);
 
     await _openSample(rawValue!);
+  }
+
+  /// Answers a barcode in the pill, without leaving the camera.
+  Future<void> _showCheck(String code) async {
+    if (_check?.code == code) return;
+    HapticFeedback.selectionClick();
+
+    final known = _checked[code];
+    final mine = ++_checkSeq;
+    setState(() => _check = known ?? BarcodeCheck.checking(code));
+    if (known != null) return;
+
+    final answer = await checkBarcode(code);
+    if (!mounted || mine != _checkSeq) return;
+    // An offline answer is not kept: the next sweep should ask again.
+    if (answer.state != BarcodeCheckState.offline) _checked[code] = answer;
+    setState(() => _check = answer);
+  }
+
+  /// The pill, tapped: the sample's page, then back to a live camera, with the
+  /// answer for that label asked again — the Sample ID may have been filled in.
+  Future<void> _openChecked() async {
+    final code = _check?.code;
+    if (code == null) return;
+    await _controller.stop();
+    if (!mounted) return;
+    await Navigator.of(context).push(
+      CupertinoPageRoute(
+        builder: (context) => UpdateStatusScreen(sampleCode: code),
+      ),
+    );
+    if (!mounted) return;
+    _checked.remove(code);
+    setState(() => _check = null);
+    unawaited(_showCheck(code));
+    await _controller.start();
+  }
+
+  void _setMode(ScanMode mode) {
+    setState(() {
+      _mode = mode;
+      _rememberedMode = mode;
+      _check = null;
+    });
   }
 
   /// For the other half of the problem: the camera works, but the label does
@@ -89,11 +166,15 @@ class _ScannerScreenState extends State<ScannerScreen> {
     final code = await showManualCodeDialog(context);
     if (!mounted) return;
 
-    if (code == null) {
+    if (code == null || _mode == ScanMode.check) {
       setState(() => _hasHandledCode = false);
-      // Cancelled: back to a live scanner, the way returning from the update
-      // screen does.
+      // Cancelled, or only checked: back to a live scanner, the way returning
+      // from the update screen does.
       unawaited(_controller.start());
+      if (code != null) {
+        setState(() => _check = null);
+        await _showCheck(code);
+      }
       return;
     }
 
@@ -218,10 +299,21 @@ class _ScannerScreenState extends State<ScannerScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                _ModeSwitch(mode: _mode, onChanged: _setMode),
+                const SizedBox(height: AppSpacing.md),
+                if (_mode == ScanMode.check)
+                  if (_check == null)
+                    _ScannerHint(text: l10n.scanHint)
+                  else
+                    ScanCheckPill(
+                      check: _check!,
+                      onOpen: _openChecked,
+                      onDismiss: () => setState(() => _check = null),
+                    )
                 // Says why the same label is being ignored, and offers the way
                 // past it — otherwise the guard would look like the scanner had
                 // frozen.
-                if (_lastHandledCode == null)
+                else if (_lastHandledCode == null)
                   _ScannerHint(text: l10n.scanHint)
                 else ...[
                   _ScannerHint(text: l10n.sameLabelIgnored),
@@ -248,19 +340,20 @@ class _ScannerScreenState extends State<ScannerScreen> {
                       icon: CupertinoIcons.keyboard,
                       onPressed: _openManualEntry,
                     ),
-                    _OverlayButton(
-                      label: _continuous && _recorded > 0
-                          ? l10n.continuousRecorded(_recorded)
-                          : l10n.continuousMode,
-                      icon: _continuous
-                          ? CupertinoIcons.checkmark_circle_fill
-                          : CupertinoIcons.square_stack_3d_down_right,
-                      isOn: _continuous,
-                      onPressed: () => setState(() {
-                        _continuous = !_continuous;
-                        if (!_continuous) _recorded = 0;
-                      }),
-                    ),
+                    if (_mode == ScanMode.update)
+                      _OverlayButton(
+                        label: _continuous && _recorded > 0
+                            ? l10n.continuousRecorded(_recorded)
+                            : l10n.continuousMode,
+                        icon: _continuous
+                            ? CupertinoIcons.checkmark_circle_fill
+                            : CupertinoIcons.square_stack_3d_down_right,
+                        isOn: _continuous,
+                        onPressed: () => setState(() {
+                          _continuous = !_continuous;
+                          if (!_continuous) _recorded = 0;
+                        }),
+                      ),
                   ],
                 ),
               ],
@@ -295,6 +388,47 @@ class _ScannerScreenState extends State<ScannerScreen> {
           },
         ),
       ),
+    );
+  }
+}
+
+/// Update Stage | Check Barcode, over the camera feed.
+class _ModeSwitch extends StatelessWidget {
+  const _ModeSwitch({required this.mode, required this.onChanged});
+
+  final ScanMode mode;
+  final ValueChanged<ScanMode> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    Widget segment(String label) => Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
+      child: Text(
+        label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: AppText.subhead.copyWith(
+          color: CupertinoColors.white,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+
+    return CupertinoSlidingSegmentedControl<ScanMode>(
+      groupValue: mode,
+      backgroundColor: CupertinoColors.black.withValues(alpha: 0.55),
+      thumbColor: context.palette.accent,
+      onValueChanged: (value) {
+        if (value != null) onChanged(value);
+      },
+      children: {
+        ScanMode.update: segment(l10n.scanModeUpdate),
+        ScanMode.check: segment(l10n.scanModeCheck),
+      },
     );
   }
 }

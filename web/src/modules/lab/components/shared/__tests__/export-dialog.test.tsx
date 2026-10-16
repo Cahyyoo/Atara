@@ -174,7 +174,7 @@ describe("previewing the file before it is downloaded", () => {
       { key: "rowNo", header: "No." },
       { key: "sampleIdent", header: "Sample" },
       { key: "sequenceNo", header: "Sample No" },
-      { key: "sampleNo", header: "Quantity No" },
+      { key: "sampleNo", header: "Quality No" },
     ],
     rows: [
       { id: "r1", sheet: "MOL. Prod.", sub: false, cells: { rowNo: 1, sampleIdent: "MOL B7/1.1", sequenceNo: 1, sampleNo: 1 } },
@@ -207,7 +207,7 @@ describe("previewing the file before it is downloaded", () => {
       "No.",
       "Sample",
       "Sample No",
-      "Quantity No",
+      "Quality No",
     ]);
     expect(within(table).getAllByRole("row")).toHaveLength(3);
     expect(screen.getByText(/Showing the first 2 of 120 rows/)).toBeTruthy();

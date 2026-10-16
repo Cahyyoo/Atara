@@ -95,7 +95,7 @@ export const LAB_RECORD_EXPORT_COLUMNS: ExportColumnSpec[] = [
   { key: "pit", group: "identity", header: "Pit", width: 8, defaultOn: false },
   { key: "bargingNo", group: "identity", header: "Barging", width: 10, defaultOn: false },
   { key: "sequenceNo", group: "identity", header: "Sample No", width: 10, defaultOn: false },
-  { key: "sampleNo", group: "identity", header: "Quantity No", width: 10, defaultOn: false },
+  { key: "sampleNo", group: "identity", header: "Quality No", width: 10, defaultOn: false },
   { key: "sackCount", group: "identity", header: "Sacks", width: 8, defaultOn: false },
   { key: "currentStage", group: "other", header: "Current Stage", width: 16, defaultOn: false },
   { key: "status", group: "other", header: "Status", width: 12, defaultOn: false },

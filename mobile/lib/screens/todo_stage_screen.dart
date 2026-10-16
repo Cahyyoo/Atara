@@ -105,13 +105,18 @@ class _CardRow extends ConsumerWidget {
                   SampleCodeText(card.sampleCode, style: AppText.subhead),
                   const SizedBox(height: 2),
                   Text(
-                    card.sampleIdent ?? l10n.todoNoSampleId,
+                    // The id itself may be kept off the app; whether there is
+                    // one never is.
+                    card.sampleIdent ??
+                        (card.hasSampleIdent
+                            ? l10n.checkHasIdent
+                            : l10n.todoNoSampleId),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppText.footnote.copyWith(
-                      color: card.sampleIdent == null
-                          ? palette.warning.foreground
-                          : palette.secondaryLabel,
+                      color: card.hasSampleIdent
+                          ? palette.secondaryLabel
+                          : palette.warning.foreground,
                       fontFamily: card.sampleIdent == null
                           ? null
                           : AppText.monoFamily,

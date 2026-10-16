@@ -24,6 +24,8 @@ export type SessionState =
        * work from a phone all day.
        */
       mustChangePassword: boolean;
+      /** The slot the session sits in: the website, or the mobile app. */
+      client: "WEB" | "MOBILE";
     }
   | { status: "replaced"; at: Date; device: string | null; deviceInfo: DeviceInfo | null }
   | { status: "ended"; at: Date; reason: SessionEndedReason }
@@ -63,6 +65,7 @@ export const loadSession = cache(
         role: session.user.role,
         department: session.user.department,
         mustChangePassword: session.user.mustChangePassword,
+        client: session.client,
       };
     }
 

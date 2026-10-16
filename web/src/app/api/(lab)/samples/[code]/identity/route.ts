@@ -15,6 +15,26 @@ import { syncSubs } from "@/modules/lab/lib/records/sub-records";
 import { invalidateAnalytics } from "@/modules/lab/lib/analytics/analytics-cache";
 
 /**
+ * The identity as it stands, for the form that fills it in. Always whole: the
+ * lab admin may keep Sample IDs off the mobile app, but whoever is filling one
+ * in is shown what they are filling in.
+ */
+export const GET = route<{ code: string }>({ capability: "editSampleIdentity" }, async ({ params }) => {
+  const sample = await prisma.sample.findFirst({
+    where: { sampleCode: decodeURIComponent(params.code), ...ACTIVE_SAMPLE },
+    select: { sampleCode: true, labRecord: true },
+  });
+  if (!sample?.labRecord) {
+    throw new ApiError("Sample not found.", 404);
+  }
+  return jsonSuccess({
+    sampleCode: sample.sampleCode,
+    sampleIdent: sample.labRecord.sampleIdent,
+    labRecord: toLabRecordDTO(sample.labRecord),
+  });
+});
+
+/**
  * A sample's identity -- and so its Sample ID -- filled in or corrected by
  * barcode, the way the preparator does it from the mobile app with the bag in
  * hand. The same rules as the record dialog on the website: the id is

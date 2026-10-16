@@ -7,7 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../l10n/app_localizations.dart';
 import '../models/master_option.dart';
 import '../models/sample_identity.dart';
-import '../models/sample_model.dart';
 import '../providers/master_options_provider.dart';
 import '../services/api_error_text.dart';
 import '../services/api_exception.dart';
@@ -37,7 +36,7 @@ class SampleIdentityScreen extends ConsumerStatefulWidget {
   const SampleIdentityScreen({
     super.key,
     required this.sampleCode,
-    @visibleForTesting this.fetchSample,
+    @visibleForTesting this.fetchIdentity,
     @visibleForTesting this.submitIdentity,
   });
 
@@ -46,7 +45,7 @@ class SampleIdentityScreen extends ConsumerStatefulWidget {
   /// The two network calls, isolated so a test can answer them; null in every
   /// production call site. The same seam UpdateStatusScreen has, for the same
   /// reason: ApiService is a singleton with no other way in.
-  final Future<SampleModel> Function(String sampleCode)? fetchSample;
+  final Future<IdentitySnapshot> Function(String sampleCode)? fetchIdentity;
   final Future<IdentityCheck> Function(
     SampleIdentity identity, {
     required bool dryRun,
@@ -127,23 +126,16 @@ class _SampleIdentityScreenState extends ConsumerState<SampleIdentityScreen> {
       });
     }
     try {
-      final fetch = widget.fetchSample ?? ApiService.instance.getSampleByCode;
-      final sample = await fetch(widget.sampleCode);
+      // The form's own endpoint, never the sample lookup: the lab admin may
+      // keep Sample IDs off the app, but whoever fills one in sees it. And
+      // never the cache — see the class.
+      final fetch =
+          widget.fetchIdentity ?? ApiService.instance.getSampleIdentity;
+      final snapshot = await fetch(widget.sampleCode);
       if (!mounted) return;
-      final l10n = AppLocalizations.of(context)!;
-      final identity = sample.identity;
-      // A copy off the device is not good enough to edit from; see the class.
-      if (sample.isFromCache || identity == null) {
-        setState(() {
-          _loadState = _LoadState.error;
-          _loadError = sample.isFromCache
-              ? l10n.sampleIdOnlineOnly
-              : l10n.sampleNotRegistered;
-        });
-        return;
-      }
+      final identity = snapshot.identity;
       _initial = identity;
-      _initialIdent = sample.sampleIdent;
+      _initialIdent = snapshot.sampleIdent;
       _picked
         ..[MasterKind.place] = identity.placeId
         ..[MasterKind.rockType] = identity.rockTypeId
@@ -165,6 +157,8 @@ class _SampleIdentityScreenState extends ConsumerState<SampleIdentityScreen> {
         _loadState = _LoadState.error;
         _loadError = error.isNotFound
             ? l10n.sampleNotRegistered
+            : error.isOffline
+            ? l10n.sampleIdOnlineOnly
             : apiErrorText(l10n, error);
       });
     } catch (_) {
@@ -294,14 +288,8 @@ class _SampleIdentityScreenState extends ConsumerState<SampleIdentityScreen> {
     });
     try {
       await _submit(identity, dryRun: false);
-      // Puts the new identity in the device cache, so the screen underneath
-      // shows it even if it is next opened without a signal.
-      try {
-        final fetch = widget.fetchSample ?? ApiService.instance.getSampleByCode;
-        await fetch(widget.sampleCode);
-      } catch (_) {
-        // Saved is saved; the cache catches up on the next open.
-      }
+      // The page underneath fetches the sample again on the way back, which
+      // is also what puts the new identity in the device cache.
       if (!mounted) return;
       AppToast.show(
         context,

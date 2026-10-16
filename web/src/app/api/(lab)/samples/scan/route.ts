@@ -7,6 +7,7 @@ import { scanSampleSchema } from "@/modules/lab/validation/samples";
 import { SAMPLE_IDENT_REQUIRED, evaluateStageTransition } from "@/modules/lab/lib/stages/stage-transition";
 import { readJsonBody, BODY_LIMIT } from "@/core/lib/http/api-request";
 import { applyStageMove } from "@/modules/lab/lib/stages/stage-move";
+import { hidesSampleIdent, visibleIdent } from "@/modules/lab/lib/settings/ident-visibility";
 
 export async function POST(request: NextRequest) {
   try {
@@ -62,7 +63,11 @@ export async function POST(request: NextRequest) {
       notes: decision.isCorrection ? body.reason! : (body.notes ?? null),
     });
 
-    return jsonSuccess(updatedSample);
+    const hide = await hidesSampleIdent(session);
+    return jsonSuccess({
+      ...updatedSample,
+      labRecord: updatedSample.labRecord ? visibleIdent(updatedSample.labRecord, hide) : null,
+    });
   } catch (error) {
     return handleApiError(error);
   }

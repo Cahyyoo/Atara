@@ -67,7 +67,7 @@ export async function requireSession(
     throw new ApiError("Change your password before continuing.", 403, PASSWORD_CHANGE_REQUIRED_CODE);
   }
 
-  return { ...session, role: state.role, department: state.department };
+  return { ...session, role: state.role, department: state.department, client: state.client };
 }
 
 /**

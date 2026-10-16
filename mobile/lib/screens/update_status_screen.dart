@@ -156,7 +156,7 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
   /// before the stage moves — the server refuses the scan otherwise. A sample
   /// the phone has never seen (offline, nothing cached) is not known to lack
   /// one, so it may still be queued and the server decides when it drains.
-  bool get _needsSampleIdent => _sample != null && _sample!.sampleIdent == null;
+  bool get _needsSampleIdent => _sample != null && !_sample!.hasSampleIdent;
 
   /// Whether the override is on offer right now — and so whether a reason is
   /// required before the button does anything.
@@ -222,7 +222,7 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
   /// the server's answer — never a cached copy, which may be out of date, and
   /// never offline, where the form could not save.
   void _promptForIdentity(SampleModel sample) {
-    if (_identityPrompted || sample.isFromCache || sample.sampleIdent != null) {
+    if (_identityPrompted || sample.isFromCache || sample.hasSampleIdent) {
       return;
     }
     _identityPrompted = true;

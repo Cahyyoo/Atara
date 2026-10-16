@@ -277,4 +277,88 @@ void main() {
       expect(find.text('Tidak ada sampel yang menunggu.'), findsOneWidget);
     });
   });
+
+  group('a Sample ID the lab admin keeps off the app', () {
+    Map<String, dynamic> hiddenRecord() => {
+      ..._fullRecord,
+      'placeId': null,
+      'rockTypeId': null,
+      'pitId': null,
+      'sirId': null,
+      'bargingNo': null,
+      'sequenceNo': null,
+      'sampleNo': null,
+      'sackCount': null,
+      'sampleIdent': null,
+      'hasSampleIdent': true,
+      'identHidden': true,
+    };
+
+    test('is read as present but not shown, and survives the cache', () {
+      final sample = SampleModel.fromJson(_sampleJson(hiddenRecord()));
+      expect(sample.sampleIdent, isNull);
+      expect(sample.hasSampleIdent, isTrue);
+      expect(sample.identHidden, isTrue);
+
+      final back = SampleModel.fromJson(
+        jsonDecode(jsonEncode(sample.toJson())) as Map<String, dynamic>,
+      );
+      expect(back.hasSampleIdent, isTrue);
+      expect(back.identHidden, isTrue);
+    });
+
+    test('an older server with no flag still reads from the id itself', () {
+      expect(
+        SampleModel.fromJson(_sampleJson(_fullRecord)).hasSampleIdent,
+        isTrue,
+      );
+      expect(
+        SampleModel.fromJson(
+          _sampleJson({..._fullRecord, 'sampleIdent': null}),
+        ).hasSampleIdent,
+        isFalse,
+      );
+    });
+
+    testWidgets('the card says it has one, and still offers to edit it', (
+      tester,
+    ) async {
+      final sample = SampleModel.fromJson(_sampleJson(hiddenRecord()));
+      await _pump(tester, SampleIdentityCard(sample: sample, onEdit: () {}));
+
+      expect(find.text('Sudah ada Sample ID'), findsOneWidget);
+      expect(find.text('Barcode ini belum punya Sample ID.'), findsNothing);
+      expect(find.textContaining('Sample ID: '), findsNothing);
+      expect(find.text('Ubah Sample ID'), findsOneWidget);
+    });
+
+    test('a waiting card knows it has one without knowing what', () {
+      final board = StageBoard.fromJson({
+        'generatedAt': '2026-10-16T03:00:00.000Z',
+        'slaHours': 24,
+        'columns': [
+          {
+            'id': 'st1',
+            'kind': 'stage',
+            'stageKey': 'RECEIVED',
+            'stageName': 'Received',
+            'count': 1,
+            'overdue': 0,
+            'cards': [
+              {
+                'sampleCode': 'SMPL-2026-00090',
+                'labCode': null,
+                'sampleIdent': null,
+                'hasSampleIdent': true,
+                'since': '2026-10-16T01:00:00.000Z',
+                'hours': 2,
+                'overdue': false,
+              },
+            ],
+          },
+        ],
+      });
+      expect(board.columns.single.cards.single.hasSampleIdent, isTrue);
+    });
+  });
 }

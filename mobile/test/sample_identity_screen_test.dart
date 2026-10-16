@@ -62,7 +62,10 @@ Future<List<({SampleIdentity identity, bool dryRun})>> _pump(
               MaterialPageRoute<bool>(
                 builder: (context) => SampleIdentityScreen(
                   sampleCode: sample.sampleCode,
-                  fetchSample: (_) async => sample,
+                  fetchIdentity: (_) async => IdentitySnapshot(
+                    sampleIdent: sample.sampleIdent,
+                    identity: sample.identity!,
+                  ),
                   submitIdentity: (identity, {required dryRun}) async {
                     calls.add((identity: identity, dryRun: dryRun));
                     return IdentityCheck(

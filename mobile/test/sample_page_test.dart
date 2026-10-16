@@ -329,6 +329,32 @@ void main() {
       );
     });
 
+    testWidgets('leaves a hidden one alone: having it is what counts', (
+      tester,
+    ) async {
+      await tall(tester);
+      await pumpDetail(
+        tester,
+        served: SampleModel(
+          id: 'sample-1',
+          sampleCode: 'SMPL-2026-00001',
+          hasSampleIdent: true,
+          identHidden: true,
+          status: SampleStatus.inProgress,
+          currentStage: null,
+          createdByName: 'Admin',
+          updatedAt: DateTime.utc(2026, 10, 16),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('identity form'), findsNothing);
+      expect(
+        find.text('Isi Sample ID dulu sebelum memperbarui tahap.'),
+        findsNothing,
+      );
+    });
+
     testWidgets('leaves a sample that has one alone', (tester) async {
       await tall(tester);
       await pumpDetail(tester, served: sampleFixture());

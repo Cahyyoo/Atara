@@ -242,9 +242,9 @@ describe("BulkIdentityDialog", () => {
       const fresh = form(text.groupNoIdent);
       expect(fresh.getByText("2 records")).toBeTruthy();
       // Sample numbers 1 and 2: mixed, left alone unless something is typed.
-      expect(field(fresh, "Quantity No.").placeholder).toBe(text.mixedPlaceholder);
+      expect(field(fresh, "Quality No.").placeholder).toBe(text.mixedPlaceholder);
 
-      await user.type(field(fresh, "Quantity No."), "5");
+      await user.type(field(fresh, "Quality No."), "5");
       await waitFor(() =>
         expect(lastPreviewRequest()?.groups).toEqual([{ ids: ["a", "b"], set: {}, clear: [], sampleNoStart: 5 }])
       );
@@ -352,10 +352,10 @@ describe("BulkIdentityDialog", () => {
       show([record("1", { sampleNo: 3, bargingNo: "B7", sampleIdent: "B7/3" })]);
 
       expect(screen.queryByRole("list", { name: text.listLabel })).toBeNull();
-      expect(field(screen, "Quantity No.").value).toBe("3");
+      expect(field(screen, "Quality No.").value).toBe("3");
 
-      await user.clear(field(screen, "Quantity No."));
-      await user.type(field(screen, "Quantity No."), "7");
+      await user.clear(field(screen, "Quality No."));
+      await user.type(field(screen, "Quality No."), "7");
       await waitFor(() =>
         expect(lastPreviewRequest()?.groups).toEqual([
           { ids: ["1"], set: { sampleNo: 7 }, clear: [], sampleNoStart: null },

@@ -10,11 +10,13 @@ import { createSamplesWithLabCodes } from "@/modules/lab/lib/samples/sample-crea
 import { ACTIVE_SAMPLE } from "@/modules/lab/lib/samples/soft-delete";
 import { sampleIdentWhere } from "@/modules/lab/lib/samples/sample-ident-filter";
 import { readJsonBody } from "@/core/lib/http/api-request";
+import { hidesSampleIdent, visibleIdent } from "@/modules/lab/lib/settings/ident-visibility";
 
 export async function GET(request: NextRequest) {
   try {
     // Lab data: only the people who work in the lab module.
-    await requireCapability(request, "viewDashboard");
+    const session = await requireCapability(request, "viewDashboard");
+    const hide = await hidesSampleIdent(session);
 
     const { searchParams } = new URL(request.url);
     const query = listSamplesQuerySchema.parse({
@@ -56,7 +58,7 @@ export async function GET(request: NextRequest) {
     ]);
 
     return jsonSuccess({
-      samples: samples.map(toSampleListItemDTO),
+      samples: samples.map((sample) => visibleIdent(toSampleListItemDTO(sample), hide)),
       pagination: {
         page: query.page,
         pageSize: query.pageSize,
