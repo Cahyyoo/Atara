@@ -500,5 +500,10 @@
   "checkNotRegistered": "Barcode tidak terdaftar",
   "checkOffline": "Tidak bisa dicek tanpa koneksi",
   "checkOpen": "Ketuk untuk membuka",
-  "checkDismiss": "Tutup"
+  "checkDismiss": "Tutup",
+  "checkLabCode": "Kode Lab",
+  "checkBarcode": "Barcode",
+  "checkSampleId": "Sample ID",
+  "checkIdentHiddenValue": "Disembunyikan admin lab",
+  "checkTapToFill": "Ketuk untuk mengisi Sample ID"
 }

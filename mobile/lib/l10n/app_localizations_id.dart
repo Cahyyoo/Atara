@@ -1000,4 +1000,19 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get checkDismiss => 'Tutup';
+
+  @override
+  String get checkLabCode => 'Kode Lab';
+
+  @override
+  String get checkBarcode => 'Barcode';
+
+  @override
+  String get checkSampleId => 'Sample ID';
+
+  @override
+  String get checkIdentHiddenValue => 'Disembunyikan admin lab';
+
+  @override
+  String get checkTapToFill => 'Ketuk untuk mengisi Sample ID';
 }

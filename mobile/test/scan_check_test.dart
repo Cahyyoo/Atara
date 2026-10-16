@@ -123,7 +123,7 @@ void main() {
   });
 
   group('ScanCheckPill', () {
-    testWidgets('shows the Lab Code and its Sample ID, and opens on a tap', (
+    testWidgets('labels the Lab Code and the Sample ID, and opens on a tap', (
       tester,
     ) async {
       var opened = 0;
@@ -138,9 +138,13 @@ void main() {
         onOpen: () => opened++,
       );
 
+      expect(find.text('SUDAH ADA SAMPLE ID'), findsOneWidget);
+      expect(find.text('Kode Lab'), findsOneWidget);
       expect(find.text('SPR.QLAB.20261016.001'), findsOneWidget);
       expect(find.text('SMPL-2026-00001'), findsNothing);
+      expect(find.text('Sample ID'), findsOneWidget);
       expect(find.text('MOL LIM S3/PA4/B42/919.3/12'), findsOneWidget);
+      expect(find.text('Ketuk untuk membuka ›'), findsOneWidget);
       await tester.tap(find.text('SPR.QLAB.20261016.001'));
       expect(opened, 1);
     });
@@ -148,26 +152,48 @@ void main() {
     testWidgets('names it by the barcode while it is still being checked', (
       tester,
     ) async {
-      await _pumpPill(tester, const BarcodeCheck.checking('SMPL-2026-00001'));
+      var opened = 0;
+      await _pumpPill(
+        tester,
+        const BarcodeCheck.checking('SMPL-2026-00001'),
+        onOpen: () => opened++,
+      );
+      expect(find.text('MEMERIKSA…'), findsOneWidget);
+      expect(find.text('Barcode'), findsOneWidget);
       expect(find.text('SMPL-2026-00001'), findsOneWidget);
+      await tester.tap(find.text('SMPL-2026-00001'));
+      expect(opened, 0, reason: 'nothing to open until the answer is in');
     });
 
-    testWidgets('says "has one" without the id when it is hidden', (
+    testWidgets('says it has one, and that the lab admin hides it', (
       tester,
     ) async {
       await _pumpPill(
         tester,
-        const BarcodeCheck('SMPL-2026-00001', BarcodeCheckState.hasIdentHidden),
+        const BarcodeCheck(
+          'SMPL-2026-00001',
+          BarcodeCheckState.hasIdentHidden,
+          labCode: 'SPR.QLAB.20261016.001',
+        ),
       );
-      expect(find.text('Sudah ada Sample ID'), findsOneWidget);
+      expect(find.text('SUDAH ADA SAMPLE ID'), findsOneWidget);
+      expect(find.text('Disembunyikan admin lab'), findsOneWidget);
     });
 
-    testWidgets('says plainly when there is none yet', (tester) async {
+    testWidgets('says plainly when there is none yet, and offers to fill it', (
+      tester,
+    ) async {
       await _pumpPill(
         tester,
-        const BarcodeCheck('SMPL-2026-00001', BarcodeCheckState.noIdent),
+        const BarcodeCheck(
+          'SMPL-2026-00001',
+          BarcodeCheckState.noIdent,
+          labCode: 'SPR.QLAB.20261016.001',
+        ),
       );
-      expect(find.text('Belum ada Sample ID'), findsOneWidget);
+      expect(find.text('BELUM ADA SAMPLE ID'), findsOneWidget);
+      expect(find.text('—'), findsOneWidget);
+      expect(find.text('Ketuk untuk mengisi Sample ID ›'), findsOneWidget);
     });
 
     testWidgets('does not open a barcode that is not registered', (
@@ -179,9 +205,27 @@ void main() {
         const BarcodeCheck('SMPL-9999-99999', BarcodeCheckState.notRegistered),
         onOpen: () => opened++,
       );
-      expect(find.text('Barcode tidak terdaftar'), findsOneWidget);
+      expect(find.text('BARCODE TIDAK TERDAFTAR'), findsOneWidget);
+      expect(find.text('Sample ID'), findsNothing);
+      expect(find.textContaining('Ketuk'), findsNothing);
       await tester.tap(find.text('SMPL-9999-99999'));
       expect(opened, 0);
+    });
+
+    testWidgets('fits a long Sample ID on a narrow phone', (tester) async {
+      tester.view.physicalSize = const Size(320 * 3, 640 * 3);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      await _pumpPill(
+        tester,
+        const BarcodeCheck(
+          'SMPL-2026-00001',
+          BarcodeCheckState.hasIdent,
+          sampleIdent: 'MOL LIM TP S3/PA4/B42/919.3/12',
+          labCode: 'SPR.QLAB.20261016.001',
+        ),
+      );
+      expect(tester.takeException(), isNull);
     });
   });
 }

@@ -1819,6 +1819,36 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Tutup'**
   String get checkDismiss;
+
+  /// No description provided for @checkLabCode.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode Lab'**
+  String get checkLabCode;
+
+  /// No description provided for @checkBarcode.
+  ///
+  /// In id, this message translates to:
+  /// **'Barcode'**
+  String get checkBarcode;
+
+  /// No description provided for @checkSampleId.
+  ///
+  /// In id, this message translates to:
+  /// **'Sample ID'**
+  String get checkSampleId;
+
+  /// No description provided for @checkIdentHiddenValue.
+  ///
+  /// In id, this message translates to:
+  /// **'Disembunyikan admin lab'**
+  String get checkIdentHiddenValue;
+
+  /// No description provided for @checkTapToFill.
+  ///
+  /// In id, this message translates to:
+  /// **'Ketuk untuk mengisi Sample ID'**
+  String get checkTapToFill;
 }
 
 class _AppLocalizationsDelegate

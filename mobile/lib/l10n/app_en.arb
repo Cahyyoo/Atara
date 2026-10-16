@@ -408,5 +408,10 @@
   "checkNotRegistered": "Barcode not registered",
   "checkOffline": "Can't check without a connection",
   "checkOpen": "Tap to open",
-  "checkDismiss": "Close"
+  "checkDismiss": "Close",
+  "checkLabCode": "Lab Code",
+  "checkBarcode": "Barcode",
+  "checkSampleId": "Sample ID",
+  "checkIdentHiddenValue": "Hidden by the lab admin",
+  "checkTapToFill": "Tap to fill in the Sample ID"
 }

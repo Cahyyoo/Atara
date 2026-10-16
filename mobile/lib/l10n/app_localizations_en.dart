@@ -998,4 +998,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get checkDismiss => 'Close';
+
+  @override
+  String get checkLabCode => 'Lab Code';
+
+  @override
+  String get checkBarcode => 'Barcode';
+
+  @override
+  String get checkSampleId => 'Sample ID';
+
+  @override
+  String get checkIdentHiddenValue => 'Hidden by the lab admin';
+
+  @override
+  String get checkTapToFill => 'Tap to fill in the Sample ID';
 }
