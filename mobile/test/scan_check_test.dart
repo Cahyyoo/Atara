@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:atara/l10n/app_localizations.dart';
+import 'package:atara/models/sample_identity.dart';
 import 'package:atara/models/sample_model.dart';
 import 'package:atara/services/api_exception.dart';
 import 'package:atara/services/barcode_check.dart';
@@ -12,18 +13,25 @@ import 'package:atara/widgets/scan_check_pill.dart';
 /// The scanner's "Check Barcode" mode: what a code's answer is, and how the
 /// pill over the camera says it — the barcode and the Sample ID, nothing else.
 
-SampleModel _sample({String? ident, bool? has, bool hidden = false}) =>
-    SampleModel(
-      id: 's',
-      sampleCode: 'SMPL-2026-00001',
-      sampleIdent: ident,
-      hasSampleIdent: has,
-      identHidden: hidden,
-      status: SampleStatus.pending,
-      currentStage: null,
-      createdByName: 'Admin',
-      updatedAt: DateTime.utc(2026, 10, 16),
-    );
+SampleModel _sample({
+  String? ident,
+  bool? has,
+  bool hidden = false,
+  String? labCode = 'SPR.QLAB.20261016.001',
+}) => SampleModel(
+  id: 's',
+  sampleCode: 'SMPL-2026-00001',
+  sampleIdent: ident,
+  identity: labCode == null
+      ? null
+      : SampleIdentity(labRecordId: 'r', labCode: labCode),
+  hasSampleIdent: has,
+  identHidden: hidden,
+  status: SampleStatus.pending,
+  currentStage: null,
+  createdByName: 'Admin',
+  updatedAt: DateTime.utc(2026, 10, 16),
+);
 
 Future<void> _pumpPill(
   WidgetTester tester,
@@ -60,7 +68,20 @@ void main() {
       );
       expect(check.state, BarcodeCheckState.hasIdent);
       expect(check.sampleIdent, 'MOL/PA4');
+      expect(check.labCode, 'SPR.QLAB.20261016.001');
+      expect(check.displayCode, 'SPR.QLAB.20261016.001');
     });
+
+    test(
+      'names a sample by its barcode when no Lab Code came with it',
+      () async {
+        final check = await checkBarcode(
+          'SMPL-2026-00001',
+          fetch: (_) async => _sample(ident: 'MOL', labCode: null),
+        );
+        expect(check.displayCode, 'SMPL-2026-00001');
+      },
+    );
 
     test('says only that it has one when the lab keeps it hidden', () async {
       final check = await checkBarcode(
@@ -102,7 +123,7 @@ void main() {
   });
 
   group('ScanCheckPill', () {
-    testWidgets('shows the barcode and its Sample ID, and opens on a tap', (
+    testWidgets('shows the Lab Code and its Sample ID, and opens on a tap', (
       tester,
     ) async {
       var opened = 0;
@@ -112,14 +133,23 @@ void main() {
           'SMPL-2026-00001',
           BarcodeCheckState.hasIdent,
           sampleIdent: 'MOL LIM S3/PA4/B42/919.3/12',
+          labCode: 'SPR.QLAB.20261016.001',
         ),
         onOpen: () => opened++,
       );
 
-      expect(find.text('SMPL-2026-00001'), findsOneWidget);
+      expect(find.text('SPR.QLAB.20261016.001'), findsOneWidget);
+      expect(find.text('SMPL-2026-00001'), findsNothing);
       expect(find.text('MOL LIM S3/PA4/B42/919.3/12'), findsOneWidget);
-      await tester.tap(find.text('SMPL-2026-00001'));
+      await tester.tap(find.text('SPR.QLAB.20261016.001'));
       expect(opened, 1);
+    });
+
+    testWidgets('names it by the barcode while it is still being checked', (
+      tester,
+    ) async {
+      await _pumpPill(tester, const BarcodeCheck.checking('SMPL-2026-00001'));
+      expect(find.text('SMPL-2026-00001'), findsOneWidget);
     });
 
     testWidgets('says "has one" without the id when it is hidden', (

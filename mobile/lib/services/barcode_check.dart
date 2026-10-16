@@ -24,15 +24,24 @@ enum BarcodeCheckState {
 }
 
 class BarcodeCheck {
-  const BarcodeCheck(this.code, this.state, {this.sampleIdent});
+  const BarcodeCheck(this.code, this.state, {this.sampleIdent, this.labCode});
 
   const BarcodeCheck.checking(this.code)
     : state = BarcodeCheckState.checking,
-      sampleIdent = null;
+      sampleIdent = null,
+      labCode = null;
 
+  /// The barcode as the camera read it: what the check is keyed and opened by.
   final String code;
   final BarcodeCheckState state;
   final String? sampleIdent;
+
+  /// The sample's Lab Code, once the server has said which sample it is.
+  final String? labCode;
+
+  /// What the pill names the sample by: its Lab Code, or the barcode until
+  /// that is known — still checking, not registered, or out of reach.
+  String get displayCode => labCode ?? code;
 
   bool get isSettled => state != BarcodeCheckState.checking;
 }
@@ -48,13 +57,19 @@ Future<BarcodeCheck> checkBarcode(
 }) async {
   try {
     final sample = await (fetch ?? ApiService.instance.getSampleByCode)(code);
+    final labCode = sample.identity?.labCode;
     if (!sample.hasSampleIdent) {
-      return BarcodeCheck(code, BarcodeCheckState.noIdent);
+      return BarcodeCheck(code, BarcodeCheckState.noIdent, labCode: labCode);
     }
     final ident = sample.sampleIdent;
     return ident == null
-        ? BarcodeCheck(code, BarcodeCheckState.hasIdentHidden)
-        : BarcodeCheck(code, BarcodeCheckState.hasIdent, sampleIdent: ident);
+        ? BarcodeCheck(code, BarcodeCheckState.hasIdentHidden, labCode: labCode)
+        : BarcodeCheck(
+            code,
+            BarcodeCheckState.hasIdent,
+            sampleIdent: ident,
+            labCode: labCode,
+          );
   } on ApiException catch (error) {
     if (error.isNotFound) {
       return BarcodeCheck(code, BarcodeCheckState.notRegistered);

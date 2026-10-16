@@ -5,8 +5,8 @@ import '../services/barcode_check.dart';
 import '../theme/app_theme.dart';
 
 /// The answer to "does this barcode have a Sample ID yet", floating over the
-/// camera the way the iOS Camera app floats what a code says: the barcode,
-/// and on the line under it the Sample ID or the plain fact about it.
+/// camera the way the iOS Camera app floats what a code says: the sample's
+/// Lab Code, and on the line under it the Sample ID or the plain fact about it.
 ///
 /// Nothing else. The camera keeps running under it, so a rack of labels is
 /// checked by sweeping the phone along it; a tap opens the sample's page.
@@ -93,8 +93,8 @@ class ScanCheckPill extends StatelessWidget {
               button: opens,
               liveRegion: true,
               label: opens
-                  ? '${check.code}. $text. ${l10n.checkOpen}'
-                  : '${check.code}. $text.',
+                  ? '${check.displayCode}. $text. ${l10n.checkOpen}'
+                  : '${check.displayCode}. $text.',
               excludeSemantics: true,
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
@@ -104,7 +104,7 @@ class ScanCheckPill extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      check.code,
+                      check.displayCode,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppText.headline.copyWith(
