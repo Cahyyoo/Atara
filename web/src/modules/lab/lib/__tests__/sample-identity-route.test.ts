@@ -82,7 +82,7 @@ describe.skipIf(!reachable)("filling in a sample's identity by barcode", () => {
     const response = await patch(`${tag}-1`, { placeId, bargingNo: tag, sequenceNo: 7, dryRun: true });
     expect(response.status).toBe(200);
     expect((await response.json()).data).toMatchObject({
-      sampleIdent: `MOL/B${tag}/7`,
+      sampleIdent: `MOL/${tag}/7`,
       changed: true,
       clash: null,
     });
@@ -93,9 +93,9 @@ describe.skipIf(!reachable)("filling in a sample's identity by barcode", () => {
   it("saves the identity and audits it under the preparator", async () => {
     const response = await patch(`${tag}-1`, { placeId, bargingNo: tag, sequenceNo: 7 });
     expect(response.status).toBe(200);
-    expect((await response.json()).data.labRecord).toMatchObject({ sampleIdent: `MOL/B${tag}/7`, sequenceNo: 7 });
+    expect((await response.json()).data.labRecord).toMatchObject({ sampleIdent: `MOL/${tag}/7`, sequenceNo: 7 });
     const audit = await prisma.labRecordAudit.findFirst({ where: { labRecordId: records[0], changedById: session.userId } });
-    expect(audit?.changes).toMatchObject({ sampleIdent: { from: null, to: `MOL/B${tag}/7` } });
+    expect(audit?.changes).toMatchObject({ sampleIdent: { from: null, to: `MOL/${tag}/7` } });
   });
 
   it("names the sample that already holds an id, on a dry run and on a save", async () => {

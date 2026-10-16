@@ -6,6 +6,7 @@ import {
   normalizeSampleKey,
   sampleIdentForms,
   searchIdentForms,
+  legacyKeyReadings,
   type SampleIdentParts,
 } from "@/modules/lab/lib/samples/sample-ident";
 
@@ -23,29 +24,29 @@ const COMPLETE: SampleIdentParts = {
 };
 
 describe("composeSampleIdent", () => {
-  it("builds the shape the lab writes on the sheet", () => {
+  it("builds the shape the lab writes on the sheet, without a letter before the sir, pit or barging run", () => {
     expect(composeSampleIdent({ ...COMPLETE, nonProd: "TP" })).toBe(
-      "MOL LIM TP S3/PA4/B42/919.3/12"
+      "MOL LIM TP 3/A4/42/919.3/12"
     );
   });
 
   it("drops the non-production segment on an ordinary sample", () => {
     // This is the form on the attached sheet: no code, and no double space
     // where it would have been.
-    expect(composeSampleIdent(COMPLETE)).toBe("MOL LIM S3/PA4/B42/919.3/12");
+    expect(composeSampleIdent(COMPLETE)).toBe("MOL LIM 3/A4/42/919.3/12");
   });
 
   it("treats an empty non-production code the same as none", () => {
     expect(composeSampleIdent({ ...COMPLETE, nonProd: "   " })).toBe(
-      "MOL LIM S3/PA4/B42/919.3/12"
+      "MOL LIM 3/A4/42/919.3/12"
     );
   });
 
-  it("accepts the barging run with or without its B prefix", () => {
+  it("accepts the barging run with or without a B in front, and writes it without", () => {
     // Preparators write B.48, B48 or 48 depending on where they copied it from.
     for (const written of ["B.42", "B42", "42", "b.42"]) {
       expect(composeSampleIdent({ ...COMPLETE, bargingNo: written })).toBe(
-        "MOL LIM S3/PA4/B42/919.3/12"
+        "MOL LIM 3/A4/42/919.3/12"
       );
     }
   });
@@ -55,7 +56,7 @@ describe("composeSampleIdent", () => {
   it("keeps a separator typed inside the barging run out of the id", () => {
     for (const written of ["B 42", "B/42", "4 2", "4/2"]) {
       expect(composeSampleIdent({ ...COMPLETE, bargingNo: written }), written).toBe(
-        "MOL LIM S3/PA4/B42/919.3/12"
+        "MOL LIM 3/A4/42/919.3/12"
       );
     }
   });
@@ -63,22 +64,22 @@ describe("composeSampleIdent", () => {
   it("upper-cases and trims what was typed", () => {
     expect(
       composeSampleIdent({ ...COMPLETE, place: " mol ", rockType: "lim", pit: "a4" })
-    ).toBe("MOL LIM S3/PA4/B42/919.3/12");
+    ).toBe("MOL LIM 3/A4/42/919.3/12");
   });
 
   it("keeps a zero, which is a real number here", () => {
     expect(composeSampleIdent({ ...COMPLETE, sackCount: 0 })).toBe(
-      "MOL LIM S3/PA4/B42/919.3/0"
+      "MOL LIM 3/A4/42/919.3/0"
     );
   });
 
   it("leaves out whichever part is missing and closes up around it", () => {
     const withoutEach: [keyof SampleIdentParts, string][] = [
-      ["rockType", "MOL S3/PA4/B42/919.3/12"],
-      ["sir", "MOL LIM/PA4/B42/919.3/12"],
-      ["pit", "MOL LIM S3/B42/919.3/12"],
-      ["bargingNo", "MOL LIM S3/PA4/919.3/12"],
-      ["sackCount", "MOL LIM S3/PA4/B42/919.3"],
+      ["rockType", "MOL 3/A4/42/919.3/12"],
+      ["sir", "MOL LIM/A4/42/919.3/12"],
+      ["pit", "MOL LIM 3/42/919.3/12"],
+      ["bargingNo", "MOL LIM 3/A4/919.3/12"],
+      ["sackCount", "MOL LIM 3/A4/42/919.3"],
     ];
 
     for (const [field, expected] of withoutEach) {
@@ -117,7 +118,7 @@ describe("composeSampleIdent", () => {
   });
 
   it("treats a blank string as missing rather than as a segment", () => {
-    expect(composeSampleIdent({ ...COMPLETE, pit: "  " })).toBe("MOL LIM S3/B42/919.3/12");
+    expect(composeSampleIdent({ ...COMPLETE, pit: "  " })).toBe("MOL LIM 3/42/919.3/12");
   });
 });
 
@@ -208,6 +209,40 @@ describe("searchIdentForms", () => {
 
   it("has nothing to say about an empty term", () => {
     expect(searchIdentForms("   ")).toEqual([]);
+  });
+});
+
+describe("legacyKeyReadings", () => {
+  it("drops the old letters before the sir, the pit and the barging run", () => {
+    expect(legacyKeyReadings("LAM/AA/S1/PA199/B2/1.1/1")[0]).toBe("LAM/AA/1/A199/2/1.1/1");
+    expect(legacyKeyReadings("MOL/SAP/SA4/PA11/B78/779.1")[0]).toBe("MOL/SAP/A4/A11/78/779.1");
+  });
+
+  it("reads whichever of the three the id carries", () => {
+    expect(legacyKeyReadings("MOL/LIM/S3/B42/919.3")).toEqual(["MOL/LIM/3/42/919.3", "MOL/LIM/S3/42/919.3"]);
+    expect(legacyKeyReadings("MOL/LIM/PA4/919.3/12")).toEqual(["MOL/LIM/A4/919.3/12"]);
+    expect(legacyKeyReadings("MOL/LIM/S3/919.3")).toEqual(["MOL/LIM/3/919.3"]);
+  });
+
+  // With slashes throughout, an S in that place may be the sir's letter or the
+  // first letter of a rock type: both readings, the sir first.
+  it("offers a rock type starting with S as it is, too", () => {
+    expect(legacyKeyReadings("MOL/SAP/PA4/919.3")).toEqual(["MOL/AP/A4/919.3", "MOL/SAP/A4/919.3"]);
+  });
+
+  it("reads nothing into a key with no number at its end", () => {
+    expect(legacyKeyReadings("LAM/SAP")).toEqual([]);
+    expect(legacyKeyReadings("LAM/SAP/S4")).toEqual([]);
+  });
+
+  it("has nothing to drop from an id composed without the letters", () => {
+    expect(legacyKeyReadings("LAM/AA/1/A199/2/1.1/1")).toEqual([]);
+    expect(legacyKeyReadings("MOL/919.3")).toEqual([]);
+    expect(legacyKeyReadings("MOL")).toEqual([]);
+  });
+
+  it("is what a search for an id with the letters also asks for", () => {
+    expect(searchIdentForms("LAM AA S1/PA199/B2/1.1")).toContain("LAM AA 1/A199/2/1.1");
   });
 });
 

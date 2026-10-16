@@ -1,14 +1,15 @@
 /**
  * Builds the Sample ID the lab writes on the sheet, e.g.
  *
- *     MOL LIM TP S3/PA4/B42/919.3/12
- *      │   │  │  │   │   │   │  └─ sacks
- *      │   │  │  │   │   │   └─ sample number
- *      │   │  │  │   │   └─ running number
- *      │   │  │  │   └─ barging run
- *      │   │  │  └─ pit
- *      │   │  └─ sir, the field stockpile it waited on
- *      │   └─ non-production code
+ *     MOL LIM TP 3/A4/42/919.3/12
+ *      │   │  │  │ │  │   │  │ └─ sacks
+ *      │   │  │  │ │  │   │  └─ sample number
+ *      │   │  │  │ │  │   └─ running number
+ *      │   │  │  │ │  └─ barging run
+ *      │   │  │  │ └─ pit
+ *      │   │  │  └─ sir, the field stockpile it waited on
+ *      │   │  └─ non-production code
+ *      │   └─ rock type
  *      └─ place
  *
  * Two separators, not one. The leading group -- place, rock type,
@@ -86,14 +87,12 @@ export function composeSampleIdent(parts: SampleIdentParts): string | null {
   const kept = (segments: (string | null)[]) =>
     segments.filter((segment): segment is string => segment !== null);
 
-  const group = kept([place, text(parts.rockType), nonProd, sir === null ? null : `S${sir}`]).join(" ");
+  // The sir, the pit and the barging run are written as their codes alone.
+  // They used to carry a letter each ("S3", "PA4", "B42"); ids stored then keep
+  // it, and sheets that still write it are read by `legacyKeyReadings`.
+  const group = kept([place, text(parts.rockType), nonProd, sir]).join(" ");
 
-  const tail = kept([
-    pit === null ? null : `P${pit}`,
-    barging === null ? null : `B${barging}`,
-    running,
-    numeric(parts.sackCount),
-  ]);
+  const tail = kept([pit, barging, running, numeric(parts.sackCount)]);
 
   // The group is never empty -- the place is required -- so this is the group
   // on its own when nothing follows it.
@@ -182,10 +181,10 @@ const GROUP_SEPARATORS_MAX = 3;
 /**
  * Every way an all-slash key could have been written as a stored Sample ID.
  *
- *     "LAM/SAP/S4/B24/3475.3"  ->  "LAM/SAP/S4/B24/3475.3"
- *                                  "LAM SAP/S4/B24/3475.3"
- *                                  "LAM SAP S4/B24/3475.3"   <- the stored one
- *                                  "LAM SAP S4 B24/3475.3"
+ *     "LAM/SAP/4/24/3475.3"  ->  "LAM/SAP/4/24/3475.3"
+ *                                "LAM SAP/4/24/3475.3"
+ *                                "LAM SAP 4/24/3475.3"   <- the stored one
+ *                                "LAM SAP 4 24/3475.3"
  *
  * A key says which segments an id has but not which separator stood between
  * them, and the boundary cannot be read back out of the string: the format is
@@ -208,6 +207,52 @@ export function sampleIdentForms(base: string): string[] {
   return forms;
 }
 
+const RUNNING_SEGMENT = /^\d+(\.\d+)?$/;
+
+/**
+ * An all-slash key written the old way, with the sir, the pit and the barging
+ * run each behind its letter, read as the id is composed now:
+ *
+ *     "MOL/SAP/SA4/PA11/B78/779.1"  ->  "MOL/SAP/A4/A11/78/779.1"
+ *                                       "MOL/SAP/SA4/A11/78/779.1"
+ *
+ * Sheets from the lab still write the letters, so a pasted key is tried this
+ * way when it names no record as it stands. The letters are only read where
+ * the old id put them: walking back from the end past the running number and
+ * the sack count, a "B" segment, then a "P" one, then an "S" one -- so a rock
+ * type is never read past. A key with no number at its end is not read at
+ * all, and the place, the first segment, never had a letter.
+ *
+ * The S cannot always be told from a rock type that starts with one: with
+ * slashes throughout, "MOL/SAP/PA4/919.3" is the rock type SAP with no sir, or
+ * the sir AP with no rock type. Both readings are given, the sir first, and
+ * the caller takes the first that names a record. None when there was no
+ * letter to drop.
+ */
+export function legacyKeyReadings(base: string): string[] {
+  const segments = base.split("/");
+  let at = segments.length - 1;
+  while (at > 0 && RUNNING_SEGMENT.test(segments[at])) at -= 1;
+  // Nothing after it to anchor the walk: "LAM/SAP" is a place and a rock type,
+  // not a place and the sir "AP".
+  if (at === segments.length - 1) return [];
+
+  const lettered = (letter: string) => at > 0 && segments[at].length > 1 && segments[at].startsWith(letter);
+  let dropped = false;
+  for (const letter of ["B", "P"]) {
+    if (lettered(letter)) {
+      segments[at] = segments[at].slice(1);
+      dropped = true;
+      at -= 1;
+    }
+  }
+
+  const readings: string[] = [];
+  if (lettered("S")) readings.push(segments.map((segment, index) => (index === at ? segment.slice(1) : segment)).join("/"));
+  if (dropped) readings.push(segments.join("/"));
+  return readings;
+}
+
 /**
  * The same, for the piece of an id someone typed into a search box.
  *
@@ -221,7 +266,9 @@ export function searchIdentForms(raw: string): string[] {
   if (!term) return [];
 
   const { base, code } = normalizeSampleKey(term);
-  const forms = base ? sampleIdentForms(base).map((form) => subKey(form, code)) : [];
+  // An id typed with the old letters finds the record composed without them.
+  const bases = base ? [base, ...legacyKeyReadings(base)] : [];
+  const forms = bases.flatMap((each) => sampleIdentForms(each).map((form) => subKey(form, code)));
   return forms.includes(term.toUpperCase()) ? forms : [term, ...forms];
 }
 

@@ -6,7 +6,7 @@
  * which cell lands in which column — and which pasted row belongs to which
  * record — can be checked without a clipboard, a database or a form.
  */
-import { normalizeSampleKey, sampleIdentKeys } from "@/modules/lab/lib/samples/sample-ident";
+import { legacyKeyReadings, normalizeSampleKey, sampleIdentKeys, subKey } from "@/modules/lab/lib/samples/sample-ident";
 import { findOverwrites, type Overwrite } from "@/modules/lab/lib/records/overwrite";
 import { parseNumber } from "@/core/lib/number-parse";
 import {
@@ -208,12 +208,22 @@ export function mapPastedRows(
       ? ({ kind: "count", pasted: dataRows.length, selected: targets.length } as const)
       : null;
 
+  // A key the sheet still writes with the old letters ("S3/PA4/B42") is read
+  // as the id is composed now, when it names nothing here as written.
+  const rowKeyOf = (raw: string) => {
+    const key = keyOf(raw);
+    const known = (each: typeof key) => byKey.has(each.full) || byKey.has(each.base) || clashing.has(each.full);
+    if (known(key) || !key.base) return key;
+    const readings = legacyKeyReadings(key.base).map((base) => ({ base, code: key.code, full: subKey(base, key.code) }));
+    return readings.find(known) ?? key;
+  };
+
   const used = new Set<string>();
 
   const mapped = dataRows.map((row, index): PasteRow => {
     const line = index + 1;
     const rawKey = matchColumn ? (row[matchColumn.index] ?? "").trim() : "";
-    const key = matchColumn ? keyOf(rawKey) : null;
+    const key = matchColumn ? rowKeyOf(rawKey) : null;
 
     if (key && (clashing.has(key.full) || (key.code && !byKey.has(key.full) && clashing.has(key.base)))) {
       return { line, label: rawKey, status: "invalid", targetId: null, changes: {}, values: {}, message: "ambiguous" };

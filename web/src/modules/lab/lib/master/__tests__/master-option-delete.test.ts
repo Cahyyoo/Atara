@@ -89,7 +89,7 @@ describe.skipIf(!reachable)("moving records onto a replacement (database)", () =
   });
 
   it("rewrites each Sample ID and writes the reason into the history", async () => {
-    const record = await sampleWith(oldCode.id, `${oldCode.code}/B9/1`, 1);
+    const record = await sampleWith(oldCode.id, `${oldCode.code}/9/1`, 1);
 
     await prisma.$transaction(async (tx) => {
       const plan = await planReplacement(tx, oldCode, newCode);
@@ -98,8 +98,8 @@ describe.skipIf(!reachable)("moving records onto a replacement (database)", () =
         {
           id: record.id,
           labCode: record.labCode,
-          from: `${oldCode.code}/B9/1`,
-          to: `${newCode.code}/B9/1`,
+          from: `${oldCode.code}/9/1`,
+          to: `${newCode.code}/9/1`,
         },
       ]);
       await applyReplacement(tx, plan, oldCode, newCode, created.user);
@@ -110,7 +110,7 @@ describe.skipIf(!reachable)("moving records onto a replacement (database)", () =
       include: { audits: true },
     });
     expect(after?.placeId).toBe(newCode.id);
-    expect(after?.sampleIdent).toBe(`${newCode.code}/B9/1`);
+    expect(after?.sampleIdent).toBe(`${newCode.code}/9/1`);
     expect(after?.audits[0]?.reason).toBe(
       `Master data: ${oldCode.code} deleted, replaced by ${newCode.code}`
     );
@@ -120,11 +120,11 @@ describe.skipIf(!reachable)("moving records onto a replacement (database)", () =
   });
 
   it("names the Sample IDs a move would duplicate, without changing anything", async () => {
-    await sampleWith(other.id, `${other.code}/B9/2`, 2);
-    const moving = await sampleWith(newCode.id, `${newCode.code}/B9/2`, 3, 2);
+    await sampleWith(other.id, `${other.code}/9/2`, 2);
+    const moving = await sampleWith(newCode.id, `${newCode.code}/9/2`, 3, 2);
 
     const plan = await prisma.$transaction((tx) => planReplacement(tx, newCode, other));
-    expect(plan.clashes).toEqual([`${other.code}/B9/2`]);
+    expect(plan.clashes).toEqual([`${other.code}/9/2`]);
 
     const untouched = await prisma.labRecord.findUnique({ where: { id: moving.id } });
     expect(untouched?.placeId).toBe(newCode.id);

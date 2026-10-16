@@ -41,6 +41,22 @@ describe("mapPastedRows", () => {
     expect(result.blocker).toBeNull();
   });
 
+  // Ids are composed without the old letters now; the lab's sheets still write them.
+  it("finds a record composed without the S, P and B letters from a sheet that writes them", () => {
+    const targets = [
+      target({ id: "1", sampleIdent: "LAM AA 1/A199/2/1.1/1", sackCount: 1 }),
+      target({ id: "2", sampleIdent: "MOL SAP S3/PA4/B42/919.3/12", sackCount: 12 }),
+    ];
+
+    const result = mapPastedRows(
+      [HEADER, ["LAM AA S1/PA199/B2/1.1", "1.86"], ["MOL SAP S3/PA4/B42/919.3", "1.90"]],
+      targets
+    );
+
+    expect(result.rows.map((row) => row.targetId)).toEqual(["1", "2"]);
+    expect(result.summary).toMatchObject({ update: 2, unknown: 0, invalid: 0 });
+  });
+
   it("pairs by position when the block carries no identifying column", () => {
     const result = mapPastedRows(
       [

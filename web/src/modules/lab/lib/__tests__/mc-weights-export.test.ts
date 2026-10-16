@@ -85,7 +85,7 @@ describe.skipIf(!reachable)("the moisture-content weighing and the analysis form
       });
       created.samples.push(sample.id);
       // As the parts compose it, which every write keeps it to.
-      const ident = `MOL/B${tag}/779.${sampleNo}`;
+      const ident = `MOL/${tag}/779.${sampleNo}`;
       const record = await prisma.labRecord.create({
         data: {
           sampleId: sample.id,
@@ -135,7 +135,7 @@ describe.skipIf(!reachable)("the moisture-content weighing and the analysis form
   it("checks a pasted block first, then saves only the rows that change something", async () => {
     const rows = [
       { line: 1, key: records[1].ident, wp: 564.5, w0: 3131.5, wd: 2276 },
-      { line: 2, key: `MOL/B${tag}/999.1`, wp: 1, w0: 2, wd: 1.5 },
+      { line: 2, key: `MOL/${tag}/999.1`, wp: 1, w0: 2, wd: 1.5 },
       { line: 3, key: records[0].ident, wd: 3000 },
     ];
     const checked = await pasteWeights(json("/api/lab-records/weights", "POST", { rows, dryRun: true }));

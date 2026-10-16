@@ -108,24 +108,24 @@ describe.skipIf(!reachable)("against the database", () => {
       orderBy: { labCode: "asc" },
     });
     expect(after.map((record) => record.sampleIdent)).toEqual([
-      `${tag}P/P${tag}T/5`,
-      `${tag}P/P${tag}T/6`,
-      `${tag}P/P${tag}T/7`,
+      `${tag}P/${tag}T/5`,
+      `${tag}P/${tag}T/6`,
+      `${tag}P/${tag}T/7`,
     ]);
     expect(after.every((record) => record.placeId === place && record.audits.length === 1)).toBe(true);
   });
 
   it("leaves alone what was not filled in", async () => {
     const record = await barcode();
-    await prisma.labRecord.update({ where: { id: record.id }, data: { pitId: pit, bargingNo: "B7" } });
+    await prisma.labRecord.update({ where: { id: record.id }, data: { pitId: pit, bargingNo: "B71" } });
 
     await applyBulkIdentity({ groups: [{ ids: [record.id], set: { placeId: place } }], userId: created.user });
     const after = await prisma.labRecord.findUnique({ where: { id: record.id } });
-    expect(after).toMatchObject({ placeId: place, pitId: pit, bargingNo: "B7" });
+    expect(after).toMatchObject({ placeId: place, pitId: pit, bargingNo: "B71" });
   });
 
   it("previews without writing, and refuses Sample IDs that would repeat", async () => {
-    const taken = await barcode(`${tag}P/P${tag}T/50`);
+    const taken = await barcode(`${tag}P/${tag}T/50`);
     const fresh = [await barcode(), await barcode()];
     const ids = fresh.map((record) => record.id);
 
@@ -137,8 +137,8 @@ describe.skipIf(!reachable)("against the database", () => {
       userId: created.user,
     });
     expect(preview.updated).toBe(0);
-    expect(preview.clashes).toEqual([`${tag}P/P${tag}T/50`]);
-    expect(preview.preview.map((row) => row.to)).toEqual([`${tag}P/P${tag}T/50`, `${tag}P/P${tag}T/50`]);
+    expect(preview.clashes).toEqual([`${tag}P/${tag}T/50`]);
+    expect(preview.preview.map((row) => row.to)).toEqual([`${tag}P/${tag}T/50`, `${tag}P/${tag}T/50`]);
 
     await expect(
       applyBulkIdentity({
@@ -148,7 +148,7 @@ describe.skipIf(!reachable)("against the database", () => {
     ).rejects.toMatchObject({ status: 409 });
     const untouched = await prisma.labRecord.findMany({ where: { id: { in: ids } } });
     expect(untouched.every((record) => record.sampleIdent === null && record.placeId === null)).toBe(true);
-    expect(taken.sampleIdent).toBe(`${tag}P/P${tag}T/50`);
+    expect(taken.sampleIdent).toBe(`${tag}P/${tag}T/50`);
   });
 
   it("changes and clears columns of records that already have a Sample ID", async () => {
@@ -157,7 +157,7 @@ describe.skipIf(!reachable)("against the database", () => {
     const record = await barcode();
     await prisma.labRecord.update({
       where: { id: record.id },
-      data: { placeId: place, pitId: pit, bargingNo: "B9", sampleIdent: `${tag}P/P${tag}T/B9` },
+      data: { placeId: place, pitId: pit, bargingNo: "B9", sampleIdent: `${tag}P/${tag}T/9` },
     });
 
     // A batch entered under the wrong pit, and a barging run that was not one.
@@ -168,7 +168,7 @@ describe.skipIf(!reachable)("against the database", () => {
     expect(result).toMatchObject({ updated: 1, changed: 1 });
 
     const after = await prisma.labRecord.findUnique({ where: { id: record.id }, include: { audits: true } });
-    expect(after).toMatchObject({ pitId: other.id, bargingNo: null, sampleIdent: `${tag}P/P${tag}U` });
+    expect(after).toMatchObject({ pitId: other.id, bargingNo: null, sampleIdent: `${tag}P/${tag}U` });
     expect(after?.audits[0]?.reason).toBe("Identity changed for several records at once");
   });
 
@@ -188,8 +188,8 @@ describe.skipIf(!reachable)("against the database", () => {
     expect(result).toMatchObject({ updated: 2, clashes: [] });
     const identOf = async (id: string) =>
       (await prisma.labRecord.findUnique({ where: { id }, select: { sampleIdent: true } }))?.sampleIdent;
-    expect(await identOf(first.id)).toBe(`${tag}P/P${tag}T/70`);
-    expect(await identOf(second.id)).toBe(`${tag}P/P${tag}V/70`);
+    expect(await identOf(first.id)).toBe(`${tag}P/${tag}T/70`);
+    expect(await identOf(second.id)).toBe(`${tag}P/${tag}V/70`);
 
     // The second group moved onto the first one's pit, while the first keeps
     // its Sample ID: the same Sample ID twice, caught across groups.
@@ -201,9 +201,9 @@ describe.skipIf(!reachable)("against the database", () => {
       userId: created.user,
     };
     const preview = await applyBulkIdentity({ ...moved, dryRun: true });
-    expect(preview.clashes).toEqual([`${tag}P/P${tag}T/70`]);
+    expect(preview.clashes).toEqual([`${tag}P/${tag}T/70`]);
     await expect(applyBulkIdentity(moved)).rejects.toMatchObject({ status: 409 });
-    expect(await identOf(second.id)).toBe(`${tag}P/P${tag}V/70`);
+    expect(await identOf(second.id)).toBe(`${tag}P/${tag}V/70`);
   });
 
   it("refuses a column that is both changed and cleared", () => {

@@ -4,7 +4,13 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/core/lib/prisma";
 import { ApiError } from "@/core/lib/http/api-response";
 import { labRecordInclude, toLabRecordDTO, toLabRecordSampleSummary } from "@/modules/lab/lib/records/lab-record";
-import { normalizeSampleKey, sampleIdentForms, sampleIdentKeys, subKey } from "@/modules/lab/lib/samples/sample-ident";
+import {
+  normalizeSampleKey,
+  sampleIdentForms,
+  sampleIdentKeys,
+  subKey,
+  legacyKeyReadings,
+} from "@/modules/lab/lib/samples/sample-ident";
 import { ACTIVE_SAMPLE_RELATION } from "@/modules/lab/lib/samples/soft-delete";
 
 /**
@@ -151,8 +157,13 @@ export type KeyResolution =
  * guessed. Lab Codes are not matched on.
  */
 export async function resolvePastedKeys(keys: readonly string[]): Promise<KeyResolution[]> {
-  const read = keys.map((key) => ({ key, ...normalizeSampleKey(key) }));
-  const bases = [...new Set(read.map((entry) => entry.base).filter(Boolean))];
+  // A key the lab's sheet still writes with the old letters ("S3/PA4/B42") is
+  // also looked for as the id is composed now, should it name nothing as it is.
+  const read = keys.map((key) => {
+    const normal = normalizeSampleKey(key);
+    return { key, ...normal, readings: normal.base ? [normal.base, ...legacyKeyReadings(normal.base)] : [] };
+  });
+  const bases = [...new Set(read.flatMap((entry) => entry.readings))];
 
   // Narrowed in the database by prefix, decided here exactly: the stored id
   // is either one of the base's forms itself, or that form followed by the
@@ -194,7 +205,8 @@ export async function resolvePastedKeys(keys: readonly string[]): Promise<KeyRes
   }
 
   return read.map((entry): KeyResolution => {
-    const matches = byBase.get(entry.base) ?? [];
+    // The key as written first, then its old-letter readings, in order.
+    const matches = entry.readings.map((base) => byBase.get(base) ?? []).find((found) => found.length > 0) ?? [];
     if (matches.length === 0) return { key: entry.key, status: "unknown" };
     if (matches.length > 1) return { key: entry.key, status: "ambiguous" };
     const parent = matches[0];

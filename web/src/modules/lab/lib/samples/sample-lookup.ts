@@ -5,7 +5,7 @@
  * Pure, so the ordering is tested without a database. The database is asked
  * for a loose set of candidates; this decides which come first.
  */
-import { normalizeSampleKey } from "@/modules/lab/lib/samples/sample-ident";
+import { legacyKeyReadings, normalizeSampleKey, subKey } from "@/modules/lab/lib/samples/sample-ident";
 
 export const LOOKUP_MIN_CHARS = 2;
 export const LOOKUP_MAX_CHARS = 64;
@@ -37,13 +37,19 @@ export interface LookupCandidate {
 function score(query: string, row: LookupCandidate): number {
   const q = query.toLowerCase();
   const identKey = (value: string) => normalizeSampleKey(value).full.toLowerCase();
+  // An id typed with the old letters ("S3/PA4/B42") is exact on a record
+  // composed without them.
+  const typed = normalizeSampleKey(query);
+  const readings = typed.base ? legacyKeyReadings(typed.base) : [];
+  const ident = row.sampleIdent === null ? null : identKey(row.sampleIdent);
 
   // Each field with the form of the query it is compared against: the barcode
   // and the lab code as typed, the Sample ID as a key.
   const fields: [string | null, string][] = [
     [row.sampleCode?.toLowerCase() ?? null, q],
     [row.labCode?.toLowerCase() ?? null, q],
-    [row.sampleIdent === null ? null : identKey(row.sampleIdent), identKey(query)],
+    [ident, identKey(query)],
+    ...readings.map((base): [string | null, string] => [ident, subKey(base, typed.code).toLowerCase()]),
   ];
 
   for (const [index, [value, needle]] of fields.entries()) {
