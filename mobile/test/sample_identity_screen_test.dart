@@ -102,11 +102,11 @@ void main() {
   ) async {
     await _pump(
       tester,
-      sample: _sample(placeId: 'p1', ident: 'MOL/PA4'),
+      sample: _sample(placeId: 'p1', ident: 'MOL/A4'),
     );
 
     expect(find.text('SPR.QLAB.20261014.002'), findsOneWidget);
-    expect(find.text('MOL/PA4'), findsOneWidget);
+    expect(find.text('MOL/A4'), findsOneWidget);
     expect(find.text('Belum ada yang diubah.'), findsOneWidget);
   });
 
@@ -121,12 +121,12 @@ void main() {
   testWidgets('checks a change with the server, then saves it', (tester) async {
     final calls = await _pump(
       tester,
-      sample: _sample(placeId: 'p1', ident: 'MOL/PA4'),
+      sample: _sample(placeId: 'p1', ident: 'MOL/A4'),
     );
 
     await tester.enterText(_field('No Sample'), '919');
     await tester.pump();
-    expect(find.text('MOL/PA4/919'), findsOneWidget);
+    expect(find.text('MOL/A4/919'), findsOneWidget);
 
     await tester.pump(const Duration(milliseconds: 450));
     expect(calls.single.dryRun, isTrue);
@@ -146,7 +146,7 @@ void main() {
   ) async {
     final calls = await _pump(
       tester,
-      sample: _sample(placeId: 'p1', ident: 'MOL/PA4'),
+      sample: _sample(placeId: 'p1', ident: 'MOL/A4'),
       clashWith: 'SMPL-2026-00001',
     );
 
@@ -167,7 +167,7 @@ void main() {
   ) async {
     final calls = await _pump(
       tester,
-      sample: _sample(placeId: 'p1', ident: 'MOL/PA4'),
+      sample: _sample(placeId: 'p1', ident: 'MOL/A4'),
     );
 
     await tester.enterText(_field('Jumlah Karung'), '123456');

@@ -1,6 +1,6 @@
 /// Builds the Sample ID the lab writes on the sheet, e.g.
 ///
-///     MOL LIM TP S3/PA4/B42/919.3/12
+///     MOL LIM TP 3/A4/42/919.3/12
 ///
 /// A line-for-line port of `composeSampleIdent` on the server
 /// (web/src/modules/lab/lib/samples/sample-ident.ts), so the identity form can
@@ -39,16 +39,18 @@ String? composeSampleIdent({
       ? '$sequenceNo.$sampleNo'
       : (sequenceNo ?? sampleNo)?.toString();
 
+  // The sir, the pit and the barging run are written as their codes alone, as
+  // the server writes them now; ids stored before keep their old "S"/"P"/"B".
   final group = [
     placeText,
     _text(rockType),
     _text(nonProd),
-    sirText == null ? null : 'S$sirText',
+    sirText,
   ].whereType<String>().join(' ');
 
   final tail = [
-    pitText == null ? null : 'P$pitText',
-    bargingText == null ? null : 'B$bargingText',
+    pitText,
+    bargingText,
     running,
     sackCount?.toString(),
   ].whereType<String>();

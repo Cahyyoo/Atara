@@ -22,7 +22,7 @@ class SampleModel {
   final String id;
   final String sampleCode;
 
-  /// What the lab sheet calls this sample, e.g. `MOL/LIM/S3/PA4/B42/919.3/25`.
+  /// What the lab sheet calls this sample, e.g. `MOL LIM 3/A4/42/919.3/25`.
   ///
   /// Null for most samples: the identity is often not known when the barcode is
   /// printed, and is filled in later from the web.

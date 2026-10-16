@@ -32,19 +32,19 @@ void main() {
   }
 
   test('builds the shape the lab writes on the sheet', () {
-    expect(complete(nonProd: 'TP'), 'MOL LIM TP S3/PA4/B42/919.3/12');
+    expect(complete(nonProd: 'TP'), 'MOL LIM TP 3/A4/42/919.3/12');
   });
 
   test('drops the non-production segment on an ordinary sample', () {
-    expect(complete(), 'MOL LIM S3/PA4/B42/919.3/12');
-    expect(complete(nonProd: '   '), 'MOL LIM S3/PA4/B42/919.3/12');
+    expect(complete(), 'MOL LIM 3/A4/42/919.3/12');
+    expect(complete(nonProd: '   '), 'MOL LIM 3/A4/42/919.3/12');
   });
 
-  test('accepts the barging run with or without its B prefix', () {
+  test('accepts the barging run with or without a B in front, and writes it without', () {
     for (final written in ['B.42', 'B42', '42', 'b.42']) {
       expect(
         complete(bargingNo: written),
-        'MOL LIM S3/PA4/B42/919.3/12',
+        'MOL LIM 3/A4/42/919.3/12',
         reason: written,
       );
     }
@@ -54,7 +54,7 @@ void main() {
     for (final written in ['B 42', 'B/42', '4 2', '4/2']) {
       expect(
         complete(bargingNo: written),
-        'MOL LIM S3/PA4/B42/919.3/12',
+        'MOL LIM 3/A4/42/919.3/12',
         reason: written,
       );
     }
@@ -63,22 +63,22 @@ void main() {
   test('upper-cases and trims what was typed', () {
     expect(
       complete(place: ' mol ', rockType: 'lim', pit: 'a4'),
-      'MOL LIM S3/PA4/B42/919.3/12',
+      'MOL LIM 3/A4/42/919.3/12',
     );
   });
 
   test('keeps a zero, which is a real number here', () {
-    expect(complete(sackCount: 0), 'MOL LIM S3/PA4/B42/919.3/0');
+    expect(complete(sackCount: 0), 'MOL LIM 3/A4/42/919.3/0');
     expect(composeSampleIdent(place: 'MOL', sackCount: 0), 'MOL/0');
   });
 
   test('leaves out whichever part is missing and closes up around it', () {
-    expect(complete(rockType: null), 'MOL S3/PA4/B42/919.3/12');
-    expect(complete(sir: null), 'MOL LIM/PA4/B42/919.3/12');
-    expect(complete(pit: null), 'MOL LIM S3/B42/919.3/12');
-    expect(complete(bargingNo: null), 'MOL LIM S3/PA4/919.3/12');
-    expect(complete(sackCount: null), 'MOL LIM S3/PA4/B42/919.3');
-    expect(complete(pit: '  '), 'MOL LIM S3/B42/919.3/12');
+    expect(complete(rockType: null), 'MOL 3/A4/42/919.3/12');
+    expect(complete(sir: null), 'MOL LIM/A4/42/919.3/12');
+    expect(complete(pit: null), 'MOL LIM 3/42/919.3/12');
+    expect(complete(bargingNo: null), 'MOL LIM 3/A4/919.3/12');
+    expect(complete(sackCount: null), 'MOL LIM 3/A4/42/919.3');
+    expect(complete(pit: '  '), 'MOL LIM 3/42/919.3/12');
   });
 
   test('composes nothing without a place, however much else is known', () {

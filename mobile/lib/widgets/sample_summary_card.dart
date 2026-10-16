@@ -56,7 +56,7 @@ class SampleSummaryCard extends StatelessWidget {
                 Icon(CupertinoIcons.tag, size: 18, color: palette.secondaryLabel),
                 const SizedBox(width: AppSpacing.sm),
                 // Scaled rather than wrapped, for the same reason as the code
-                // above: a full identity like MOL/LIM/S3/PA4/B42/919.3/25 needs
+                // above: a full identity like MOL LIM 3/A4/42/919.3/25 needs
                 // more width than the row has, and it is being checked against
                 // a lab sheet — so it has to stay in one readable run.
                 Expanded(
