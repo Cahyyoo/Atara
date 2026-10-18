@@ -45,7 +45,19 @@ export function cellsOfHole(hole: DrillHoleDTO, statusLabel: (status: DrillHoleS
   };
 }
 
-export const isFilled = (cells: Cells) => DRILL_HOLE_FIELDS.some((field) => (cells[field] ?? "").trim() !== "");
+/**
+ * The latest holes with the one opened for editing among them, unlocked: in
+ * its place when it is one of them, below them -- right above the empty
+ * rows -- when it is older.
+ */
+export function withEditing(holes: readonly SheetRow[], editing: SheetRow | null): SheetRow[] {
+  if (!editing) return [...holes];
+  const at = holes.findIndex((row) => row.id === editing.id);
+  if (at === -1) return [...holes, { ...editing, locked: false }];
+  return holes.map((row, index) => (index === at ? { ...row, locked: false } : row));
+}
+
+export const isFilled =(cells: Cells) => DRILL_HOLE_FIELDS.some((field) => (cells[field] ?? "").trim() !== "");
 
 /** Whether one box of an unlocked hole differs from what was loaded. */
 export function isChangedCell(row: SheetRow, field: DrillHoleField): boolean {

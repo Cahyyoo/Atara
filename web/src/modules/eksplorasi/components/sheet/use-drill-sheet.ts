@@ -10,12 +10,14 @@ import { withBasePath } from "@/core/lib/http/base-path";
 import type { ApiResult, PaginationDTO } from "@/core/types";
 import { DRILL_HOLE_FIELDS, fieldForHeader, type DrillHoleField } from "@/modules/eksplorasi/lib/drill-hole-columns";
 import { DRILL_SHEET_MAX_ROWS } from "@/modules/eksplorasi/validation";
+import { readStatusCell } from "@/modules/eksplorasi/lib/drill-hole-import";
 import {
   blankRows,
   cellsOfHole,
   isActive,
   SHEET_BLANK_ROWS,
   SHEET_RECENT_HOLES,
+  withEditing,
   type SheetRow,
 } from "@/modules/eksplorasi/components/sheet/sheet-rows";
 import { sendSheet, useDrillSheetCheck } from "@/modules/eksplorasi/components/sheet/use-drill-sheet-check";
@@ -29,8 +31,11 @@ const KEYS: string[] = [...DRILL_HOLE_FIELDS];
  * to type or paste new holes into. A locked hole can be unlocked and changed
  * in place; locking it again puts back what was loaded. Every active row is
  * checked by the server as it changes, and Save writes them all in one go.
+ *
+ * Opened to edit one hole (the list's Ubah), that hole is on the sheet already
+ * unlocked, and `focusRow` points at it.
  */
-export function useDrillSheet(onSaved: () => void) {
+export function useDrillSheet(onSaved: () => void, editing?: DrillHoleDTO) {
   const t = useTranslations("drilling");
   const tCommon = useTranslations("common");
   const [rows, setRows] = useState<SheetRow[]>([]);
@@ -43,6 +48,11 @@ export function useDrillSheet(onSaved: () => void) {
   // The latest holes, oldest of them first, so the newest sits right above the empty rows.
   useEffect(() => {
     const controller = new AbortController();
+    const rowOf = (hole: DrillHoleDTO): SheetRow => {
+      const cells = cellsOfHole(hole, (status) => t(`status.${status}`));
+      return { id: hole.id, locked: true, original: cells, cells };
+    };
+    const opened = editing ? rowOf(editing) : null;
     (async () => {
       try {
         const response = await fetch(withBasePath(`/api/drill-holes?page=1&pageSize=${SHEET_RECENT_HOLES}`), {
@@ -50,23 +60,24 @@ export function useDrillSheet(onSaved: () => void) {
         });
         const body = (await response.json()) as ApiResult<{ drillHoles: DrillHoleDTO[]; pagination: PaginationDTO }>;
         if (!body.success) throw new Error(body.error);
-        const holes = [...body.data.drillHoles].reverse().map((hole): SheetRow => {
-          const cells = cellsOfHole(hole, (status) => t(`status.${status}`));
-          return { id: hole.id, locked: true, original: cells, cells };
-        });
-        setRows([...holes, ...blankRows(SHEET_BLANK_ROWS)]);
+        const holes = [...body.data.drillHoles].reverse().map(rowOf);
+        setRows([...withEditing(holes, opened), ...blankRows(SHEET_BLANK_ROWS)]);
       } catch {
         if (controller.signal.aborted) return;
         setLoadError(tCommon("loadError"));
-        setRows(blankRows(SHEET_BLANK_ROWS));
+        // The hole being edited is in hand already: it can still be changed.
+        setRows([...withEditing([], opened), ...blankRows(SHEET_BLANK_ROWS)]);
       } finally {
         if (!controller.signal.aborted) setLoading(false);
       }
     })();
     return () => controller.abort();
-  }, [t, tCommon]);
+  }, [t, tCommon, editing]);
 
   const existing = rows.filter((row) => row.id !== undefined).length;
+  // Where the cursor goes once the sheet is there: the hole being edited, or the first empty row.
+  const editedRow = editing ? rows.findIndex((row) => row.id === editing.id) : -1;
+  const focusRow = editedRow === -1 ? existing : editedRow;
   const maxRows = existing + DRILL_SHEET_MAX_ROWS;
   const summary = check.progress.summary;
   const writes = summary ? summary.create + summary.update : 0;
@@ -112,6 +123,20 @@ export function useDrillSheet(onSaved: () => void) {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  /**
+   * A status as the sheet shows it: by its name, however it was written --
+   * "COMPLETED", "selesai" and "Done" all read as the one the list offers,
+   * through the reader the import and the server use. Text it cannot read is
+   * kept as written, for the server to mark.
+   */
+  const statusText = useCallback(
+    (value: string) => {
+      const status = readStatusCell(value);
+      return status === null || status === "invalid" ? value : t(`status.${status}`);
+    },
+    [t]
+  );
+
   /** Writes boxes, growing the sheet as far as asked; a locked hole's boxes are never written. */
   const write = useCallback(
     (cells: CellWrite[], grow = 0) => {
@@ -120,12 +145,13 @@ export function useDrillSheet(onSaved: () => void) {
         const next = length > previous.length ? [...previous, ...blankRows(length - previous.length)] : [...previous];
         for (const { row, key, value } of cells) {
           if (row >= next.length || next[row].locked) continue;
-          next[row] = { ...next[row], cells: { ...next[row].cells, [key]: value } };
+          const text = key === "status" ? statusText(value) : value;
+          next[row] = { ...next[row], cells: { ...next[row].cells, [key]: text } };
         }
         return next;
       });
     },
-    [maxRows]
+    [maxRows, statusText]
   );
 
   const setCell = useCallback((row: number, key: string, value: string) => write([{ row, key, value }]), [write]);
@@ -182,6 +208,7 @@ export function useDrillSheet(onSaved: () => void) {
     rows,
     loading,
     existing,
+    focusRow,
     verdictFor: check.verdictFor,
     progress: check.progress,
     summary,

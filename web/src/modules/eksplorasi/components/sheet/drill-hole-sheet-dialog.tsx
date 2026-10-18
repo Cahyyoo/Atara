@@ -9,7 +9,7 @@ import { cn } from "@/core/lib/utils";
 import { DRILL_HOLE_FIELDS } from "@/modules/eksplorasi/lib/drill-hole-columns";
 import { DrillSheetGrid } from "@/modules/eksplorasi/components/sheet/drill-sheet-grid";
 import { useDrillSheet } from "@/modules/eksplorasi/components/sheet/use-drill-sheet";
-import type { DrillSheetStatus } from "@/modules/eksplorasi/types";
+import type { DrillHoleDTO, DrillSheetStatus } from "@/modules/eksplorasi/types";
 import { IoAddOutline, IoReloadOutline, IoSaveOutline } from "react-icons/io5";
 
 const TONE: Record<DrillSheetStatus, string> = {
@@ -23,29 +23,42 @@ const TONE: Record<DrillSheetStatus, string> = {
  * Adding drill holes as in a spreadsheet: type or paste a block from Excel
  * (with its header or without) into the empty rows, each row checked as it
  * lands. The latest holes sit above, read-only; one unlocked is changed in
- * place and saved with the rest. Mounted only while open, so it opens fresh.
+ * place and saved with the rest. Opened from a hole's Ubah, that hole comes
+ * already unlocked, with the cursor in it. Mounted only while open, so it
+ * opens fresh.
  */
-export function DrillHoleSheetDialog({ onClose, onSaved }: { onClose: () => void; onSaved: () => void }) {
+export function DrillHoleSheetDialog({
+  editing,
+  onClose,
+  onSaved,
+}: {
+  /** The hole whose Ubah opened the sheet; absent when it was opened to add. */
+  editing?: DrillHoleDTO;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
   const t = useTranslations("drilling");
   const tCommon = useTranslations("common");
   const sheet = useDrillSheet(() => {
     onSaved();
     onClose();
-  });
+  }, editing);
 
-  // Straight into the first empty row once it is there, so Ctrl+V works at once.
+  // Straight into the hole being edited, or the first empty row, once it is
+  // there -- so typing, or Ctrl+V, works at once.
   const [focused, setFocused] = useState(false);
   useEffect(() => {
     if (sheet.loading || focused) return;
+    const row = sheet.focusRow;
     const frame = requestAnimationFrame(() => {
-      sheet.virtual.scrollToRow(sheet.existing);
+      sheet.virtual.scrollToRow(row);
       requestAnimationFrame(() =>
-        document.querySelector<HTMLInputElement>(`[data-cell-row="${sheet.existing}"][data-cell-col="0"]`)?.focus()
+        document.querySelector<HTMLInputElement>(`[data-cell-row="${row}"][data-cell-col="0"]`)?.focus()
       );
       setFocused(true);
     });
     return () => cancelAnimationFrame(frame);
-  }, [sheet.loading, sheet.existing, sheet.virtual, focused]);
+  }, [sheet.loading, sheet.focusRow, sheet.virtual, focused]);
 
   const summary = sheet.summary;
 
@@ -56,7 +69,7 @@ export function DrillHoleSheetDialog({ onClose, onSaved }: { onClose: () => void
         overlayClassName="backdrop-blur-none"
       >
         <DialogHeader className="shrink-0">
-          <DialogTitle>{t("sheet.title")}</DialogTitle>
+          <DialogTitle>{editing ? t("editTitle", { holeId: editing.holeId }) : t("sheet.title")}</DialogTitle>
           <DialogDescription>{t("sheet.description", { count: sheet.existing })}</DialogDescription>
         </DialogHeader>
 

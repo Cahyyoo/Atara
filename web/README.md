@@ -186,7 +186,7 @@ Akun baru dan akun yang kata sandinya direset memakai kata sandi default per per
 | `/lab/master-data`                  | Kosakata penyusun Sample ID (tempat, jenis batuan, non-prod, pit, SIR). |
 | `/lab/tv`                           | Tampilan monitoring layar penuh untuk TV di lab. |
 | **Modul Eksplorasi**                | |
-| `/eksplorasi/drilling`              | Data Drilling: daftar lubang bor, cari (Hole ID/area), filter status, tambah lewat lembar seperti Excel (50 data terakhir tampil terkunci dan bisa dibuka kuncinya untuk diubah), ubah/hapus per baris, import & export Excel/CSV. |
+| `/eksplorasi/drilling`              | Data Drilling: daftar lubang bor, cari (Hole ID/area), filter status, tambah & ubah lewat lembar seperti Excel (50 data terakhir tampil terkunci dan bisa dibuka kuncinya; tombol Ubah membuka lembar dengan lubang bor itu sudah terbuka), hapus per baris, import & export Excel/CSV. |
 | **Modul Pengaturan & bersama**      | |
 | `/users`                            | Super admin: akun admin setiap departemen. Admin Lab: staf lab. Termasuk sesi aktif, wajah, TOTP, dan password default per peran. |
 | `/admin`                            | Super admin: pengumuman di atas semua halaman dan backup lengkap. |

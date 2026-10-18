@@ -7,7 +7,7 @@
         "steps": {
           "1": "Add Drill Hole opens a spreadsheet-like sheet: type or paste a block from Excel into the empty rows. The latest 50 holes sit above, locked; click the lock to change one in place, then Save them all at once.",
           "2": "Search by hole ID or area, and filter by status.",
-          "3": "Edit fills in the rest; the bin icon deletes a drill hole permanently.",
+          "3": "Edit opens the same sheet with that hole already unlocked; the bin icon removes a hole for good.",
           "4": "Import uploads thousands of drill holes at once from Excel/CSV (previewed first; rows with errors can be downloaded); Export downloads the list on screen in the same format."
         },
         "tip": "The hole ID must be unique. Every other field may be left empty and completed later."
@@ -64,24 +64,7 @@
       "azimuthShort": "Az",
       "dipShort": "Dip"
     },
-    "placeholders": {
-      "holeId": "e.g. DH-2026-001",
-      "area": "e.g. Block A"
-    },
-    "sections": {
-      "collar": "Collar coordinates",
-      "survey": "Orientation & depth"
-    },
-    "addTitle": "Add Drill Hole",
     "editTitle": "Edit {holeId}",
-    "dialogDescription": "Everything but the hole ID may be left empty and filled in later.",
-    "create": "Save Drill Hole",
-    "created": "{holeId} added.",
-    "updated": "{holeId} updated.",
-    "errors": {
-      "dateOrder": "The end date cannot be before the start date.",
-      "duplicate": "Hole ID {holeId} is already in use."
-    },
     "delete": {
       "label": "Delete {holeId}",
       "title": "Delete drill hole?",

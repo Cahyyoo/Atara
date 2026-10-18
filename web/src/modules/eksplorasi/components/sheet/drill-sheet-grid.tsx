@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useMemo, type HTMLAttributes, type Ref } from "react";
+import { memo, useMemo, type ClipboardEvent, type HTMLAttributes, type Ref } from "react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/core/lib/utils";
 import { inSelection } from "@/core/hooks/use-grid-selection";
@@ -12,13 +12,13 @@ import type { DrillSheetStatus, DrillSheetVerdict } from "@/modules/eksplorasi/t
 import {
   IoAddCircle,
   IoCheckmarkCircle,
+  IoChevronDown,
   IoCloseCircle,
   IoLockClosedOutline,
   IoLockOpenOutline,
   IoRemoveCircleOutline,
 } from "react-icons/io5";
 
-const STATUS_LIST_ID = "drill-sheet-statuses";
 const isNumber = (field: DrillHoleField) => (DRILL_HOLE_NUMBER_FIELDS as readonly string[]).includes(field);
 
 const WIDTH: Partial<Record<DrillHoleField, string>> = {
@@ -35,6 +35,8 @@ const widthOf = (field: DrillHoleField) => WIDTH[field] ?? "w-28 min-w-28";
 const BOX =
   "h-8 w-full min-w-0 rounded-md border border-transparent bg-transparent px-2 text-sm outline-none transition-colors placeholder:text-muted-foreground/40 focus-visible:bg-background focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-[selected]:bg-primary/15 data-[selected]:ring-1 data-[selected]:ring-primary/50 read-only:text-muted-foreground";
 const CHANGED = " bg-amber-100/70 dark:bg-amber-500/15";
+/** The status box: a select drawn as the other boxes are, with its own chevron. */
+const SELECT = `${BOX} cursor-pointer appearance-none pr-6 [&>option]:bg-background [&>option]:text-foreground`;
 
 const MARKS: Record<DrillSheetStatus, { icon: typeof IoAddCircle; className: string }> = {
   create: { icon: IoAddCircle, className: "text-primary" },
@@ -53,11 +55,74 @@ function VerdictMark({ verdict, pending }: { verdict: DrillSheetVerdict | undefi
   return <Icon role="img" aria-label={label} title={label} className={cn("size-4 shrink-0", className)} />;
 }
 
+/** The attributes every box carries, whatever it is: how the grid finds it, and how it reads aloud. */
+interface BoxProps {
+  "aria-label": string;
+  "data-cell-row": number;
+  "data-cell-col": number;
+  "data-selected": "" | undefined;
+  "aria-invalid": true | undefined;
+  title: string | undefined;
+}
+
+/**
+ * The status of a row that can be changed: a list to pick from, as a sheet's
+ * dropdown cell is. Blank is allowed -- a new hole is then planned, and an
+ * unlocked one keeps its status. Text the list does not know (pasted, say)
+ * stays visible as its own option, and is marked by the server.
+ */
+function StatusCell({
+  box,
+  value,
+  statusLabels,
+  disabled,
+  className,
+  onChange,
+}: {
+  box: BoxProps;
+  value: string;
+  statusLabels: readonly string[];
+  disabled: boolean;
+  className: string;
+  onChange: (value: string) => void;
+}) {
+  // One value pasted into the box is its own to take: the grid only spreads blocks.
+  const paste = (event: ClipboardEvent<HTMLSelectElement>) => {
+    event.preventDefault();
+    onChange(event.clipboardData.getData("text/plain").trim());
+  };
+  return (
+    <div className="relative">
+      <select
+        {...box}
+        value={value}
+        disabled={disabled}
+        onChange={(event) => onChange(event.target.value)}
+        onPaste={paste}
+        className={className}
+      >
+        <option value="">—</option>
+        {statusLabels.map((label) => (
+          <option key={label} value={label}>
+            {label}
+          </option>
+        ))}
+        {value && !statusLabels.includes(value) ? <option value={value}>{value}</option> : null}
+      </select>
+      <IoChevronDown
+        aria-hidden
+        className="pointer-events-none absolute top-1/2 right-2 size-3.5 -translate-y-1/2 text-muted-foreground"
+      />
+    </div>
+  );
+}
+
 interface RowProps {
   index: number;
   row: SheetRow;
   fields: readonly DrillHoleField[];
   labels: Record<DrillHoleField, string>;
+  statusLabels: readonly string[];
   verdict: DrillSheetVerdict | undefined;
   pending: boolean;
   saving: boolean;
@@ -70,7 +135,7 @@ interface RowProps {
 
 /** One row, memoised: typing re-renders the row being typed in, not the rest. */
 const DrillSheetRow = memo(function DrillSheetRow(props: RowProps) {
-  const { index, row, fields, labels, verdict, pending, saving, selection, rowLabel, lockLabel } = props;
+  const { index, row, fields, labels, statusLabels, verdict, pending, saving, selection, rowLabel, lockLabel } = props;
   const existing = row.id !== undefined;
   const faultField = verdict?.status === "invalid" ? verdict.field : undefined;
 
@@ -101,26 +166,40 @@ const DrillSheetRow = memo(function DrillSheetRow(props: RowProps) {
       </td>
       {fields.map((field, col) => {
         const faulty = faultField === field;
+        const box: BoxProps = {
+          "aria-label": `${rowLabel} ${labels[field]}`,
+          "data-cell-row": index,
+          "data-cell-col": col,
+          "data-selected": inSelection(selection, col) ? "" : undefined,
+          "aria-invalid": faulty ? true : undefined,
+          title: faulty ? verdict?.message : undefined,
+        };
+        const changed = isChangedCell(row, field) && !faulty ? CHANGED : "";
+        const value = row.cells[field] ?? "";
+        const change = (next: string) => props.onCellChange(index, field, next);
         return (
           <td key={field} className={cn("p-0.5", widthOf(field))}>
-            <input
-              aria-label={`${rowLabel} ${labels[field]}`}
-              autoComplete="off"
-              inputMode={isNumber(field) ? "decimal" : undefined}
-              list={field === "status" ? STATUS_LIST_ID : undefined}
-              placeholder={field === "startDate" || field === "endDate" ? "YYYY-MM-DD" : undefined}
-              readOnly={row.locked || saving}
-              data-cell-row={index}
-              data-cell-col={col}
-              data-selected={inSelection(selection, col) ? "" : undefined}
-              aria-invalid={faulty ? true : undefined}
-              title={faulty ? verdict?.message : undefined}
-              value={row.cells[field] ?? ""}
-              onChange={(event) => props.onCellChange(index, field, event.target.value)}
-              className={
-                (isNumber(field) ? `${BOX} text-right tabular-nums` : BOX) + (isChangedCell(row, field) && !faulty ? CHANGED : "")
-              }
-            />
+            {field === "status" && !row.locked ? (
+              <StatusCell
+                box={box}
+                value={value}
+                statusLabels={statusLabels}
+                disabled={saving}
+                className={SELECT + changed}
+                onChange={change}
+              />
+            ) : (
+              <input
+                {...box}
+                autoComplete="off"
+                inputMode={isNumber(field) ? "decimal" : undefined}
+                placeholder={field === "startDate" || field === "endDate" ? "YYYY-MM-DD" : undefined}
+                readOnly={row.locked || saving}
+                value={value}
+                onChange={(event) => change(event.target.value)}
+                className={(isNumber(field) ? `${BOX} text-right tabular-nums` : BOX) + changed}
+              />
+            )}
           </td>
         );
       })}
@@ -173,15 +252,11 @@ export function DrillSheetGrid({
     () => Object.fromEntries(fields.map((field) => [field, t(`fields.${field}`)])) as Record<DrillHoleField, string>,
     [fields, t]
   );
+  const statusLabels = useMemo(() => DRILL_HOLE_STATUSES.map((status) => t(`status.${status}`)), [t]);
   const span = fields.length + 2;
 
   return (
     <div ref={scrollerRef} onScroll={onScroll} className="min-h-0 flex-1 overflow-auto rounded-xl border bg-background">
-      <datalist id={STATUS_LIST_ID}>
-        {DRILL_HOLE_STATUSES.map((status) => (
-          <option key={status} value={t(`status.${status}`)} />
-        ))}
-      </datalist>
       <div {...containerProps} className="w-max min-w-full data-[dragging]:select-none">
         <table className="w-full border-collapse text-sm">
           <thead className="sticky top-0 z-20 bg-muted">
@@ -210,6 +285,7 @@ export function DrillSheetGrid({
                   row={row}
                   fields={fields}
                   labels={labels}
+                  statusLabels={statusLabels}
                   verdict={verdictFor(row)}
                   pending={pending}
                   saving={saving}

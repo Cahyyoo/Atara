@@ -62,10 +62,10 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-async function show(onSaved = vi.fn(), onClose = vi.fn()) {
+async function show(onSaved = vi.fn(), onClose = vi.fn(), editing?: DrillHoleDTO) {
   render(
     <NextIntlClientProvider locale="en" messages={en} timeZone="Asia/Makassar" onError={() => {}}>
-      <DrillHoleSheetDialog onSaved={onSaved} onClose={onClose} />
+      <DrillHoleSheetDialog editing={editing} onSaved={onSaved} onClose={onClose} />
     </NextIntlClientProvider>
   );
   await screen.findByRole("textbox", { name: "Row 1 Hole ID" }, { timeout: 3000 });
@@ -80,12 +80,39 @@ describe("the drilling sheet", () => {
     await show();
     expect(box(1, "Hole ID").value).toBe("DH-001");
     expect(box(1, "Hole ID").readOnly).toBe(true);
-    // With its list of statuses, the status box is a combobox.
-    expect((screen.getByRole("combobox", { name: "Row 1 Status" }) as HTMLInputElement).value).toBe(
-      en.drilling.status.ONGOING
-    );
+    // A locked hole's status is read-only text, like the rest of its row.
+    expect(box(1, "Status").value).toBe(en.drilling.status.ONGOING);
+    expect(box(1, "Status").readOnly).toBe(true);
     expect(box(2, "Hole ID").readOnly).toBe(false);
     expect(box(2, "Hole ID").value).toBe("");
+  });
+
+  it("offers the statuses as a list on a row that can be changed, and sends the one picked", async () => {
+    const { onSaved } = await show();
+    const status = () => screen.getByRole("combobox", { name: "Row 2 Status" }) as HTMLSelectElement;
+    expect([...status().options].map((option) => option.text)).toEqual([
+      "—",
+      ...(["PLANNED", "ONGOING", "COMPLETED", "ABANDONED"] as const).map((key) => en.drilling.status[key]),
+    ]);
+
+    fireEvent.change(box(2, "Hole ID"), { target: { value: "DH-300" } });
+    fireEvent.change(status(), { target: { value: en.drilling.status.COMPLETED } });
+    expect(status().value).toBe(en.drilling.status.COMPLETED);
+
+    const save = await screen.findByRole("button", { name: "Save 1 row" }, LONG);
+    await waitFor(() => expect((save as HTMLButtonElement).disabled).toBe(false), LONG);
+    fireEvent.click(save);
+    await waitFor(() => expect(onSaved).toHaveBeenCalled(), LONG);
+    expect(sent.at(-1)?.rows).toEqual([{ line: 2, cells: { holeId: "DH-300", status: en.drilling.status.COMPLETED } }]);
+  });
+
+  it("shows a pasted status by its name, however the sheet wrote it", async () => {
+    await show();
+    fireEvent.paste(box(2, "Hole ID"), {
+      clipboardData: { getData: () => "Hole ID\tStatus\nDH-1\tCOMPLETED\nDH-2\tselesai\nDH-3\tsomeday" },
+    });
+    const status = (row: number) => (screen.getByRole("combobox", { name: `Row ${row} Status` }) as HTMLSelectElement).value;
+    expect([status(2), status(3), status(4)]).toEqual([en.drilling.status.COMPLETED, en.drilling.status.COMPLETED, "someday"]);
   });
 
   it("spreads a block pasted with its header across the new rows", async () => {
@@ -131,5 +158,31 @@ describe("the drilling sheet", () => {
     fireEvent.click(screen.getByRole("button", { name: en.drilling.sheet.lock }));
     expect(box(1, en.drilling.fields.totalDepth).value).toBe("120");
     expect(box(1, en.drilling.fields.totalDepth).readOnly).toBe(true);
+  });
+
+  it("opened from a hole's Ubah, has that hole unlocked already", async () => {
+    await show(vi.fn(), vi.fn(), HOLE);
+    expect(screen.getByRole("heading", { name: "Edit DH-001" })).toBeTruthy();
+    expect(box(1, "Hole ID").readOnly).toBe(false);
+    expect(screen.getByRole("button", { name: en.drilling.sheet.lock })).toBeTruthy();
+    await waitFor(() => expect(document.activeElement).toBe(box(1, "Hole ID")), LONG);
+  });
+
+  it("brings an older hole onto the sheet, unlocked, right above the empty rows", async () => {
+    const onSaved = vi.fn();
+    const older: DrillHoleDTO = { ...HOLE, id: "h0", holeId: "DH-000", totalDepth: 40 };
+    await show(onSaved, vi.fn(), older);
+    expect(box(1, "Hole ID").value).toBe("DH-001");
+    expect(box(1, "Hole ID").readOnly).toBe(true);
+    expect(box(2, "Hole ID").value).toBe("DH-000");
+    expect(box(2, "Hole ID").readOnly).toBe(false);
+    expect(box(3, "Hole ID").value).toBe("");
+
+    fireEvent.change(box(2, en.drilling.fields.totalDepth), { target: { value: "45" } });
+    const save = await screen.findByRole("button", { name: "Save 1 row" }, LONG);
+    await waitFor(() => expect((save as HTMLButtonElement).disabled).toBe(false), LONG);
+    fireEvent.click(save);
+    await waitFor(() => expect(onSaved).toHaveBeenCalled(), LONG);
+    expect(sent.at(-1)?.rows).toEqual([{ line: 2, id: "h0", cells: expect.objectContaining({ totalDepth: "45" }) }]);
   });
 });

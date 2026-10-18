@@ -11,7 +11,6 @@ import { ExportMenu, TablePagination } from "@/core/components/table/table-toolb
 import { useApiList } from "@/core/hooks/use-api-list";
 import { downloadFromApi } from "@/core/lib/http/download";
 import type { PaginationDTO } from "@/core/types";
-import { DrillHoleDialog, type DrillHoleDialogTarget } from "@/modules/eksplorasi/components/drill-hole-dialog";
 import { DeleteDrillHoleDialog } from "@/modules/eksplorasi/components/delete-drill-hole-dialog";
 import { DrillHoleImportDialog } from "@/modules/eksplorasi/components/import/drill-hole-import-dialog";
 import { DrillHoleSheetDialog } from "@/modules/eksplorasi/components/sheet/drill-hole-sheet-dialog";
@@ -23,8 +22,9 @@ import { IoAddOutline, IoCloudUploadOutline, IoReloadOutline } from "react-icons
 const ALL = "ALL";
 
 /**
- * The drill holes: search by hole ID or area, filter by status, add (and
- * change) them in a sheet, edit or remove one, and import or export the lot. Deliberately plain -- the detailed
+ * The drill holes: search by hole ID or area, filter by status, add and
+ * change them in a sheet (Ubah opens it on that hole), remove one, and import
+ * or export the lot. Deliberately plain -- the detailed
  * drilling features come later.
  */
 export function DrillHolesTable() {
@@ -34,10 +34,10 @@ export function DrillHolesTable() {
   const [status, setStatus] = useState<DrillHoleStatus | typeof ALL>(ALL);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState("25");
-  const [target, setTarget] = useState<DrillHoleDialogTarget>(null);
   const [deleteTarget, setDeleteTarget] = useState<DrillHoleDTO | null>(null);
   const [importOpen, setImportOpen] = useState(false);
-  const [sheetOpen, setSheetOpen] = useState(false);
+  /** The sheet, when open: to add holes, or with the one whose Ubah opened it. */
+  const [sheet, setSheet] = useState<{ editing?: DrillHoleDTO } | null>(null);
   const [exportError, setExportError] = useState<string | null>(null);
 
   const filters = { search, status: status === ALL ? undefined : status };
@@ -95,7 +95,7 @@ export function DrillHolesTable() {
             {t("import.button")}
           </Button>
           <ExportMenu onExport={(format) => void exportAs(format)} />
-          <Button className="gap-2" onClick={() => setSheetOpen(true)}>
+          <Button className="gap-2" onClick={() => setSheet({})}>
             <IoAddOutline className="size-4" />
             {t("add")}
           </Button>
@@ -133,7 +133,13 @@ export function DrillHolesTable() {
               </TableRow>
             ) : (
               list.items.map((row, index) => (
-                <DrillHoleRow key={row.id} row={row} index={index} onEdit={setTarget} onDelete={setDeleteTarget} />
+                <DrillHoleRow
+                  key={row.id}
+                  row={row}
+                  index={index}
+                  onEdit={(hole) => setSheet({ editing: hole })}
+                  onDelete={setDeleteTarget}
+                />
               ))
             )}
           </TableBody>
@@ -151,20 +157,13 @@ export function DrillHolesTable() {
         />
       ) : null}
 
-      <DrillHoleDialog
-        target={target}
-        onClose={() => setTarget(null)}
-        onSaved={(saved, isNew) => {
-          list.setItems((rows) => (isNew ? [saved, ...rows] : rows.map((row) => (row.id === saved.id ? saved : row))));
-          if (isNew) list.setPagination((current) => (current ? { ...current, total: current.total + 1 } : current));
-        }}
-      />
-
-      {sheetOpen ? (
+      {sheet ? (
         <DrillHoleSheetDialog
-          onClose={() => setSheetOpen(false)}
+          editing={sheet.editing}
+          onClose={() => setSheet(null)}
           onSaved={() => {
-            setPage(1);
+            // New holes come first in the list; a change is seen where it was made.
+            if (!sheet.editing) setPage(1);
             list.reload();
           }}
         />

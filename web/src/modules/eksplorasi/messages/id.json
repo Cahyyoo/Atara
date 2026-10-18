@@ -7,7 +7,7 @@
         "steps": {
           "1": "Tambah Lubang Bor membuka lembar seperti Excel: ketik atau tempel blok dari Excel ke baris kosong. 50 lubang bor terakhir tampil terkunci di atasnya; klik gembok untuk mengubahnya langsung di lembar, lalu Simpan sekaligus.",
           "2": "Cari dengan Hole ID atau area, dan saring per status.",
-          "3": "Ubah untuk melengkapi data; ikon tempat sampah menghapus lubang bor secara permanen.",
+          "3": "Ubah membuka lembar yang sama dengan lubang bor itu sudah terbuka kuncinya; ikon tempat sampah menghapus lubang bor secara permanen.",
           "4": "Import untuk mengunggah ribuan lubang bor sekaligus dari Excel/CSV (pratinjau dulu, baris error bisa diunduh); Export mengunduh daftar yang sedang tampil dalam format yang sama."
         },
         "tip": "Hole ID harus unik. Kolom lain boleh dikosongkan lalu dilengkapi nanti."
@@ -64,24 +64,7 @@
       "azimuthShort": "Az",
       "dipShort": "Dip"
     },
-    "placeholders": {
-      "holeId": "mis. DH-2026-001",
-      "area": "mis. Blok A"
-    },
-    "sections": {
-      "collar": "Koordinat collar",
-      "survey": "Orientasi & kedalaman"
-    },
-    "addTitle": "Tambah Lubang Bor",
     "editTitle": "Ubah {holeId}",
-    "dialogDescription": "Kolom selain Hole ID boleh dikosongkan dan dilengkapi nanti.",
-    "create": "Simpan Lubang Bor",
-    "created": "{holeId} ditambahkan.",
-    "updated": "{holeId} diperbarui.",
-    "errors": {
-      "dateOrder": "Tanggal selesai tidak boleh sebelum tanggal mulai.",
-      "duplicate": "Hole ID {holeId} sudah dipakai."
-    },
     "delete": {
       "label": "Hapus {holeId}",
       "title": "Hapus lubang bor?",
