@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { windowOf } from "@/modules/lab/components/assay/grid/use-virtual-rows";
+import { windowOf } from "@/core/hooks/use-virtual-rows";
 
 /** Five thousand rows, of which only the ones on screen are rendered. */
 describe("the rows in view", () => {

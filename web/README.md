@@ -186,7 +186,7 @@ Akun baru dan akun yang kata sandinya direset memakai kata sandi default per per
 | `/lab/master-data`                  | Kosakata penyusun Sample ID (tempat, jenis batuan, non-prod, pit, SIR). |
 | `/lab/tv`                           | Tampilan monitoring layar penuh untuk TV di lab. |
 | **Modul Eksplorasi**                | |
-| `/eksplorasi/drilling`              | Data Drilling: daftar lubang bor, cari (Hole ID/area), filter status, tambah/ubah/hapus, import & export Excel/CSV. |
+| `/eksplorasi/drilling`              | Data Drilling: daftar lubang bor, cari (Hole ID/area), filter status, tambah lewat lembar seperti Excel (50 data terakhir tampil terkunci dan bisa dibuka kuncinya untuk diubah), ubah/hapus per baris, import & export Excel/CSV. |
 | **Modul Pengaturan & bersama**      | |
 | `/users`                            | Super admin: akun admin setiap departemen. Admin Lab: staf lab. Termasuk sesi aktif, wajah, TOTP, dan password default per peran. |
 | `/admin`                            | Super admin: pengumuman di atas semua halaman dan backup lengkap. |
@@ -258,6 +258,7 @@ Semua endpoint di bawah ini membutuhkan capability `manageDrilling` (Admin Ekspl
 | -------------------- | ----------------------- | --------- |
 | GET / POST           | `/api/drill-holes`      | Daftar lubang bor (`search`, `status`, `page`, `pageSize`) / tambah lubang bor. Hole ID yang sudah dipakai → `409`. |
 | GET / PATCH / DELETE | `/api/drill-holes/[id]` | Detail / ubah sebagian kolom / hapus permanen. |
+| POST                 | `/api/drill-holes/sheet` | Lembar "Tambah Lubang Bor": `{ dryRun, rows: [{ line, id?, cells }] }`, maks. 500 baris. Baris tanpa `id` = lubang bor baru (Hole ID yang sudah ada ditolak), baris dengan `id` = lubang bor yang dibuka kuncinya (sel kosong menghapus isinya). Sel dibaca sama seperti import. Menjawab status per baris (`create`/`update`/`unchanged`/`invalid`); tidak ada yang disimpan selama masih ada baris invalid, lalu semua disimpan dalam satu transaksi. |
 | GET                  | `/api/drill-holes/export` | Unduh daftar sebagai `format=xlsx` (default) atau `csv`, dengan filter `search`/`status` yang sama seperti di layar. Di-stream baris per baris; maksimal 50.000 baris. |
 | GET                  | `/api/drill-holes/template` | Template kosong (`format=xlsx`/`csv`) berisi header kolom. |
 | POST                 | `/api/drill-holes/import` | Multipart `file` (.xlsx/.csv, ≤ 20 MB, ≤ 50.000 baris), `apply` (`0` pratinjau / `1` simpan), `updateExisting` (`0`/`1`). Pratinjau menjawab JSON (jumlah baru/sudah ada/error + daftar error per baris). Simpan menjawab NDJSON berisi progres per batch lalu total. |

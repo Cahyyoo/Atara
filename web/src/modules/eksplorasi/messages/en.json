@@ -5,7 +5,7 @@
         "title": "Drilling Data",
         "intro": "The drill holes of the Exploration module.",
         "steps": {
-          "1": "Add Drill Hole records the hole ID, area, collar coordinates, orientation and depth.",
+          "1": "Add Drill Hole opens a spreadsheet-like sheet: type or paste a block from Excel into the empty rows. The latest 50 holes sit above, locked; click the lock to change one in place, then Save them all at once.",
           "2": "Search by hole ID or area, and filter by status.",
           "3": "Edit fills in the rest; the bin icon deletes a drill hole permanently.",
           "4": "Import uploads thousands of drill holes at once from Excel/CSV (previewed first; rows with errors can be downloaded); Export downloads the list on screen in the same format."
@@ -127,6 +127,34 @@
         "line": "Line",
         "column": "Column",
         "error": "Error"
+      }
+    },
+    "sheet": {
+      "title": "Add & change drill holes",
+      "description": "Type or paste a block from Excel (with or without its header row) into the empty rows with Ctrl+V. Dates as YYYY-MM-DD or DD/MM/YYYY; numbers may use a decimal comma. {count, plural, =0 {} other {The latest # holes are shown above, locked; click the lock to change one, and a box emptied clears that value.}}",
+      "rowColumn": "No.",
+      "row": "Row {row}",
+      "lock": "Lock again (undo changes)",
+      "unlock": "Unlock to change",
+      "loading": "Loading the latest drill holes…",
+      "checking": "Checking…",
+      "addRows": "Add 50 rows",
+      "clear": "Clear",
+      "save": "Save {count, plural, one {# row} other {# rows}}",
+      "nothing": "Fill in an empty row, or unlock a hole to change it.",
+      "fixInvalid": "{count, plural, one {# row needs} other {# rows need}} fixing before saving.",
+      "saved": "{created, plural, one {# hole} other {# holes}} added, {updated} changed.",
+      "counts": {
+        "create": "{count} new",
+        "update": "{count} changed",
+        "unchanged": "{count} unchanged",
+        "invalid": "{count} to fix"
+      },
+      "statuses": {
+        "create": "Will be added",
+        "update": "Will be changed",
+        "unchanged": "No change",
+        "invalid": "Needs fixing"
       }
     }
   }

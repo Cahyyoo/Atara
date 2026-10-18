@@ -3,7 +3,7 @@
 import { memo, useMemo, type KeyboardEvent } from "react";
 import { useTranslations } from "next-intl";
 import { AssayInput, InstrumentInput, RemarksInput } from "@/modules/lab/components/assay/result-cells";
-import { inSelection } from "@/modules/lab/components/assay/grid/use-grid-selection";
+import { inSelection } from "@/core/hooks/use-grid-selection";
 import {
   Table,
   TableBody,

@@ -3,8 +3,8 @@
 import { memo, type HTMLAttributes, type Ref } from "react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/core/lib/utils";
-import { inSelection } from "@/modules/lab/components/assay/grid/use-grid-selection";
-import { isBlock } from "@/modules/lab/lib/records/sheet-paste";
+import { inSelection } from "@/core/hooks/use-grid-selection";
+import { isBlock } from "@/core/lib/sheets/clipboard-block";
 import { DuplicateMark, StatusMark } from "@/modules/lab/components/assay/paste-sheet/sheet-status";
 import { SHEET_ROW_HEIGHT } from "@/modules/lab/components/assay/paste-sheet/use-paste-sheet";
 import type { SheetRow } from "@/modules/lab/components/assay/paste-sheet/sheet-text";

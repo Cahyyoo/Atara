@@ -2,6 +2,7 @@
 import { z } from "zod";
 import { paginationQuery } from "@/core/lib/http/pagination";
 import { DRILL_HOLE_STATUSES } from "@/modules/eksplorasi/lib/drill-hole";
+import { DRILL_HOLE_FIELDS, type DrillHoleField } from "@/modules/eksplorasi/lib/drill-hole-columns";
 
 /** An optional number in a range; an empty field arrives as null. */
 const optionalNumber = (min: number, max: number) =>
@@ -51,6 +52,32 @@ export const updateDrillHoleSchema = z
 export const importDrillHoleRowSchema = z
   .object({ ...drillHoleFields, status: drillHoleFields.status.optional() })
   .refine(datesInOrder, DATES_IN_ORDER);
+
+/** The rows a save from the sheet can carry: as many as the sheet holds. */
+export const DRILL_SHEET_MAX_ROWS = 500;
+
+/**
+ * Rows of the drilling sheet, as typed or pasted -- text, read on the server
+ * the way an imported file is read (drill-hole-sheet.ts). A row with an `id`
+ * is an existing hole unlocked for changing; one without is a new hole.
+ */
+export const drillHoleSheetSchema = z.object({
+  dryRun: z.boolean().default(true),
+  rows: z
+    .array(
+      z.object({
+        line: z.number().int().min(1),
+        id: z.string().min(1).optional(),
+        cells: z.object(
+          Object.fromEntries(DRILL_HOLE_FIELDS.map((field) => [field, z.string().max(5000).optional()])) as Record<
+            DrillHoleField,
+            z.ZodOptional<z.ZodString>
+          >
+        ),
+      })
+    )
+    .max(DRILL_SHEET_MAX_ROWS),
+});
 
 export const listDrillHolesQuerySchema = z.object({
   search: z.string().trim().optional(),

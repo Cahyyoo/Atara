@@ -24,3 +24,23 @@ export interface DrillHoleDTO {
   createdAt: string;
   updatedAt: string;
 }
+
+/** What a row of the drilling sheet would do: a new hole, a change, nothing, or something to fix. */
+export type DrillSheetStatus = "create" | "update" | "unchanged" | "invalid";
+
+/** The server's word on one row of the drilling sheet, by the row's line. */
+export interface DrillSheetVerdict {
+  line: number;
+  status: DrillSheetStatus;
+  /** The column at fault, on an invalid row; null for the row as a whole. */
+  field?: string | null;
+  message?: string;
+}
+
+export interface DrillSheetResult {
+  rows: DrillSheetVerdict[];
+  summary: Record<DrillSheetStatus, number>;
+  /** Holes written: both zero on a dry run, or while any row is invalid. */
+  created: number;
+  updated: number;
+}

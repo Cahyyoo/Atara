@@ -9,7 +9,7 @@ import {
   type KeyboardEvent,
   type MouseEvent,
 } from "react";
-import { isBlock } from "@/modules/lab/lib/records/sheet-paste";
+import { isBlock } from "@/core/lib/sheets/clipboard-block";
 
 /** A rectangle of cells, by row and by column position on screen. */
 export interface GridRange {

@@ -1,10 +1,10 @@
 /**
- * A block copied out of Excel, landing in a grid of boxes the way it would land
- * in another sheet -- and a block of boxes going back out as something Excel
- * reads the same way. Pure, so both grids (typing results for ticked samples,
- * and the paste sheet keyed by Sample ID) share one reading of the clipboard.
+ * A block copied out of Excel, landing in the lab's grids the way it would land
+ * in another sheet. Pure, so both grids (typing results for ticked samples, and
+ * the paste sheet keyed by Sample ID) share one reading of the clipboard; the
+ * clipboard itself is read, and written back, by core (clipboard-block.ts).
  */
-import { detectDelimiter, parseCsv } from "@/core/lib/sheets/csv-parse";
+import { readClipboardBlock, type CellWrite } from "@/core/lib/sheets/clipboard-block";
 import { readHeader } from "@/modules/lab/lib/records/paste-columns";
 import { parseSheetDateTime } from "@/modules/lab/lib/records/measurement-time";
 import { toWitaInputValue } from "@/core/lib/wita-time";
@@ -13,11 +13,7 @@ import { INSTRUMENT_EXPORT_ORDER } from "@/modules/lab/lib/records/assay";
 /** A column of a grid, by the key its box holds: "ni", "measurementFinished", "sampleIdent"... */
 export type SheetKey = string;
 
-export interface CellWrite {
-  row: number;
-  key: SheetKey;
-  value: string;
-}
+export type { CellWrite };
 
 export interface SpreadResult {
   writes: CellWrite[];
@@ -45,18 +41,6 @@ export interface SpreadTarget {
   rawDates?: boolean;
   /** How this grid recognises a header row; the results' own headings when absent. */
   readHeader?: (row: string[]) => { index: number; key: SheetKey }[] | null;
-}
-
-/** Rows as Excel puts them on the clipboard: tab-separated, the trailing newline dropped. */
-export function readClipboardBlock(text: string): string[][] {
-  const rows = parseCsv(text, detectDelimiter(text), true);
-  while (rows.length > 0 && rows[rows.length - 1].every((cell) => cell.trim() === "")) rows.pop();
-  return rows;
-}
-
-/** Whether a paste is a block for the grid, rather than text for the one box. */
-export function isBlock(text: string): boolean {
-  return /[\t\n]/.test(text.replace(/\r?\n$/, ""));
 }
 
 /**
@@ -160,33 +144,4 @@ export function spreadPaste(text: string, target: SpreadTarget): SpreadResult {
     extraRows,
     hiddenFilled: [...filled].filter((key) => !visible.includes(key)),
   };
-}
-
-/** One cell as Excel reads it back: quoted only when it has to be. */
-function sheetCell(value: string): string {
-  // A date-time box holds "2026-03-16T10:34"; a sheet shows "2026-03-16 10:34".
-  const text = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value) ? value.replace("T", " ") : value;
-  return /[\t\n\r"]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
-}
-
-/**
- * A rectangle of the grid as the text Excel puts on the clipboard: tabs between
- * cells, a newline between rows. Pasted into a sheet, it lands as the same
- * block of rows and columns.
- */
-export function rangeToTsv(
-  range: { top: number; left: number; bottom: number; right: number },
-  columns: readonly SheetKey[],
-  valueAt: (row: number, key: SheetKey) => string
-): string {
-  const lines: string[] = [];
-  for (let row = range.top; row <= range.bottom; row++) {
-    const cells: string[] = [];
-    for (let col = range.left; col <= range.right; col++) {
-      const key = columns[col];
-      cells.push(key === undefined ? "" : sheetCell(valueAt(row, key)));
-    }
-    lines.push(cells.join("\t"));
-  }
-  return lines.join("\n");
 }

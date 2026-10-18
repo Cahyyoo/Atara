@@ -14,6 +14,7 @@ import type { PaginationDTO } from "@/core/types";
 import { DrillHoleDialog, type DrillHoleDialogTarget } from "@/modules/eksplorasi/components/drill-hole-dialog";
 import { DeleteDrillHoleDialog } from "@/modules/eksplorasi/components/delete-drill-hole-dialog";
 import { DrillHoleImportDialog } from "@/modules/eksplorasi/components/import/drill-hole-import-dialog";
+import { DrillHoleSheetDialog } from "@/modules/eksplorasi/components/sheet/drill-hole-sheet-dialog";
 import { DrillHoleRow } from "@/modules/eksplorasi/components/drill-hole-row";
 import { DRILL_HOLE_STATUSES } from "@/modules/eksplorasi/lib/drill-hole";
 import type { DrillHoleDTO, DrillHoleStatus } from "@/modules/eksplorasi/types";
@@ -22,8 +23,8 @@ import { IoAddOutline, IoCloudUploadOutline, IoReloadOutline } from "react-icons
 const ALL = "ALL";
 
 /**
- * The drill holes: search by hole ID or area, filter by status, add, edit,
- * remove, and import or export the lot. Deliberately plain -- the detailed
+ * The drill holes: search by hole ID or area, filter by status, add (and
+ * change) them in a sheet, edit or remove one, and import or export the lot. Deliberately plain -- the detailed
  * drilling features come later.
  */
 export function DrillHolesTable() {
@@ -36,6 +37,7 @@ export function DrillHolesTable() {
   const [target, setTarget] = useState<DrillHoleDialogTarget>(null);
   const [deleteTarget, setDeleteTarget] = useState<DrillHoleDTO | null>(null);
   const [importOpen, setImportOpen] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
 
   const filters = { search, status: status === ALL ? undefined : status };
@@ -93,7 +95,7 @@ export function DrillHolesTable() {
             {t("import.button")}
           </Button>
           <ExportMenu onExport={(format) => void exportAs(format)} />
-          <Button className="gap-2" onClick={() => setTarget("new")}>
+          <Button className="gap-2" onClick={() => setSheetOpen(true)}>
             <IoAddOutline className="size-4" />
             {t("add")}
           </Button>
@@ -157,6 +159,16 @@ export function DrillHolesTable() {
           if (isNew) list.setPagination((current) => (current ? { ...current, total: current.total + 1 } : current));
         }}
       />
+
+      {sheetOpen ? (
+        <DrillHoleSheetDialog
+          onClose={() => setSheetOpen(false)}
+          onSaved={() => {
+            setPage(1);
+            list.reload();
+          }}
+        />
+      ) : null}
 
       <DrillHoleImportDialog
         open={importOpen}

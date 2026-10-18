@@ -14,7 +14,7 @@ import {
   type RowValues,
   revertOnEscape,
 } from "@/modules/lab/components/assay/results-grid";
-import { inSelection } from "@/modules/lab/components/assay/grid/use-grid-selection";
+import { inSelection } from "@/core/hooks/use-grid-selection";
 import type { AssayFieldSpec } from "@/modules/lab/lib/records/assay";
 import { cn } from "@/core/lib/utils";
 import type { LabRecordListItemDTO } from "@/modules/lab/types";

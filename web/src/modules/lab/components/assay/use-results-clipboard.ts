@@ -1,10 +1,11 @@
 "use client";
 
 import { useCallback, useMemo, useState, type Dispatch, type SetStateAction } from "react";
-import { useGridSelection, type GridRange } from "@/modules/lab/components/assay/grid/use-grid-selection";
+import { useGridSelection, type GridRange } from "@/core/hooks/use-grid-selection";
 import type { CellField, InstrumentColumn, RowValues } from "@/modules/lab/components/assay/results-grid";
 import { ALL_COLUMNS, type Column } from "@/modules/lab/components/assay/results-entry-utils";
-import { rangeToTsv, spreadPaste } from "@/modules/lab/lib/records/sheet-paste";
+import { rangeToTsv } from "@/core/lib/sheets/clipboard-block";
+import { spreadPaste } from "@/modules/lab/lib/records/sheet-paste";
 import type { AssayFieldSpec } from "@/modules/lab/lib/records/assay";
 import type { LabRecordListItemDTO } from "@/modules/lab/types";
 

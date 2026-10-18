@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useResultsColumns } from "@/modules/lab/components/assay/use-results-columns";
-import { useGridSelection, type GridRange } from "@/modules/lab/components/assay/grid/use-grid-selection";
-import { useVirtualRows } from "@/modules/lab/components/assay/grid/use-virtual-rows";
+import { useGridSelection, type GridRange } from "@/core/hooks/use-grid-selection";
+import { useVirtualRows } from "@/core/hooks/use-virtual-rows";
 import { useSheetCheck } from "@/modules/lab/components/assay/paste-sheet/use-sheet-check";
 import { lineOf } from "@/modules/lab/components/assay/paste-sheet/sheet-check";
 import { ALL_COLUMNS, type Column } from "@/modules/lab/components/assay/results-entry-utils";
@@ -16,7 +16,8 @@ import {
   type SheetRow,
 } from "@/modules/lab/components/assay/paste-sheet/sheet-text";
 import { INSTRUMENT_EXPORT_ORDER } from "@/modules/lab/lib/records/assay";
-import { readClipboardBlock, rangeToTsv, spreadPaste } from "@/modules/lab/lib/records/sheet-paste";
+import { readClipboardBlock, rangeToTsv } from "@/core/lib/sheets/clipboard-block";
+import { spreadPaste } from "@/modules/lab/lib/records/sheet-paste";
 import { withBasePath } from "@/core/lib/http/base-path";
 import type { ApiResult } from "@/core/types";
 import type { ImportPreviewDTO } from "@/modules/lab/types";

@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useGridSelection, type GridRange } from "@/modules/lab/components/assay/grid/use-grid-selection";
-import { useVirtualRows } from "@/modules/lab/components/assay/grid/use-virtual-rows";
+import { useGridSelection, type GridRange } from "@/core/hooks/use-grid-selection";
+import { useVirtualRows } from "@/core/hooks/use-virtual-rows";
 import { SHEET_START_ROWS, type SheetRow } from "@/modules/lab/components/assay/paste-sheet/sheet-text";
 import { SHEET_ROW_HEIGHT } from "@/modules/lab/components/assay/paste-sheet/use-paste-sheet";
 import {
@@ -13,7 +13,8 @@ import {
   sendWeights,
   useWeightsCheck,
 } from "@/modules/lab/components/database/weights-sheet/use-weights-check";
-import { rangeToTsv, spreadPaste } from "@/modules/lab/lib/records/sheet-paste";
+import { rangeToTsv } from "@/core/lib/sheets/clipboard-block";
+import { spreadPaste } from "@/modules/lab/lib/records/sheet-paste";
 import { weightsHeader } from "@/modules/lab/lib/records/weights-paste";
 import { toast } from "@/core/components/ui/toast";
 
