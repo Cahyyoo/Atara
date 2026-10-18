@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "@/core/components/ui/toast";
 import { useGridSelection, type GridRange } from "@/core/hooks/use-grid-selection";
-import { useVirtualRows } from "@/core/hooks/use-virtual-rows";
 import { rangeToTsv, spreadBlock, type CellWrite } from "@/core/lib/sheets/clipboard-block";
 import { withBasePath } from "@/core/lib/http/base-path";
 import type { ApiResult, PaginationDTO } from "@/core/types";
@@ -180,12 +179,9 @@ export function useDrillSheet(onSaved: () => void, editing?: DrillHoleDTO) {
     );
   }, []);
 
-  const virtual = useVirtualRows({ rowCount: rows.length, rowHeight: SHEET_ROW_HEIGHT, headerHeight: 48, overscan: 4 });
-
   const clipboard = useGridSelection({
     rowCount: rows.length,
     colCount: KEYS.length,
-    reveal: virtual.scrollToRow,
     clear: (range: GridRange) => {
       const cells: CellWrite[] = [];
       for (let row = range.top; row <= range.bottom; row++) {
@@ -236,7 +232,6 @@ export function useDrillSheet(onSaved: () => void, editing?: DrillHoleDTO) {
     save,
     clearAll,
     addRows: () => write([], rows.length + 50),
-    virtual,
     clipboard,
   };
 }

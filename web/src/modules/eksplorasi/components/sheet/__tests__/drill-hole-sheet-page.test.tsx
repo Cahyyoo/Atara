@@ -186,6 +186,13 @@ describe("the drilling sheet", () => {
     expect(sent.at(-1)?.rows).toEqual([{ line: 2, id: "h0", cells: expect.objectContaining({ totalDepth: "45" }) }]);
   });
 
+  // No scroll box of its own: every row is on the page, the last empty one too.
+  it("draws every row, so the sheet needs no scrollbar of its own", async () => {
+    await show();
+    expect(box(21, "Hole ID").value).toBe("");
+    expect(screen.queryByRole("textbox", { name: "Row 22 Hole ID" })).toBeNull();
+  });
+
   it("says above the sheet how many holes are locked, until something is entered", async () => {
     await show();
     expect(screen.getByText("The latest hole is locked above — click its lock to change it.")).toBeTruthy();

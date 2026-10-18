@@ -64,7 +64,11 @@ export function AppShell({
           rather than hidden behind a solid bar. Two rows inside a module --
           the bar, then the module's pages as tabs -- lined up with the page
           below, which keeps the whole width (no sidebar to squeeze a table). */}
-      <header className="sticky top-0 z-30 shrink-0 border-b border-border/60 bg-canvas/80 backdrop-blur-sm">
+      {/* data-app-header: what a page measures to stick its own bars just under this one. */}
+      <header
+        data-app-header=""
+        className="sticky top-0 z-30 shrink-0 border-b border-border/60 bg-canvas/80 backdrop-blur-sm"
+      >
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-2 px-3 sm:px-6">
           <div className="flex min-w-0 items-center gap-1">
             {currentModule ? (

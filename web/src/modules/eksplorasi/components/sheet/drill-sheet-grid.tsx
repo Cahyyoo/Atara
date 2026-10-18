@@ -21,19 +21,29 @@ import {
 
 const isNumber = (field: DrillHoleField) => (DRILL_HOLE_NUMBER_FIELDS as readonly string[]).includes(field);
 
+/**
+ * Each column's share of the page's width, so the whole sheet fits it with
+ * nothing to scroll sideways; the remarks take what is left. Numbers get
+ * enough for a collar coordinate, text a little more.
+ */
 const WIDTH: Partial<Record<DrillHoleField, string>> = {
-  holeId: "w-40 min-w-40",
-  area: "w-40 min-w-40",
-  status: "w-36 min-w-36",
-  startDate: "w-32 min-w-32",
-  endDate: "w-32 min-w-32",
-  remarks: "w-64 min-w-64",
+  holeId: "10%",
+  area: "10%",
+  status: "9%",
+  easting: "8%",
+  northing: "8%",
+  elevation: "6.5%",
+  azimuth: "6.5%",
+  dip: "5.5%",
+  totalDepth: "7%",
+  startDate: "8.5%",
+  endDate: "8.5%",
 };
-const widthOf = (field: DrillHoleField) => WIDTH[field] ?? "w-28 min-w-28";
+const NUMBER_COLUMN_WIDTH = "4.5%";
 
 /** Plain strings, put together once: a sheet draws hundreds of boxes at a time. */
 const BOX =
-  "h-8 w-full min-w-0 rounded-md border border-transparent bg-transparent px-2 text-sm outline-none transition-colors placeholder:text-muted-foreground/40 focus-visible:bg-background focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-[selected]:bg-primary/15 data-[selected]:ring-1 data-[selected]:ring-primary/50 read-only:text-muted-foreground";
+  "h-8 w-full min-w-0 scroll-mt-[var(--sheet-scroll-top,0px)] rounded-md border border-transparent bg-transparent px-1.5 text-sm outline-none transition-colors placeholder:text-transparent focus:placeholder:text-muted-foreground/50 focus-visible:bg-background focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-[selected]:bg-primary/15 data-[selected]:ring-1 data-[selected]:ring-primary/50 read-only:text-muted-foreground";
 const CHANGED = " bg-amber-100/70 dark:bg-amber-500/15";
 /** The status box: a select drawn as the other boxes are, with its own chevron. */
 const SELECT = `${BOX} cursor-pointer appearance-none pr-6 [&>option]:bg-background [&>option]:text-foreground`;
@@ -150,8 +160,8 @@ const DrillSheetRow = memo(function DrillSheetRow(props: RowProps) {
       data-locked={row.locked ? "" : undefined}
       className={cn("border-b border-border/50", row.locked && "bg-muted/40")}
     >
-      <td className={cn("sticky left-0 z-10 w-28 min-w-28 px-2", row.locked ? "bg-muted" : "bg-background")}>
-        <span className="flex items-center gap-1.5 text-xs tabular-nums text-muted-foreground">
+      <td className="px-1.5">
+        <span className="flex items-center gap-1 text-xs tabular-nums text-muted-foreground">
           {index + 1}
           {existing ? (
             <button
@@ -183,7 +193,7 @@ const DrillSheetRow = memo(function DrillSheetRow(props: RowProps) {
         const value = row.cells[field] ?? "";
         const change = (next: string) => props.onCellChange(index, field, next);
         return (
-          <td key={field} className={cn("group p-0.5", widthOf(field))}>
+          <td key={field} className="group p-0.5">
             {field === "status" && !row.locked ? (
               <StatusCell
                 box={box}
@@ -208,15 +218,15 @@ const DrillSheetRow = memo(function DrillSheetRow(props: RowProps) {
           </td>
         );
       })}
-      <td aria-hidden className="w-full" />
     </tr>
   );
 });
 
 /**
- * The sheet: a header that stays put, the row number (with the lock of an
- * existing hole and the row's verdict) that stays put, and only the rows in
- * view rendered, between two spacers.
+ * The sheet: every column within the page's width and every row on the page
+ * -- no scrollbar of its own either way; the page scrolls instead, with the
+ * column headings held under the page's own sticky bars (`headerTop`). At
+ * most a few hundred rows, so all of them are drawn.
  */
 export function DrillSheetGrid({
   fields,
@@ -225,12 +235,7 @@ export function DrillSheetGrid({
   pending,
   saving,
   selectionFor,
-  scrollerRef,
-  onScroll,
-  start,
-  end,
-  padTop,
-  padBottom,
+  headerTop,
   containerProps,
   onCellChange,
   onToggleLock,
@@ -241,12 +246,8 @@ export function DrillSheetGrid({
   pending: boolean;
   saving: boolean;
   selectionFor: (row: number) => string | null;
-  scrollerRef: Ref<HTMLDivElement>;
-  onScroll: () => void;
-  start: number;
-  end: number;
-  padTop: number;
-  padBottom: number;
+  /** How far from the top of the window the column headings stick. */
+  headerTop: number;
   containerProps: HTMLAttributes<HTMLDivElement> & { ref: Ref<HTMLDivElement> };
   onCellChange: (row: number, key: string, value: string) => void;
   onToggleLock: (row: number) => void;
@@ -258,55 +259,49 @@ export function DrillSheetGrid({
     [fields, t]
   );
   const statusLabels = useMemo(() => DRILL_HOLE_STATUSES.map((status) => t(`status.${status}`)), [t]);
-  const span = fields.length + 2;
 
   return (
-    <div ref={scrollerRef} onScroll={onScroll} className="min-h-0 flex-1 overflow-auto rounded-xl border bg-background">
-      <div {...containerProps} className="w-max min-w-full data-[dragging]:select-none">
-        <table className="w-full border-collapse text-sm">
-          <thead className="sticky top-0 z-20 bg-muted">
+    // Clipped for the rounded corners, not scrolled: `overflow: clip` makes no
+    // scroll box, so the sticky headings stick to the window. A phone is the
+    // exception -- thirteen columns cannot fit one -- and scrolls sideways.
+    <div className="rounded-xl border bg-background max-lg:overflow-x-auto lg:overflow-clip">
+      <div {...containerProps} className="data-[dragging]:select-none">
+        <table className="w-full table-fixed border-collapse text-sm max-lg:min-w-[64rem]">
+          <colgroup>
+            <col style={{ width: NUMBER_COLUMN_WIDTH }} />
+            {fields.map((field) => (
+              <col key={field} style={WIDTH[field] ? { width: WIDTH[field] } : undefined} />
+            ))}
+          </colgroup>
+          <thead className="sticky z-20 bg-muted" style={{ top: headerTop }}>
             <tr className="h-12 border-b text-xs font-semibold text-foreground">
-              <th className="sticky left-0 z-10 bg-muted px-2 text-left text-muted-foreground">{t("sheet.rowColumn")}</th>
+              <th className="px-1.5 text-left text-muted-foreground">{t("sheet.rowColumn")}</th>
               {fields.map((field) => (
-                <th key={field} className="border-l border-border/60 px-2 text-center leading-tight whitespace-normal">
+                <th key={field} className="border-l border-border/60 px-1 text-center leading-tight whitespace-normal">
                   {labels[field]}
                 </th>
               ))}
-              <th aria-hidden className="w-full" />
             </tr>
           </thead>
           <tbody>
-            {padTop > 0 ? (
-              <tr aria-hidden style={{ height: padTop }}>
-                <td colSpan={span} />
-              </tr>
-            ) : null}
-            {rows.slice(start, end).map((row, offset) => {
-              const index = start + offset;
-              return (
-                <DrillSheetRow
-                  key={index}
-                  index={index}
-                  row={row}
-                  fields={fields}
-                  labels={labels}
-                  statusLabels={statusLabels}
-                  verdict={verdictFor(row)}
-                  pending={pending}
-                  saving={saving}
-                  selection={selectionFor(index)}
-                  rowLabel={t("sheet.row", { row: index + 1 })}
-                  lockLabel={row.locked ? t("sheet.unlock") : t("sheet.lock")}
-                  onCellChange={onCellChange}
-                  onToggleLock={onToggleLock}
-                />
-              );
-            })}
-            {padBottom > 0 ? (
-              <tr aria-hidden style={{ height: padBottom }}>
-                <td colSpan={span} />
-              </tr>
-            ) : null}
+            {rows.map((row, index) => (
+              <DrillSheetRow
+                key={index}
+                index={index}
+                row={row}
+                fields={fields}
+                labels={labels}
+                statusLabels={statusLabels}
+                verdict={verdictFor(row)}
+                pending={pending}
+                saving={saving}
+                selection={selectionFor(index)}
+                rowLabel={t("sheet.row", { row: index + 1 })}
+                lockLabel={row.locked ? t("sheet.unlock") : t("sheet.lock")}
+                onCellChange={onCellChange}
+                onToggleLock={onToggleLock}
+              />
+            ))}
           </tbody>
         </table>
       </div>
