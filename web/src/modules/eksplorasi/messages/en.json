@@ -113,8 +113,7 @@
       }
     },
     "sheet": {
-      "title": "Add & change drill holes",
-      "description": "Type or paste a block from Excel (with or without its header row) into the empty rows with Ctrl+V. Dates as YYYY-MM-DD or DD/MM/YYYY; numbers may use a decimal comma. {count, plural, =0 {} other {The latest # holes are shown above, locked; click the lock to change one, and a box emptied clears that value.}}",
+      "description": "Type or paste a block from Excel into the empty rows (Ctrl+V), then Save.",
       "rowColumn": "No.",
       "row": "Row {row}",
       "lock": "Lock again (undo changes)",
@@ -143,7 +142,9 @@
       "addTitle": "Add Drill Holes",
       "leaveTitle": "Leave this page?",
       "leaveBody": "Anything not saved yet will be lost.",
-      "leave": "Leave"
+      "leave": "Leave",
+      "lockedHint": "{count, plural, one {The latest hole is locked above — click its lock to change it.} other {The latest # holes are locked above — click a lock to change one.}}",
+      "formats": "The header row from Excel may be pasted along. Dates as YYYY-MM-DD or DD/MM/YYYY; numbers may use a decimal comma. A box emptied on an unlocked hole clears that value."
     }
   }
 }

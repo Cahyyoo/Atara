@@ -56,7 +56,10 @@ export function DrillHoleSheetPage({ editing }: { editing?: DrillHoleDTO }) {
     const frame = requestAnimationFrame(() => {
       sheet.virtual.scrollToRow(row);
       requestAnimationFrame(() =>
-        document.querySelector<HTMLInputElement>(`[data-cell-row="${row}"][data-cell-col="0"]`)?.focus()
+        // Without scrolling the page: only the sheet moves, and the heading stays in view.
+        document
+          .querySelector<HTMLInputElement>(`[data-cell-row="${row}"][data-cell-col="0"]`)
+          ?.focus({ preventScroll: true })
       );
       setFocused(true);
     });
@@ -64,6 +67,12 @@ export function DrillHoleSheetPage({ editing }: { editing?: DrillHoleDTO }) {
   }, [sheet.loading, sheet.focusRow, sheet.virtual, focused]);
 
   const summary = sheet.summary;
+  const hint =
+    summary && summary.invalid > 0 ? (
+      <span className="text-destructive">{t("sheet.fixInvalid", { count: summary.invalid })}</span>
+    ) : !sheet.hasActive ? (
+      sheet.existing > 0 ? t("sheet.lockedHint", { count: sheet.existing }) : t("sheet.nothing")
+    ) : null;
 
   return (
     <div className="flex flex-col gap-4">
@@ -78,83 +87,83 @@ export function DrillHoleSheetPage({ editing }: { editing?: DrillHoleDTO }) {
         </button>
         <PageHeader
           title={editing ? t("editTitle", { holeId: editing.holeId }) : t("sheet.addTitle")}
-          subtitle={t("sheet.description", { count: sheet.existing })}
+          subtitle={t("sheet.description")}
+          actions={
+            <>
+              <Button variant="outline" disabled={sheet.isSaving} onClick={leave}>
+                {tCommon("cancel")}
+              </Button>
+              <Button className="gap-2" disabled={!sheet.canSave} onClick={() => void sheet.save()}>
+                {sheet.isSaving ? <IoReloadOutline className="size-4 animate-spin" /> : <IoSaveOutline className="size-4" />}
+                {t("sheet.save", { count: sheet.writes })}
+              </Button>
+            </>
+          }
         />
-      </div>
-
-      <div className="flex min-h-6 flex-wrap items-center gap-2" aria-live="polite">
-        {summary ? (
-          (Object.keys(TONE) as DrillSheetStatus[])
-            .filter((status) => summary[status] > 0)
-            .map((status) => (
-              <span key={status} className={cn("rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium", TONE[status])}>
-                {t(`sheet.counts.${status}`, { count: summary[status] })}
-              </span>
-            ))
-        ) : sheet.isChecking ? (
-          <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-            <IoReloadOutline className="size-3.5 animate-spin" />
-            {t("sheet.checking")}
-          </span>
-        ) : null}
       </div>
 
       <InlineNotice tone="error">{sheet.error}</InlineNotice>
 
-      {/* A box of its own height: the sheet scrolls inside it, header and row numbers held. */}
-      <div className="relative flex h-[calc(100dvh-22rem)] min-h-96 flex-col">
-        {sheet.loading ? (
-          <div className="flex flex-1 items-center justify-center gap-2 rounded-xl border text-sm text-muted-foreground">
-            <IoReloadOutline className="size-4 animate-spin" />
-            {t("sheet.loading")}
+      <div className="flex flex-col gap-2">
+        {/* What the sheet would do, and the sheet's own buttons, right above it. */}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 text-sm text-muted-foreground" aria-live="polite">
+            {summary
+              ? (Object.keys(TONE) as DrillSheetStatus[])
+                  .filter((status) => summary[status] > 0)
+                  .map((status) => (
+                    <span key={status} className={cn("rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium", TONE[status])}>
+                      {t(`sheet.counts.${status}`, { count: summary[status] })}
+                    </span>
+                  ))
+              : null}
+            {sheet.isChecking ? (
+              <span className="inline-flex items-center gap-1.5 text-xs">
+                <IoReloadOutline className="size-3.5 animate-spin" />
+                {t("sheet.checking")}
+              </span>
+            ) : null}
+            {hint}
           </div>
-        ) : (
-          <DrillSheetGrid
-            fields={DRILL_HOLE_FIELDS}
-            rows={sheet.rows}
-            verdictFor={sheet.verdictFor}
-            pending={sheet.isChecking}
-            saving={sheet.isSaving}
-            selectionFor={sheet.clipboard.selectionFor}
-            scrollerRef={sheet.virtual.scrollerRef}
-            onScroll={sheet.virtual.onScroll}
-            start={sheet.virtual.start}
-            end={sheet.virtual.end}
-            padTop={sheet.virtual.padTop}
-            padBottom={sheet.virtual.padBottom}
-            containerProps={sheet.clipboard.containerProps}
-            onCellChange={sheet.setCell}
-            onToggleLock={sheet.toggleLock}
-          />
-        )}
-      </div>
-
-      <div className="sticky bottom-0 z-20 -mx-1 flex flex-wrap items-center gap-2 border-t bg-background/95 px-1 py-3 backdrop-blur-sm">
-        {sheet.canAddRows ? (
-          <Button variant="ghost" size="sm" className="gap-1.5" disabled={sheet.isSaving || sheet.loading} onClick={sheet.addRows}>
-            <IoAddOutline className="size-4" />
-            {t("sheet.addRows")}
-          </Button>
-        ) : null}
-        <span className="text-sm text-muted-foreground">
-          {summary && summary.invalid > 0
-            ? t("sheet.fixInvalid", { count: summary.invalid })
-            : sheet.hasActive
-              ? null
-              : t("sheet.nothing")}
-        </span>
-        <div className="ml-auto flex gap-2">
-          <Button variant="ghost" disabled={sheet.isSaving || !sheet.hasActive} onClick={sheet.clearAll}>
+          {sheet.canAddRows ? (
+            <Button variant="ghost" size="sm" className="gap-1.5" disabled={sheet.isSaving || sheet.loading} onClick={sheet.addRows}>
+              <IoAddOutline className="size-4" />
+              {t("sheet.addRows")}
+            </Button>
+          ) : null}
+          <Button variant="ghost" size="sm" disabled={sheet.isSaving || !sheet.hasActive} onClick={sheet.clearAll}>
             {t("sheet.clear")}
           </Button>
-          <Button variant="outline" disabled={sheet.isSaving} onClick={leave}>
-            {tCommon("cancel")}
-          </Button>
-          <Button className="gap-2" disabled={!sheet.canSave} onClick={() => void sheet.save()}>
-            {sheet.isSaving ? <IoReloadOutline className="size-4 animate-spin" /> : <IoSaveOutline className="size-4" />}
-            {t("sheet.save", { count: sheet.writes })}
-          </Button>
         </div>
+
+        {/* A box of its own height, so the page itself does not scroll: the sheet scrolls inside it. */}
+        <div className="relative flex h-[calc(100dvh-21rem)] min-h-80 flex-col">
+          {sheet.loading ? (
+            <div className="flex flex-1 items-center justify-center gap-2 rounded-xl border text-sm text-muted-foreground">
+              <IoReloadOutline className="size-4 animate-spin" />
+              {t("sheet.loading")}
+            </div>
+          ) : (
+            <DrillSheetGrid
+              fields={DRILL_HOLE_FIELDS}
+              rows={sheet.rows}
+              verdictFor={sheet.verdictFor}
+              pending={sheet.isChecking}
+              saving={sheet.isSaving}
+              selectionFor={sheet.clipboard.selectionFor}
+              scrollerRef={sheet.virtual.scrollerRef}
+              onScroll={sheet.virtual.onScroll}
+              start={sheet.virtual.start}
+              end={sheet.virtual.end}
+              padTop={sheet.virtual.padTop}
+              padBottom={sheet.virtual.padBottom}
+              containerProps={sheet.clipboard.containerProps}
+              onCellChange={sheet.setCell}
+              onToggleLock={sheet.toggleLock}
+            />
+          )}
+        </div>
+        <p className="text-xs text-muted-foreground">{t("sheet.formats")}</p>
       </div>
 
       <ConfirmDialog

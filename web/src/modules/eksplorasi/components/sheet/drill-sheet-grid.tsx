@@ -99,7 +99,9 @@ function StatusCell({
         disabled={disabled}
         onChange={(event) => onChange(event.target.value)}
         onPaste={paste}
-        className={className}
+        // Blank, the box shows nothing until it is pointed at: an empty sheet
+        // is not a column of dashes.
+        className={value === "" ? `${className} text-transparent focus-visible:text-muted-foreground group-hover:text-muted-foreground` : className}
       >
         <option value="">—</option>
         {statusLabels.map((label) => (
@@ -111,7 +113,10 @@ function StatusCell({
       </select>
       <IoChevronDown
         aria-hidden
-        className="pointer-events-none absolute top-1/2 right-2 size-3.5 -translate-y-1/2 text-muted-foreground"
+        className={cn(
+          "pointer-events-none absolute top-1/2 right-2 size-3.5 -translate-y-1/2 text-muted-foreground transition-opacity",
+          value === "" && "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"
+        )}
       />
     </div>
   );
@@ -178,7 +183,7 @@ const DrillSheetRow = memo(function DrillSheetRow(props: RowProps) {
         const value = row.cells[field] ?? "";
         const change = (next: string) => props.onCellChange(index, field, next);
         return (
-          <td key={field} className={cn("p-0.5", widthOf(field))}>
+          <td key={field} className={cn("group p-0.5", widthOf(field))}>
             {field === "status" && !row.locked ? (
               <StatusCell
                 box={box}

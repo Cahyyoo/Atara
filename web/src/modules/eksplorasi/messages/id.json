@@ -113,8 +113,7 @@
       }
     },
     "sheet": {
-      "title": "Tambah & ubah lubang bor",
-      "description": "Ketik atau tempel blok dari Excel (dengan atau tanpa baris judul) ke baris kosong, lalu Ctrl+V. Tanggal YYYY-MM-DD atau DD/MM/YYYY; angka boleh pakai koma. {count, plural, =0 {} other {# lubang bor terakhir tampil di atas dan terkunci; klik gembok untuk mengubahnya, sel yang dikosongkan akan dihapus isinya.}}",
+      "description": "Ketik atau tempel blok dari Excel ke baris kosong (Ctrl+V), lalu Simpan.",
       "rowColumn": "No.",
       "row": "Baris {row}",
       "lock": "Kunci lagi (batalkan perubahan)",
@@ -143,7 +142,9 @@
       "addTitle": "Tambah Lubang Bor",
       "leaveTitle": "Tinggalkan halaman ini?",
       "leaveBody": "Isian yang belum disimpan akan hilang.",
-      "leave": "Tinggalkan"
+      "leave": "Tinggalkan",
+      "lockedHint": "{count, plural, other {# lubang bor terakhir terkunci di atas — klik ikon gembok untuk mengubahnya.}}",
+      "formats": "Baris judul dari Excel boleh ikut ditempel. Tanggal YYYY-MM-DD atau DD/MM/YYYY; angka boleh pakai koma. Sel yang dikosongkan pada lubang bor yang dibuka kuncinya akan dihapus isinya."
     }
   }
 }

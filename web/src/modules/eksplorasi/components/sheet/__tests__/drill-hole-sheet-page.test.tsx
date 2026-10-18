@@ -186,6 +186,13 @@ describe("the drilling sheet", () => {
     expect(sent.at(-1)?.rows).toEqual([{ line: 2, id: "h0", cells: expect.objectContaining({ totalDepth: "45" }) }]);
   });
 
+  it("says above the sheet how many holes are locked, until something is entered", async () => {
+    await show();
+    expect(screen.getByText("The latest hole is locked above — click its lock to change it.")).toBeTruthy();
+    fireEvent.change(box(2, "Hole ID"), { target: { value: "DH-500" } });
+    expect(screen.queryByText("The latest hole is locked above — click its lock to change it.")).toBeNull();
+  });
+
   it("goes straight back to the list when nothing was entered", async () => {
     await show();
     fireEvent.click(screen.getByRole("button", { name: en.common.cancel }));
