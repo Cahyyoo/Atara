@@ -171,6 +171,8 @@ describe("where the table is enforced", () => {
       [["app", "(app)", "lab", "grade", "page.tsx"], "readLabRecords"],
       [["app", "(app)", "lab", "dashboard", "page.tsx"], "viewDashboard"],
       [["app", "(app)", "eksplorasi", "drilling", "page.tsx"], "manageDrilling"],
+      [["app", "(app)", "eksplorasi", "drilling", "new", "page.tsx"], "manageDrilling"],
+      [["app", "(app)", "eksplorasi", "drilling", "[id]", "edit", "page.tsx"], "manageDrilling"],
       [["app", "(app)", "admin", "page.tsx"], "manageAnnouncements"],
       [["app", "(app)", "admin", "sign-ins", "page.tsx"], "viewSignInAudit"],
     ];

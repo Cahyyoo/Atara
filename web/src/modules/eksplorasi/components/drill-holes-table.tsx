@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Button } from "@/core/components/ui/button";
+import { Button, buttonVariants } from "@/core/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/core/components/ui/table";
 import { InlineNotice } from "@/core/components/ui/inline-notice";
@@ -13,7 +15,6 @@ import { downloadFromApi } from "@/core/lib/http/download";
 import type { PaginationDTO } from "@/core/types";
 import { DeleteDrillHoleDialog } from "@/modules/eksplorasi/components/delete-drill-hole-dialog";
 import { DrillHoleImportDialog } from "@/modules/eksplorasi/components/import/drill-hole-import-dialog";
-import { DrillHoleSheetDialog } from "@/modules/eksplorasi/components/sheet/drill-hole-sheet-dialog";
 import { DrillHoleRow } from "@/modules/eksplorasi/components/drill-hole-row";
 import { DRILL_HOLE_STATUSES } from "@/modules/eksplorasi/lib/drill-hole";
 import type { DrillHoleDTO, DrillHoleStatus } from "@/modules/eksplorasi/types";
@@ -23,21 +24,20 @@ const ALL = "ALL";
 
 /**
  * The drill holes: search by hole ID or area, filter by status, add and
- * change them in a sheet (Ubah opens it on that hole), remove one, and import
- * or export the lot. Deliberately plain -- the detailed
+ * change them on the sheet's own page (Ubah opens it on that hole), remove
+ * one, and import or export the lot. Deliberately plain -- the detailed
  * drilling features come later.
  */
 export function DrillHolesTable() {
   const t = useTranslations("drilling");
   const tCommon = useTranslations("common");
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<DrillHoleStatus | typeof ALL>(ALL);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState("25");
   const [deleteTarget, setDeleteTarget] = useState<DrillHoleDTO | null>(null);
   const [importOpen, setImportOpen] = useState(false);
-  /** The sheet, when open: to add holes, or with the one whose Ubah opened it. */
-  const [sheet, setSheet] = useState<{ editing?: DrillHoleDTO } | null>(null);
   const [exportError, setExportError] = useState<string | null>(null);
 
   const filters = { search, status: status === ALL ? undefined : status };
@@ -95,10 +95,10 @@ export function DrillHolesTable() {
             {t("import.button")}
           </Button>
           <ExportMenu onExport={(format) => void exportAs(format)} />
-          <Button className="gap-2" onClick={() => setSheet({})}>
+          <Link href="/eksplorasi/drilling/new" className={buttonVariants({ className: "gap-2" })}>
             <IoAddOutline className="size-4" />
             {t("add")}
-          </Button>
+          </Link>
         </div>
       </div>
 
@@ -137,7 +137,7 @@ export function DrillHolesTable() {
                   key={row.id}
                   row={row}
                   index={index}
-                  onEdit={(hole) => setSheet({ editing: hole })}
+                  onEdit={(hole) => router.push(`/eksplorasi/drilling/${hole.id}/edit`)}
                   onDelete={setDeleteTarget}
                 />
               ))
@@ -154,18 +154,6 @@ export function DrillHolesTable() {
           pageSize={pageSize}
           onPageSizeChange={(value) => filter(() => setPageSize(value))}
           onPageChange={setPage}
-        />
-      ) : null}
-
-      {sheet ? (
-        <DrillHoleSheetDialog
-          editing={sheet.editing}
-          onClose={() => setSheet(null)}
-          onSaved={() => {
-            // New holes come first in the list; a change is seen where it was made.
-            if (!sheet.editing) setPage(1);
-            list.reload();
-          }}
         />
       ) : null}
 

@@ -57,12 +57,16 @@ export function withEditing(holes: readonly SheetRow[], editing: SheetRow | null
   return holes.map((row, index) => (index === at ? { ...row, locked: false } : row));
 }
 
-export const isFilled =(cells: Cells) => DRILL_HOLE_FIELDS.some((field) => (cells[field] ?? "").trim() !== "");
+export const isFilled = (cells: Cells) => DRILL_HOLE_FIELDS.some((field) => (cells[field] ?? "").trim() !== "");
 
 /** Whether one box of an unlocked hole differs from what was loaded. */
 export function isChangedCell(row: SheetRow, field: DrillHoleField): boolean {
   return row.id !== undefined && !row.locked && (row.cells[field] ?? "").trim() !== (row.original?.[field] ?? "").trim();
 }
+
+/** Work that would be lost on leaving: a new row with something in it, or an unlocked hole that was changed. */
+export const isDirtyRow = (row: SheetRow) =>
+  row.id === undefined ? isFilled(row.cells) : !row.locked && DRILL_HOLE_FIELDS.some((field) => isChangedCell(row, field));
 
 /** The rows the server has a say on: new rows with something in them, and every unlocked hole. */
 export const isActive = (row: SheetRow) => !row.locked && (row.id !== undefined || isFilled(row.cells));

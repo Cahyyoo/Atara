@@ -15,6 +15,7 @@ import {
   blankRows,
   cellsOfHole,
   isActive,
+  isDirtyRow,
   SHEET_BLANK_ROWS,
   SHEET_RECENT_HOLES,
   withEditing,
@@ -106,6 +107,16 @@ export function useDrillSheet(onSaved: () => void, editing?: DrillHoleDTO) {
       setIsSaving(false);
     }
   }
+
+  // Reloading, closing the tab or typing another address asks first while
+  // there is work on the sheet: it lives nowhere else until it is saved.
+  const isDirty = rows.some(isDirtyRow);
+  useEffect(() => {
+    if (!isDirty) return;
+    const warn = (event: BeforeUnloadEvent) => event.preventDefault();
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [isDirty]);
 
   // Ctrl+S (Cmd+S) saves the sheet rather than offering to download the page.
   const saveRef = useRef(save);
@@ -218,6 +229,7 @@ export function useDrillSheet(onSaved: () => void, editing?: DrillHoleDTO) {
     isSaving,
     error,
     hasActive: rows.some(isActive),
+    isDirty,
     canAddRows: rows.length < maxRows,
     setCell,
     toggleLock,

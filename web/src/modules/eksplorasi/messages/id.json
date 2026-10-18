@@ -5,9 +5,9 @@
         "title": "Data Drilling",
         "intro": "Daftar lubang bor modul Eksplorasi.",
         "steps": {
-          "1": "Tambah Lubang Bor membuka lembar seperti Excel: ketik atau tempel blok dari Excel ke baris kosong. 50 lubang bor terakhir tampil terkunci di atasnya; klik gembok untuk mengubahnya langsung di lembar, lalu Simpan sekaligus.",
+          "1": "Tambah Lubang Bor membuka halaman lembar seperti Excel: ketik atau tempel blok dari Excel ke baris kosong. 50 lubang bor terakhir tampil terkunci di atasnya; klik gembok untuk mengubahnya langsung di lembar, lalu Simpan sekaligus.",
           "2": "Cari dengan Hole ID atau area, dan saring per status.",
-          "3": "Ubah membuka lembar yang sama dengan lubang bor itu sudah terbuka kuncinya; ikon tempat sampah menghapus lubang bor secara permanen.",
+          "3": "Ubah membuka halaman lembar yang sama dengan lubang bor itu sudah terbuka kuncinya; ikon tempat sampah menghapus lubang bor secara permanen.",
           "4": "Import untuk mengunggah ribuan lubang bor sekaligus dari Excel/CSV (pratinjau dulu, baris error bisa diunduh); Export mengunduh daftar yang sedang tampil dalam format yang sama."
         },
         "tip": "Hole ID harus unik. Kolom lain boleh dikosongkan lalu dilengkapi nanti."
@@ -138,7 +138,12 @@
         "update": "Akan diubah",
         "unchanged": "Tidak berubah",
         "invalid": "Perlu diperbaiki"
-      }
+      },
+      "back": "Data Drilling",
+      "addTitle": "Tambah Lubang Bor",
+      "leaveTitle": "Tinggalkan halaman ini?",
+      "leaveBody": "Isian yang belum disimpan akan hilang.",
+      "leave": "Tinggalkan"
     }
   }
 }

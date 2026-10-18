@@ -1,16 +1,18 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 
 import { en } from "@/core/i18n/test-messages";
-import { DrillHoleSheetDialog } from "@/modules/eksplorasi/components/sheet/drill-hole-sheet-dialog";
+import { DrillHoleSheetPage } from "@/modules/eksplorasi/components/sheet/drill-hole-sheet-page";
 import type { DrillHoleDTO, DrillSheetVerdict } from "@/modules/eksplorasi/types";
 
 vi.mock("@/core/components/ui/toast", () => ({ toast: vi.fn() }));
+const { push } = vi.hoisted(() => ({ push: vi.fn() }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
 
 /**
- * The drilling sheet: the latest holes on top, read-only until unlocked, new
+ * The drilling sheet, on its own page: the latest holes on top, read-only until unlocked, new
  * holes typed or pasted below, every active row checked, and Save sending the
  * new rows and the unlocked ones together.
  */
@@ -40,6 +42,7 @@ let sent: Sent[] = [];
 
 beforeEach(() => {
   sent = [];
+  push.mockReset();
   vi.stubGlobal(
     "fetch",
     vi.fn(async (url: string, init?: RequestInit) => {
@@ -62,14 +65,13 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-async function show(onSaved = vi.fn(), onClose = vi.fn(), editing?: DrillHoleDTO) {
+async function show(editing?: DrillHoleDTO) {
   render(
     <NextIntlClientProvider locale="en" messages={en} timeZone="Asia/Makassar" onError={() => {}}>
-      <DrillHoleSheetDialog editing={editing} onSaved={onSaved} onClose={onClose} />
+      <DrillHoleSheetPage editing={editing} />
     </NextIntlClientProvider>
   );
   await screen.findByRole("textbox", { name: "Row 1 Hole ID" }, { timeout: 3000 });
-  return { onSaved, onClose };
 }
 
 const box = (row: number, field: string) => screen.getByRole("textbox", { name: `Row ${row} ${field}` }) as HTMLInputElement;
@@ -88,7 +90,7 @@ describe("the drilling sheet", () => {
   });
 
   it("offers the statuses as a list on a row that can be changed, and sends the one picked", async () => {
-    const { onSaved } = await show();
+    await show();
     const status = () => screen.getByRole("combobox", { name: "Row 2 Status" }) as HTMLSelectElement;
     expect([...status().options].map((option) => option.text)).toEqual([
       "—",
@@ -102,7 +104,7 @@ describe("the drilling sheet", () => {
     const save = await screen.findByRole("button", { name: "Save 1 row" }, LONG);
     await waitFor(() => expect((save as HTMLButtonElement).disabled).toBe(false), LONG);
     fireEvent.click(save);
-    await waitFor(() => expect(onSaved).toHaveBeenCalled(), LONG);
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/eksplorasi/drilling"), LONG);
     expect(sent.at(-1)?.rows).toEqual([{ line: 2, cells: { holeId: "DH-300", status: en.drilling.status.COMPLETED } }]);
   });
 
@@ -131,7 +133,7 @@ describe("the drilling sheet", () => {
   });
 
   it("unlocks a hole to change it, and saves it with the new rows", async () => {
-    const { onSaved, onClose } = await show();
+    await show();
     fireEvent.click(screen.getByRole("button", { name: en.drilling.sheet.unlock }));
     expect(box(1, en.drilling.fields.totalDepth).readOnly).toBe(false);
     fireEvent.change(box(1, en.drilling.fields.totalDepth), { target: { value: "150" } });
@@ -140,7 +142,7 @@ describe("the drilling sheet", () => {
     const save = await screen.findByRole("button", { name: "Save 2 rows" }, LONG);
     await waitFor(() => expect((save as HTMLButtonElement).disabled).toBe(false), LONG);
     fireEvent.click(save);
-    await waitFor(() => expect(onSaved).toHaveBeenCalled(), LONG);
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/eksplorasi/drilling"), LONG);
 
     const saved = sent.at(-1)!;
     expect(saved.dryRun).toBe(false);
@@ -148,7 +150,6 @@ describe("the drilling sheet", () => {
       { line: 1, id: "h1", cells: expect.objectContaining({ holeId: "DH-001", totalDepth: "150" }) },
       { line: 2, cells: { holeId: "DH-200" } },
     ]);
-    expect(onClose).toHaveBeenCalled();
   });
 
   it("puts a hole back as it was when it is locked again", async () => {
@@ -161,7 +162,7 @@ describe("the drilling sheet", () => {
   });
 
   it("opened from a hole's Ubah, has that hole unlocked already", async () => {
-    await show(vi.fn(), vi.fn(), HOLE);
+    await show(HOLE);
     expect(screen.getByRole("heading", { name: "Edit DH-001" })).toBeTruthy();
     expect(box(1, "Hole ID").readOnly).toBe(false);
     expect(screen.getByRole("button", { name: en.drilling.sheet.lock })).toBeTruthy();
@@ -169,9 +170,8 @@ describe("the drilling sheet", () => {
   });
 
   it("brings an older hole onto the sheet, unlocked, right above the empty rows", async () => {
-    const onSaved = vi.fn();
     const older: DrillHoleDTO = { ...HOLE, id: "h0", holeId: "DH-000", totalDepth: 40 };
-    await show(onSaved, vi.fn(), older);
+    await show(older);
     expect(box(1, "Hole ID").value).toBe("DH-001");
     expect(box(1, "Hole ID").readOnly).toBe(true);
     expect(box(2, "Hole ID").value).toBe("DH-000");
@@ -182,7 +182,29 @@ describe("the drilling sheet", () => {
     const save = await screen.findByRole("button", { name: "Save 1 row" }, LONG);
     await waitFor(() => expect((save as HTMLButtonElement).disabled).toBe(false), LONG);
     fireEvent.click(save);
-    await waitFor(() => expect(onSaved).toHaveBeenCalled(), LONG);
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/eksplorasi/drilling"), LONG);
     expect(sent.at(-1)?.rows).toEqual([{ line: 2, id: "h0", cells: expect.objectContaining({ totalDepth: "45" }) }]);
+  });
+
+  it("goes straight back to the list when nothing was entered", async () => {
+    await show();
+    fireEvent.click(screen.getByRole("button", { name: en.common.cancel }));
+    expect(push).toHaveBeenCalledWith("/eksplorasi/drilling");
+  });
+
+  it("asks before leaving work that is not saved, and stays until told to go", async () => {
+    await show();
+    fireEvent.change(box(2, "Hole ID"), { target: { value: "DH-400" } });
+    fireEvent.click(screen.getByRole("button", { name: en.common.cancel }));
+    const dialog = await screen.findByRole("dialog", { name: en.drilling.sheet.leaveTitle });
+    expect(push).not.toHaveBeenCalled();
+
+    fireEvent.click(within(dialog).getByRole("button", { name: en.common.cancel }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(box(2, "Hole ID").value).toBe("DH-400");
+
+    fireEvent.click(screen.getByRole("button", { name: en.drilling.sheet.back }));
+    fireEvent.click(await screen.findByRole("button", { name: en.drilling.sheet.leave }));
+    expect(push).toHaveBeenCalledWith("/eksplorasi/drilling");
   });
 });
