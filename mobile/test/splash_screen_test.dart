@@ -8,6 +8,8 @@ import 'package:atara/theme/app_theme.dart';
 import 'package:atara/widgets/brand/illustration.dart';
 import 'package:atara/widgets/brand/wordmark.dart';
 
+import 'support/splash.dart';
+
 /// The opacity [of] is actually drawn at: every FadeTransition above it,
 /// multiplied — the name has one for arriving and one for leaving.
 double drawnOpacity(WidgetTester tester, Finder of) {
@@ -64,6 +66,10 @@ void main() {
     expect(drawnOpacity(tester, name), 0);
     expect(drawnOpacity(tester, tagline), 0);
 
+    // Nothing moves until the first frames are past and the picture is in.
+    await startSplash(tester);
+    expect(trolleyOffset(tester), lessThan(-200));
+
     // On its way in, decelerating.
     await tester.pump(const Duration(milliseconds: 250));
     final arriving = trolleyOffset(tester);
@@ -71,7 +77,7 @@ void main() {
     expect(arriving, greaterThan(-200));
 
     // At rest in the middle, and the name starting to come up beneath it.
-    await tester.pump(const Duration(milliseconds: 450));
+    await tester.pump(const Duration(milliseconds: 550));
     expect(trolleyOffset(tester), closeTo(0, 0.5));
     final naming = drawnOpacity(tester, name);
     expect(naming, greaterThan(0));
@@ -90,6 +96,7 @@ void main() {
 
   testWidgets('leaves to the right, the name fading after it', (tester) async {
     await pumpSplash(tester, onFinished: () {});
+    await startSplash(tester);
 
     await tester.pump(const Duration(milliseconds: 2000));
     expect(trolleyOffset(tester), closeTo(0, 0.5));
@@ -125,6 +132,7 @@ void main() {
     expect(trolleyOffset(tester), closeTo(0, 0.5));
     expect(drawnOpacity(tester, find.byType(Illustration)), 0);
 
+    await startSplash(tester);
     await tester.pump(const Duration(milliseconds: 1200));
     expect(trolleyOffset(tester), closeTo(0, 0.5));
     expect(drawnOpacity(tester, find.byType(Illustration)), 1);

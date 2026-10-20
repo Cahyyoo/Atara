@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- The launcher's ground: olive in the top-left corner into a fresher green,
      the same diagonal as the app's headers. Stops short of the headers' lime
-     so the white mountain keeps its contrast across the whole icon. -->
+     so the white flask keeps its contrast across the whole icon. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
     <gradient

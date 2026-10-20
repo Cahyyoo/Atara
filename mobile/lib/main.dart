@@ -245,7 +245,7 @@ class SplashGate extends StatefulWidget {
 
   /// How long after the first frame the splash is taken down regardless —
   /// well past [SplashScreen.hold], so it only ever acts on a stuck splash.
-  static const Duration failsafe = Duration(milliseconds: 4500);
+  static const Duration failsafe = Duration(milliseconds: 6000);
 
   @override
   State<SplashGate> createState() => _SplashGateState();

@@ -6,7 +6,7 @@
     <!-- And the app icon on top of it. Never an empty window: a blank field
          for however long the app takes to boot - seconds, on a debug build -
          reads as a frozen app. The whole icon rather than its foreground,
-         because the foreground is a white mountain and would vanish on this
+         because the foreground is a white flask and would vanish on this
          light ground. -->
     <item>
         <bitmap

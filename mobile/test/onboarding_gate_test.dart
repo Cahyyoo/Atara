@@ -7,9 +7,10 @@ import 'package:shared_preferences_platform_interface/types.dart';
 
 import 'package:atara/main.dart';
 import 'package:atara/screens/onboarding_screen.dart';
-import 'package:atara/screens/splash_screen.dart';
 
 import 'support/finders.dart';
+
+import 'support/splash.dart';
 
 /// A settings store that fails every read, standing in for a platform channel
 /// that misbehaves on a real device.
@@ -47,7 +48,7 @@ class _FailingStore extends SharedPreferencesStorePlatform {
 /// widget rather than restated, so changing it does not silently strand these.
 Future<void> pumpApp(WidgetTester tester) async {
   await tester.pumpWidget(const ProviderScope(child: AtaraApp()));
-  await tester.pump(SplashScreen.hold + const Duration(milliseconds: 50));
+  await pumpPastSplash(tester);
   for (var i = 0; i < 5; i++) {
     await tester.pump(const Duration(milliseconds: 50));
   }

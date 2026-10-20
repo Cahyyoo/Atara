@@ -11,6 +11,8 @@ import 'package:atara/screens/splash_screen.dart';
 import 'package:atara/theme/app_theme.dart';
 import 'package:atara/widgets/brand/illustration.dart';
 
+import 'support/splash.dart';
+
 /// Scoped to the splash on purpose: other screens carry illustrations too,
 /// and they are built underneath from the first frame.
 final splashMark = find.descendant(
@@ -71,7 +73,7 @@ void main() {
             'the handoff from the launch window shows the app half-built',
       );
 
-      await tester.pump(SplashScreen.hold + const Duration(milliseconds: 50));
+      await pumpPastSplash(tester);
     });
 
     testWidgets('keeps the trolley for the whole splash', (tester) async {
@@ -101,7 +103,7 @@ void main() {
       await tester.pumpWidget(const ProviderScope(child: AtaraApp()));
       expect(find.byType(SplashScreen), findsOneWidget);
 
-      await tester.pump(SplashScreen.hold + const Duration(milliseconds: 600));
+      await pumpPastSplash(tester);
       for (var i = 0; i < 5; i++) {
         await tester.pump(const Duration(milliseconds: 50));
       }
@@ -151,7 +153,7 @@ void main() {
 
     expect(find.byType(SplashScreen), findsOneWidget);
 
-    await tester.pump(SplashScreen.hold + const Duration(milliseconds: 50));
+    await pumpPastSplash(tester);
     expect(find.byType(SplashScreen), findsNothing);
     expect(find.text('behind'), findsOneWidget);
   });
@@ -166,7 +168,7 @@ void main() {
     expect(built, isTrue);
     expect(find.byType(SplashScreen), findsOneWidget);
 
-    await tester.pump(SplashScreen.hold + const Duration(milliseconds: 50));
+    await pumpPastSplash(tester);
   });
 
   testWidgets('still shows when the platform asks for less motion',
@@ -185,7 +187,7 @@ void main() {
       reason: 'reduced motion drops the movement, not the splash',
     );
 
-    await tester.pump(SplashScreen.hold + const Duration(milliseconds: 50));
+    await pumpPastSplash(tester);
     expect(find.byType(SplashScreen), findsNothing);
     expect(find.text('behind'), findsOneWidget);
   });

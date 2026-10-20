@@ -6,7 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:atara/main.dart';
 import 'package:atara/screens/login_screen.dart';
 import 'package:atara/screens/onboarding_screen.dart';
-import 'package:atara/screens/splash_screen.dart';
+
+import 'support/splash.dart';
 
 void main() {
   testWidgets('App shows the login screen when no session is stored', (tester) async {
@@ -18,7 +19,7 @@ void main() {
     await tester.pumpWidget(const ProviderScope(child: AtaraApp()));
 
     // The splash holds for a fixed stretch before it hands over.
-    await tester.pump(SplashScreen.hold + const Duration(milliseconds: 50));
+    await pumpPastSplash(tester);
 
     // The session, the stored locale and the localization delegates all resolve
     // asynchronously. pumpAndSettle would hang on the loading indicator, so

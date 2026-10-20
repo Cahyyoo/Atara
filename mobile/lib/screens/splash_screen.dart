@@ -1,6 +1,9 @@
 import 'dart:ui' as ui;
 
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/scheduler.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme/app_motion.dart';
@@ -44,18 +47,19 @@ class _SplashScreenState extends State<SplashScreen>
   /// the platform asks for less motion — the splash is gone in two frames, and
   /// it looks exactly like a bug. The motion is dropped in [build] instead,
   /// which is what the setting actually asks for; the timing stays honest.
-  late final AnimationController _controller = AnimationController(
-    duration: SplashScreen.hold,
-    animationBehavior: AnimationBehavior.preserve,
-    vsync: this,
-  )..addStatusListener((status) {
-      if (status == AnimationStatus.completed) widget.onFinished();
-    });
+  late final AnimationController _controller =
+      AnimationController(
+        duration: SplashScreen.hold,
+        animationBehavior: AnimationBehavior.preserve,
+        vsync: this,
+      )..addStatusListener((status) {
+        if (status == AnimationStatus.completed) widget.onFinished();
+      });
 
   // Every stage off the one timeline, in milliseconds of [SplashScreen.hold].
-  late final _artIn = _stage(0, 550, AppMotion.enter);
-  late final _nameIn = _stage(480, 900, Curves.easeOut);
-  late final _taglineIn = _stage(650, 1050, Curves.easeOut);
+  late final _artIn = _stage(0, 700, AppMotion.enter);
+  late final _nameIn = _stage(600, 1000, Curves.easeOut);
+  late final _taglineIn = _stage(750, 1150, Curves.easeOut);
   late final _taglineOut = _stage(2250, 2400, Curves.easeIn);
   late final _artOut = _stage(2300, 2800, AppMotion.exit);
   late final _nameOut = _stage(2350, 2750, Curves.easeIn);
@@ -71,8 +75,34 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
-    _controller.forward();
+    unawaited(_start());
   }
+
+  /// Starts the timeline only once the screen can actually show it.
+  ///
+  /// Started straight from initState, the clock ran through the first frames
+  /// — the slowest of the app's life, seconds apart on a debug build — so by
+  /// the time anything was drawn the trolley had already arrived, and all
+  /// that was seen was it leaving: centre to right, never left to centre.
+  /// Now it waits for those frames to pass and for the trolley's picture to
+  /// be parsed (briefly: never longer than [_artWait]), and only then rolls
+  /// in from the left. Until then the page is empty, like the launch window.
+  Future<void> _start() async {
+    await SchedulerBinding.instance.endOfFrame;
+    if (!mounted) return;
+    final blob = context.palette.blob;
+    if (IllustrationCache.lookup(Art.splashCart, blob) == null) {
+      await IllustrationCache.warm(
+        blob,
+        arts: const [Art.splashCart],
+      ).timeout(_artWait, onTimeout: () {});
+    }
+    if (!mounted) return;
+    await SchedulerBinding.instance.endOfFrame;
+    if (mounted) _controller.forward();
+  }
+
+  static const Duration _artWait = Duration(milliseconds: 600);
 
   @override
   void dispose() {

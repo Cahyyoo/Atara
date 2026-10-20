@@ -12,8 +12,9 @@ import 'package:atara/models/user_model.dart';
 import 'package:atara/screens/change_password_screen.dart';
 import 'package:atara/screens/home_shell.dart';
 import 'package:atara/screens/login_screen.dart';
-import 'package:atara/screens/splash_screen.dart';
 import 'package:atara/services/session_service.dart';
+
+import 'support/splash.dart';
 
 /// The password an administrator chose has to go before the app is usable.
 ///
@@ -31,7 +32,7 @@ String _storedUser({required bool mustChangePassword}) => jsonEncode({
 
 Future<void> launch(WidgetTester tester) async {
   await tester.pumpWidget(const ProviderScope(child: AtaraApp()));
-  await tester.pump(SplashScreen.hold + const Duration(milliseconds: 50));
+  await pumpPastSplash(tester);
   for (var i = 0; i < 8; i++) {
     await tester.pump(const Duration(milliseconds: 100));
   }
