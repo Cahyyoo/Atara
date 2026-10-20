@@ -6,6 +6,7 @@ import '../models/stage_board.dart';
 import '../providers/todo_provider.dart';
 import '../screens/todo_stage_screen.dart';
 import '../services/stage_label.dart';
+import '../theme/app_motion.dart';
 import '../theme/app_theme.dart';
 import 'brand/illustration.dart';
 import 'home/stage_chips.dart';
@@ -55,40 +56,17 @@ class TodoSection extends ConsumerWidget {
 
     final appear = EntranceScope.slice(context, 0.35, 0.85);
 
-    if (waiting.isEmpty) {
-      return SliverToBoxAdapter(
-        child: Reveal(
-          animation: appear,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-            child: InsetSection(
-              header: l10n.todoTitle,
-              children: [
-                InsetCustomRow(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.lg,
-                    vertical: AppSpacing.lg,
-                  ),
-                  child: Column(
-                    children: [
-                      const Illustration(Art.emptyDone, height: 88),
-                      const SizedBox(height: AppSpacing.sm),
-                      Text(
-                        l10n.todoEmpty,
-                        textAlign: TextAlign.center,
-                        style: AppText.subhead.copyWith(
-                          color: palette.secondaryLabel,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+    final Widget body = waiting.isEmpty
+        ? const _Empty()
+        : SizedBox(
+            height: 196,
+            child: _HorizontalCards(
+              count: ordered.length,
+              builder: (i) => ordered[i].overdue > 0
+                  ? _AttentionCard(column: ordered[i])
+                  : _StageCard(column: ordered[i]),
             ),
-          ),
-        ),
-      );
-    }
+          );
 
     return SliverToBoxAdapter(
       child: Reveal(
@@ -97,13 +75,26 @@ class TodoSection extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _Heading(text: l10n.todoTitle),
-            SizedBox(
-              height: 196,
-              child: _HorizontalCards(
-                count: ordered.length,
-                builder: (i) => ordered[i].overdue > 0
-                    ? _AttentionCard(column: ordered[i])
-                    : _StageCard(column: ordered[i]),
+            // Picking a stage swaps what is below the heading: the old cards
+            // leave quickly, the new ones come in from the right one after
+            // another, the way the chip row runs. Keyed on the filter, so a
+            // refresh of the same filter changes the numbers in place and
+            // plays nothing; and an AnimatedSwitcher never animates its first
+            // child, so Home's own entrance is not doubled.
+            AnimatedSize(
+              duration: _swapIn,
+              curve: AppMotion.move,
+              alignment: Alignment.topCenter,
+              child: AnimatedSwitcher(
+                duration: _swapIn,
+                reverseDuration: _swapOut,
+                layoutBuilder: (current, previous) => Stack(
+                  alignment: Alignment.topCenter,
+                  children: [...previous, ?current],
+                ),
+                transitionBuilder: (child, animation) =>
+                    _SwapScope(animation: animation, child: child),
+                child: KeyedSubtree(key: ValueKey(filter), child: body),
               ),
             ),
             Padding(
@@ -119,6 +110,70 @@ class TodoSection extends ConsumerWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+const Duration _swapIn = Duration(milliseconds: 380);
+const Duration _swapOut = Duration(milliseconds: 140);
+
+/// The animation of the swap in progress, for the cards inside it to take
+/// their own staggered slice of. Absent outside a swap: everything shows.
+class _SwapScope extends InheritedWidget {
+  const _SwapScope({required this.animation, required super.child});
+
+  final Animation<double> animation;
+
+  /// Item [index] of [count]'s share of the swap, as an entrance.
+  static Animation<double> slice(BuildContext context, int index, int count) {
+    final scope = context.dependOnInheritedWidgetOfExactType<_SwapScope>();
+    if (scope == null) return kAlwaysCompleteAnimation;
+    return CurvedAnimation(
+      parent: scope.animation,
+      // Starting a third of the way in: the outgoing cards are gone by then,
+      // so the two sets never sit on top of each other.
+      curve: AppMotion.staggered(index, count, begin: 0.3, share: 0.5),
+    );
+  }
+
+  @override
+  bool updateShouldNotify(_SwapScope oldWidget) =>
+      animation != oldWidget.animation;
+}
+
+/// Nothing waiting in the chosen stage (or anywhere).
+class _Empty extends StatelessWidget {
+  const _Empty();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final palette = context.palette;
+    return Reveal(
+      animation: _SwapScope.slice(context, 0, 1),
+      offset: const Offset(24, 0),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          decoration: BoxDecoration(
+            color: palette.cardBackground,
+            borderRadius: BorderRadius.circular(AppRadius.lg),
+          ),
+          child: Column(
+            children: [
+              const Illustration(Art.emptyDone, height: 88),
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                l10n.todoEmpty,
+                textAlign: TextAlign.center,
+                style: AppText.subhead.copyWith(color: palette.secondaryLabel),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -159,7 +214,12 @@ class _HorizontalCards extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       itemCount: count,
       separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.md),
-      itemBuilder: (context, i) => builder(i),
+      // Each card its own slice of the swap, so they arrive left to right.
+      itemBuilder: (context, i) => Reveal(
+        animation: _SwapScope.slice(context, i.clamp(0, 3), count.clamp(1, 4)),
+        offset: const Offset(24, 0),
+        child: builder(i),
+      ),
     );
   }
 }
