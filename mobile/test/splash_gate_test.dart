@@ -9,13 +9,13 @@ import 'package:atara/l10n/app_localizations.dart';
 import 'package:atara/main.dart';
 import 'package:atara/screens/splash_screen.dart';
 import 'package:atara/theme/app_theme.dart';
-import 'package:atara/widgets/brand_mark.dart';
+import 'package:atara/widgets/brand/illustration.dart';
 
-/// Scoped to the splash on purpose: the guide's welcome page carries the same
-/// mark, and it is built underneath from the first frame.
+/// Scoped to the splash on purpose: other screens carry illustrations too,
+/// and they are built underneath from the first frame.
 final splashMark = find.descendant(
   of: find.byType(SplashScreen),
-  matching: find.byType(BrandGlyph),
+  matching: find.byType(Illustration),
 );
 
 /// The gate had no test at all, which is exactly how the splash shipped
@@ -55,7 +55,7 @@ void main() {
     setUp(() => SharedPreferences.setMockInitialValues({}));
     tearDown(SharedPreferences.resetStatic);
 
-    testWidgets('shows the brand mark on its very first frame',
+    testWidgets('has its trolley on the very first frame',
         (tester) async {
       // The assertion that was missing, and the reason a blank splash shipped
       // twice. Every other splash test checks animation *values*, which were
@@ -67,14 +67,14 @@ void main() {
       expect(
         splashMark,
         findsOneWidget,
-        reason: 'the launch window hands the mark over; the first Flutter '
-            'frame has to already have it, or the handoff is a blank flash',
+        reason: 'the first Flutter frame has to be the splash already, or '
+            'the handoff from the launch window shows the app half-built',
       );
 
       await tester.pump(SplashScreen.hold + const Duration(milliseconds: 50));
     });
 
-    testWidgets('keeps the mark up for the whole splash', (tester) async {
+    testWidgets('keeps the trolley for the whole splash', (tester) async {
       await tester.pumpWidget(const ProviderScope(child: AtaraApp()));
 
       for (var elapsed = Duration.zero;
@@ -85,7 +85,7 @@ void main() {
         expect(
           splashMark,
           findsOneWidget,
-          reason: 'the mark never fades out mid-splash',
+          reason: 'the splash is one composition from start to finish',
         );
       }
 

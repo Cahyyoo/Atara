@@ -1849,6 +1849,168 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Ketuk untuk mengisi Sample ID'**
   String get checkTapToFill;
+
+  /// No description provided for @splashTagline.
+  ///
+  /// In id, this message translates to:
+  /// **'Sampel terlacak, dari preparasi sampai laporan'**
+  String get splashTagline;
+
+  /// No description provided for @loginHeaderSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Sampel lab,\ntercatat rapi.'**
+  String get loginHeaderSubtitle;
+
+  /// No description provided for @loginWelcome.
+  ///
+  /// In id, this message translates to:
+  /// **'Selamat Datang'**
+  String get loginWelcome;
+
+  /// No description provided for @emailInvalid.
+  ///
+  /// In id, this message translates to:
+  /// **'Format email belum benar'**
+  String get emailInvalid;
+
+  /// No description provided for @forgotPassword.
+  ///
+  /// In id, this message translates to:
+  /// **'Lupa kata sandi?'**
+  String get forgotPassword;
+
+  /// No description provided for @forgotPasswordTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Lupa kata sandi'**
+  String get forgotPasswordTitle;
+
+  /// No description provided for @forgotPasswordBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Kata sandi direset oleh admin lab. Hubungi admin, lalu masuk dengan kata sandi sementara yang diberikan.'**
+  String get forgotPasswordBody;
+
+  /// No description provided for @understood.
+  ///
+  /// In id, this message translates to:
+  /// **'Mengerti'**
+  String get understood;
+
+  /// No description provided for @loginOr.
+  ///
+  /// In id, this message translates to:
+  /// **'atau'**
+  String get loginOr;
+
+  /// No description provided for @serverSettings.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengaturan server'**
+  String get serverSettings;
+
+  /// No description provided for @noAccount.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum punya akun?'**
+  String get noAccount;
+
+  /// No description provided for @askAdmin.
+  ///
+  /// In id, this message translates to:
+  /// **'Hubungi admin'**
+  String get askAdmin;
+
+  /// No description provided for @bannerTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Siap memindai sampel?'**
+  String get bannerTitle;
+
+  /// No description provided for @bannerBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Arahkan kamera ke barcode label.'**
+  String get bannerBody;
+
+  /// No description provided for @bannerAction.
+  ///
+  /// In id, this message translates to:
+  /// **'Mulai Scan'**
+  String get bannerAction;
+
+  /// No description provided for @stagesTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Tahapan'**
+  String get stagesTitle;
+
+  /// No description provided for @stageAllChip.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua'**
+  String get stageAllChip;
+
+  /// No description provided for @attentionTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Perlu perhatian'**
+  String get attentionTitle;
+
+  /// No description provided for @seeAllPlain.
+  ///
+  /// In id, this message translates to:
+  /// **'Lihat semua'**
+  String get seeAllPlain;
+
+  /// No description provided for @tabHistory.
+  ///
+  /// In id, this message translates to:
+  /// **'Riwayat'**
+  String get tabHistory;
+
+  /// No description provided for @tabQueue.
+  ///
+  /// In id, this message translates to:
+  /// **'Antrean'**
+  String get tabQueue;
+
+  /// No description provided for @tabSettings.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengaturan'**
+  String get tabSettings;
+
+  /// No description provided for @announcementsOpen.
+  ///
+  /// In id, this message translates to:
+  /// **'Lihat pengumuman'**
+  String get announcementsOpen;
+
+  /// No description provided for @waitingInStage.
+  ///
+  /// In id, this message translates to:
+  /// **'menunggu'**
+  String get waitingInStage;
+
+  /// No description provided for @pendingCardsTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum terkirim'**
+  String get pendingCardsTitle;
+
+  /// No description provided for @myWorkGridTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pekerjaan saya'**
+  String get myWorkGridTitle;
+
+  /// No description provided for @refresh.
+  ///
+  /// In id, this message translates to:
+  /// **'Muat ulang'**
+  String get refresh;
 }
 
 class _AppLocalizationsDelegate

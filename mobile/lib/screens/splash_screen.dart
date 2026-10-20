@@ -1,48 +1,35 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/cupertino.dart';
 
 import '../l10n/app_localizations.dart';
+import '../theme/app_motion.dart';
 import '../theme/app_theme.dart';
-import '../widgets/brand_mark.dart';
+import '../widgets/brand/illustration.dart';
+import '../widgets/brand/wordmark.dart';
 
-/// The app arriving: the mark is already here, then its name, then a line
-/// that fills while the stored answers are read.
+/// The app arriving, as the redesign reference's opens: a plain warm page, a
+/// lab trolley gliding in from the left, the name fading up beneath it, then
+/// the line under the name — and, once the app behind is ready, the trolley
+/// rolling off to the right while the name blurs away after it.
 ///
-/// **The mark does not animate in, and that is the point.** The native launch
-/// window already shows it — the launcher's adaptive icon on this same teal —
-/// so by the time Flutter draws its first frame the preparator has been looking
-/// at the mountain for however long the app took to boot. Fading it in here
-/// would mean drawing it twice. Starting with it in place means the handoff
-/// from the system window to the first Flutter frame is seamless.
+/// **It starts from the native window's own page colour.** The system window
+/// is the same off-white with the app icon on it — never blank, because a
+/// blank window during a slow boot reads as a hang. At the handoff the icon
+/// gives way to an empty page and the trolley glides in, which is also the
+/// proof that Flutter is drawing.
 ///
-/// **The loading line is what says the handoff happened.** Seamless cut both
-/// ways: the system window and this screen were pixel-identical at rest —
-/// same teal, same mountain, nothing moving — so several seconds of Android
-/// holding its own splash and this screen doing its job read as one long
-/// frozen green field. The line is the only thing the system window does not
-/// have, so it moves from the very first frame. Before it: still booting.
-/// After it: Flutter is drawing.
-///
-/// That also makes the next failure diagnosable. Three fixes went into this
-/// screen against a symptom that could not distinguish "the app has not
-/// started" from "the splash is frozen".
-///
-/// Held for [hold] whether or not the app is ready. The answers behind
-/// [AuthGate] are one shared-preferences round trip and usually land inside a
-/// frame or two, so without a floor this would be a flicker — which is worse
-/// than no splash at all. The cost is real and deliberate: [hold] is added to
-/// every cold start, which is why it is as short as it can be and still be
-/// read.
+/// Held for [hold] whether or not the app is ready, because the answers
+/// behind [AuthGate] usually land inside a frame or two and a splash that
+/// flickers is worse than none. The reference lingers for nearly four seconds;
+/// this is the same sequence pressed into three, because it is paid on every
+/// cold start of a tool used all shift.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key, required this.onFinished});
 
-  /// How long the whole thing lasts, fade-out included. Named so the tests can
+  /// How long the whole thing lasts, exit included. Named so the tests can
   /// pump past it without restating the number.
-  ///
-  /// 600ms was right on paper and wrong on a phone: after several seconds of
-  /// the system holding an identical teal screen, six-tenths of a second of
-  /// anything happening went by unseen. The wait this sits in front of is
-  /// long; the part that says so has to last long enough to be read.
-  static const Duration hold = Duration(milliseconds: 1400);
+  static const Duration hold = Duration(milliseconds: 3000);
 
   final VoidCallback onFinished;
 
@@ -52,18 +39,11 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
-  /// The only AnimationController in the app.
-  ///
-  /// Everything else animates implicitly, which is the right default. It does
-  /// not work here: four stages off one timeline, and nothing to hang an
-  /// implicit animation on.
-  ///
   /// `preserve` is load-bearing, not a preference. Under the default
   /// `AnimationBehavior.normal` Flutter multiplies the duration by 0.05 when
-  /// the platform asks for less motion — 900ms becomes 45ms, the splash is
-  /// gone in two frames, and it looks exactly like a bug. It looked exactly
-  /// like a bug. The motion is dropped in [build] instead, which is what the
-  /// setting actually asks for; the timing stays honest.
+  /// the platform asks for less motion — the splash is gone in two frames, and
+  /// it looks exactly like a bug. The motion is dropped in [build] instead,
+  /// which is what the setting actually asks for; the timing stays honest.
   late final AnimationController _controller = AnimationController(
     duration: SplashScreen.hold,
     animationBehavior: AnimationBehavior.preserve,
@@ -72,24 +52,16 @@ class _SplashScreenState extends State<SplashScreen>
       if (status == AnimationStatus.completed) widget.onFinished();
     });
 
-  /// One stage each, off the shared timeline. Handing an `Animation` to a
-  /// `*Transition` is what keeps this off the build phase entirely:
-  /// `FadeTransition`'s render object subscribes to the animation itself and
-  /// only updates its layer's alpha. An `AnimatedBuilder` would rebuild the
-  /// subtree 54 times instead.
-  /// The mark settles first: it is already on screen, handed over from the
-  /// launch window, so it does not arrive — it comes to rest. A small
-  /// contraction reads as exactly that, where a fade-in would read as a
-  /// second mountain appearing on top of the first.
-  late final _settle = _stage(0, 380, Curves.easeOutCubic);
-
-  // Then the line, which is the proof of life, and the name behind it.
-  late final _line = _stage(120, 900, Curves.easeInOut);
-  late final _name = _stage(360, 980, Curves.easeOut);
-  late final _exit = _stage(1180, 1400, Curves.easeIn);
+  // Every stage off the one timeline, in milliseconds of [SplashScreen.hold].
+  late final _artIn = _stage(0, 550, AppMotion.enter);
+  late final _nameIn = _stage(480, 900, Curves.easeOut);
+  late final _taglineIn = _stage(650, 1050, Curves.easeOut);
+  late final _taglineOut = _stage(2250, 2400, Curves.easeIn);
+  late final _artOut = _stage(2300, 2800, AppMotion.exit);
+  late final _nameOut = _stage(2350, 2750, Curves.easeIn);
 
   CurvedAnimation _stage(int fromMs, int toMs, Curve curve) {
-    const total = 1400.0;
+    final total = SplashScreen.hold.inMilliseconds;
     return CurvedAnimation(
       parent: _controller,
       curve: Interval(fromMs / total, toMs / total, curve: curve),
@@ -106,7 +78,14 @@ class _SplashScreenState extends State<SplashScreen>
   void dispose() {
     // CurvedAnimation holds a listener on its parent; leaving these undisposed
     // leaks one per launch.
-    for (final stage in [_settle, _line, _name, _exit]) {
+    for (final stage in [
+      _artIn,
+      _nameIn,
+      _taglineIn,
+      _taglineOut,
+      _artOut,
+      _nameOut,
+    ]) {
       stage.dispose();
     }
     _controller.dispose();
@@ -117,51 +96,59 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     final palette = context.palette;
     final l10n = AppLocalizations.of(context)!;
+    final size = MediaQuery.sizeOf(context);
 
     // Honoured by dropping the movement, not by dropping the splash. Someone
     // who asked for less motion still needs to see the app start.
-    final still = MediaQuery.disableAnimationsOf(context);
+    final still = AppMotion.reduced(context);
 
-    return DecoratedBox(
-      // Built once, outside every transition, so this full-screen shader is
-      // rasterised exactly once for the whole splash.
-      decoration: BoxDecoration(gradient: palette.heroGradient),
+    final artWidth = (size.width * 0.66).clamp(200.0, 300.0);
+    // Far enough that the trolley starts and ends wholly off screen.
+    final travel = size.width / 2 + artWidth / 2 + 16;
+
+    return ColoredBox(
+      color: palette.groupedBackground,
       child: Center(
-        child: FadeTransition(
-          opacity: Tween<double>(begin: 1, end: 0).animate(_exit),
-          child: _Rise(
-            animation: _exit,
-            distance: still ? 0 : -8,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Never a fade: it is already on screen, handed over from
-                // the launch window, and it stays there for the whole splash.
-                // The scale only settles it — 6% is enough to be felt as the
-                // moment Flutter took over, and small enough that nobody
-                // reads it as a second mountain.
-                ScaleTransition(
-                  scale: still
-                      ? const AlwaysStoppedAnimation(1.0)
-                      : Tween<double>(begin: 1.06, end: 1).animate(_settle),
-                  child: BrandGlyph(size: 88, color: palette.onHero),
-                ),
-                const SizedBox(height: AppSpacing.xl),
-                FadeTransition(
-                  opacity: _name,
-                  child: _Rise(
-                    animation: _name,
-                    distance: still ? 0 : 12,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 48),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _Glide(
+                arrive: _artIn,
+                leave: _artOut,
+                from: still ? 0 : -travel,
+                to: still ? 0 : travel,
+                fadeWhenStill: still,
+                child: Illustration(Art.splashCart, width: artWidth),
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              _BlurAway(
+                arrive: _nameIn,
+                leave: _nameOut,
+                still: still,
+                child: const Wordmark(size: 42),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              FadeTransition(
+                opacity: _taglineIn,
+                child: FadeTransition(
+                  opacity: ReverseAnimation(_taglineOut),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.xxl,
+                    ),
                     child: Text(
-                      l10n.appTitle,
-                      style: AppText.title2.copyWith(color: palette.onHero),
+                      l10n.splashTagline,
+                      textAlign: TextAlign.center,
+                      style: AppText.subhead.copyWith(
+                        color: palette.secondaryLabel,
+                      ),
                     ),
                   ),
                 ),
-                const SizedBox(height: AppSpacing.xl),
-                _LoadingLine(animation: _line, color: palette.onHero),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -169,74 +156,107 @@ class _SplashScreenState extends State<SplashScreen>
   }
 }
 
-/// Lifts its child into place as [animation] runs.
+/// Slides in from [from] as [arrive] runs and out to [to] as [leave] runs,
+/// in logical pixels along the x axis.
 ///
-/// `SlideTransition` measures its offset as a fraction of the child's own
-/// size, which makes a fixed 12pt rise depend on how tall the text happens to
-/// be. This is the same thing in logical pixels.
-class _Rise extends AnimatedWidget {
-  const _Rise({
-    required Animation<double> animation,
-    required this.distance,
+/// With motion reduced both distances are zero and the child fades instead,
+/// so the sequence still has a beginning and an end.
+class _Glide extends StatelessWidget {
+  const _Glide({
+    required this.arrive,
+    required this.leave,
+    required this.from,
+    required this.to,
+    required this.fadeWhenStill,
     required this.child,
-  }) : super(listenable: animation);
+  });
 
-  final double distance;
+  final Animation<double> arrive;
+  final Animation<double> leave;
+  final double from;
+  final double to;
+  final bool fadeWhenStill;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    final t = (listenable as Animation<double>).value;
-    return Transform.translate(offset: Offset(0, distance * (1 - t)), child: child);
+    Widget result = AnimatedBuilder(
+      animation: Listenable.merge([arrive, leave]),
+      child: child,
+      builder: (context, child) {
+        final dx = from * (1 - arrive.value) + to * leave.value;
+        return Transform.translate(offset: Offset(dx, 0), child: child);
+      },
+    );
+    if (fadeWhenStill) {
+      result = FadeTransition(
+        opacity: arrive,
+        child: FadeTransition(opacity: ReverseAnimation(leave), child: result),
+      );
+    }
+    return result;
   }
 }
 
-/// A hairline that fills left to right while the app reads its stored state.
-///
-/// It says *why* there is a pause, and — because the system launch window has
-/// no line — it is also the one thing on screen that proves Flutter is the one
-/// drawing. The track stays visible at rest so the line has somewhere to go
-/// rather than appearing from nothing.
-class _LoadingLine extends StatelessWidget {
-  const _LoadingLine({required this.animation, required this.color});
+/// Fades the name in, then fades it out while it drifts right and blurs — the
+/// reference's name leaves as though left behind by the trolley's speed.
+class _BlurAway extends StatelessWidget {
+  const _BlurAway({
+    required this.arrive,
+    required this.leave,
+    required this.still,
+    required this.child,
+  });
 
-  static const double _width = 96;
-  static const double _height = 2;
-
-  final Animation<double> animation;
-  final Color color;
+  final Animation<double> arrive;
+  final Animation<double> leave;
+  final bool still;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    final radius = BorderRadius.circular(_height);
-
-    return SizedBox(
-      width: _width,
-      height: _height,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          // Legible as a track being filled, not as a stray scratch. At 0.24
-          // it was easy to miss, and missing it is what left the whole screen
-          // looking identical to the system window before it.
-          color: color.withValues(alpha: 0.35),
-          borderRadius: radius,
-        ),
-        child: Align(
-          alignment: Alignment.centerLeft,
-          // Only this 96x2 strip rebuilds per frame; the rest of the splash
-          // never enters the build phase at all.
-          child: AnimatedBuilder(
-            animation: animation,
-            builder: (context, child) => FractionallySizedBox(
-              widthFactor: animation.value,
+    Widget moving = child;
+    if (!still) {
+      moving = AnimatedBuilder(
+        animation: leave,
+        child: child,
+        builder: (context, child) {
+          final t = leave.value;
+          if (t == 0) return child!;
+          final sigma = 6 * t;
+          return Transform.translate(
+            offset: Offset(28 * t, 0),
+            child: ImageFiltered(
+              imageFilter: ui.ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
               child: child,
             ),
-            child: DecoratedBox(
-              decoration: BoxDecoration(color: color, borderRadius: radius),
-            ),
-          ),
-        ),
-      ),
+          );
+        },
+      );
+    }
+    return FadeTransition(
+      opacity: arrive,
+      child: FadeTransition(opacity: ReverseAnimation(leave), child: moving),
     );
+  }
+}
+
+/// Whether the splash has finished, for the screen underneath it.
+///
+/// [SplashGate] builds the app from the first frame — the providers behind it
+/// have to start — so the screen it lands on is laid out before anyone can
+/// see it. A screen with an entrance of its own reads this to start that
+/// entrance when the splash leaves rather than while it is still covered.
+class SplashStatus extends InheritedNotifier<ValueNotifier<bool>> {
+  const SplashStatus({
+    super.key,
+    required ValueNotifier<bool> done,
+    required super.child,
+  }) : super(notifier: done);
+
+  /// True when there is no splash above [context], or it has finished.
+  static bool isDone(BuildContext context) {
+    final status = context.dependOnInheritedWidgetOfExactType<SplashStatus>();
+    return status?.notifier?.value ?? true;
   }
 }

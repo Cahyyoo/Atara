@@ -161,7 +161,7 @@ void main() {
     await pumpSecondFactor(tester, ScriptedSession());
 
     expect(codeField, findsOneWidget);
-    expect(find.text('Kode Authenticator'.toUpperCase()), findsWidgets);
+    expect(find.text('Kode Authenticator'), findsWidgets);
   });
 
   testWidgets('two methods are offered before either is attempted', (

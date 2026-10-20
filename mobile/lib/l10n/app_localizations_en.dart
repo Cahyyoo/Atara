@@ -1013,4 +1013,86 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get checkTapToFill => 'Tap to fill in the Sample ID';
+
+  @override
+  String get splashTagline => 'Every sample tracked, prep to report';
+
+  @override
+  String get loginHeaderSubtitle => 'Lab samples,\nkept on track.';
+
+  @override
+  String get loginWelcome => 'Welcome Back';
+
+  @override
+  String get emailInvalid => 'That email doesn\'t look right';
+
+  @override
+  String get forgotPassword => 'Forgot password?';
+
+  @override
+  String get forgotPasswordTitle => 'Forgot password';
+
+  @override
+  String get forgotPasswordBody =>
+      'Passwords are reset by the lab admin. Ask them, then sign in with the temporary password they give you.';
+
+  @override
+  String get understood => 'Got it';
+
+  @override
+  String get loginOr => 'or';
+
+  @override
+  String get serverSettings => 'Server settings';
+
+  @override
+  String get noAccount => 'No account yet?';
+
+  @override
+  String get askAdmin => 'Ask the admin';
+
+  @override
+  String get bannerTitle => 'Ready to scan samples?';
+
+  @override
+  String get bannerBody => 'Point the camera at the label\'s barcode.';
+
+  @override
+  String get bannerAction => 'Start scanning';
+
+  @override
+  String get stagesTitle => 'Stages';
+
+  @override
+  String get stageAllChip => 'All';
+
+  @override
+  String get attentionTitle => 'Needs attention';
+
+  @override
+  String get seeAllPlain => 'See all';
+
+  @override
+  String get tabHistory => 'History';
+
+  @override
+  String get tabQueue => 'Queue';
+
+  @override
+  String get tabSettings => 'Settings';
+
+  @override
+  String get announcementsOpen => 'Open announcements';
+
+  @override
+  String get waitingInStage => 'waiting';
+
+  @override
+  String get pendingCardsTitle => 'Not sent yet';
+
+  @override
+  String get myWorkGridTitle => 'My work';
+
+  @override
+  String get refresh => 'Refresh';
 }

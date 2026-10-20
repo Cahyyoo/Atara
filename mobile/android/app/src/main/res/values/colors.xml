@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- The first stop of the hero gradient the Flutter splash paints, so the
-         handoff from the system window to the first frame is invisible. Not
-         @color/ic_launcher_background, which is the launcher's flat teal. -->
-    <color name="splash_background">#00766A</color>
+    <!-- The page colour the Flutter splash starts on, so the handoff from the
+         system window to the first frame is one continuous warm off-white.
+         Not @drawable/ic_launcher_bg, which is the launcher's olive. -->
+    <color name="splash_background">#F0F3EB</color>
 </resources>

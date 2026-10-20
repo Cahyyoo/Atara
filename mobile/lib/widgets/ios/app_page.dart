@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 
+import '../../theme/app_motion.dart';
 import '../../theme/app_theme.dart';
+import '../motion/reveal.dart';
 
 /// A screen with an iOS large title that shrinks into the bar as it scrolls.
 ///
@@ -9,7 +11,8 @@ import '../../theme/app_theme.dart';
 /// orienting, then gets out of the way once they are reading rows.
 ///
 /// [slivers] takes the page body. Use [AppPage.list] for the common case of a
-/// plain column of sections.
+/// plain column of sections — which also arrive the way the reference's
+/// content does, each a beat after the one above it.
 class AppPage extends StatelessWidget {
   const AppPage({
     super.key,
@@ -38,9 +41,23 @@ class AppPage extends StatelessWidget {
   }) : slivers = [
           SliverPadding(
             padding: padding,
-            sliver: SliverList(delegate: SliverChildListDelegate(children)),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                for (var i = 0; i < children.length; i++)
+                  // Only what is on screen when the page opens is staggered;
+                  // a section scrolled to later should simply be there.
+                  i < _staggeredSections
+                      ? EnterReveal(
+                          delay: AppMotion.stagger * (i + 1),
+                          child: children[i],
+                        )
+                      : children[i],
+              ]),
+            ),
           ),
         ];
+
+  static const _staggeredSections = 6;
 
   final String title;
   final List<Widget> slivers;
@@ -82,10 +99,11 @@ class AppPage extends StatelessWidget {
             // it — the most expensive primitive in Flutter, and Home was
             // compositing two of them every frame with the tab bar. iOS itself
             // only blurs while content is actually passing under the bar.
-            backgroundColor: palette.cardBackground,
-            border: Border(
-              bottom: BorderSide(color: palette.separator, width: 0.5),
-            ),
+            //
+            // The page colour with no rule under it: the title sits on the
+            // page as the reference's headings do, not on a bar of its own.
+            backgroundColor: palette.groupedBackground,
+            border: null,
             leading: leading,
             trailing: trailing,
             automaticallyImplyLeading: automaticallyImplyLeading,
@@ -126,8 +144,8 @@ class AppModalPage extends StatelessWidget {
       backgroundColor: palette.groupedBackground,
       navigationBar: CupertinoNavigationBar(
         middle: Text(title),
-        backgroundColor: palette.cardBackground,
-        border: Border(bottom: BorderSide(color: palette.separator, width: 0.5)),
+        backgroundColor: palette.groupedBackground,
+        border: null,
         leading: leading,
         trailing: trailing,
         automaticallyImplyLeading: leading == null,
@@ -138,7 +156,7 @@ class AppModalPage extends StatelessWidget {
   }
 }
 
-/// The blue text button iOS puts in a navigation bar.
+/// The green text or icon button in a navigation bar.
 class NavBarAction extends StatelessWidget {
   const NavBarAction({
     super.key,

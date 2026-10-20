@@ -5,41 +5,25 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:atara/l10n/app_localizations.dart';
 import 'package:atara/screens/splash_screen.dart';
 import 'package:atara/theme/app_theme.dart';
-import 'package:atara/widgets/brand_mark.dart';
+import 'package:atara/widgets/brand/illustration.dart';
+import 'package:atara/widgets/brand/wordmark.dart';
 
-/// The opacity the named widget is currently being drawn at.
-///
-/// Every stage is a `FadeTransition`, so its animation value is the honest
-/// answer to "has this stage arrived yet" — and unlike a widget field it is
-/// what the render object actually uses.
-double stageOpacity(WidgetTester tester, Finder of) {
-  final fade = tester.widget<FadeTransition>(
-    find.ancestor(of: of, matching: find.byType(FadeTransition)).first,
+/// The opacity [of] is actually drawn at: every FadeTransition above it,
+/// multiplied — the name has one for arriving and one for leaving.
+double drawnOpacity(WidgetTester tester, Finder of) {
+  final fades = tester.widgetList<FadeTransition>(
+    find.ancestor(of: of, matching: find.byType(FadeTransition)),
   );
-  return fade.opacity.value;
+  return fades.fold(1.0, (product, fade) => product * fade.opacity.value);
 }
 
-/// How far the loading line has filled, 0 to 1.
-///
-/// This is the one thing on the splash that the Android launch window does
-/// not also have, so it is the signal that Flutter is the one drawing.
-double lineFill(WidgetTester tester) {
-  final box = tester.widget<FractionallySizedBox>(
-    find.byType(FractionallySizedBox),
-  );
-  return box.widthFactor ?? 0;
-}
-
-/// The scale the mark is currently drawn at. It starts slightly large and
-/// contracts, which is the moment Flutter takes over made visible.
-double markScale(WidgetTester tester) {
-  final scale = tester.widget<ScaleTransition>(
-    find.ancestor(
-      of: find.byType(BrandGlyph),
-      matching: find.byType(ScaleTransition),
-    ).first,
-  );
-  return scale.scale.value;
+/// Where the trolley is, relative to the middle of the screen. Negative is
+/// still coming in from the left; positive is leaving to the right.
+double trolleyOffset(WidgetTester tester) {
+  final art = find.byType(Illustration);
+  final centre = tester.getCenter(art).dx;
+  final screen = tester.view.physicalSize.width / tester.view.devicePixelRatio;
+  return centre - screen / 2;
 }
 
 Future<void> pumpSplash(
@@ -65,47 +49,38 @@ Future<void> pumpSplash(
 }
 
 void main() {
-  testWidgets('settles the mark, then fills the line, then names itself',
+  final name = find.byType(Wordmark);
+  final tagline = find.text('Sampel terlacak, dari preparasi sampai laporan');
+
+  testWidgets('the trolley glides in, then the name, then the line under it',
       (tester) async {
     var finished = false;
     await pumpSplash(tester, onFinished: () => finished = true);
 
-    final mark = find.byType(BrandGlyph);
-    final name = find.text('Atara Preparator');
+    // Frame 0 matches the launch window: an empty page. The trolley is built
+    // but still wholly off the left edge, and nothing is said yet.
+    expect(find.byType(Illustration), findsOneWidget);
+    expect(trolleyOffset(tester), lessThan(-200));
+    expect(drawnOpacity(tester, name), 0);
+    expect(drawnOpacity(tester, tagline), 0);
 
-    // Frame 0 is the launch window's composition, carried over — the mark is
-    // already there, a touch large, with nothing else said yet.
-    expect(mark, findsOneWidget);
-    expect(markScale(tester), closeTo(1.06, 0.001));
-    expect(lineFill(tester), 0);
-    expect(stageOpacity(tester, name), 0);
+    // On its way in, decelerating.
+    await tester.pump(const Duration(milliseconds: 250));
+    final arriving = trolleyOffset(tester);
+    expect(arriving, lessThan(0));
+    expect(arriving, greaterThan(-200));
 
-    // The mark comes to rest. This is the handoff, made visible: without it
-    // the only thing distinguishing this screen from the system window that
-    // preceded it was a 2pt hairline.
-    await tester.pump(const Duration(milliseconds: 200));
-    final settling = markScale(tester);
-    expect(settling, lessThan(1.06));
-    expect(settling, greaterThan(1.0));
+    // At rest in the middle, and the name starting to come up beneath it.
+    await tester.pump(const Duration(milliseconds: 450));
+    expect(trolleyOffset(tester), closeTo(0, 0.5));
+    final naming = drawnOpacity(tester, name);
+    expect(naming, greaterThan(0));
+    expect(naming, lessThan(1));
 
-    // Then the line, which is the proof Flutter is the one drawing.
-    await tester.pump(const Duration(milliseconds: 200));
-    expect(markScale(tester), closeTo(1.0, 0.005));
-    expect(
-      lineFill(tester),
-      greaterThan(0),
-      reason: 'the line is what tells the preparator Flutter has taken over',
-    );
-
-    // The name follows the line rather than racing it.
-    await tester.pump(const Duration(milliseconds: 200));
-    final arriving = stageOpacity(tester, name);
-    expect(arriving, greaterThan(0));
-    expect(arriving, lessThan(1));
-
-    await tester.pump(const Duration(milliseconds: 400));
-    expect(stageOpacity(tester, name), 1);
-    expect(lineFill(tester), 1);
+    // The name, then the line under it, both fully there.
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(drawnOpacity(tester, name), 1);
+    expect(drawnOpacity(tester, tagline), 1);
     expect(finished, isFalse);
 
     await tester.pump(SplashScreen.hold);
@@ -113,11 +88,29 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('leaves to the right, the name fading after it', (tester) async {
+    await pumpSplash(tester, onFinished: () {});
+
+    await tester.pump(const Duration(milliseconds: 2000));
+    expect(trolleyOffset(tester), closeTo(0, 0.5));
+
+    // Mid-exit: the trolley has gathered speed to the right, and the name is
+    // part-way gone rather than cut.
+    await tester.pump(const Duration(milliseconds: 550));
+    expect(trolleyOffset(tester), greaterThan(0));
+    final leaving = drawnOpacity(tester, name);
+    expect(leaving, lessThan(1));
+    expect(leaving, greaterThan(0));
+    expect(drawnOpacity(tester, tagline), 0);
+
+    await tester.pump(SplashScreen.hold);
+  });
+
   testWidgets('still appears, and still takes its time, when the platform '
       'asks for less motion', (tester) async {
-    // The regression this file exists for. The splash used to be skipped
-    // outright in this case, and the controller separately compressed 900ms to
-    // 45ms — so it vanished twice over and looked like a broken app.
+    // The splash used to be skipped outright in this case, and the controller
+    // separately compressed its run twentyfold — so it vanished twice over
+    // and looked like a broken app.
     debugSemanticsDisableAnimations = true;
     addTearDown(() => debugSemanticsDisableAnimations = null);
 
@@ -128,11 +121,14 @@ void main() {
       disableAnimations: true,
     );
 
-    expect(find.byType(BrandGlyph), findsOneWidget);
-    expect(find.text('Atara Preparator'), findsOneWidget);
+    // Nothing travels: the trolley fades in where it rests.
+    expect(trolleyOffset(tester), closeTo(0, 0.5));
+    expect(drawnOpacity(tester, find.byType(Illustration)), 0);
 
-    // Well past the 45ms a compressed controller would have taken.
-    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pump(const Duration(milliseconds: 1200));
+    expect(trolleyOffset(tester), closeTo(0, 0.5));
+    expect(drawnOpacity(tester, find.byType(Illustration)), 1);
+    expect(drawnOpacity(tester, name), 1);
     expect(
       finished,
       isFalse,
@@ -141,16 +137,5 @@ void main() {
 
     await tester.pump(SplashScreen.hold);
     expect(finished, isTrue);
-  });
-
-  testWidgets('fades out rather than cutting', (tester) async {
-    await pumpSplash(tester, onFinished: () {});
-
-    await tester.pump(const Duration(milliseconds: 1280));
-    final exit = tester.widget<FadeTransition>(find.byType(FadeTransition).first);
-    expect(exit.opacity.value, lessThan(1));
-    expect(exit.opacity.value, greaterThan(0));
-
-    await tester.pump(SplashScreen.hold);
   });
 }

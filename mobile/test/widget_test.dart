@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:atara/main.dart';
+import 'package:atara/screens/login_screen.dart';
 import 'package:atara/screens/onboarding_screen.dart';
 import 'package:atara/screens/splash_screen.dart';
 
@@ -26,12 +27,8 @@ void main() {
       await tester.pump(const Duration(milliseconds: 50));
     }
 
-    // Stated outright, because the guide's welcome page also says
-    // 'Atara Preparator': without this the assertion below would keep passing
-    // with the guide on screen, which is the fail-open shape support/finders
-    // warns about.
     expect(find.byType(OnboardingScreen), findsNothing);
-    expect(find.text('Atara Preparator'), findsWidgets);
+    expect(find.byType(LoginScreen), findsOneWidget);
     // Email and password, the two fields the sign-in screen exists for.
     expect(find.byType(CupertinoTextField), findsNWidgets(2));
   });

@@ -41,6 +41,7 @@ dependencies:
   shared_preferences: ^2.3.3
   intl: ^0.20.2
   connectivity_plus: ^6.1.0
+  flutter_svg: ^2.0.17
 
   flutter_localizations:
     sdk: flutter
@@ -78,26 +79,30 @@ flutter:
   # Generates AppLocalizations from lib/l10n/*.arb
   generate: true
 
-  # Inter, bundled rather than fetched at runtime: this app is used in a lab
-  # that is regularly offline, and a font that arrives over the network would
-  # not arrive at all. It stands in for SF Pro, which is Apple's and cannot be
-  # shipped in an Android APK; Inter is the closest freely licensed match and
-  # is what carries the iOS feel on a device that would otherwise use Roboto.
+  # Plus Jakarta Sans, bundled rather than fetched at runtime: this app is used
+  # in a lab that is regularly offline, and a font that arrives over the
+  # network would not arrive at all. It is the geometric sans the redesign
+  # reference is set in (OFL; licence beside the files).
   #
-  # These three faces are SUBSET to the characters the app can actually draw —
-  # 1.7 MB of full Unicode became 167 KB. Do not replace them with a fresh
-  # download without re-running `tool/subset_fonts.py`, or that weight comes
-  # straight back. Medium (w500) is absent because nothing asks for it; the app
-  # uses w400, w600 and w700 only.
+  # These faces are SUBSET to the characters the app can actually draw. Do not
+  # replace them with a fresh download without re-running
+  # `tool/subset_fonts.py`, or the full glyph set comes straight back.
   fonts:
-    - family: Inter
+    - family: PlusJakartaSans
       fonts:
-        - asset: assets/fonts/Inter-Regular.ttf
+        - asset: assets/fonts/PlusJakartaSans-Regular.ttf
           weight: 400
-        - asset: assets/fonts/Inter-SemiBold.ttf
+        - asset: assets/fonts/PlusJakartaSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/PlusJakartaSans-SemiBold.ttf
           weight: 600
-        - asset: assets/fonts/Inter-Bold.ttf
+        - asset: assets/fonts/PlusJakartaSans-Bold.ttf
           weight: 700
+
+  # Flat lab illustrations and stage icons, drawn as SVG so they stay sharp at
+  # every size and recolour per appearance without a second raster set.
+  assets:
+    - assets/illustrations/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

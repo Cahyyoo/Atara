@@ -1015,4 +1015,86 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get checkTapToFill => 'Ketuk untuk mengisi Sample ID';
+
+  @override
+  String get splashTagline => 'Sampel terlacak, dari preparasi sampai laporan';
+
+  @override
+  String get loginHeaderSubtitle => 'Sampel lab,\ntercatat rapi.';
+
+  @override
+  String get loginWelcome => 'Selamat Datang';
+
+  @override
+  String get emailInvalid => 'Format email belum benar';
+
+  @override
+  String get forgotPassword => 'Lupa kata sandi?';
+
+  @override
+  String get forgotPasswordTitle => 'Lupa kata sandi';
+
+  @override
+  String get forgotPasswordBody =>
+      'Kata sandi direset oleh admin lab. Hubungi admin, lalu masuk dengan kata sandi sementara yang diberikan.';
+
+  @override
+  String get understood => 'Mengerti';
+
+  @override
+  String get loginOr => 'atau';
+
+  @override
+  String get serverSettings => 'Pengaturan server';
+
+  @override
+  String get noAccount => 'Belum punya akun?';
+
+  @override
+  String get askAdmin => 'Hubungi admin';
+
+  @override
+  String get bannerTitle => 'Siap memindai sampel?';
+
+  @override
+  String get bannerBody => 'Arahkan kamera ke barcode label.';
+
+  @override
+  String get bannerAction => 'Mulai Scan';
+
+  @override
+  String get stagesTitle => 'Tahapan';
+
+  @override
+  String get stageAllChip => 'Semua';
+
+  @override
+  String get attentionTitle => 'Perlu perhatian';
+
+  @override
+  String get seeAllPlain => 'Lihat semua';
+
+  @override
+  String get tabHistory => 'Riwayat';
+
+  @override
+  String get tabQueue => 'Antrean';
+
+  @override
+  String get tabSettings => 'Pengaturan';
+
+  @override
+  String get announcementsOpen => 'Lihat pengumuman';
+
+  @override
+  String get waitingInStage => 'menunggu';
+
+  @override
+  String get pendingCardsTitle => 'Belum terkirim';
+
+  @override
+  String get myWorkGridTitle => 'Pekerjaan saya';
+
+  @override
+  String get refresh => 'Muat ulang';
 }

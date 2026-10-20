@@ -1,8 +1,9 @@
-"""Cuts the bundled Inter faces down to the characters this app can draw.
+"""Cuts the bundled Plus Jakarta Sans faces down to the characters this app can draw.
 
-Full Inter covers Latin, Greek, Cyrillic and a large symbol set: four faces came
-to 1.7 MB, on an app whose entire interface is two Latin languages. Subsetting
-takes that to about 167 KB with nothing missing on screen.
+The static faces come from the variable font in google/fonts (OFL, licence in
+assets/fonts/PlusJakartaSans-OFL.txt), instanced at 400/500/600/700 with
+`fontTools.varLib.instancer`. Each is ~95 KB whole; the interface is two Latin
+languages, so most of that is glyphs nothing can ask for.
 
 Run after replacing the fonts:
 
@@ -38,8 +39,8 @@ unicodes = ','.join('U+%04X' % ord(c) for c in sorted(chars) if ord(c) >= 0x20)
 print('keeping %d codepoints' % len(chars))
 
 before = after = 0
-for face in ('Regular', 'SemiBold', 'Bold'):
-    src = 'assets/fonts/Inter-%s.ttf' % face
+for face in ('Regular', 'Medium', 'SemiBold', 'Bold'):
+    src = 'assets/fonts/PlusJakartaSans-%s.ttf' % face
     out = src + '.subset'
     before += os.path.getsize(src)
     subprocess.run([

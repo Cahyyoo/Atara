@@ -7,8 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/onboarding_provider.dart';
 import '../theme/app_theme.dart';
-import '../widgets/brand_mark.dart';
-import '../widgets/hero_tile.dart';
+import '../widgets/brand/illustration.dart';
 import '../widgets/ios/app_page.dart';
 import '../widgets/ios/ios_button.dart';
 
@@ -96,24 +95,28 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final palette = context.palette;
 
     final pages = <_Guide>[
-      _Guide(title: l10n.appTitle, body: l10n.onboardingWelcomeBody),
       _Guide(
-        icon: CupertinoIcons.qrcode_viewfinder,
+        art: Art.splashCart,
+        title: l10n.appTitle,
+        body: l10n.onboardingWelcomeBody,
+      ),
+      _Guide(
+        art: Art.loginWave,
         title: l10n.onboardingScanTitle,
         body: l10n.onboardingScanBody,
       ),
       _Guide(
-        icon: CupertinoIcons.arrow_right_circle,
+        art: Art.homeBanner,
         title: l10n.onboardingStageTitle,
         body: l10n.onboardingStageBody,
       ),
       _Guide(
-        icon: CupertinoIcons.wifi_slash,
+        art: Art.emptyQueue,
         title: l10n.onboardingOfflineTitle,
         body: l10n.onboardingOfflineBody,
       ),
       _Guide(
-        icon: CupertinoIcons.square_list,
+        art: Art.stageReport,
         title: l10n.onboardingWorkTitle,
         body: l10n.onboardingWorkBody,
       ),
@@ -202,10 +205,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 /// One page's content, kept together so the list above reads as five entries
 /// rather than five blocks of layout.
 class _Guide {
-  const _Guide({required this.title, required this.body, this.icon});
+  const _Guide({required this.art, required this.title, required this.body});
 
-  /// Null on the welcome page, which carries the brand mark instead.
-  final IconData? icon;
+  /// The lab illustration that leads the page, in the redesign's flat style.
+  final Art art;
   final String title;
   final String body;
 }
@@ -257,17 +260,17 @@ class _PageTransition extends StatelessWidget {
   }
 }
 
-/// Laid out to [StatusView]'s measurements -- a large mark, a title and a line
-/// of explanation, centred in a scroll view -- so the guide looks like the rest
-/// of the app rather than like a slideshow bolted onto it.
+/// A large illustration on its soft blob, a title and a line of explanation,
+/// centred in a scroll view — the same pieces the rest of the app is built
+/// from, so the guide does not read as a slideshow bolted onto it.
 ///
-/// The tile, the title and the body arrive in that order off a single
+/// The picture, the title and the body arrive in that order off a single
 /// controller, each reading its own [Interval] of it. One animator for three
 /// staggered elements is cheaper than three that have to agree, and handing
 /// each slice to a `*Transition` keeps the whole entrance out of the build
 /// phase: `FadeTransition`'s render object subscribes to the animation and
 /// only updates its layer alpha. The `TweenAnimationBuilder` this replaces
-/// rebuilt the entire page -- tile, gradient, both `TextStyle`s -- 25 times
+/// rebuilt the entire page -- picture and both `TextStyle`s -- 25 times
 /// per entrance.
 ///
 /// It runs once, when this page is first built -- which a [PageView] with no
@@ -327,7 +330,7 @@ class _GuidePageState extends State<_GuidePage>
 
     return Center(
       // Scrollable, not merely centred: at the largest system text setting the
-      // body copy runs to four lines beside a 112pt tile, and a Column would
+      // body copy runs to four lines under the picture, and a Column would
       // overflow rather than give way.
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(
@@ -340,14 +343,10 @@ class _GuidePageState extends State<_GuidePage>
             _Arrive(
               animation: _tile,
               still: still,
-              // Only the tile scales: it is the heaviest thing on the page and
-              // the one that reads as arriving rather than appearing.
-              scaleFrom: 0.92,
-              child: HeroTile(
-                child: guide.icon == null
-                    ? BrandGlyph(size: 112 * 0.5, color: palette.onHero)
-                    : Icon(guide.icon),
-              ),
+              // Only the picture scales: it is the heaviest thing on the page
+              // and the one that reads as arriving rather than appearing.
+              scaleFrom: 0.9,
+              child: Illustration(guide.art, height: 220, width: 260),
             ),
             const SizedBox(height: AppSpacing.xl),
             _Arrive(
@@ -385,7 +384,7 @@ class _GuidePageState extends State<_GuidePage>
 /// once its slice finished, which changed the widget's runtime type mid-
 /// animation. `Widget.canUpdate` is false across types, so Flutter tore the
 /// subtree down and inflated it again from scratch -- three times per page
-/// entrance, discarding the tile's freshly built gradient shader each time.
+/// entrance, discarding the freshly built picture each time.
 class _Arrive extends StatelessWidget {
   const _Arrive({
     required this.animation,
@@ -484,8 +483,9 @@ class _PageDots extends StatelessWidget {
               width: i == index ? AppSpacing.xl : AppSpacing.sm,
               height: AppSpacing.sm,
               decoration: BoxDecoration(
-                color: i == index ? palette.accent : palette.tertiaryLabel,
-                borderRadius: BorderRadius.circular(AppRadius.sm),
+                gradient: i == index ? palette.primaryGradient : null,
+                color: i == index ? null : palette.separator,
+                borderRadius: BorderRadius.circular(AppRadius.pill),
               ),
             ),
         ],

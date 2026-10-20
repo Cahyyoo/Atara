@@ -725,19 +725,7 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
     AsyncValue<List<StageModel>> stagesAsync,
   ) {
     return [
-      Padding(
-        padding: const EdgeInsets.only(
-          left: AppSpacing.lg,
-          bottom: AppSpacing.sm,
-        ),
-        child: Text(
-          l10n.selectNextStage.toUpperCase(),
-          style: AppText.footnote.copyWith(
-            color: context.palette.secondaryLabel,
-            letterSpacing: 0.5,
-          ),
-        ),
-      ),
+      InsetSectionHeading(text: l10n.selectNextStage),
       stagesAsync.when(
         // Five rows of the right shape. The stage list is prefetched twice
         // before anyone reaches this screen, so it is the one placeholder

@@ -10,7 +10,11 @@ import '../services/time_text.dart';
 import '../theme/app_theme.dart';
 import 'skeletons.dart';
 import 'app_primitives.dart';
+import 'brand/illustration.dart';
+import 'home/stage_chips.dart';
 import 'ios/inset_section.dart';
+import 'motion/pressable.dart';
+import 'motion/reveal.dart';
 import '../services/stage_label.dart';
 
 /// How many entries Home shows before handing the rest to [MyWorkScreen].
@@ -24,7 +28,11 @@ const int kMyWorkInlineLimit = 10;
 /// it — so it survives a reinstall and covers work done from another phone.
 ///
 /// Only sent work appears here. Anything still queued is shown by
-/// PendingScanSection just above, so between the two the picture is complete.
+/// PendingScanSection above, so between the two the picture is complete.
+///
+/// Laid out as the reference's two-column product grid: a card per recorded
+/// stage with the stage's picture, the code, the time and a round arrow into
+/// the sample. Narrowed to the stage picked in [StageChips].
 class MyWorkSection extends ConsumerWidget {
   const MyWorkSection({super.key});
 
@@ -32,132 +40,226 @@ class MyWorkSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final summary = ref.watch(myWorkProvider);
+    final filter = ref.watch(homeStageFilterProvider);
     final palette = context.palette;
 
     if (summary == null) {
       // Shaped like what is coming, not a dot in the middle of 68px of
-      // nothing. The warm path seeds this from disk inside a frame or two, so
-      // LoadingSwap usually swallows it entirely; the flag marks the cold
-      // install, where it is a real request and worth showing at once.
-      // No LoadingSwap: `isLoading` could only ever be the literal true here,
-      // so it never transitioned and never held -- it just built a Stack and a
-      // FadeTransition around a placeholder that was already correct.
+      // nothing. The warm path seeds this from disk inside a frame or two; the
+      // cold install is a real request and worth showing at once.
       return SliverMainAxisGroup(
         slivers: [MyWorkSkeleton(header: l10n.myWorkTitle)],
       );
     }
 
-    if (summary.entries.isEmpty) {
-      return SliverToBoxAdapter(
-        child: InsetSection(
-          header: l10n.myWorkTitle,
-          children: [
-            InsetCustomRow(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.lg,
-                vertical: AppSpacing.xl,
-              ),
-              child: Center(
-                child: Text(
-                  l10n.myWorkEmpty,
-                  style: AppText.subhead.copyWith(
-                    color: palette.secondaryLabel,
+    final matching = filter == null
+        ? summary.entries
+        : summary.entries
+              .where((e) => stageFilterId(e.stageKey, e.stageName) == filter)
+              .toList();
+    final shown = matching.take(kMyWorkInlineLimit).toList();
+
+    final appear = EntranceScope.slice(context, 0.5, 1);
+
+    // The history link is unconditional, where an old "See all" row appeared
+    // only once the shift overflowed ten entries. That gate hid the way out
+    // at the start of a shift, which is precisely when the question is "what
+    // did I do yesterday".
+    final heading = SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+        child: InsetSectionHeading(
+          text: l10n.myWorkTitle,
+          actionLabel: l10n.scanHistoryOpen,
+          onAction: () => Navigator.of(context).push(
+            CupertinoPageRoute(builder: (context) => const ScanHistoryScreen()),
+          ),
+        ),
+      ),
+    );
+
+    if (shown.isEmpty) {
+      return SliverFadeTransition(
+        opacity: appear,
+        sliver: SliverMainAxisGroup(
+          slivers: [
+            heading,
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.lg,
+                  0,
+                  AppSpacing.lg,
+                  AppSpacing.xl,
+                ),
+                child: Container(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  decoration: BoxDecoration(
+                    color: palette.cardBackground,
+                    borderRadius: BorderRadius.circular(AppRadius.lg),
+                  ),
+                  child: Column(
+                    children: [
+                      const Illustration(Art.stageAll, height: 64),
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        l10n.myWorkEmpty,
+                        textAlign: TextAlign.center,
+                        style: AppText.subhead.copyWith(
+                          color: palette.secondaryLabel,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
-            _HistoryRow(),
           ],
         ),
       );
     }
 
-    final shown = summary.entries.take(kMyWorkInlineLimit).toList();
-
-    // The tallies lead, then the recent rows, then the way to the rest.
-    //
-    // The history row is unconditional, where the old "See all" row appeared
-    // only once the shift overflowed ten entries. That gate hid the way out
-    // at the start of a shift, which is precisely when the question is "what
-    // did I do yesterday".
-    final hasTallies = summary.byStage.isNotEmpty;
-    final leading = hasTallies ? 1 : 0;
-    final rowCount = leading + shown.length + 1;
-
-    return InsetSectionSliver(
-      header: l10n.myWorkTitle,
-      // `total` is counted by the server across the whole shift while the list
-      // it sends is capped, so this number can exceed the rows above it. Both
-      // being visible is the point: this many recorded, this many kept to look
-      // at.
-      footer: l10n.myWorkSummary(summary.total),
-      itemCount: rowCount,
-      itemBuilder: (context, index) {
-        if (hasTallies && index == 0) {
-          return InsetCustomRow(
-            transparent: true,
-            child: _StageTallies(byStage: summary.byStage),
-          );
-        }
-
-        final entryIndex = index - leading;
-        if (entryIndex < shown.length) {
-          return WorkRow(entry: shown[entryIndex]);
-        }
-
-        return _HistoryRow();
-      },
-    );
-  }
-}
-
-/// The way off this card and into every shift before this one.
-///
-/// It replaced a "See all (N)" row that opened a screen showing the same
-/// entries again under a different title. The history screen's first group is
-/// this card, with "Today" above it — two near-identical screens meant an
-/// preparator had to guess which one held their week.
-class _HistoryRow extends StatelessWidget {
-  const _HistoryRow();
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
-    return InsetRow(
-      title: l10n.scanHistoryOpen,
-      titleStyle: AppText.body.copyWith(color: context.palette.accent),
-      showChevron: true,
-      onTap: () => Navigator.of(context).push(
-        CupertinoPageRoute(builder: (context) => const ScanHistoryScreen()),
+    return SliverFadeTransition(
+      opacity: appear,
+      sliver: SliverMainAxisGroup(
+        slivers: [
+          heading,
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+            sliver: SliverGrid.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: AppSpacing.md,
+                crossAxisSpacing: AppSpacing.md,
+                mainAxisExtent: 188,
+              ),
+              itemCount: shown.length,
+              itemBuilder: (context, i) => WorkCard(entry: shown[i]),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg + AppSpacing.xs,
+                AppSpacing.md,
+                AppSpacing.lg,
+                AppSpacing.xl,
+              ),
+              // `total` is counted by the server across the whole shift while
+              // the list it sends is capped, so this number can exceed the
+              // cards above it. Both being visible is the point.
+              child: Text(
+                l10n.myWorkSummary(summary.total),
+                style: AppText.caption.copyWith(color: palette.secondaryLabel),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-/// How the shift breaks down by stage, as a row of counted capsules.
-class _StageTallies extends StatelessWidget {
-  const _StageTallies({required this.byStage});
+/// One recorded stage as a grid card, and the way into the sample behind it.
+///
+/// A [WorkEntry] carries no id of any kind, so the only thing to navigate by
+/// is the sample code, which is all [UpdateStatusScreen] needs.
+class WorkCard extends StatelessWidget {
+  const WorkCard({super.key, required this.entry});
 
-  final List<StageTally> byStage;
+  final WorkEntry entry;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final palette = context.palette;
-    final tone = palette.neutral;
 
-    return Wrap(
-      spacing: AppSpacing.sm,
-      runSpacing: AppSpacing.sm,
-      children: [
-        for (final tally in byStage)
-          AppBadge(
-            label:
-                '${stageLabel(l10n, tally.stageKey, tally.stageName)}  ${tally.count}',
-            tone: tone,
-          ),
-      ],
+    return Pressable(
+      onTap: () => Navigator.of(context).push(
+        CupertinoPageRoute(
+          builder: (context) =>
+              UpdateStatusScreen(sampleCode: entry.sampleCode),
+        ),
+      ),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.md,
+          AppSpacing.md,
+          AppSpacing.md,
+          AppSpacing.sm + 2,
+        ),
+        decoration: BoxDecoration(
+          color: palette.cardBackground,
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              stageLabel(l10n, entry.stageKey, entry.stageName),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppText.subhead.copyWith(
+                color: palette.label,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Center(
+              child: SampleCodeText(
+                entry.sampleCode,
+                style: AppText.caption.copyWith(color: palette.secondaryLabel),
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+                child: Illustration(Art.forStage(entry.stageKey)),
+              ),
+            ),
+            Row(
+              children: [
+                Icon(
+                  entry.isCorrection
+                      ? CupertinoIcons.arrow_uturn_left
+                      : CupertinoIcons.checkmark_seal_fill,
+                  size: 13,
+                  color: entry.isCorrection
+                      ? palette.warning.foreground
+                      : palette.success.foreground,
+                ),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    entry.isCorrection
+                        ? l10n.historyCorrection
+                        : shiftTimeText(entry.scannedAt),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppText.caption.copyWith(
+                      color: palette.secondaryLabel,
+                    ),
+                  ),
+                ),
+                Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    gradient: palette.primaryGradient,
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
+                  ),
+                  child: Icon(
+                    CupertinoIcons.arrow_right,
+                    size: 15,
+                    color: palette.onAccent,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

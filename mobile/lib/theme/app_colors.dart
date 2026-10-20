@@ -31,31 +31,22 @@ class ToneColors {
   }
 }
 
-/// The web app's palette, in both appearances.
+/// The app's palette, in both appearances.
 ///
-/// These are `web/src/app/globals.css` converted from OKLCH to sRGB, not
-/// approximations of it. The two apps are one product and a preparator moves
-/// between them during a shift, so the teal that means "this is Atara" has to
-/// be the same teal in both — a near miss reads as a different app, or as a
-/// rendering fault.
-///
-/// That claim decays, and it did. The web raised `--muted-foreground` for
-/// contrast, named two new surfaces (`--canvas`, `--field`), and moved from
-/// Tailwind v3 to v4 — which repainted every status hue. None of it crossed
-/// over until it was re-synced by hand. Changing a colour on either side
-/// means walking the other.
+/// Olive into lime, taken from the redesign reference frame by frame: a dark
+/// olive in the top-left corner of every green surface, running out to a fresh
+/// lime at the far edge, on a warm off-white page. The phone no longer borrows
+/// the web's teal — the two apps now differ in colour on purpose, and a change
+/// here does not need walking across to `globals.css`.
 ///
 /// Every colour is defined for both appearances in one place, so a new surface
 /// cannot be added in light and forgotten in dark — which is the usual way a
 /// dark mode ends up with one illegible corner.
 ///
-/// The `hero*` members are the app's only gradient and its only shadow. They
-/// come from the same stylesheet as everything else here — `--gradient-hero`,
-/// `--gradient-sheen` and `--shadow-hero` — and the web spends them just as
-/// sparingly: one KPI tile, the brand chip, the primary button. On the phone
-/// they belong to the splash and the guide, which are occasions rather than
-/// work surfaces. Everywhere else the rule still holds: no elevation, no
-/// shadow, no gradient.
+/// The reference spends gradient freely — the header of every brand screen,
+/// the primary button, the selected chip — so this palette does too. What it
+/// still rations is shadow: one soft lift on cards that float over a green
+/// header, none on cards sitting on the page.
 @immutable
 class AppColors extends ThemeExtension<AppColors> {
   const AppColors({
@@ -73,6 +64,7 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.separator,
     required this.fill,
     required this.heroStart,
+    required this.heroMid,
     required this.heroEnd,
     required this.heroSheen,
     required this.heroShadow,
@@ -80,111 +72,94 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.field,
     required this.primaryGradientStart,
     required this.primaryGradientEnd,
+    required this.lime,
+    required this.blob,
   });
 
-  /// The brand teal — `--primary`. Every tappable thing that is not a filled
-  /// button, and the fill of the ones that are.
+  /// The brand green for text and icons: links, "See all", ticks, the active
+  /// tab. Dark enough in light to read as text on the page (≥4.5:1).
   final Color accent;
 
-  /// `--primary-foreground`: what sits on top of a filled button.
+  /// What sits on a filled button: white in both appearances, because both
+  /// button gradients are dark where the label sits.
   final Color onAccent;
 
   final ToneColors success;
   final ToneColors warning;
   final ToneColors danger;
 
-  /// Blue, for work in progress.
-  ///
-  /// The web pairs a teal brand with a blue "in progress" badge, so this is a
-  /// separate role rather than the accent reused — matching it means carrying
-  /// the same distinction.
+  /// Blue, for work in progress — kept apart from the brand green so "in
+  /// progress" and "done" never read as the same badge.
   final ToneColors info;
 
-  /// Primary text — `--foreground`.
+  /// Primary text.
   final Color label;
 
-  /// Captions, timestamps, help lines — `--muted-foreground`.
+  /// Captions, timestamps, help lines.
+  ///
+  /// Darker than the reference's own grey (#8B8E86 is 3.3:1 on white). The
+  /// reference is a marketing clip; this is read with gloves on under lab
+  /// lighting, so it holds AA.
   final Color secondaryLabel;
 
   /// Placeholders and disabled text.
   final Color tertiaryLabel;
 
-  /// The page itself, behind the cards — `--canvas`.
-  ///
-  /// This used to borrow `--muted`, because when the palette was first ported
-  /// the web set `--background` and `--card` to the same white and separated
-  /// them with `bg-muted/40`. The web has since named the surface properly,
-  /// and `--canvas` is what its app shell paints. A hair off white in light,
-  /// so white reads as raised.
+  /// The page itself, behind the cards: the reference's warm off-white.
   final Color groupedBackground;
 
-  /// The inset cards that carry almost every row — `--card`.
+  /// The cards that carry almost every row.
   final Color cardBackground;
 
-  /// Hairline rules between rows — `--border`.
+  /// Hairline rules between rows.
   final Color separator;
 
-  /// Untinted chips and badges — `--secondary`.
+  /// Untinted chips and badges, and the press tint on a row.
   final Color fill;
 
-  /// The inside of a text box — `--field`.
+  /// The inside of a text box and the ground of a skeleton placeholder.
   ///
-  /// A hair darker than the card it sits on. It is also the right ground for
-  /// a skeleton placeholder: [fill] used to serve both jobs, but once it was
-  /// corrected to `--secondary` it came to 1.09:1 against a white card, which
-  /// is present without being visible. This is 1.17:1 light and 1.19:1 dark —
-  /// near-symmetric, which is what a placeholder needs.
+  /// A shade under the page colour, not equal to it: the reference's fields
+  /// are the page colour, which against a white card is 1.12:1 — a skeleton
+  /// on that is present without being visible.
   final Color field;
 
-  /// The two stops of `--gradient-primary`, top to bottom.
-  ///
-  /// The web fills its primary button with this rather than a flat colour.
+  /// The two stops of the primary button, left to right.
   final Color primaryGradientStart;
   final Color primaryGradientEnd;
 
-  /// The light end of `--gradient-hero`, at the top-left corner.
+  /// The green header: dark olive at the top-left corner…
   final Color heroStart;
 
-  /// Its dark end, at the bottom-right.
+  /// …through a mid green, which is about where the header's text ends…
+  final Color heroMid;
+
+  /// …out to lime at the bottom-right, behind the illustration.
   final Color heroEnd;
 
-  /// The opening stop of `--gradient-sheen`: white, low alpha, fading out by
-  /// 55%. It is the highlight that keeps the hero from reading as flat paint.
+  /// A white highlight at low alpha, fading out by 55%.
   final Color heroSheen;
 
-  /// `--shadow-hero`. Teal in light, plain black in dark — a coloured shadow
-  /// on a near-black page is invisible, so the web swaps it too.
+  /// The soft lift under a card floating over a green header.
   final Color heroShadow;
 
-  /// What sits on the hero: white in both appearances.
-  ///
-  /// Not [onAccent], which is the trap this field exists to close. In dark
-  /// that one is near-black by design, and near-black on the hero teal is
-  /// about 3.5:1 — it reads as a rendering fault rather than as a choice.
-  /// Keeping the pairing here is the same reasoning as [ToneColors].
+  /// What sits on the header: white in both appearances.
   final Color onHero;
 
-  /// Status tones are the web's own badge colours, so a sample reads the same
-  /// on a phone as it does on the dashboard.
-  ///
-  /// `status-badge.tsx` spells them as Tailwind classes rather than as custom
-  /// properties: the `-100`/`-800` pair in light, `-500` at 15% under `-400`
-  /// in dark. The web is on Tailwind **v4**, whose palette is a different set
-  /// of hues from v3 — emerald-400 alone moved from `#34D399` to `#00D492`.
-  /// These are the v4 values.
+  /// The bright brand lime: the dot in the wordmark, the selected tab's pip,
+  /// the ring behind an illustration. Never text — it is too light to read.
+  final Color lime;
+
+  /// The soft blob painted behind every illustration.
+  final Color blob;
+
   static const light = AppColors(
-    accent: Color(0xFF00786F),
-    // The one value here that is deliberately NOT the web's.
-    //
-    // `--primary-foreground` is oklch(0.985 0 0) = #FAFAFA, and on the light
-    // end of the primary gradient that reads 4.45:1 -- under AA. The web ships
-    // that gap. Pure white is 4.64:1 on the same fill and 5.36:1 on the flat
-    // accent, and the difference between the two whites is invisible.
+    accent: Color(0xFF4F7622),
     onAccent: Color(0xFFFFFFFF),
     success: ToneColors(
-      foreground: Color(0xFF009966), // emerald-600
-      background: Color(0xFFD0FAE5), // emerald-100
-      onBackground: Color(0xFF006045), // emerald-800
+      foreground: Color(0xFF3F8A1F),
+      background: Color(0xFFE2F4CF),
+      onBackground: Color(0xFF2C5A12),
     ),
     warning: ToneColors(
       foreground: Color(0xFFE17100), // amber-600
@@ -192,48 +167,46 @@ class AppColors extends ThemeExtension<AppColors> {
       onBackground: Color(0xFF973C00), // amber-800
     ),
     danger: ToneColors(
-      foreground: Color(0xFFE7000B),
-      background: Color(0x1AE7000B),
-      // The web puts `text-destructive` straight onto `bg-destructive/10`
-      // rather than a darker red. Faithful, and worth knowing: this pairing
-      // lands at 4.01:1, just under AA. The web has the same gap.
-      onBackground: Color(0xFFE7000B),
+      foreground: Color(0xFFDC2626),
+      background: Color(0x1ADC2626),
+      onBackground: Color(0xFFC81E1E),
     ),
     info: ToneColors(
       foreground: Color(0xFF155DFC), // blue-600
       background: Color(0xFFDBEAFE), // blue-100
       onBackground: Color(0xFF193CB8), // blue-800
     ),
-    label: Color(0xFF0A0A0A),
-    // Raised from #737373 upstream: at that value it read 4.03:1 on a field,
-    // just under AA. This is 4.63:1.
-    secondaryLabel: Color(0xFF6A6A6A),
-    tertiaryLabel: Color(0xFFA3A3A3),
-    groupedBackground: Color(0xFFF4F8F7),
+    label: Color(0xFF1A1A19),
+    secondaryLabel: Color(0xFF62665C),
+    tertiaryLabel: Color(0xFFA6AA9F),
+    groupedBackground: Color(0xFFF0F3EB),
     cardBackground: Color(0xFFFFFFFF),
-    separator: Color(0xFFE5E5E5),
-    fill: Color(0xFFF5F5F5),
-    field: Color(0xFFEAEEED),
-    primaryGradientStart: Color(0xFF008379),
-    primaryGradientEnd: Color(0xFF006D66),
-    // oklch(0.50 0.105 184) and oklch(0.38 0.085 191). The light end is capped
-    // at L .50 upstream so white stays legible on it; white here is 5.53:1.
-    heroStart: Color(0xFF00766A),
-    heroEnd: Color(0xFF00504D),
+    separator: Color(0xFFE3E7DC),
+    fill: Color(0xFFF0F3EB),
+    field: Color(0xFFEBEFE4),
+    // The reference runs #364117 into #9BD246 behind a white label. Measured
+    // where the label actually sits — the middle fifth — that is 3.7–4.0:1.
+    // The lime end is pulled in until the whole middle fifth clears 4.5, and
+    // the bar still reads as olive-into-lime.
+    primaryGradientStart: Color(0xFF2F3A14),
+    primaryGradientEnd: Color(0xFF78AD35),
+    heroStart: Color(0xFF2A3A12),
+    heroMid: Color(0xFF5E8627),
+    heroEnd: Color(0xFF9BD246),
     heroSheen: Color(0x24FFFFFF),
-    heroShadow: Color(0x4700655E),
+    heroShadow: Color(0x1F2A3A12),
     onHero: Color(0xFFFFFFFF),
+    lime: Color(0xFF8CC63F),
+    blob: Color(0xFFDCF2B4),
   );
 
   static const dark = AppColors(
-    accent: Color(0xFF00BBA7),
-    // The web darkens the label on a filled button rather than whitening it:
-    // its dark teal is bright enough that white on top would glare.
-    onAccent: Color(0xFF0A0A0A),
+    accent: Color(0xFF9BD246),
+    onAccent: Color(0xFFFFFFFF),
     success: ToneColors(
-      foreground: Color(0xFF00D492), // emerald-400
-      background: Color(0x2600BC7D), // emerald-500 at 15%
-      onBackground: Color(0xFF00D492),
+      foreground: Color(0xFF8BD45A),
+      background: Color(0x2670B83A),
+      onBackground: Color(0xFF9EDC72),
     ),
     warning: ToneColors(
       foreground: Color(0xFFFFB900), // amber-400
@@ -242,7 +215,6 @@ class AppColors extends ThemeExtension<AppColors> {
     ),
     danger: ToneColors(
       foreground: Color(0xFFFF6467),
-      // 20% in dark, not 15%: `dark:bg-destructive/20` in badge.tsx.
       background: Color(0x33FF6467),
       onBackground: Color(0xFFFF6467),
     ),
@@ -251,30 +223,30 @@ class AppColors extends ThemeExtension<AppColors> {
       background: Color(0x262B7FFF), // blue-500 at 15%
       onBackground: Color(0xFF51A2FF),
     ),
-    label: Color(0xFFFAFAFA),
-    secondaryLabel: Color(0xFFA1A1A1),
-    tertiaryLabel: Color(0xFF737373),
-    groupedBackground: Color(0xFF060606),
-    cardBackground: Color(0xFF171717),
+    label: Color(0xFFF4F6EF),
+    secondaryLabel: Color(0xFFA4A99B),
+    tertiaryLabel: Color(0xFF6E7366),
+    groupedBackground: Color(0xFF0E110B),
+    cardBackground: Color(0xFF171B13),
     separator: Color(0x1AFFFFFF),
-    fill: Color(0xFF262626),
-    field: Color(0xFF242727),
-    primaryGradientStart: Color(0xFF00BFAC),
-    primaryGradientEnd: Color(0xFF00A696),
-    // oklch(0.50 0.10 185) and oklch(0.30 0.07 192); white is 5.59:1 on the
-    // light end. The shadow goes black because teal on #0A0A0A shows nothing.
-    heroStart: Color(0xFF00756B),
-    heroEnd: Color(0xFF003837),
+    fill: Color(0xFF20251A),
+    field: Color(0xFF232A1B),
+    primaryGradientStart: Color(0xFF1E2A0C),
+    primaryGradientEnd: Color(0xFF6F9E2E),
+    heroStart: Color(0xFF1A2509),
+    heroMid: Color(0xFF3F6118),
+    heroEnd: Color(0xFF79AE34),
     heroSheen: Color(0x1AFFFFFF),
     heroShadow: Color(0x8C000000),
     onHero: Color(0xFFFFFFFF),
+    lime: Color(0xFF9BD246),
+    blob: Color(0xFF2B3A18),
   );
 
-  /// The tint behind the brand mark and other quiet accent grounds — the web's
-  /// `bg-primary/10`.
+  /// The tint behind the brand mark and other quiet accent grounds.
   Color get accentTint => accent.withValues(alpha: 0.10);
 
-  /// The hairline around the brand mark — the web's `ring-primary/15`.
+  /// The hairline around the brand mark.
   Color get accentRing => accent.withValues(alpha: 0.15);
 
   /// The untinted badge: an accent glyph on the plain fill.
@@ -288,37 +260,32 @@ class AppColors extends ThemeExtension<AppColors> {
         onBackground: secondaryLabel,
       );
 
-  /// `--gradient-primary`, the fill of a primary button. CSS `180deg` is
-  /// straight down.
-  LinearGradient get primaryGradient => LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [primaryGradientStart, primaryGradientEnd],
-      );
-
-  /// `--gradient-hero`.
+  /// The primary button and the selected chip: olive on the left into lime on
+  /// the right, as in the reference.
   ///
   /// Getters rather than stored [Gradient] fields, so that a light/dark
   /// crossfade produces a correct intermediate for free: these read [Color]
-  /// fields that [lerp] has already interpolated. A stored gradient would have
-  /// to go through `Gradient.lerp`, which is nullable and degrades between
-  /// mismatched types.
-  ///
-  /// CSS `145deg` is a diagonal from the top-left corner. No pair of
-  /// [Alignment]s expresses that angle exactly; at the sizes this is painted
-  /// the difference is under a pixel.
+  /// fields that [lerp] has already interpolated.
+  LinearGradient get primaryGradient => LinearGradient(
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight,
+        colors: [primaryGradientStart, primaryGradientEnd],
+      );
+
+  /// The green header: a diagonal from the top-left corner.
   LinearGradient get heroGradient => LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [heroStart, heroEnd],
+        colors: [heroStart, heroMid, heroEnd],
+        stops: const [0.0, 0.5, 1.0],
       );
 
-  /// `--gradient-sheen`.
+  /// A highlight laid over the header so it does not read as flat paint.
   ///
   /// The second stop is [heroSheen] at zero alpha, never `Colors.transparent`
   /// -- that constant is transparent *black*, and gradients interpolate in
   /// unpremultiplied RGBA, so white to transparent-black darkens through the
-  /// middle and leaves a grey smear across the tile.
+  /// middle and leaves a grey smear.
   LinearGradient get heroSheenGradient => LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
@@ -326,12 +293,21 @@ class AppColors extends ThemeExtension<AppColors> {
         stops: const [0.0, 0.55],
       );
 
-  /// `--shadow-hero`: `0 8px 24px`.
-  ///
-  /// CSS blur-radius is twice the gaussian sigma; Flutter's is
-  /// `radius * 0.57735 + 0.5`. 20 here is the web's 24.
+  /// The one soft lift: a card floating over a green header.
   List<BoxShadow> get heroShadows =>
-      [BoxShadow(color: heroShadow, blurRadius: 20, offset: const Offset(0, 8))];
+      [BoxShadow(color: heroShadow, blurRadius: 24, offset: const Offset(0, 10))];
+
+  /// The colour of [heroGradient] at [t] along its diagonal (0 = top-left).
+  ///
+  /// For the contrast test, which has to judge white text where it is
+  /// actually drawn rather than at the lime end nobody writes on.
+  Color heroAt(double t) => t <= 0.5
+      ? Color.lerp(heroStart, heroMid, t / 0.5)!
+      : Color.lerp(heroMid, heroEnd, (t - 0.5) / 0.5)!;
+
+  /// The colour of [primaryGradient] at [t] from the left.
+  Color primaryAt(double t) =>
+      Color.lerp(primaryGradientStart, primaryGradientEnd, t)!;
 
   @override
   AppColors copyWith({
@@ -349,6 +325,7 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? separator,
     Color? fill,
     Color? heroStart,
+    Color? heroMid,
     Color? heroEnd,
     Color? heroSheen,
     Color? heroShadow,
@@ -356,6 +333,8 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? field,
     Color? primaryGradientStart,
     Color? primaryGradientEnd,
+    Color? lime,
+    Color? blob,
   }) {
     return AppColors(
       accent: accent ?? this.accent,
@@ -372,6 +351,7 @@ class AppColors extends ThemeExtension<AppColors> {
       separator: separator ?? this.separator,
       fill: fill ?? this.fill,
       heroStart: heroStart ?? this.heroStart,
+      heroMid: heroMid ?? this.heroMid,
       heroEnd: heroEnd ?? this.heroEnd,
       heroSheen: heroSheen ?? this.heroSheen,
       heroShadow: heroShadow ?? this.heroShadow,
@@ -379,6 +359,8 @@ class AppColors extends ThemeExtension<AppColors> {
       field: field ?? this.field,
       primaryGradientStart: primaryGradientStart ?? this.primaryGradientStart,
       primaryGradientEnd: primaryGradientEnd ?? this.primaryGradientEnd,
+      lime: lime ?? this.lime,
+      blob: blob ?? this.blob,
     );
   }
 
@@ -400,6 +382,7 @@ class AppColors extends ThemeExtension<AppColors> {
       separator: Color.lerp(separator, other.separator, t)!,
       fill: Color.lerp(fill, other.fill, t)!,
       heroStart: Color.lerp(heroStart, other.heroStart, t)!,
+      heroMid: Color.lerp(heroMid, other.heroMid, t)!,
       heroEnd: Color.lerp(heroEnd, other.heroEnd, t)!,
       heroSheen: Color.lerp(heroSheen, other.heroSheen, t)!,
       heroShadow: Color.lerp(heroShadow, other.heroShadow, t)!,
@@ -409,6 +392,8 @@ class AppColors extends ThemeExtension<AppColors> {
           Color.lerp(primaryGradientStart, other.primaryGradientStart, t)!,
       primaryGradientEnd:
           Color.lerp(primaryGradientEnd, other.primaryGradientEnd, t)!,
+      lime: Color.lerp(lime, other.lime, t)!,
+      blob: Color.lerp(blob, other.blob, t)!,
     );
   }
 }

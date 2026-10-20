@@ -1,28 +1,25 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../l10n/app_localizations.dart';
-import '../models/user_model.dart';
 import '../providers/announcements_provider.dart';
 import '../providers/pending_scans_provider.dart';
 import '../providers/my_work_provider.dart';
 import '../providers/session_provider.dart';
 import '../providers/todo_provider.dart';
-import '../services/sample_status_text.dart';
 import '../theme/app_theme.dart';
 import '../widgets/announcement_banner.dart';
-import '../widgets/app_primitives.dart';
-import '../widgets/ios/app_page.dart';
-import '../widgets/ios/inset_section.dart';
-import '../widgets/ios/ios_button.dart';
+import '../widgets/home/home_header.dart';
+import '../widgets/home/stage_chips.dart';
 import '../widgets/manual_code_dialog.dart';
 import '../widgets/my_work_section.dart';
 import '../widgets/pending_scan_section.dart';
 import '../widgets/todo_section.dart';
 import 'update_status_screen.dart';
 
-/// The preparator's own page: who they are, the way to a scan, and what they
-/// still owe the server.
+/// The preparator's own page, laid out as the redesign reference's home: a
+/// green header with who is signed in and a banner leading to a scan, the
+/// stages as a row of picture tiles, then what is owed, what is waiting, and
+/// what this shift has already done.
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key, required this.onScan});
 
@@ -36,7 +33,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  /// Drives the navigation-bar indicator. Only the button sets it.
+  /// Drives the header's refresh indicator. Only the button sets it.
   bool _isRefreshing = false;
 
   /// Guards re-entry for both ways in. Separate from [_isRefreshing], which
@@ -73,117 +70,62 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final user = ref.watch(sessionProvider).value;
-
-    // Slivers rather than one list: My Work can hold a hundred rows, and as a
-    // single list child none of them could be culled. See InsetSectionSliver.
-    return AppPage(
-      title: l10n.tabHome,
-      automaticallyImplyLeading: false,
-      onRefresh: () => _refresh(showInBar: false),
-      // A pull gesture announces itself to nobody. The button is how an
-      // preparator who has never been told about it finds the same thing.
-      trailing: _isRefreshing
-          ? const Padding(
-              padding: EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-              child: CupertinoActivityIndicator(),
-            )
-          : NavBarAction(
-              icon: CupertinoIcons.arrow_clockwise,
-              onPressed: _refresh,
-            ),
-      slivers: [
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.lg,
-            AppSpacing.lg,
-            AppSpacing.lg,
-            0,
-          ),
-          sliver: SliverList(
-            delegate: SliverChildListDelegate([
-              // Above everything: it is the one thing on this screen that
-              // might change what the preparator is about to do.
-              const AnnouncementBanner(),
-              if (user != null) _ProfileSection(user: user),
-              AppButton(
-                label: l10n.scanButton,
-                icon: CupertinoIcons.qrcode_viewfinder,
-                onPressed: widget.onScan,
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              // The way out when the camera is the thing that is broken. It
-              // has to live here rather than inside the scanner, which in that
-              // case may never render anything usable.
-              AppButton(
-                label: l10n.manualEntry,
-                icon: CupertinoIcons.keyboard,
-                style: AppButtonStyle.plain,
-                onPressed: () => _openManualEntry(context),
-              ),
-              const SizedBox(height: AppSpacing.xl),
-              const PendingScanSection(),
-            ]),
-          ),
-        ),
-        // What is waiting on the floor comes before what this preparator has
-        // already done: it is the answer to "what next".
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-          sliver: const TodoSection(),
-        ),
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-          sliver: const MyWorkSection(),
-        ),
-        const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxl)),
-      ],
-    );
-  }
-}
-
-class _ProfileSection extends StatelessWidget {
-  const _ProfileSection({required this.user});
-
-  final UserModel user;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final palette = context.palette;
-    final initial = user.name.isNotEmpty ? user.name[0].toUpperCase() : '?';
+    final user = ref.watch(sessionProvider).value;
+    final top = MediaQuery.paddingOf(context).top;
 
-    return InsetSection(
-      children: [
-        InsetRow(
-          title: user.name,
-          titleStyle: AppText.headline.copyWith(color: palette.label),
-          subtitle: user.email,
-          subtitleMaxLines: 1,
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          leading: Container(
-            width: 44,
-            height: 44,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: palette.accent.withValues(alpha: 0.12),
-              shape: BoxShape.circle,
-            ),
-            child: Text(
-              initial,
-              style: AppText.headline.copyWith(color: palette.accent),
-            ),
-          ),
-          // The role used to be shown as the raw Dart enum name — PREPARATOR —
-          // which is a detail of how the app is written, not a word anyone
-          // chose to put in front of someone.
-          trailing: AppBadge(
-            label: userRoleText(l10n, user.role),
-            tone: palette.neutral,
-          ),
+    // Slivers rather than one list: the sections below can be long, and as a
+    // single list child none of them could be culled.
+    return CupertinoPageScaffold(
+      backgroundColor: palette.groupedBackground,
+      child: CustomScrollView(
+        // Without this, pull-to-refresh on Android does nothing at all: the
+        // Material host hands Android clamping physics, which refuses to
+        // overscroll, and AlwaysScrollable keeps a short Home draggable at the
+        // start of a shift.
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
         ),
-      ],
+        slivers: [
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: HomeHeaderDelegate(
+              topInset: top,
+              bar: HomeTopBar(
+                user: user,
+                isRefreshing: _isRefreshing,
+                onRefresh: _refresh,
+              ),
+              banner: ScanBanner(
+                onScan: widget.onScan,
+                onManual: () => _openManualEntry(context),
+              ),
+            ),
+          ),
+          CupertinoSliverRefreshControl(
+            onRefresh: () => _refresh(showInBar: false),
+          ),
+          // Above everything else: it is the one thing on this screen that
+          // might change what the preparator is about to do.
+          const SliverPadding(
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.xs,
+              AppSpacing.lg,
+              0,
+            ),
+            sliver: SliverToBoxAdapter(child: AnnouncementBanner()),
+          ),
+          const SliverToBoxAdapter(child: StageChips()),
+          const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xl)),
+          const SliverToBoxAdapter(child: PendingScanSection()),
+          // What is waiting on the floor comes before what this preparator has
+          // already done: it is the answer to "what next".
+          const TodoSection(),
+          const MyWorkSection(),
+          const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
+        ],
+      ),
     );
   }
 }
@@ -194,6 +136,8 @@ Future<void> _openManualEntry(BuildContext context) async {
   if (code == null || !context.mounted) return;
 
   await Navigator.of(context).push(
-    CupertinoPageRoute(builder: (context) => UpdateStatusScreen(sampleCode: code)),
+    CupertinoPageRoute(
+      builder: (context) => UpdateStatusScreen(sampleCode: code),
+    ),
   );
 }

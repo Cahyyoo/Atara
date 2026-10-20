@@ -94,9 +94,8 @@ Future<void> submit(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
-/// Section headings are upper-cased by the design system, the way iOS sets
-/// them, so the assertion has to match what is drawn rather than the string.
-final serverHeading = find.text('Alamat Server'.toUpperCase());
+/// Section headings are drawn in the case they were written in.
+final serverHeading = find.text('Alamat Server');
 
 void main() {
   setUp(() {
@@ -106,7 +105,7 @@ void main() {
   testWidgets('offers settings without signing in first', (tester) async {
     await pumpLogin(tester);
 
-    final gear = find.text('Pengaturan');
+    final gear = find.text('Pengaturan server');
     expect(gear, findsOneWidget);
 
     await tester.tap(gear);

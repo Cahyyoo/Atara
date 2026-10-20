@@ -1,92 +1,93 @@
 import 'package:flutter/material.dart';
 
-/// The iOS type scale, on Inter.
+/// The type scale, on Plus Jakarta Sans.
 ///
-/// Apple's sizes and weights, not approximations of them. The scale is short on
-/// purpose — seven steps for the whole app — because the previous screens each
-/// invented their own (`fontSize: 15`, `17`, `20`, `13`, `11`) and the result
-/// had no hierarchy an eye could follow.
+/// Apple's sizes, kept from the previous scale so every screen keeps its
+/// hierarchy; the face is the geometric sans the redesign reference is set in.
+/// The scale is short on purpose — eight steps for the whole app — because the
+/// earliest screens each invented their own (`fontSize: 15`, `17`, `20`, `13`,
+/// `11`) and the result had no hierarchy an eye could follow.
+///
+/// Headings are bolder and tighter than iOS's own, which is the reference's
+/// look: "Welcome Back" and "Categories" are heavy and close-set.
 ///
 /// Sizes stay fixed rather than scaling with the device text setting; the
 /// framework applies the user's scale factor on top, which is the behaviour to
 /// want in a lab where phones are handled with gloves.
 abstract final class AppText {
-  static const String family = 'Inter';
+  static const String family = 'PlusJakartaSans';
 
   /// Sample codes and anything compared character by character against a
   /// printed label.
   ///
   /// Deliberately still the platform generic. This app ships as an Android APK,
   /// where `monospace` resolves to Roboto Mono — a good mono that costs nothing
-  /// to bundle. Shipping a second family for a platform we do not target would
-  /// have added more weight than Inter itself.
+  /// to bundle.
   static const String monoFamily = 'monospace';
 
-  /// Tight tracking on the big sizes is what makes large type read as iOS
-  /// rather than as a heading in a browser.
   static const TextStyle largeTitle = TextStyle(
     fontFamily: family,
-    fontSize: 34,
-    height: 41 / 34,
+    fontSize: 32,
+    height: 40 / 32,
     fontWeight: FontWeight.w700,
-    letterSpacing: -0.4,
+    letterSpacing: -0.6,
   );
 
+  /// "Welcome Back", the wordmark on a header.
   static const TextStyle title1 = TextStyle(
     fontFamily: family,
-    fontSize: 28,
-    height: 34 / 28,
+    fontSize: 26,
+    height: 32 / 26,
     fontWeight: FontWeight.w700,
-    letterSpacing: -0.3,
+    letterSpacing: -0.5,
   );
 
   static const TextStyle title2 = TextStyle(
     fontFamily: family,
-    fontSize: 22,
-    height: 28 / 22,
-    fontWeight: FontWeight.w600,
-    letterSpacing: -0.2,
+    fontSize: 21,
+    height: 27 / 21,
+    fontWeight: FontWeight.w700,
+    letterSpacing: -0.3,
   );
 
-  /// Row titles and anything that leads a group.
+  /// Row titles and section headings ("Categories", "Order again").
   static const TextStyle headline = TextStyle(
     fontFamily: family,
     fontSize: 17,
     height: 22 / 17,
-    fontWeight: FontWeight.w600,
-    letterSpacing: -0.1,
+    fontWeight: FontWeight.w700,
+    letterSpacing: -0.2,
   );
 
-  /// The default. iOS body text is 17, which is larger than most Android
-  /// defaults and is the single biggest reason iOS screens feel roomy.
+  /// The default.
   static const TextStyle body = TextStyle(
     fontFamily: family,
-    fontSize: 17,
-    height: 22 / 17,
-    fontWeight: FontWeight.w400,
+    fontSize: 16,
+    height: 22 / 16,
+    fontWeight: FontWeight.w500,
     letterSpacing: -0.1,
   );
 
   static const TextStyle subhead = TextStyle(
     fontFamily: family,
-    fontSize: 15,
-    height: 20 / 15,
-    fontWeight: FontWeight.w400,
+    fontSize: 14,
+    height: 20 / 14,
+    fontWeight: FontWeight.w500,
   );
 
-  /// Help lines, timestamps, and the uppercase headers over a grouped section.
+  /// Help lines, timestamps, card subtitles.
   static const TextStyle footnote = TextStyle(
     fontFamily: family,
     fontSize: 13,
     height: 18 / 13,
-    fontWeight: FontWeight.w400,
+    fontWeight: FontWeight.w500,
   );
 
   static const TextStyle caption = TextStyle(
     fontFamily: family,
     fontSize: 12,
     height: 16 / 12,
-    fontWeight: FontWeight.w400,
+    fontWeight: FontWeight.w500,
   );
 
   /// Maps the scale onto the slots Flutter's own widgets read, so a stray

@@ -579,8 +579,10 @@ class _Corner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const side = BorderSide(
-      color: CupertinoColors.white,
+    // Lime, the brand's bright note: it reads on any camera picture and ties
+    // the one black screen in the app to the rest of it.
+    final side = BorderSide(
+      color: context.palette.lime,
       width: _Viewfinder._thickness,
     );
     const radius = Radius.circular(AppRadius.sm);

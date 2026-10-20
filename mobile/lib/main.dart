@@ -20,6 +20,7 @@ import 'screens/splash_screen.dart';
 import 'services/session_heartbeat.dart';
 import 'services/time_text.dart';
 import 'theme/app_theme.dart';
+import 'widgets/motion/gate_transition.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -225,8 +226,12 @@ class _SessionHeartbeatScopeState extends ConsumerState<SessionHeartbeatScope>
 /// A Stack, not a replacement: [AuthGate] has to be built from the first frame
 /// or the providers it watches are never constructed, the stored answers are
 /// not read until the splash leaves, and the preparator gets a spinner
-/// immediately afterwards. Underneath, the app settles while the mountain
-/// draws; by the time the splash fades there is a real screen behind it.
+/// immediately afterwards. Underneath, the app settles while the trolley
+/// rolls; by the time the splash leaves there is a real screen behind it.
+///
+/// The Stack stays after the splash has gone, with only the splash removed
+/// from it, so the screen underneath keeps its state rather than being built
+/// a second time — and [SplashStatus] tells it when to begin its entrance.
 class SplashGate extends StatefulWidget {
   const SplashGate({required this.child, super.key});
 
@@ -237,7 +242,7 @@ class SplashGate extends StatefulWidget {
 }
 
 class _SplashGateState extends State<SplashGate> {
-  bool _showSplash = true;
+  final ValueNotifier<bool> _done = ValueNotifier<bool>(false);
   Timer? _failsafe;
 
   @override
@@ -245,12 +250,11 @@ class _SplashGateState extends State<SplashGate> {
     super.initState();
     // A belt to go with the animation's braces.
     //
-    // Until now the only way off this screen was SplashScreen's controller
-    // reaching `completed`. One unguarded 600ms promise stood between the
-    // preparator and the app: if that controller never finished -- a muted
-    // ticker, a paused activity, anything -- the app was locked, forever,
-    // behind a decoration. A Timer runs on the event loop rather than on
-    // vsync, so it fires whether or not a single frame is ever scheduled.
+    // The only other way off this screen is SplashScreen's controller reaching
+    // `completed`. If that controller never finished -- a muted ticker, a
+    // paused activity, anything -- the app would be locked, forever, behind a
+    // decoration. A Timer runs on the event loop rather than on vsync, so it
+    // fires whether or not a single frame is ever scheduled.
     //
     // Deliberately longer than the splash, so in the ordinary case
     // `onFinished` wins and this never runs.
@@ -263,13 +267,14 @@ class _SplashGateState extends State<SplashGate> {
   @override
   void dispose() {
     _failsafe?.cancel();
+    _done.dispose();
     super.dispose();
   }
 
   void _dismiss() {
     _failsafe?.cancel();
-    if (!mounted || !_showSplash) return;
-    setState(() => _showSplash = false);
+    if (!mounted || _done.value) return;
+    setState(() => _done.value = true);
   }
 
   @override
@@ -279,22 +284,84 @@ class _SplashGateState extends State<SplashGate> {
     // on a device with transition_animation_scale at 0 -- which reads as a
     // broken app, not as an accessibility setting being honoured. SplashScreen
     // drops the movement instead and keeps the timing.
-    if (!_showSplash) return widget.child;
-
-    return Stack(
-      children: [
-        widget.child,
-        Positioned.fill(child: SplashScreen(onFinished: _dismiss)),
-      ],
+    return SplashStatus(
+      done: _done,
+      child: Stack(
+        children: [
+          widget.child,
+          if (!_done.value)
+            Positioned.fill(child: SplashScreen(onFinished: _dismiss)),
+        ],
+      ),
     );
   }
 }
 
+/// Which top-level screen the app is on. The key of [AuthGate]'s switcher.
+enum _Gate { loading, onboarding, login, changePassword, home }
+
 class AuthGate extends ConsumerWidget {
   const AuthGate({super.key});
 
+  /// Long enough for the reference's login-to-home handover: the form leaves
+  /// and the header shrinks in the first 45%, Home arrives in the rest.
+  static const Duration swap = Duration(milliseconds: 1000);
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final (gate, screen) = _resolve(ref);
+    return AnimatedSwitcher(
+      duration: swap,
+      // A plain Stack of whatever is on screen: the incoming screen on top.
+      layoutBuilder: (current, previous) => Stack(
+        fit: StackFit.expand,
+        children: [...previous, ?current],
+      ),
+      transitionBuilder: (child, animation) {
+        final key = (child.key as ValueKey<_Gate>?)?.value;
+        // Home stays invisible until the outgoing login has handed its header
+        // over, then appears at once on top of an identical one. Everything
+        // else crossfades in the first third. Login runs its own exit off the
+        // same animation through GateTransition, so it is never faded here
+        // while it is leaving.
+        final opacity = switch (key) {
+          _Gate.home => CurvedAnimation(
+              parent: animation,
+              curve: const Interval(
+                GateTransition.handover - 0.01,
+                GateTransition.handover + 0.02,
+              ),
+            ),
+          _ => CurvedAnimation(
+              parent: animation,
+              curve: const Interval(0, 0.3, curve: Curves.easeOut),
+            ),
+        };
+        // The startup spinner is never animated out. It is not a screen
+        // anyone was looking at — the splash covers it — and a spinner left
+        // standing for the length of a swap is a busy state that has already
+        // ended, still in the tree.
+        if (key == _Gate.loading) {
+          return AnimatedBuilder(
+            animation: animation,
+            child: child,
+            builder: (context, child) =>
+                animation.status == AnimationStatus.reverse ||
+                    animation.status == AnimationStatus.dismissed
+                ? const SizedBox.shrink()
+                : child!,
+          );
+        }
+        return GateTransition(
+          animation: animation,
+          child: FadeTransition(opacity: opacity, child: child),
+        );
+      },
+      child: KeyedSubtree(key: ValueKey(gate), child: screen),
+    );
+  }
+
+  (_Gate, Widget) _resolve(WidgetRef ref) {
     // Two stored answers now stand between the app and its first usable
     // screen. Both are watched here rather than nested, so the two prefs reads
     // start on the same frame and the spinner below lasts as long as the
@@ -309,8 +376,11 @@ class AuthGate extends ConsumerWidget {
     // its own `loading:` branch, and only one of them tends to keep that
     // guarantee — hence a single check over both.
     if (onboarding.isLoading || session.isLoading) {
-      return const CupertinoPageScaffold(
-        child: Center(child: CupertinoActivityIndicator()),
+      return (
+        _Gate.loading,
+        const CupertinoPageScaffold(
+          child: Center(child: CupertinoActivityIndicator()),
+        ),
       );
     }
 
@@ -319,7 +389,7 @@ class AuthGate extends ConsumerWidget {
     // Skipping it leaves the preparator one screen away from work, which is the
     // same call the session makes when its own read fails.
     if (!(onboarding.valueOrNull ?? true)) {
-      return const OnboardingScreen(isFirstRun: true);
+      return (_Gate.onboarding, const OnboardingScreen(isFirstRun: true));
     }
 
     // `valueOrNull`, never `value`: on an error state `value` rethrows, so
@@ -329,15 +399,15 @@ class AuthGate extends ConsumerWidget {
     // sign-in screen, which is what the old `error:` branch said in its own
     // line.
     final user = session.valueOrNull;
-    if (user == null) return const LoginScreen();
+    if (user == null) return (_Gate.login, const LoginScreen());
 
     // Signed in, but on a password an administrator chose -- the one every
     // Preparator is handed. The server refuses this session everything until it
     // is replaced, so Home would only be a screen full of refusals.
     if (user.mustChangePassword) {
-      return const ChangePasswordScreen(forced: true);
+      return (_Gate.changePassword, const ChangePasswordScreen(forced: true));
     }
 
-    return const HomeShell();
+    return (_Gate.home, const HomeShell());
   }
 }

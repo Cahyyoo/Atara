@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 220">
+  <!-- blob -->
+  <path d="M68 74C80 30 152 18 194 44C234 69 244 122 218 158C192 194 118 200 84 172C50 146 58 104 68 74Z" fill="#DCF2B4"/>
+  <!-- ground -->
+  <ellipse cx="146" cy="206" rx="104" ry="6" fill="#B8DC86"/>
+  <!-- speed lines -->
+  <g stroke="#8CC63F" stroke-width="4" stroke-linecap="round" opacity="0.85">
+    <path d="M22 108H42"/>
+    <path d="M12 124H36"/>
+    <path d="M26 140H44"/>
+  </g>
+
+  <!-- cart: handle, frame, wheels -->
+  <path d="M121 90L127 152" stroke="#5D6357" stroke-width="6" stroke-linecap="round"/>
+  <rect x="116" y="85" width="12" height="7" rx="3.5" fill="#2A2D25"/>
+  <rect x="139" y="156" width="6" height="28" rx="3" fill="#7A8072"/>
+  <rect x="219" y="156" width="6" height="28" rx="3" fill="#7A8072"/>
+  <rect x="132" y="170" width="98" height="6" rx="3" fill="#9AA192"/>
+  <rect x="122" y="149" width="118" height="10" rx="5" fill="#5D6357"/>
+  <rect x="124" y="149" width="114" height="3" rx="1.5" fill="#9AA192"/>
+  <circle cx="142" cy="189" r="13" fill="#2A2D25"/>
+  <circle cx="142" cy="189" r="5" fill="#C9CEC2"/>
+  <circle cx="222" cy="189" r="13" fill="#2A2D25"/>
+  <circle cx="222" cy="189" r="5" fill="#C9CEC2"/>
+
+  <!-- kraft sample box with barcode label -->
+  <rect x="132" y="108" width="62" height="41" rx="4" fill="#D9B37C"/>
+  <rect x="132" y="108" width="62" height="9" rx="4" fill="#C49A5E"/>
+  <rect x="160" y="108" width="6" height="9" fill="#B08549"/>
+  <rect x="141" y="124" width="36" height="17" rx="2.5" fill="#FFFFFF"/>
+  <g fill="#2A2D25">
+    <rect x="145" y="127" width="1.6" height="11"/>
+    <rect x="148" y="127" width="3" height="11"/>
+    <rect x="152.5" y="127" width="1.2" height="11"/>
+    <rect x="155" y="127" width="2.4" height="11"/>
+    <rect x="159" y="127" width="1.2" height="11"/>
+    <rect x="161.5" y="127" width="3" height="11"/>
+    <rect x="166" y="127" width="1.6" height="11"/>
+    <rect x="169" y="127" width="2.4" height="11"/>
+    <rect x="172.5" y="127" width="1.2" height="11"/>
+  </g>
+  <!-- sample bag on the box -->
+  <path d="M142 108L146 88Q160 82 174 88L178 108Z" fill="#EBD7AE"/>
+  <path d="M146 88Q160 82 174 88L172 94Q160 89 148 94Z" fill="#D9C08D"/>
+  <rect x="154" y="80" width="12" height="7" rx="3" fill="#4F7A23"/>
+  <rect x="151" y="96" width="18" height="7" rx="1.5" fill="#8CC63F"/>
+
+  <!-- tube rack -->
+  <rect x="204" y="99" width="7" height="40" rx="3.5" fill="#EEF6F8" stroke="#C3D2D6" stroke-width="1.2"/>
+  <rect x="204.6" y="118" width="5.8" height="20.4" rx="2.9" fill="#5BB4E5"/>
+  <rect x="203" y="95" width="9" height="6" rx="2" fill="#4F7A23"/>
+  <rect x="215" y="104" width="7" height="35" rx="3.5" fill="#EEF6F8" stroke="#C3D2D6" stroke-width="1.2"/>
+  <rect x="215.6" y="120" width="5.8" height="18.4" rx="2.9" fill="#F2A93B"/>
+  <rect x="214" y="100" width="9" height="6" rx="2" fill="#E5604F"/>
+  <rect x="226" y="101" width="7" height="38" rx="3.5" fill="#EEF6F8" stroke="#C3D2D6" stroke-width="1.2"/>
+  <rect x="226.6" y="122" width="5.8" height="16.4" rx="2.9" fill="#E5604F"/>
+  <rect x="225" y="97" width="9" height="6" rx="2" fill="#8CC63F"/>
+  <rect x="199" y="128" width="39" height="21" rx="3.5" fill="#4F7A23"/>
+  <rect x="199" y="128" width="39" height="5" rx="2.5" fill="#6E9E2E"/>
+
+  <!-- technician: legs -->
+  <path d="M78 138L68 166L60 190" stroke="#22261C" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M90 138L100 166L106 190" stroke="#2E3326" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M46 191Q48 184 60 185L68 187Q71 196 64 198H50Q45 197 46 191Z" fill="#15170F"/>
+  <path d="M100 191Q102 184 110 185L120 189Q123 197 116 198H104Q99 197 100 191Z" fill="#15170F"/>
+
+  <!-- back arm -->
+  <path d="M80 84L94 104L114 96" stroke="#3E5A1C" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- lab coat -->
+  <path d="M72 76Q70 68 80 67L98 66Q109 67 110 78L114 140Q102 150 86 149L66 146Q62 142 64 132Z" fill="#4F7A23"/>
+  <path d="M72 76Q70 68 80 67L84 67L78 147L66 146Q62 142 64 132Z" fill="#3E5A1C"/>
+  <path d="M96 67L104 69L96 92L90 70Z" fill="#E9F3DA"/>
+  <rect x="96" y="108" width="12" height="12" rx="2" fill="#3E5A1C"/>
+  <rect x="99" y="102" width="2.5" height="10" rx="1.2" fill="#F2A93B"/>
+  <rect x="66" y="136" width="48" height="8" rx="4" fill="#6E9E2E" opacity="0.55"/>
+  <!-- front arm + glove -->
+  <path d="M102 80L110 100L120 94" stroke="#6E9E2E" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <circle cx="117" cy="96" r="5.5" fill="#6EA8E8"/>
+  <circle cx="122" cy="93" r="6" fill="#7CB4EE"/>
+
+  <!-- neck + head -->
+  <rect x="84" y="58" width="10" height="11" rx="4" fill="#DFA57E"/>
+  <circle cx="90" cy="48" r="15" fill="#F2C4A0"/>
+  <circle cx="78" cy="50" r="3.5" fill="#DFA57E"/>
+  <!-- lab cap -->
+  <path d="M74 48Q73 30 90 30Q107 31 106 45Q99 38 84 42Q78 44 74 48Z" fill="#3E5A1C"/>
+  <path d="M75 44Q86 37 104 41" stroke="#6E9E2E" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <!-- safety glasses -->
+  <rect x="88" y="45" width="17" height="8" rx="3.5" fill="#BFE6F5" stroke="#2A2D25" stroke-width="1.8"/>
+  <path d="M88 49H79" stroke="#2A2D25" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M96 58Q100 60 103 57" stroke="#B5704A" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+</svg>

@@ -2,10 +2,10 @@
 <resources>
     <!-- From API 31 the platform draws the splash itself and windowBackground
          is ignored. Leaving windowSplashScreenAnimatedIcon unset is what we
-         want: the platform falls back to the launcher's adaptive icon, which
-         is already the mountain on the brand teal. An earlier version pointed
-         it at a transparent drawable to avoid drawing the mountain twice, and
-         that turned the whole pre-Flutter window into a blank teal field. -->
+         want: the platform falls back to the launcher's adaptive icon, the
+         white mountain on olive, centred on the page colour. Pointing it at a
+         transparent drawable once turned the whole pre-Flutter window into a
+         blank field, which reads as a hang. -->
     <style name="LaunchTheme" parent="@android:style/Theme.Black.NoTitleBar">
         <item name="android:windowSplashScreenBackground">@color/splash_background</item>
         <item name="android:windowBackground">@drawable/launch_background</item>

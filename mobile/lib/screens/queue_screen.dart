@@ -18,7 +18,11 @@ import '../widgets/status_view.dart';
 /// dropped to keep it small, because dropping a queued scan loses a preparator's
 /// work; only the rendering is bounded.
 class QueueScreen extends ConsumerWidget {
-  const QueueScreen({super.key});
+  const QueueScreen({super.key, this.isTab = false});
+
+  /// A tab of its own on the home shell, rather than a page pushed from Home:
+  /// no back button, because there is nothing to go back to.
+  final bool isTab;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -30,6 +34,7 @@ class QueueScreen extends ConsumerWidget {
 
     return AppPage(
       title: l10n.queueAllTitle,
+      automaticallyImplyLeading: !isTab,
       onRefresh: () => ref.read(pendingScansProvider.notifier).sync(),
       slivers: [
         // Reachable, and reached by discarding: the preparator clears the last

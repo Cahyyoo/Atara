@@ -25,14 +25,26 @@ abstract final class AppSpacing {
 }
 
 abstract final class AppRadius {
-  static const double sm = 8;
+  /// Badges and small chips.
+  static const double sm = 10;
 
-  /// Buttons and fields.
-  static const double md = 12;
+  /// Icon tiles and inner blocks inside a card.
+  static const double md = 14;
 
-  /// The inset cards that carry almost every row.
-  static const double lg = 10;
-  static const double xl = 20;
+  /// The cards that carry almost every row — the reference's soft 18.
+  static const double lg = 18;
+
+  /// Sheets, dialogs, the home banner.
+  static const double xl = 24;
+
+  /// The bottom corners of a green header.
+  static const double header = 28;
+
+  /// Text fields: a pill at their 52 height.
+  static const double field = 26;
+
+  /// Buttons, capsules: always fully round, whatever their height.
+  static const double pill = 999;
 }
 
 /// Shorthand for the lookups nearly every widget here needs.
@@ -53,12 +65,9 @@ extension AppThemeContext on BuildContext {
 }
 
 class AppTheme {
-  /// The brand teal, for the places outside the widget tree that need it —
-  /// the launcher icon, a platform channel.
-  ///
-  /// Read from the palette rather than written out again. It was a second
-  /// literal copy of `--primary`, which is exactly the kind of thing that
-  /// goes quietly stale the next time the web moves.
+  /// The brand green, for the places outside the widget tree that need it —
+  /// the launcher icon, a platform channel. Read from the palette rather than
+  /// written out again, so it cannot go stale.
   static final Color brand = AppColors.light.accent;
 
   /// Built once, not per rebuild.
@@ -139,7 +148,7 @@ class AppTheme {
         //
         // Setting it also ends a real inconsistency: the back label was the one
         // piece of chrome still rendering in CupertinoSystemText while the title
-        // beside it was Inter.
+        // beside it was the app face.
         textTheme: CupertinoTextThemeData(
           primaryColor: palette.accent,
           textStyle: AppText.body.copyWith(color: palette.label),

@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Brand ground, matching the first stop of the Flutter splash's
-         gradient, so the handoff to the first frame is invisible. -->
+    <!-- The page colour the Flutter splash starts on, so the handoff to the
+         first frame is seamless. -->
     <item android:drawable="@color/splash_background" />
-    <!-- And the mark on top of it. This used to be deliberately empty, to
-         stop the mountain being drawn twice – once by the system and again
-         by Dart. The cost of that was a blank teal field for however long the
-         app took to boot, which on a debug build is seconds. The Flutter
-         splash now starts with the mark already in place instead, so the two
-         line up and nothing is ever blank. -->
+    <!-- And the app icon on top of it. Never an empty window: a blank field
+         for however long the app takes to boot - seconds, on a debug build -
+         reads as a frozen app. The whole icon rather than its foreground,
+         because the foreground is a white mountain and would vanish on this
+         light ground. -->
     <item>
         <bitmap
             android:gravity="center"
-            android:src="@mipmap/ic_launcher_foreground" />
+            android:src="@mipmap/ic_launcher" />
     </item>
 </layer-list>

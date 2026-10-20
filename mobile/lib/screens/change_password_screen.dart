@@ -9,7 +9,7 @@ import '../services/api_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/ios/app_page.dart';
 import '../widgets/ios/app_toast.dart';
-import '../widgets/ios/inset_section.dart';
+import '../widgets/pill_field.dart';
 import '../widgets/ios/ios_button.dart';
 
 /// The shortest a password may be. The server holds the same floor; this copy
@@ -125,9 +125,10 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
     return switch (error.code) {
       'wrong-password' => l10n.passwordCurrentWrong,
       'role-default-password' => l10n.passwordIsRoleDefault,
-      _ => error.statusCode == 429
-          ? l10n.passwordTooManyAttempts
-          : apiErrorText(l10n, error),
+      _ =>
+        error.statusCode == 429
+            ? l10n.passwordTooManyAttempts
+            : apiErrorText(l10n, error),
     };
   }
 
@@ -155,29 +156,37 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
             style: AppText.subhead.copyWith(color: palette.secondaryLabel),
           ),
         ),
-        InsetSection(
-          margin: EdgeInsets.zero,
-          footer: l10n.passwordRuleHint(_minPasswordLength),
-          children: [
-            _PasswordField(
-              controller: _currentController,
-              label: l10n.passwordCurrent,
-              autofocus: true,
-              onSubmitted: (_) => _nextFocus.requestFocus(),
-            ),
-            _PasswordField(
-              controller: _nextController,
-              focusNode: _nextFocus,
-              label: l10n.passwordNew,
-              onSubmitted: (_) => _confirmFocus.requestFocus(),
-            ),
-            _PasswordField(
-              controller: _confirmController,
-              focusNode: _confirmFocus,
-              label: l10n.passwordConfirm,
-              onSubmitted: (_) => _submit(),
-            ),
-          ],
+        _PasswordField(
+          controller: _currentController,
+          label: l10n.passwordCurrent,
+          autofocus: true,
+          onSubmitted: (_) => _nextFocus.requestFocus(),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        _PasswordField(
+          controller: _nextController,
+          focusNode: _nextFocus,
+          label: l10n.passwordNew,
+          onSubmitted: (_) => _confirmFocus.requestFocus(),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        _PasswordField(
+          controller: _confirmController,
+          focusNode: _confirmFocus,
+          label: l10n.passwordConfirm,
+          onSubmitted: (_) => _submit(),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.lg,
+            AppSpacing.sm,
+            AppSpacing.lg,
+            0,
+          ),
+          child: Text(
+            l10n.passwordRuleHint(_minPasswordLength),
+            style: AppText.caption.copyWith(color: palette.secondaryLabel),
+          ),
         ),
         if (_errorMessage != null) ...[
           const SizedBox(height: AppSpacing.md),
@@ -212,8 +221,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
   }
 }
 
-/// One obscured field in the grouped box, labelled on its own line above the
-/// entry — the shape Settings already uses for its server address.
+/// One obscured pill field, labelled on its own line above the entry — the
+/// shape Settings uses for its server address.
 class _PasswordField extends StatelessWidget {
   const _PasswordField({
     required this.controller,
@@ -233,36 +242,40 @@ class _PasswordField extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.palette;
 
-    return InsetCustomRow(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.sm,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(
+            left: AppSpacing.lg,
+            bottom: AppSpacing.xs + 2,
+          ),
+          child: Text(
             label,
-            style: AppText.caption.copyWith(color: palette.secondaryLabel),
+            style: AppText.caption.copyWith(
+              color: palette.secondaryLabel,
+              fontWeight: FontWeight.w700,
+            ),
           ),
-          CupertinoTextField.borderless(
-            controller: controller,
-            focusNode: focusNode,
-            autofocus: autofocus,
-            obscureText: true,
-            // A password manager offering the account's saved entry is the
-            // one thing that makes a three-field form quick on a phone.
-            autofillHints: const [AutofillHints.password],
-            textInputAction: onSubmitted == null
-                ? TextInputAction.done
-                : TextInputAction.next,
-            onSubmitted: onSubmitted,
-            style: AppText.body.copyWith(color: palette.label),
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-          ),
-        ],
-      ),
+        ),
+        PillField(
+          controller: controller,
+          focusNode: focusNode,
+          autofocus: autofocus,
+          label: label,
+          placeholder: '',
+          icon: CupertinoIcons.lock,
+          obscure: true,
+          // A password manager offering the account's saved entry is the
+          // one thing that makes a three-field form quick on a phone.
+          autofillHints: const [AutofillHints.password],
+          textInputAction: onSubmitted == null
+              ? TextInputAction.done
+              : TextInputAction.next,
+          onSubmitted: onSubmitted,
+        ),
+      ],
     );
   }
 }

@@ -107,16 +107,20 @@ class _ManualCodeDialogState extends State<_ManualCodeDialog> {
                     fontFamily: AppText.monoFamily,
                   ),
                   padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.md,
-                    vertical: AppSpacing.sm,
+                    horizontal: AppSpacing.lg,
+                    vertical: AppSpacing.md,
                   ),
+                  cursorColor: palette.accent,
+                  // The same pill as every other field in the app; red ring
+                  // while the code is refused.
                   decoration: BoxDecoration(
-                    color: palette.groupedBackground,
-                    borderRadius: BorderRadius.circular(AppRadius.sm),
+                    color: palette.field,
+                    borderRadius: BorderRadius.circular(AppRadius.field),
                     border: Border.all(
                       color: _error == null
-                          ? palette.separator
+                          ? const Color(0x00000000)
                           : palette.danger.foreground,
+                      width: 1.5,
                     ),
                   ),
                 ),

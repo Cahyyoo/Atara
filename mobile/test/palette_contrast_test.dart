@@ -7,16 +7,10 @@ import 'package:atara/theme/app_colors.dart';
 
 /// Guards the relationships in the palette, not its values.
 ///
-/// The values are a copy of the web's, and a copy drifts: this palette spent
-/// weeks holding Tailwind v3 hues against a v4 site, and a `--muted-foreground`
-/// the web had already raised for contrast. Asserting the hexes here would
-/// only restate them — it would have caught none of that, because the stale
-/// values were self-consistent.
-///
-/// What a test can hold is the thing a re-sync can quietly break. Correcting
-/// `fill` to the web's `--secondary` was right, and it also took the skeleton
-/// placeholders from 1.17:1 to 1.09:1 against a white card — still there,
-/// no longer visible. Nothing would have said so.
+/// Asserting the hexes here would only restate them. What a test can hold is
+/// the thing a re-colour can quietly break: a skeleton that stops being
+/// visible on its card, a grey that slips under AA, white text drifting onto
+/// the light end of a gradient.
 
 /// WCAG relative luminance.
 double _luminance(Color c) {
@@ -108,21 +102,34 @@ void main() {
         expect(ratio, lessThanOrEqualTo(1.30));
       });
 
-      test('$name: white stays legible on the hero gradient', () {
-        // Checked at the light end, which is the worst case.
-        expect(contrast(p.onHero, p.heroStart), greaterThanOrEqualTo(4.5));
-        expect(contrast(p.onHero, p.heroEnd), greaterThanOrEqualTo(4.5));
+      test('$name: white stays legible where the header writes it', () {
+        // The header runs out to lime, which no white text could sit on. Its
+        // title and subtitle live in the top-left and never reach past 45% of
+        // the diagonal; the illustration owns the rest.
+        for (final t in [0.0, 0.15, 0.3, 0.45]) {
+          expect(
+            contrast(p.onHero, p.heroAt(t)),
+            greaterThanOrEqualTo(4.5),
+            reason: '$name header at $t',
+          );
+        }
       });
 
-      test('$name: a filled button label is legible on its gradient', () {
-        expect(
-          contrast(p.onAccent, p.primaryGradientStart),
-          greaterThanOrEqualTo(4.5),
-        );
-        expect(
-          contrast(p.onAccent, p.primaryGradientEnd),
-          greaterThanOrEqualTo(4.5),
-        );
+      test('$name: a filled button label is legible where it sits', () {
+        // The label is centred; the longest one spans about the middle fifth
+        // of a full-width button.
+        for (final t in [0.4, 0.5, 0.6]) {
+          expect(
+            contrast(p.onAccent, p.primaryAt(t)),
+            greaterThanOrEqualTo(4.5),
+            reason: '$name button at $t',
+          );
+        }
+      });
+
+      test('$name: brand green text reads on the page and on a card', () {
+        expect(contrast(p.accent, p.groupedBackground), greaterThanOrEqualTo(4.5));
+        expect(contrast(p.accent, p.cardBackground), greaterThanOrEqualTo(4.5));
       });
     }
   });

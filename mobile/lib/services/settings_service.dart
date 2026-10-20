@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Device-local settings: where the server lives and which language to use.
@@ -33,7 +35,10 @@ class SettingsService {
   static const supportedLocales = ['id', 'en'];
 
   static String get defaultServerUrl {
-    final host = Platform.isAndroid ? '10.10.50.14' : 'localhost';
+    // kIsWeb first: dart:io's Platform is unsupported in a browser and throws,
+    // which a development run in Chrome would otherwise trip over before
+    // making a single request.
+    final host = !kIsWeb && Platform.isAndroid ? '10.10.50.14' : 'localhost';
     return 'http://$host:3000/api';
   }
 

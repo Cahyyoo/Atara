@@ -40,7 +40,7 @@ void main() {
       (tester) async {
     final container = await pumpSettings(tester);
 
-    expect(find.text('Tampilan'.toUpperCase()), findsOneWidget);
+    expect(find.text('Tampilan'), findsOneWidget);
     expect(find.text('Ikuti Sistem'), findsOneWidget);
     expect(find.text('Terang'), findsOneWidget);
     expect(find.text('Gelap'), findsOneWidget);

@@ -5,9 +5,16 @@ Aplikasi Flutter untuk preparator lapangan/laboratorium: memindai barcode/QR pad
 ## Tech Stack
 
 - Flutter (Dart). Antarmukanya **sepenuhnya Cupertino** di dalam sebuah
-  `MaterialApp`, dengan `AppTheme`/`AppColors` sendiri dan subset font Inter yang
-  dibundel. Bukan Material 3 — tidak ada ripple, tidak ada komponen Material yang
-  terlihat.
+  `MaterialApp`, dengan `AppTheme`/`AppColors` sendiri dan subset font
+  **Plus Jakarta Sans** yang dibundel. Bukan Material 3 — tidak ada ripple,
+  tidak ada komponen Material yang terlihat.
+- Tampilan mengikuti video referensi desain (`referensi untuk app mobile lab.mp4`
+  di root repo): palet hijau olive → lime, header hijau bersudut bulat, kartu
+  putih lembut, field dan tombol berbentuk pill, ilustrasi lab bergaya flat, dan
+  koreografi animasi splash → login → beranda. Warna mobile kini **berbeda**
+  dari web (web tetap teal).
+- `flutter_svg` — ilustrasi lab dan ikon tahap (`assets/illustrations/`), diwarnai
+  ulang per tema lewat `ColorMapper`
 - `flutter_riverpod` — state management, gaya `StateNotifier`, tanpa codegen
 - `mobile_scanner` — pemindai kamera barcode/QR
 - `dio` — HTTP client dengan interceptor auth
@@ -40,8 +47,8 @@ perangkat belum pernah menyimpan alamat sendiri:
 
 ```dart
 static String get defaultServerUrl {
-  final host = Platform.isAndroid ? '10.10.50.14' : 'localhost';
-  return 'http://$host:3000/api';
+  final host = Platform.isAndroid ? '172.25.192.1' : 'localhost';
+  return 'http://$host:3000/atara/api';
 }
 ```
 
@@ -153,10 +160,15 @@ lib/
   screens/       # Splash, Onboarding, Login, SecondFactor, HomeShell, Home,
                  # Scanner, UpdateStatus, SampleDetail, ScanHistory, Queue,
                  # Settings
-  widgets/       # ios/ (AppPage, InsetSection, AppButton, AppToast) dan
-                 # bagian layar: MyWorkSection, PendingScanSection,
-                 # SampleHistory, StagePicker, StatusView, skeletons
-  theme/         # AppTheme + AppColors (disinkronkan dengan token web)
+  widgets/       # ios/ (AppPage, InsetSection, AppButton, AppToast),
+                 # brand/ (Illustration, Wordmark, GreenHeader),
+                 # motion/ (Reveal, EnterReveal, StaggeredColumn,
+                 # GateTransition, Pressable), home/ (header, chip tahap),
+                 # PillField, dan bagian layar: MyWorkSection,
+                 # PendingScanSection, TodoSection, SampleHistory,
+                 # StagePicker, StatusView, skeletons
+  theme/         # AppTheme, AppColors (palet olive/lime, light + dark),
+                 # AppText, AppMotion (durasi, kurva, stagger)
 ```
 
 Pola yang berulang dan layak diketahui sebelum menyunting: **keputusan yang

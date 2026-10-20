@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../theme/app_theme.dart';
@@ -41,15 +42,14 @@ class InsetHairline extends StatelessWidget {
   }
 }
 
-/// The inset grouped list: a rounded card of rows on the page's own ground,
-/// rows divided by hairlines that start where the text starts.
+/// The grouped list: a soft white card of rows on the page's own ground, rows
+/// divided by hairlines that start where the text starts.
 ///
-/// This is the signature iOS container and the backbone of nearly every screen
-/// here. Grouping rows this way is what lets a screen drop headings, borders
-/// and shadows and still read as organised — the reason the redesign gets
-/// simpler rather than busier.
+/// The backbone of nearly every screen here. Grouping rows this way is what
+/// lets a screen drop borders and shadows and still read as organised.
 ///
-/// [header] is set in the small uppercase footnote iOS uses above a group;
+/// [header] is a bold section heading in the reference's style ("Categories",
+/// "Order again"), with an optional green [actionLabel] link on its right;
 /// [footer] carries the help line that used to live inside a field.
 class InsetSection extends StatelessWidget {
   const InsetSection({
@@ -58,12 +58,18 @@ class InsetSection extends StatelessWidget {
     this.header,
     this.footer,
     this.margin,
+    this.actionLabel,
+    this.onAction,
   });
 
   final List<Widget> children;
   final String? header;
   final String? footer;
   final EdgeInsets? margin;
+
+  /// "Lihat semua" beside the heading.
+  final String? actionLabel;
+  final VoidCallback? onAction;
 
   @override
   Widget build(BuildContext context) {
@@ -75,20 +81,10 @@ class InsetSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (header != null)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.lg,
-                0,
-                AppSpacing.lg,
-                AppSpacing.sm,
-              ),
-              child: Text(
-                header!.toUpperCase(),
-                style: AppText.footnote.copyWith(
-                  color: palette.secondaryLabel,
-                  letterSpacing: 0.5,
-                ),
-              ),
+            InsetSectionHeading(
+              text: header!,
+              actionLabel: actionLabel,
+              onAction: onAction,
             ),
           DecoratedBox(
             decoration: BoxDecoration(
@@ -244,7 +240,7 @@ class _InsetRowState extends State<InsetRow> {
           ],
           if (widget.showChevron) ...[
             const SizedBox(width: AppSpacing.xs),
-            Icon(Icons.chevron_right_rounded, size: 20, color: palette.tertiaryLabel),
+            Icon(CupertinoIcons.chevron_forward, size: 16, color: palette.tertiaryLabel),
           ],
         ],
       ),
@@ -357,27 +353,68 @@ class InsetSectionSliver extends StatelessWidget {
 ///
 /// Public because the history screen renders its day headers as rows of one
 /// flat list rather than as section headers of ninety separate slivers, and
-/// they still have to look like every other heading in the app.
+/// they still have to look like every other heading in the app; Home's
+/// horizontal sections use it too.
+///
+/// Bold and in the case it was written in, as the reference sets "Categories"
+/// and "See All" — the small uppercase iOS group header is gone.
 class InsetSectionHeading extends StatelessWidget {
-  const InsetSectionHeading({super.key, required this.text});
+  const InsetSectionHeading({
+    super.key,
+    required this.text,
+    this.actionLabel,
+    this.onAction,
+  });
 
   final String text;
+  final String? actionLabel;
+  final VoidCallback? onAction;
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
+        AppSpacing.xs,
         0,
-        AppSpacing.lg,
-        AppSpacing.sm,
+        AppSpacing.xs,
+        AppSpacing.md,
       ),
-      child: Text(
-        text.toUpperCase(),
-        style: AppText.footnote.copyWith(
-          color: context.palette.secondaryLabel,
-          letterSpacing: 0.5,
-        ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: Semantics(
+              header: true,
+              child: Text(
+                text,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppText.headline.copyWith(color: palette.label),
+              ),
+            ),
+          ),
+          if (actionLabel != null)
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: onAction,
+              child: ConstrainedBox(
+                // A 44pt target around a 13pt word.
+                constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  widthFactor: 1,
+                  child: Text(
+                    actionLabel!,
+                    style: AppText.footnote.copyWith(
+                      color: palette.accent,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

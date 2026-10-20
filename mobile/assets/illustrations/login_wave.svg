@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- blob -->
+  <path d="M52 92C50 48 96 26 136 40C176 54 190 98 174 136C158 174 110 188 78 166C52 148 53 120 52 92Z" fill="#DCF2B4" opacity="0.9"/>
+  <!-- sparkles -->
+  <path d="M40 46L43 54L51 57L43 60L40 68L37 60L29 57L37 54Z" fill="#FFFFFF"/>
+  <path d="M168 34L170 39L175 41L170 43L168 48L166 43L161 41L166 39Z" fill="#E9F7D2"/>
+  <path d="M60 24L61.5 28L65.5 29.5L61.5 31L60 35L58.5 31L54.5 29.5L58.5 28Z" fill="#E9F7D2"/>
+
+  <!-- raised waving arm -->
+  <path d="M86 128L66 102L58 78" stroke="#3E5A1C" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M50 70Q48 62 52 58L54 66L55 54Q58 50 61 54L61 64L64 54Q68 52 69 57L67 68L71 62Q75 62 74 67L68 80Q62 86 55 82Z" fill="#7CB4EE"/>
+
+  <!-- body: lab coat -->
+  <path d="M74 132Q76 116 96 112L124 112Q144 116 146 132L150 200H70Z" fill="#4F7A23"/>
+  <path d="M74 132Q76 116 96 112L102 112L96 200H70Z" fill="#3E5A1C"/>
+  <path d="M104 112L118 112L111 140Z" fill="#E9F3DA"/>
+  <path d="M111 140V200" stroke="#3E5A1C" stroke-width="2"/>
+  <rect x="122" y="150" width="15" height="14" rx="2.5" fill="#3E5A1C"/>
+  <rect x="125.5" y="143" width="3" height="12" rx="1.5" fill="#F2A93B"/>
+  <rect x="130.5" y="145" width="3" height="10" rx="1.5" fill="#5BB4E5"/>
+  <!-- ID badge -->
+  <rect x="80" y="148" width="14" height="18" rx="2.5" fill="#FFFFFF"/>
+  <rect x="83" y="152" width="8" height="5" rx="1" fill="#8CC63F"/>
+  <rect x="83" y="160" width="8" height="2" rx="1" fill="#A6AA9F"/>
+
+  <!-- neck + head -->
+  <rect x="103" y="96" width="14" height="18" rx="5" fill="#DFA57E"/>
+  <circle cx="110" cy="80" r="22" fill="#F2C4A0"/>
+  <circle cx="89" cy="82" r="5" fill="#DFA57E"/>
+  <circle cx="131" cy="82" r="5" fill="#DFA57E"/>
+  <!-- lab cap -->
+  <path d="M87 78Q85 52 110 52Q135 52 133 78Q124 66 110 66Q96 66 87 78Z" fill="#3E5A1C"/>
+  <path d="M89 72Q110 60 131 72" stroke="#6E9E2E" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+  <!-- safety glasses -->
+  <rect x="94" y="76" width="14" height="10" rx="4" fill="#BFE6F5" stroke="#2A2D25" stroke-width="2"/>
+  <rect x="112" y="76" width="14" height="10" rx="4" fill="#BFE6F5" stroke="#2A2D25" stroke-width="2"/>
+  <path d="M108 80H112" stroke="#2A2D25" stroke-width="2"/>
+  <path d="M102 93Q110 99 118 93" stroke="#B5704A" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+
+  <!-- arm holding the scanner -->
+  <path d="M138 128L152 150L164 142" stroke="#6E9E2E" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- barcode scanner -->
+  <path d="M158 124L186 116Q192 116 192 122L190 132Q189 136 184 136L172 137L168 152Q166 156 162 154L160 152L162 138Q156 134 158 124Z" fill="#2A2D25"/>
+  <rect x="186" y="118" width="5" height="16" rx="2" fill="#8CC63F"/>
+  <circle cx="165" cy="146" r="7" fill="#7CB4EE"/>
+  <!-- beam -->
+  <path d="M192 126L198 110M192 126L198 142" stroke="#C5F08A" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/>
+</svg>

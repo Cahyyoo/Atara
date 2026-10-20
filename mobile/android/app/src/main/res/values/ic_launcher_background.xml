@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- The brand teal, matching the primary colour in the web app's
-         stylesheet. -->
-    <color name="ic_launcher_background">#00786F</color>
+    <!-- Flat stand-in for @drawable/ic_launcher_bg, for anything that needs a
+         single colour (notification accents, tooling). -->
+    <color name="ic_launcher_background">#4C6920</color>
 </resources>

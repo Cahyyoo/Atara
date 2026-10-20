@@ -32,7 +32,11 @@ import '../widgets/status_view.dart';
 /// had got. The day cards are painted per row instead; the list below does
 /// work proportional to what is on screen.
 class ScanHistoryScreen extends ConsumerWidget {
-  const ScanHistoryScreen({super.key});
+  const ScanHistoryScreen({super.key, this.isTab = false});
+
+  /// A tab of its own on the home shell, rather than a page pushed from Home:
+  /// no back button, because there is nothing to go back to.
+  final bool isTab;
 
   /// How far from the bottom to ask for the next page — one row, which is as
   /// close to "not until you get there" as this can honestly be set.
@@ -117,6 +121,7 @@ class ScanHistoryScreen extends ConsumerWidget {
       },
       child: AppPage(
         title: l10n.scanHistoryTitle,
+        automaticallyImplyLeading: !isTab,
         onRefresh: () => ref.read(scanHistoryProvider.notifier).refresh(),
         slivers: _slivers(context, ref, l10n, palette, body),
       ),

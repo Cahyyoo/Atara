@@ -128,9 +128,8 @@ void main() {
     await tester.pump();
 
     expect(tester.takeException(), isNull);
-    // Section headings are upper-cased by the design system.
-    expect(find.text('Hari ini'.toUpperCase()), findsOneWidget);
-    expect(find.text('Kemarin'.toUpperCase()), findsOneWidget);
+    expect(find.text('Hari ini'), findsOneWidget);
+    expect(find.text('Kemarin'), findsOneWidget);
     expect(find.text('SMPL-2026-00001'), findsOneWidget);
   });
 
@@ -211,8 +210,8 @@ void main() {
     await tester.pump();
 
     // Flattening is an implementation change, not a visual one.
-    expect(find.text('Hari ini'.toUpperCase()), findsOneWidget);
-    expect(find.text('Kemarin'.toUpperCase()), findsOneWidget);
+    expect(find.text('Hari ini'), findsOneWidget);
+    expect(find.text('Kemarin'), findsOneWidget);
     expect(find.text('SMPL-0-0'), findsOneWidget);
     expect(find.text('SMPL-2-2'), findsOneWidget);
   });

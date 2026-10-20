@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
+import 'motion/reveal.dart';
 
 /// A whole-screen outcome: not found, could not load, saved.
 ///
@@ -8,8 +9,8 @@ import '../theme/app_theme.dart';
 /// times with three icon sizes, three circle diameters and three greys. They
 /// say the same kind of thing and now look like it.
 ///
-/// The iOS version drops the filled circle behind the glyph: a large tinted
-/// symbol on the page's own ground is quieter, and quieter is the point.
+/// The glyph sits on a soft tinted disc, the reference's way of giving an icon
+/// weight without a hard edge, and the whole block rises in when it appears.
 ///
 /// [liveRegion] announces the message to a screen reader the way `role="alert"`
 /// does on the web, so a failure is heard and not only recoloured.
@@ -45,7 +46,21 @@ class StatusView extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Icon(icon, color: tone.foreground, size: 56),
+        Center(
+          child: EnterReveal(
+            scale: 0.85,
+            offset: Offset.zero,
+            child: Container(
+              width: 96,
+              height: 96,
+              decoration: BoxDecoration(
+                color: tone.background,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: tone.foreground, size: 44),
+            ),
+          ),
+        ),
         const SizedBox(height: AppSpacing.xl),
         Text(
           title,
@@ -64,10 +79,7 @@ class StatusView extends StatelessWidget {
           const SizedBox(height: AppSpacing.lg),
           Align(alignment: Alignment.center, child: detail!),
         ],
-        if (action != null) ...[
-          const SizedBox(height: AppSpacing.xl),
-          action!,
-        ],
+        if (action != null) ...[const SizedBox(height: AppSpacing.xl), action!],
         if (secondaryAction != null) ...[
           const SizedBox(height: AppSpacing.sm),
           secondaryAction!,
@@ -78,9 +90,11 @@ class StatusView extends StatelessWidget {
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.xxl),
-        child: liveRegion
-            ? Semantics(liveRegion: true, container: true, child: content)
-            : content,
+        child: EnterReveal(
+          child: liveRegion
+              ? Semantics(liveRegion: true, container: true, child: content)
+              : content,
+        ),
       ),
     );
   }

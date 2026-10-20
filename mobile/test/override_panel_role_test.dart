@@ -97,7 +97,7 @@ void main() {
 
     expect(overrideTitle, findsOneWidget);
     expect(
-      find.text('Reason for the correction'.toUpperCase()),
+      find.text('Reason for the correction'),
       findsOneWidget,
     );
   });

@@ -9,9 +9,9 @@
     <!-- FlutterActivity swaps to this in onCreate, before the first Flutter
          frame, so this colour is what fills the gap between the launch window
          and the app drawing. Inheriting ?android:colorBackground made that
-         gap white on a Theme.Light parent: a white flash in the middle of a
-         teal launch sequence. It is the brand ground now, so the whole boot
-         is one colour.
+         gap white on a Theme.Light parent: a flash in the middle of the launch
+         sequence. It is the splash's page colour now, so the whole boot is
+         one colour.
 
          Theme applied to the Android Window as soon as the process has started.
          This theme determines the color of the Android Window while your

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120">
+  <path d="M30 62C28 30 62 12 94 18C128 24 146 52 138 82C130 110 92 118 64 108C40 100 31 86 30 62Z" fill="#DCF2B4"/>
+  <ellipse cx="82" cy="110" rx="40" ry="4" fill="#000000" opacity="0.06"/>
+  <rect x="58" y="22" width="48" height="80" rx="7" fill="#C49A5E"/>
+  <rect x="63" y="29" width="38" height="68" rx="4" fill="#FFFFFF"/>
+  <rect x="70" y="18" width="24" height="11" rx="4" fill="#5D6357"/>
+  <rect x="74" y="15" width="16" height="6" rx="3" fill="#9AA192"/>
+  <g fill="#D6DACE">
+    <rect x="70" y="40" width="20" height="4" rx="2"/>
+    <rect x="70" y="50" width="24" height="4" rx="2"/>
+    <rect x="70" y="60" width="16" height="4" rx="2"/>
+  </g>
+  <circle cx="104" cy="84" r="16" fill="#4F7A23"/>
+  <path d="M97 84.5L102 89.5L111 79.5" stroke="#FFFFFF" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M40 34L42 40L48 42L42 44L40 50L38 44L32 42L38 40Z" fill="#8CC63F"/>
+  <path d="M124 26L125.4 30L129.4 31.4L125.4 32.8L124 36.8L122.6 32.8L118.6 31.4L122.6 30Z" fill="#8CC63F"/>
+</svg>
