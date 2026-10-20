@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- The launcher's flat olive, behind the white one-stroke "AL" mark. -->
-    <color name="ic_launcher_background">#4C6920</color>
+    <!-- The launcher's bright lime, behind the dark olive one-stroke "AL" mark.
+         Also the circle Android 12+ draws its launch splash in. -->
+    <color name="ic_launcher_background">#9BD246</color>
 </resources>

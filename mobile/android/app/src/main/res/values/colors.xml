@@ -2,6 +2,6 @@
 <resources>
     <!-- The page colour the Flutter splash starts on, so the handoff from the
          system window to the first frame is one continuous warm off-white.
-         Not @color/ic_launcher_background, which is the launcher's olive. -->
+         Not @color/ic_launcher_background, which is the launcher's lime. -->
     <color name="splash_background">#F0F3EB</color>
 </resources>

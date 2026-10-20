@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- From API 26 the launcher masks the icon to its own shape: flat olive behind,
-     the one-stroke "AL" mark drawn on top with room around it. Below API 26 the PNGs
+<!-- From API 26 the launcher masks the icon to its own shape: flat lime behind,
+     the dark one-stroke "AL" mark drawn on top with room around it. Below API 26 the PNGs
      in the mipmap folders are used instead. -->
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
     <background android:drawable="@color/ic_launcher_background" />
