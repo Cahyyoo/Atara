@@ -3,7 +3,7 @@
     <!-- From API 31 the platform draws the splash itself and windowBackground
          is ignored. Leaving windowSplashScreenAnimatedIcon unset is what we
          want: the platform falls back to the launcher's adaptive icon, the
-         white flask on olive, centred on the page colour. Pointing it at a
+         white one-stroke "AL" mark on olive, centred on the page colour. Pointing it at a
          transparent drawable once turned the whole pre-Flutter window into a
          blank field, which reads as a hang. -->
     <style name="LaunchTheme" parent="@android:style/Theme.Black.NoTitleBar">
