@@ -9,6 +9,7 @@ import '../../services/stage_label.dart';
 import '../../theme/app_theme.dart';
 import '../brand/illustration.dart';
 import '../ios/inset_section.dart';
+import '../motion/pressable.dart';
 import '../motion/reveal.dart';
 import '../skeleton.dart';
 
@@ -113,10 +114,9 @@ class StageChips extends ConsumerWidget {
   }
 }
 
-/// A selection that changes at once. Animating the fill from white to a
-/// gradient passed through a washed-out middle that read as a blink, and the
-/// press scale on top of it added a second flicker; neither said anything the
-/// change of colour does not.
+/// One stage tile. It gives under the finger like every card on Home, but its
+/// selection changes at once: animating the fill from white to a gradient
+/// passed through a washed-out middle that read as a blink.
 class _StageTile extends StatelessWidget {
   const _StageTile({
     required this.label,
@@ -141,9 +141,12 @@ class _StageTile extends StatelessWidget {
       selected: selected,
       label: count > 0 ? '$label, $count' : label,
       excludeSemantics: true,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
+      // The tile's own Semantics above names it; Pressable adds only the touch.
+      child: Pressable(
         onTap: onTap,
+        // A little deeper than a card's 0.96: on a 72pt tile a shallower press
+        // is hard to see.
+        scale: 0.92,
         child: SizedBox(
           width: StageChips._tileWidth,
           child: Stack(
