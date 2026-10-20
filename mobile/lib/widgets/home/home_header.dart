@@ -255,9 +255,12 @@ class ScanBanner extends StatelessWidget {
         child: Row(
           children: [
             Expanded(
-              flex: 9,
+              flex: 8,
               child: Padding(
-                padding: const EdgeInsets.only(left: AppSpacing.xs, top: 8),
+                padding: const EdgeInsets.only(
+                  left: AppSpacing.md,
+                  top: AppSpacing.md,
+                ),
                 child: Illustration(
                   Art.homeBanner,
                   fit: BoxFit.contain,
@@ -265,14 +268,17 @@ class ScanBanner extends StatelessWidget {
                 ),
               ),
             ),
+            // The gap the picture and the words were missing: without it the
+            // microscope's edge ran straight into the headline.
+            const SizedBox(width: AppSpacing.md),
             Expanded(
-              flex: 10,
+              flex: 11,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(
                   0,
-                  AppSpacing.md,
+                  AppSpacing.md + 2,
                   AppSpacing.lg,
-                  AppSpacing.sm,
+                  AppSpacing.sm + 2,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -284,8 +290,8 @@ class ScanBanner extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: AppText.headline.copyWith(
                         color: ink,
-                        fontSize: 17,
-                        height: 1.15,
+                        fontSize: 16,
+                        height: 1.2,
                       ),
                     ),
                     const SizedBox(height: AppSpacing.xs),

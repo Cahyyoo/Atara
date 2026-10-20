@@ -20,6 +20,7 @@ import 'screens/splash_screen.dart';
 import 'services/session_heartbeat.dart';
 import 'services/time_text.dart';
 import 'theme/app_theme.dart';
+import 'widgets/brand/illustration.dart';
 import 'widgets/motion/gate_transition.dart';
 
 void main() {
@@ -35,6 +36,11 @@ void main() {
   // is no better, since microtasks drain before the frame's work is done.
   runApp(const ProviderScope(child: AtaraApp()));
   SchedulerBinding.instance.scheduleTask(warmDateFormats, Priority.animation);
+  // Every illustration parsed while the engine boots, in both appearances, so
+  // the splash trolley is ready when it starts moving and no card ever shows a
+  // blank frame while its picture loads. Not awaited: nothing waits on it.
+  IllustrationCache.warm(AppColors.light.blob);
+  IllustrationCache.warm(AppColors.dark.blob);
 }
 
 class AtaraApp extends ConsumerWidget {
@@ -237,6 +243,10 @@ class SplashGate extends StatefulWidget {
 
   final Widget child;
 
+  /// How long after the first frame the splash is taken down regardless —
+  /// well past [SplashScreen.hold], so it only ever acts on a stuck splash.
+  static const Duration failsafe = Duration(milliseconds: 4500);
+
   @override
   State<SplashGate> createState() => _SplashGateState();
 }
@@ -258,10 +268,16 @@ class _SplashGateState extends State<SplashGate> {
     //
     // Deliberately longer than the splash, so in the ordinary case
     // `onFinished` wins and this never runs.
-    _failsafe = Timer(
-      SplashScreen.hold + const Duration(milliseconds: 400),
-      _dismiss,
-    );
+    //
+    // Counted from the first frame, not from here. The splash's own clock
+    // starts with its first tick, and on a debug build the first frame can
+    // arrive seconds after this line while Android still shows its launch
+    // window — a timer started here then cut the splash off before it had
+    // been seen at all.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _done.value) return;
+      _failsafe = Timer(SplashGate.failsafe, _dismiss);
+    });
   }
 
   @override

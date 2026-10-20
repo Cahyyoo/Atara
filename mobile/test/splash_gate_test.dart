@@ -131,14 +131,17 @@ void main() {
       );
       expect(find.byType(SplashScreen), findsOneWidget);
 
-      await tester.pump(SplashScreen.hold + const Duration(milliseconds: 600));
+      // The failsafe is armed by the first frame and then runs on the event
+      // loop, so it fires even though the muted ticker never advances.
+      await tester.pump();
+      await tester.pump(SplashGate.failsafe);
       await tester.pump();
 
       expect(
         find.byType(SplashScreen),
         findsNothing,
         reason: 'a Timer runs on the event loop, not on vsync, so it fires '
-            'whether or not a frame is ever scheduled',
+            'whether or not the animation ever moves',
       );
     });
   });

@@ -41,9 +41,15 @@ class Reveal extends StatelessWidget {
           final t = animation.value;
           final dx = offset.dx * (1 - t);
           final dy = offset.dy * (1 - t);
-          Widget moved = Transform.translate(offset: Offset(dx, dy), child: child);
+          Widget moved = Transform.translate(
+            offset: Offset(dx, dy),
+            child: child,
+          );
           if (scale != null) {
-            moved = Transform.scale(scale: scale! + (1 - scale!) * t, child: moved);
+            moved = Transform.scale(
+              scale: scale! + (1 - scale!) * t,
+              child: moved,
+            );
           }
           return moved;
         },
@@ -180,7 +186,8 @@ class _StaggeredColumnState extends State<StaggeredColumn>
       begin = 0;
     } else {
       parent = _controller!;
-      begin = widget.initialDelay.inMicroseconds /
+      begin =
+          widget.initialDelay.inMicroseconds /
           (widget.initialDelay + _run).inMicroseconds;
     }
     final share = count <= 1
@@ -231,11 +238,10 @@ class EntranceScope extends InheritedWidget {
     double begin,
     double end, {
     Curve curve = AppMotion.enter,
-  }) =>
-      CurvedAnimation(
-        parent: of(context),
-        curve: Interval(begin, end, curve: curve),
-      );
+  }) => CurvedAnimation(
+    parent: of(context),
+    curve: Interval(begin, end, curve: curve),
+  );
 
   @override
   bool updateShouldNotify(EntranceScope oldWidget) =>

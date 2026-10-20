@@ -6,7 +6,6 @@ import '../../models/stage_model.dart';
 import '../../providers/stages_provider.dart';
 import '../../providers/todo_provider.dart';
 import '../../services/stage_label.dart';
-import '../../theme/app_motion.dart';
 import '../../theme/app_theme.dart';
 import '../brand/illustration.dart';
 import '../ios/inset_section.dart';
@@ -114,7 +113,11 @@ class StageChips extends ConsumerWidget {
   }
 }
 
-class _StageTile extends StatefulWidget {
+/// A selection that changes at once. Animating the fill from white to a
+/// gradient passed through a washed-out middle that read as a blink, and the
+/// press scale on top of it added a second flicker; neither said anything the
+/// change of colour does not.
+class _StageTile extends StatelessWidget {
   const _StageTile({
     required this.label,
     required this.art,
@@ -130,107 +133,88 @@ class _StageTile extends StatefulWidget {
   final int count;
 
   @override
-  State<_StageTile> createState() => _StageTileState();
-}
-
-class _StageTileState extends State<_StageTile> {
-  bool _pressed = false;
-
-  @override
   Widget build(BuildContext context) {
     final palette = context.palette;
-    final selected = widget.selected;
 
     return Semantics(
       button: true,
       selected: selected,
-      label: widget.count > 0
-          ? '${widget.label}, ${widget.count}'
-          : widget.label,
+      label: count > 0 ? '$label, $count' : label,
       excludeSemantics: true,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: widget.onTap,
-        onTapDown: (_) => setState(() => _pressed = true),
-        onTapUp: (_) => setState(() => _pressed = false),
-        onTapCancel: () => setState(() => _pressed = false),
-        child: AnimatedScale(
-          scale: _pressed ? 0.94 : 1,
-          duration: const Duration(milliseconds: 120),
-          child: SizedBox(
-            width: StageChips._tileWidth,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                AnimatedContainer(
-                  duration: AppMotion.base,
-                  curve: AppMotion.move,
-                  height: 84,
-                  padding: const EdgeInsets.fromLTRB(4, 8, 4, 6),
-                  decoration: BoxDecoration(
-                    color: selected ? null : palette.cardBackground,
-                    gradient: selected
-                        ? LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [palette.heroMid, palette.heroStart],
-                          )
-                        : null,
-                    borderRadius: BorderRadius.circular(AppRadius.lg),
-                  ),
-                  child: Column(
-                    children: [
-                      Expanded(child: Illustration(widget.art)),
-                      const SizedBox(height: 4),
-                      // Shrunk rather than cut: "ANALYSIS" is the word, not
-                      // "ANALYS…".
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          widget.label,
-                          maxLines: 1,
-                          style: AppText.caption.copyWith(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: selected
-                                ? palette.onHero
-                                : palette.secondaryLabel,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+        onTap: onTap,
+        child: SizedBox(
+          width: StageChips._tileWidth,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                height: 84,
+                padding: const EdgeInsets.fromLTRB(4, 8, 4, 6),
+                decoration: BoxDecoration(
+                  color: selected ? null : palette.cardBackground,
+                  gradient: selected
+                      ? LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [palette.heroMid, palette.heroStart],
+                        )
+                      : null,
+                  borderRadius: BorderRadius.circular(AppRadius.lg),
                 ),
-                if (widget.count > 0)
-                  Positioned(
-                    top: -4,
-                    right: -2,
-                    child: Container(
-                      constraints: const BoxConstraints(minWidth: 20),
-                      height: 20,
-                      padding: const EdgeInsets.symmetric(horizontal: 5),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: palette.lime,
-                        borderRadius: BorderRadius.circular(AppRadius.pill),
-                        border: Border.all(
-                          color: palette.groupedBackground,
-                          width: 2,
-                        ),
-                      ),
+                child: Column(
+                  children: [
+                    Expanded(child: Illustration(art)),
+                    const SizedBox(height: 4),
+                    // Shrunk rather than cut: "ANALYSIS" is the word, not
+                    // "ANALYS…".
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
                       child: Text(
-                        widget.count > 99 ? '99+' : '${widget.count}',
+                        label,
+                        maxLines: 1,
                         style: AppText.caption.copyWith(
-                          fontSize: 10,
+                          fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: palette.heroStart,
-                          height: 1,
+                          color: selected
+                              ? palette.onHero
+                              : palette.secondaryLabel,
                         ),
                       ),
                     ),
+                  ],
+                ),
+              ),
+              if (count > 0)
+                Positioned(
+                  top: -4,
+                  right: -2,
+                  child: Container(
+                    constraints: const BoxConstraints(minWidth: 20),
+                    height: 20,
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: palette.lime,
+                      borderRadius: BorderRadius.circular(AppRadius.pill),
+                      border: Border.all(
+                        color: palette.groupedBackground,
+                        width: 2,
+                      ),
+                    ),
+                    child: Text(
+                      count > 99 ? '99+' : '$count',
+                      style: AppText.caption.copyWith(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: palette.heroStart,
+                        height: 1,
+                      ),
+                    ),
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
         ),
       ),

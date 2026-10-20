@@ -68,6 +68,13 @@ class Illustration extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final blob = context.palette.blob;
+    final cached = IllustrationCache.lookup(art, blob);
+    if (cached != null) {
+      return _painted(cached);
+    }
+    // Not parsed yet (a test, or the very first frames of a cold start):
+    // load it the ordinary way, and make sure the next one is instant.
+    IllustrationCache.warm(blob, arts: [art]);
     return SvgPicture(
       SvgAssetLoader(
         art.asset,
@@ -84,6 +91,99 @@ class Illustration extends StatelessWidget {
       placeholderBuilder: (_) => SizedBox(width: width, height: height),
     );
   }
+
+  /// Drawn synchronously from the cache: no placeholder frame, so a card that
+  /// is rebuilt — a filter changing, a list reordering — never blinks.
+  Widget _painted(PictureInfo info) {
+    final ratio = info.size.width / info.size.height;
+    final paint = CustomPaint(
+      painter: _PicturePainter(info, fit, alignment),
+      child: const SizedBox.expand(),
+    );
+    final Widget sized;
+    if (width != null && height != null) {
+      sized = SizedBox(width: width, height: height, child: paint);
+    } else if (width != null) {
+      sized = SizedBox(width: width, height: width! / ratio, child: paint);
+    } else if (height != null) {
+      sized = SizedBox(width: height! * ratio, height: height, child: paint);
+    } else {
+      sized = AspectRatio(aspectRatio: ratio, child: paint);
+    }
+    if (semanticLabel == null) return ExcludeSemantics(child: sized);
+    return Semantics(image: true, label: semanticLabel, child: sized);
+  }
+}
+
+/// Every illustration, parsed once per blob colour and kept.
+///
+/// SvgPicture parses on demand and shows a placeholder until it has, which is
+/// one blank frame every time a widget is rebuilt with a different picture —
+/// visible as a blink when Home's stage filter swaps the cards below it. Eleven
+/// small pictures in two colours are cheap to keep, so they are parsed at
+/// start-up and drawn synchronously from here.
+abstract final class IllustrationCache {
+  static final Map<(Art, int), PictureInfo> _pictures = {};
+  static final Map<(Art, int), Future<void>> _loading = {};
+
+  static PictureInfo? lookup(Art art, Color blob) =>
+      _pictures[(art, blob.toARGB32())];
+
+  /// Parses [arts] (all of them by default) for [blob]. Safe to call often:
+  /// each picture is parsed once, and failures are left to SvgPicture.
+  static Future<void> warm(Color blob, {Iterable<Art>? arts}) {
+    final jobs = <Future<void>>[];
+    for (final art in arts ?? Art.values) {
+      final key = (art, blob.toARGB32());
+      if (_pictures.containsKey(key)) continue;
+      jobs.add(_loading.putIfAbsent(key, () async {
+        try {
+          final info = await vg.loadPicture(
+            SvgAssetLoader(
+              art.asset,
+              colorMapper: blob == _blobMarker ? null : _BlobMapper(blob),
+            ),
+            null,
+          );
+          _pictures[key] = info;
+        } catch (_) {
+          // SvgPicture keeps drawing it the slow way; nothing is lost.
+        } finally {
+          _loading.remove(key);
+        }
+      }));
+    }
+    return Future.wait(jobs);
+  }
+}
+
+class _PicturePainter extends CustomPainter {
+  _PicturePainter(this.info, this.fit, this.alignment);
+
+  final PictureInfo info;
+  final BoxFit fit;
+  final Alignment alignment;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final src = info.size;
+    if (src.isEmpty || size.isEmpty) return;
+    final fitted = applyBoxFit(fit, src, size);
+    final dst = alignment.inscribe(fitted.destination, Offset.zero & size);
+    final from = alignment.inscribe(fitted.source, Offset.zero & src);
+    canvas
+      ..save()
+      ..clipRect(dst)
+      ..translate(dst.left, dst.top)
+      ..scale(dst.width / from.width, dst.height / from.height)
+      ..translate(-from.left, -from.top)
+      ..drawPicture(info.picture)
+      ..restore();
+  }
+
+  @override
+  bool shouldRepaint(_PicturePainter old) =>
+      old.info != info || old.fit != fit || old.alignment != alignment;
 }
 
 /// Swaps the blob marker for the current appearance's blob colour.
