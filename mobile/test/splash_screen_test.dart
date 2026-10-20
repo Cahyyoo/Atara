@@ -41,8 +41,9 @@ Future<void> pumpSplash(
       supportedLocales: AppLocalizations.supportedLocales,
       home: Builder(
         builder: (context) => MediaQuery(
-          data: MediaQuery.of(context)
-              .copyWith(disableAnimations: disableAnimations),
+          data: MediaQuery.of(
+            context,
+          ).copyWith(disableAnimations: disableAnimations),
           child: SplashScreen(onFinished: onFinished),
         ),
       ),
@@ -54,8 +55,9 @@ void main() {
   final name = find.byType(Wordmark);
   final tagline = find.text('Sampel terlacak, dari preparasi sampai laporan');
 
-  testWidgets('the trolley glides in, then the name, then the line under it',
-      (tester) async {
+  testWidgets('the trolley glides in, then the name, then the line under it', (
+    tester,
+  ) async {
     var finished = false;
     await pumpSplash(tester, onFinished: () => finished = true);
 
@@ -92,6 +94,19 @@ void main() {
     await tester.pump(SplashScreen.hold);
     expect(finished, isTrue);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('starts moving on its own within a few frames', (tester) async {
+    // The regression: on a phone the clock never started and the splash was
+    // an empty page. Nothing async may stand between the first frames and
+    // the trolley moving.
+    await pumpSplash(tester, onFinished: () {});
+    final before = trolleyOffset(tester);
+    for (var i = 0; i < 4; i++) {
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    expect(trolleyOffset(tester), greaterThan(before));
+    await tester.pump(SplashScreen.hold);
   });
 
   testWidgets('leaves to the right, the name fading after it', (tester) async {

@@ -778,7 +778,7 @@ class _ReplacedNotice extends StatelessWidget {
   }
 
   /// The product's name, the same in every language.
-  static const _appName = 'Atara';
+  static const _appName = 'Atara Lab';
 
   static String _withVersion(String name, String? version) =>
       version == null ? name : '$name $version';

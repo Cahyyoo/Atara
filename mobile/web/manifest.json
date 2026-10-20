@@ -1,6 +1,6 @@
 {
-    "name": "mobile",
-    "short_name": "mobile",
+    "name": "Atara Lab",
+    "short_name": "Atara Lab",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#F0F3EB",

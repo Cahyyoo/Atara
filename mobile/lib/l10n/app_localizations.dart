@@ -311,7 +311,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In id, this message translates to:
-  /// **'Atara Preparator'**
+  /// **'Atara Lab'**
   String get appTitle;
 
   /// No description provided for @loginSubtitle.

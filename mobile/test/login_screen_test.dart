@@ -332,7 +332,7 @@ void main() {
       );
       expect(find.text('Device: Phone'), findsOneWidget);
       expect(find.text('System: Android 14'), findsOneWidget);
-      expect(find.text('App: Atara'), findsOneWidget);
+      expect(find.text('App: Atara Lab'), findsOneWidget);
       expect(find.text('Model: Samsung SM-A515F'), findsOneWidget);
       expect(find.textContaining('Browser:'), findsNothing);
     });
@@ -353,7 +353,7 @@ void main() {
 
       expect(find.text('Perangkat: Tablet'), findsOneWidget);
       expect(find.text('Sistem: iOS 17.5'), findsOneWidget);
-      expect(find.text('Aplikasi: Atara'), findsOneWidget);
+      expect(find.text('Aplikasi: Atara Lab'), findsOneWidget);
       expect(find.textContaining('Browser:'), findsNothing);
     });
 

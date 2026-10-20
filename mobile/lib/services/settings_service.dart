@@ -75,7 +75,7 @@ class SettingsService {
     await prefs.setString(_serverKey, trimmed);
   }
 
-  /// Null means "follow the device language".
+  /// Null means "not chosen", which the app shows as Indonesian.
   static Future<String?> getLocale() async {
     final prefs = await SharedPreferences.getInstance();
     final stored = prefs.getString(_localeKey);

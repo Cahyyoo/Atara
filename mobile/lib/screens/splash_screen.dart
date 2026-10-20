@@ -1,7 +1,6 @@
 import 'dart:ui' as ui;
 
 import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -75,37 +74,38 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
-    unawaited(_start());
+    // After the first frame, one more: the first frames are the slowest of
+    // the app's life — seconds apart on a debug build — and a clock started
+    // before them ran out unseen, so all anyone saw was the trolley leaving.
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _kick = Timer(_kickAfter, _go);
+      SchedulerBinding.instance.addPostFrameCallback((_) => _go());
+      SchedulerBinding.instance.scheduleFrame();
+    });
   }
 
-  /// Starts the timeline only once the screen can actually show it.
+  /// Starts the timeline, once.
   ///
-  /// Started straight from initState, the clock ran through the first frames
-  /// — the slowest of the app's life, seconds apart on a debug build — so by
-  /// the time anything was drawn the trolley had already arrived, and all
-  /// that was seen was it leaving: centre to right, never left to centre.
-  /// Now it waits for those frames to pass and for the trolley's picture to
-  /// be parsed (briefly: never longer than [_artWait]), and only then rolls
-  /// in from the left. Until then the page is empty, like the launch window.
-  Future<void> _start() async {
-    await SchedulerBinding.instance.endOfFrame;
-    if (!mounted) return;
-    final blob = context.palette.blob;
-    if (IllustrationCache.lookup(Art.splashCart, blob) == null) {
-      await IllustrationCache.warm(
-        blob,
-        arts: const [Art.splashCart],
-      ).timeout(_artWait, onTimeout: () {});
-    }
-    if (!mounted) return;
-    await SchedulerBinding.instance.endOfFrame;
-    if (mounted) _controller.forward();
+  /// Nothing here waits on a future. An earlier version waited on the end of a
+  /// frame and on the trolley's picture being parsed, and on a phone one of
+  /// those never came: the clock never started, the trolley stayed off screen
+  /// and the name stayed transparent, and the splash was an empty white page
+  /// until the gate's failsafe took it down. The picture is parsed from
+  /// main() anyway, and draws itself the moment it is ready if it is late.
+  void _go() {
+    _kick?.cancel();
+    if (!mounted || _controller.isAnimating || _controller.value > 0) return;
+    _controller.forward();
   }
 
-  static const Duration _artWait = Duration(milliseconds: 600);
+  /// If even the second frame does not come, start regardless.
+  Timer? _kick;
+  static const Duration _kickAfter = Duration(seconds: 1);
 
   @override
   void dispose() {
+    _kick?.cancel();
     // CurvedAnimation holds a listener on its parent; leaving these undisposed
     // leaks one per launch.
     for (final stage in [

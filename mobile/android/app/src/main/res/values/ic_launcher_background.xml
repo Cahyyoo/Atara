@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Flat stand-in for @drawable/ic_launcher_bg, for anything that needs a
-         single colour (notification accents, tooling). -->
+    <!-- The launcher's flat olive, behind the white outline flask. -->
     <color name="ic_launcher_background">#4C6920</color>
 </resources>

@@ -56,15 +56,17 @@ class AtaraApp extends ConsumerWidget {
     // host preserves the Overlay, the localisation delegates and the page
     // transition machinery the rest of the app already relies on.
     return MaterialApp(
-      title: 'Atara Preparator',
+      title: 'Atara Lab',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       // Following the system is still the default; Settings lets a preparator
       // pin it when their phone is set one way and the shift wants the other.
       themeMode: themeMode,
-      // Null follows the device language; otherwise the preparator's choice wins.
-      locale: locale == null ? null : Locale(locale),
+      // Indonesian until the preparator picks otherwise in Settings — not the
+      // phone's language: the lab works in Indonesian, and a handset set to
+      // English should not quietly turn the app English with it.
+      locale: Locale(locale ?? 'id'),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       // Supplies the ambient text style the Cupertino scaffolds do not.

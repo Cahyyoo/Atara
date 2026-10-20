@@ -127,7 +127,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Semua scan di HP ini sudah sampai ke server.';
 
   @override
-  String get appTitle => 'Atara Preparator';
+  String get appTitle => 'Atara Lab';
 
   @override
   String get loginSubtitle => 'Masuk untuk mulai memindai sampel';

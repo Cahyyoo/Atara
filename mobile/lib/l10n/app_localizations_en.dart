@@ -128,7 +128,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Every scan on this device has reached the server.';
 
   @override
-  String get appTitle => 'Atara Preparator';
+  String get appTitle => 'Atara Lab';
 
   @override
   String get loginSubtitle => 'Sign in to start scanning nickel samples';

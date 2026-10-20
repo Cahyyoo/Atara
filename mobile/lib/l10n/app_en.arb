@@ -55,7 +55,7 @@
   "queueAllTitle": "Queue",
   "queueEmptyTitle": "Nothing left to send",
   "queueEmptyMessage": "Every scan on this device has reached the server.",
-  "appTitle": "Atara Preparator",
+  "appTitle": "Atara Lab",
   "loginSubtitle": "Sign in to start scanning nickel samples",
   "email": "Email",
   "password": "Password",
