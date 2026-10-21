@@ -123,31 +123,33 @@ void main() {
   });
 
   group('ScanCheckPill', () {
-    testWidgets('labels the Lab Code and the Sample ID, and opens on a tap', (
-      tester,
-    ) async {
-      var opened = 0;
-      await _pumpPill(
-        tester,
-        const BarcodeCheck(
-          'SMPL-2026-00001',
-          BarcodeCheckState.hasIdent,
-          sampleIdent: 'MOL LIM S3/PA4/B42/919.3/12',
-          labCode: 'SPR.QLAB.20261016.001',
-        ),
-        onOpen: () => opened++,
-      );
+    testWidgets(
+      'labels the Lab Code, the barcode and the Sample ID, and opens on a tap',
+      (tester) async {
+        var opened = 0;
+        await _pumpPill(
+          tester,
+          const BarcodeCheck(
+            'SMPL-2026-00001',
+            BarcodeCheckState.hasIdent,
+            sampleIdent: 'MOL LIM S3/PA4/B42/919.3/12',
+            labCode: 'SPR.QLAB.20261016.001',
+          ),
+          onOpen: () => opened++,
+        );
 
-      expect(find.text('SUDAH ADA SAMPLE ID'), findsOneWidget);
-      expect(find.text('Kode Lab'), findsOneWidget);
-      expect(find.text('SPR.QLAB.20261016.001'), findsOneWidget);
-      expect(find.text('SMPL-2026-00001'), findsNothing);
-      expect(find.text('Sample ID'), findsOneWidget);
-      expect(find.text('MOL LIM S3/PA4/B42/919.3/12'), findsOneWidget);
-      expect(find.text('Ketuk untuk membuka ›'), findsOneWidget);
-      await tester.tap(find.text('SPR.QLAB.20261016.001'));
-      expect(opened, 1);
-    });
+        expect(find.text('SUDAH ADA SAMPLE ID'), findsOneWidget);
+        expect(find.text('Kode Lab'), findsOneWidget);
+        expect(find.text('SPR.QLAB.20261016.001'), findsOneWidget);
+        expect(find.text('Barcode'), findsOneWidget);
+        expect(find.text('SMPL-2026-00001'), findsOneWidget);
+        expect(find.text('Sample ID'), findsOneWidget);
+        expect(find.text('MOL LIM S3/PA4/B42/919.3/12'), findsOneWidget);
+        expect(find.text('Ketuk untuk membuka ›'), findsOneWidget);
+        await tester.tap(find.text('SPR.QLAB.20261016.001'));
+        expect(opened, 1);
+      },
+    );
 
     testWidgets('names it by the barcode while it is still being checked', (
       tester,
@@ -227,5 +229,16 @@ void main() {
       );
       expect(tester.takeException(), isNull);
     });
+  });
+
+  testWidgets('does not say the barcode twice when there is no Lab Code', (
+    tester,
+  ) async {
+    await _pumpPill(
+      tester,
+      const BarcodeCheck('SMPL-2026-00001', BarcodeCheckState.offline),
+    );
+    expect(find.text('Barcode'), findsOneWidget);
+    expect(find.text('SMPL-2026-00001'), findsOneWidget);
   });
 }

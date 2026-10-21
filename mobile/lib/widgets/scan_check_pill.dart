@@ -94,6 +94,9 @@ class ScanCheckPill extends StatelessWidget {
     final codeLabel = check.labCode != null
         ? l10n.checkLabCode
         : l10n.checkBarcode;
+    // The barcode under the Lab Code, smaller: the code on the label in hand.
+    // Without a Lab Code the main line already is the barcode.
+    final showBarcode = check.labCode != null;
 
     return Container(
       width: double.infinity,
@@ -155,6 +158,7 @@ class ScanCheckPill extends StatelessWidget {
               label: [
                 status,
                 '$codeLabel ${check.displayCode}',
+                if (showBarcode) '${l10n.checkBarcode} ${check.code}',
                 if (identValue != null) '${l10n.checkSampleId} $identValue',
                 if (opens) prompt,
               ].join('. '),
@@ -171,6 +175,18 @@ class ScanCheckPill extends StatelessWidget {
                       value: check.displayCode,
                       style: _value.copyWith(fontFamily: AppText.monoFamily),
                     ),
+                    if (showBarcode) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      _Field(
+                        label: l10n.checkBarcode,
+                        value: check.code,
+                        style: AppText.subhead.copyWith(
+                          color: const Color(0xD9FFFFFF),
+                          fontFamily: AppText.monoFamily,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                     if (identValue != null) ...[
                       const SizedBox(height: AppSpacing.md),
                       _Field(

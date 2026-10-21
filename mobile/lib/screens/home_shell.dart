@@ -145,7 +145,22 @@ class _HomeShellState extends ConsumerState<HomeShell>
             Expanded(
               child: IndexedStack(
                 index: stack.indexOf(_tab),
-                children: [for (final tab in stack) page(tab)],
+                children: [
+                  for (final tab in stack)
+                    // Every visited tab stays built, hidden, in this one
+                    // route. Their navigation bars carry the Hero that flies a
+                    // title between routes, so a page pushed from Home used to
+                    // borrow the hidden Settings bar and flash "Pengaturan" on
+                    // its way in. Only the tab on show may take part; the
+                    // others' animations are paused while they are out of sight.
+                    HeroMode(
+                      enabled: tab == _tab,
+                      child: TickerMode(
+                        enabled: tab == _tab,
+                        child: page(tab),
+                      ),
+                    ),
+                ],
               ),
             ),
             Reveal(

@@ -26,8 +26,9 @@ class CheckModeGeometry {
   double get frameBottom => frameTop + frameSize;
 }
 
-/// The tallest the answer card gets: a Sample ID with its labels, on a phone.
-const double kCheckSlotHeight = 174;
+/// The tallest the answer card gets: Lab Code, barcode and Sample ID with
+/// their labels, on a phone.
+const double kCheckSlotHeight = 222;
 
 /// Between the card and the frame.
 const double kCheckGap = 16;
