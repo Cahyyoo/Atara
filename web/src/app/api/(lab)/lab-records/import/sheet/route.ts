@@ -1,5 +1,6 @@
 import { jsonSuccess, ApiError } from "@/core/lib/http/api-response";
 import { route } from "@/core/lib/http/api-route";
+import { readCappedForm } from "@/core/lib/http/upload";
 import { readWorkbookAsText } from "@/core/lib/sheets/xlsx-read";
 
 /**
@@ -23,30 +24,17 @@ import { readWorkbookAsText } from "@/core/lib/sheets/xlsx-read";
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 
 export const POST = route({ capability: "enterResults" }, async ({ request }) => {
-  // Refused by the header before anything is buffered: formData() reads the
-  // whole upload into memory, and the size check below used to come after.
-  const declared = Number(request.headers.get("content-length"));
-  if (Number.isFinite(declared) && declared > MAX_UPLOAD_BYTES + 64 * 1024) {
-    throw new ApiError(
-      `That file is larger than ${MAX_UPLOAD_BYTES / (1024 * 1024)}MB.`,
-      413,
-      "sheet-too-large"
-    );
-  }
-
-  const form = await request.formData().catch(() => null);
+  const tooLarge = () =>
+    new ApiError(`That file is larger than ${MAX_UPLOAD_BYTES / (1024 * 1024)}MB.`, 413, "sheet-too-large");
+  // Capped while it streams in, not only by what Content-Length claims: a
+  // chunked upload has no such header and used to be buffered whole.
+  const form = await readCappedForm(request, MAX_UPLOAD_BYTES, tooLarge);
   const file = form?.get("file");
   if (!(file instanceof File)) {
     throw new ApiError("Choose a spreadsheet to read.", 400, "sheet-missing");
   }
 
-  if (file.size > MAX_UPLOAD_BYTES) {
-    throw new ApiError(
-      `That file is larger than ${MAX_UPLOAD_BYTES / (1024 * 1024)}MB.`,
-      413,
-      "sheet-too-large"
-    );
-  }
+  if (file.size > MAX_UPLOAD_BYTES) throw tooLarge();
 
   const read = await readWorkbookAsText(await file.arrayBuffer());
   if (!read.ok) {

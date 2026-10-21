@@ -7,7 +7,7 @@ import { importLabRecordsSchema, updateLabRecordSchema } from "@/modules/lab/val
 import { diffLabRecord, labRecordValueSelect, type LabRecordChange } from "@/modules/lab/lib/records/lab-record";
 import { MAX_IMPORT_ROWS, readImportCell, readImportSheet } from "@/modules/lab/lib/records/lab-record-import";
 import type { ImportPreviewRow } from "@/modules/lab/types";
-import { readJsonBody } from "@/core/lib/http/api-request";
+import { readJsonBody, BODY_LIMIT } from "@/core/lib/http/api-request";
 import { ensureSub, resolvePastedKeys } from "@/modules/lab/lib/records/sub-records";
 import { findOverwrites } from "@/modules/lab/lib/records/overwrite";
 import { lockLabRecords } from "@/modules/lab/lib/records/record-lock";
@@ -92,7 +92,9 @@ function refuseDuplicates(preview: ImportPreviewRow[], count: number, allowed: b
 }
 
 export const POST = route({ capability: "enterResults" }, async ({ request, session }) => {
-  const body = importLabRecordsSchema.parse(await readJsonBody(request));
+  // Its own cap: the schema allows a 2,000,000-character sheet, and the 64 KB
+  // default refused any import past a few hundred rows with a 413.
+  const body = importLabRecordsSchema.parse(await readJsonBody(request, BODY_LIMIT.csvImport));
 
   const read = readImportSheet(body.csv);
   if (!read.ok) {

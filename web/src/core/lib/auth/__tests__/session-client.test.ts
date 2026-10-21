@@ -256,7 +256,7 @@ describe("where it is enforced", () => {
     expect(read("core", "lib", "auth", "user-session.ts")).toContain('endedReason: "REPLACED"');
     for (const route of ["login", "face", "totp"]) {
       expect(read("app", "api", "(core)", "auth", route, "route.ts"), route).toContain(
-        "issueSessionResponse(user, request.headers"
+        "issueSessionResponse(user, request"
       );
     }
   });
@@ -271,7 +271,9 @@ describe("where it is enforced", () => {
 
   it("watches for another device and another tab in every signed-in page", () => {
     const shell = read("core", "components", "layout", "app-shell.tsx");
-    expect(shell).toContain("<SessionWatch />");
+    // Told which session the page belongs to, so a tab that fell behind
+    // reloads into a newer sign-in instead of signing it out.
+    expect(shell).toContain("<SessionWatch sessionId={user.sessionId} />");
     expect(shell).toContain("<TabLock />");
   });
 });

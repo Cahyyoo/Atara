@@ -3,6 +3,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/core/lib/prisma";
 import { jsonSuccess, ApiError } from "@/core/lib/http/api-response";
 import { route } from "@/core/lib/http/api-route";
+import { can } from "@/core/lib/auth/permissions";
 import { bulkUpdateLabRecordsSchema } from "@/modules/lab/validation/records";
 import { diffLabRecord, labRecordValueSelect, type LabRecordValues } from "@/modules/lab/lib/records/lab-record";
 import { IDENTITY_FIELDS, resolveSampleIdent } from "@/modules/lab/lib/samples/sample-ident-server";
@@ -97,6 +98,14 @@ export const PATCH = route({ capability: "enterResults" }, async ({ request, ses
   // there, not on the sub.
   if (planned.some((entry) => (entry.sub || entry.record?.parentId) && touchesIdentity(entry.values))) {
     throw new ApiError("A sub-sample's identity follows its parent; change it on the parent sample.", 422);
+  }
+
+  // Results, not identity. The row schema is the record's whole update shape,
+  // identity columns included, and this route only asks for enterResults --
+  // so without this an analyst could rewrite a sample's place, pit and Sample
+  // ID, which only editSampleIdentity may. The paste screen never sends them.
+  if (!can(session, "editSampleIdentity") && planned.some((entry) => touchesIdentity(entry.values))) {
+    throw new ApiError("Your role may enter results, not change a sample's identity.", 403);
   }
 
   // Replacing a result that is already there is a decision, not a side

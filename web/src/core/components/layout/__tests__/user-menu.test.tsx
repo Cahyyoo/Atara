@@ -137,7 +137,13 @@ describe("signing out", () => {
     await user.click(confirm);
 
     await waitFor(() =>
-      expect(fetch).toHaveBeenCalledWith("/api/auth/logout", { method: "POST" })
+      // Names its own session, so a tab that fell behind cannot sign out the
+      // one another tab has just signed in with.
+      expect(fetch).toHaveBeenCalledWith("/api/auth/logout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId: "s1" }),
+      })
     );
     await waitFor(() => expect(push).toHaveBeenCalledWith("/login"));
   });

@@ -135,7 +135,7 @@ export function AppShell({
       <TabLock />
       {/* One browser per account: says so the moment another one takes over.
           After the tab lock, so its dialog sits on top when both apply. */}
-      <SessionWatch />
+      <SessionWatch sessionId={user.sessionId} />
       {/* Where the sample pages were opened from, for their "Kembali". */}
       {backgrounds.map((Background, index) => (
         <Background key={index} />

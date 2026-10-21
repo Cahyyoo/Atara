@@ -186,6 +186,13 @@ describe.skipIf(!reachable)("sub-samples against the database", () => {
     expect(refused.status).toBe(422);
   });
 
+  it("refuses identity columns on a parent too: results entry is not identity editing", async () => {
+    const parent = await sample();
+    const refused = await call(bulk, "/api/lab-records/bulk", "PATCH", { records: [{ id: parent.id, pitId: otherPit }] });
+    expect(refused.status).toBe(403);
+    expect((await prisma.labRecord.findUniqueOrThrow({ where: { id: parent.id } })).pitId).toBe(pit);
+  });
+
   it("refuses to replace an earlier result unless asked to, and fills empty ones freely", async () => {
     const record = await sample(1.2);
 

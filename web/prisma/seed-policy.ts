@@ -81,11 +81,31 @@ export type SeedDecision =
   | { ok: true; admin: SeedAccount; demo: DemoAccount[] }
   | { ok: false; reason: string };
 
+/**
+ * Whether the database lives on this machine.
+ *
+ * `npm run db:seed` and `prisma migrate reset` set no NODE_ENV, so on a real
+ * server the production check below used to read "development" and create
+ * every account with its password from this file. A database on another host
+ * is never a laptop's, so it counts as production whatever NODE_ENV says. An
+ * address that does not parse counts as remote: the safe side.
+ */
+export function isLocalDatabase(url: string | undefined): boolean {
+  if (!url) return true;
+  try {
+    const host = new URL(url).hostname.replace(/^\[|\]$/g, "").toLowerCase();
+    return host === "localhost" || host === "127.0.0.1" || host === "::1";
+  } catch {
+    return false;
+  }
+}
+
 export function resolveSeedAccounts(env: {
   NODE_ENV?: string;
   SEED_ADMIN_PASSWORD?: string;
+  DATABASE_URL?: string;
 }): SeedDecision {
-  const production = env.NODE_ENV === "production";
+  const production = env.NODE_ENV === "production" || !isLocalDatabase(env.DATABASE_URL);
   const supplied = env.SEED_ADMIN_PASSWORD?.trim() || undefined;
 
   if (supplied !== undefined && supplied.length < MIN_SEED_PASSWORD_CHARS) {

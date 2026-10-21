@@ -11,6 +11,7 @@ import {
   DEV_PREPARATOR,
   DEV_SUPER_ADMIN,
   MIN_SEED_PASSWORD_CHARS,
+  isLocalDatabase,
   resolveSeedAccounts,
 } from "../../../../prisma/seed-policy";
 import { PERSONAS, personaOf } from "@/core/lib/auth/permissions";
@@ -66,6 +67,20 @@ describe("seeding accounts", () => {
       const decision = resolveSeedAccounts({ NODE_ENV, SEED_ADMIN_PASSWORD: short });
       expect(decision.ok).toBe(false);
     }
+  });
+
+  /**
+   * `npm run db:seed` sets no NODE_ENV, so on a server the check above read
+   * "development". A database on another host is never a laptop's.
+   */
+  it("treats a database on another host as production whatever NODE_ENV says", () => {
+    const remote = resolveSeedAccounts({ DATABASE_URL: "mysql://root:pw@10.0.0.5:3306/atara" });
+    expect(remote.ok).toBe(false);
+    const local = resolveSeedAccounts({ DATABASE_URL: "mysql://root:pw@localhost:3306/atara" });
+    expect(local).toEqual({ ok: true, admin: DEV_SUPER_ADMIN, demo: DEV_DEMO_ACCOUNTS });
+    expect(isLocalDatabase("mysql://root:pw@127.0.0.1:3306/atara")).toBe(true);
+    expect(isLocalDatabase("mysql://root:pw@[::1]:3306/atara")).toBe(true);
+    expect(isLocalDatabase("not a url")).toBe(false);
   });
 
   it("treats a blank password as not supplied", () => {

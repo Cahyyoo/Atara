@@ -156,7 +156,7 @@ export async function POST(request: NextRequest) {
     // Awaited, so a failure opening the session reaches the catch below and is
     // answered properly; returned bare, its rejection skipped the catch and the
     // client got an empty 500.
-    return await issueSessionResponse(user, request.headers);
+    return await issueSessionResponse(user, request);
   } catch (error) {
     return handleApiError(error);
   }

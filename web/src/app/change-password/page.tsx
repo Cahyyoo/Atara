@@ -40,7 +40,7 @@ export default async function ChangePasswordPage({
       </header>
       <Card className="w-full max-w-sm [--card-spacing:--spacing(5)]">
         <CardContent>
-          <ForcePasswordForm next={next ?? null} />
+          <ForcePasswordForm next={next ?? null} sessionId={session.sessionId} />
         </CardContent>
       </Card>
     </div>

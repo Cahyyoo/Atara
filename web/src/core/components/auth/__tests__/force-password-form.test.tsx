@@ -38,7 +38,7 @@ afterEach(() => {
 function show(next: string | null = null, locale: "en" | "id" = "en", onError: (error: unknown) => void = () => {}) {
   render(
     <NextIntlClientProvider locale={locale} messages={locale === "en" ? en : id} onError={onError}>
-      <ForcePasswordForm next={next} />
+      <ForcePasswordForm next={next} sessionId="s-test" />
     </NextIntlClientProvider>
   );
 }

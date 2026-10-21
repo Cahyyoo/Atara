@@ -2,7 +2,7 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
 import { assertJwtSecret } from "@/core/lib/env-guard";
-import { isHttpsDeployment } from "@/core/lib/https";
+import { isSecureRequest } from "@/core/lib/https";
 import { isDepartment, isRole, type Department, type Role } from "@/core/lib/auth/permissions";
 
 export const SESSION_COOKIE_NAME = "atara_session";
@@ -140,11 +140,16 @@ export async function getSessionFromRequest(request: NextRequest): Promise<Sessi
 
 export const SESSION_COOKIE_MAX_AGE = SESSION_MAX_AGE_SECONDS;
 
-/** The session cookie's flags, shared by sign-in and sign-out so they cannot drift. */
-export function sessionCookieOptions(maxAge: number) {
+/**
+ * The session cookie's flags, shared by sign-in and sign-out so they cannot drift.
+ *
+ * `Secure` is decided per request (isSecureRequest), not per build, so a
+ * plain-HTTP deployment that never set APP_HTTPS still keeps its cookie.
+ */
+export function sessionCookieOptions(maxAge: number, request: Parameters<typeof isSecureRequest>[0]) {
   return {
     httpOnly: true,
-    secure: isHttpsDeployment(),
+    secure: isSecureRequest(request),
     sameSite: "lax" as const,
     path: "/",
     maxAge,

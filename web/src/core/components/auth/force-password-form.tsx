@@ -12,6 +12,7 @@ import { safeRedirectPath } from "@/core/lib/auth/safe-redirect";
 import type { ApiResult } from "@/core/types";
 import { IoReloadOutline } from "react-icons/io5";
 import { withBasePath } from "@/core/lib/http/base-path";
+import { signOutSession } from "@/core/lib/auth/sign-out";
 
 const MIN_LENGTH = 8;
 
@@ -23,7 +24,7 @@ const MIN_LENGTH = 8;
  * used to take the account over -- but there is no way round it: no cancel,
  * only signing out.
  */
-export function ForcePasswordForm({ next }: { next: string | null }) {
+export function ForcePasswordForm({ next, sessionId }: { next: string | null; sessionId: string }) {
   const t = useTranslations("account.password");
   const tForce = useTranslations("account.forceChange");
   const tCommon = useTranslations("common");
@@ -70,7 +71,7 @@ export function ForcePasswordForm({ next }: { next: string | null }) {
   }
 
   async function signOut() {
-    await fetch(withBasePath("/api/auth/logout"), { method: "POST" });
+    await signOutSession(sessionId);
     router.push("/login");
     router.refresh();
   }

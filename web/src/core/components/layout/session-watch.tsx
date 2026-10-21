@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/core/components/ui/button";
 import {
@@ -26,6 +26,7 @@ import {
   type DeviceInfo,
 } from "@/core/lib/auth/session-client";
 import { withBasePath } from "@/core/lib/http/base-path";
+import { signOutSession } from "@/core/lib/auth/sign-out";
 
 /**
  * How often an open tab asks whether it is still the signed-in device.
@@ -46,10 +47,16 @@ export const SESSION_CHECK_MS = 15_000;
  * and the first sign of trouble would be a failed click with a bare "sign in
  * again". This says what happened, where, and when, and offers the way back.
  * The dialog cannot be dismissed: there is nothing left behind it to use.
+ *
+ * `sessionId` is the session this page was rendered for. The cookie is the
+ * browser's, not the tab's, so the answer can name a different one: another
+ * tab has signed in since. That is not an ending -- the page simply reloads as
+ * whoever is signed in now -- and this tab must not sign that session out.
  */
-export function SessionWatch() {
+export function SessionWatch({ sessionId }: { sessionId: string }) {
   const t = useTranslations("session");
   const router = useRouter();
+  const pathname = usePathname();
   const [replaced, setReplaced] = useState<{
     device: string | null;
     deviceInfo: DeviceInfo | null;
@@ -63,6 +70,13 @@ export function SessionWatch() {
     inFlight.current = true;
     try {
       const response = await fetch(withBasePath("/api/auth/session"), { cache: "no-store" });
+      if (response.ok) {
+        const result = await response.json().catch(() => null);
+        const current = result?.data?.sessionId;
+        // Another tab signed in since this page was rendered: show who that is.
+        if (typeof current === "string" && current !== sessionId) router.refresh();
+        return;
+      }
       if (response.status !== 401) return;
       const result = await response.json().catch(() => null);
       if (result?.code === SESSION_REPLACED_CODE) {
@@ -76,6 +90,17 @@ export function SessionWatch() {
         isSessionEndedReason(result.details?.reason)
       ) {
         setEnded({ reason: result.details.reason, at: String(result.details?.at ?? "") });
+      } else {
+        /**
+         * Over with nothing to explain: signed out in another tab, the
+         * token's seven days are up, or the account was switched off. This
+         * used to be ignored, and the tab went on showing a dashboard whose
+         * every click failed. Straight to the sign-in page instead, back to
+         * this page afterwards.
+         */
+        await signOutSession(sessionId);
+        router.replace(`/login?next=${encodeURIComponent(pathname)}`);
+        router.refresh();
       }
     } catch {
       // Offline, or the server restarting: not evidence of anything. The next
@@ -83,7 +108,7 @@ export function SessionWatch() {
     } finally {
       inFlight.current = false;
     }
-  }, []);
+  }, [pathname, router, sessionId]);
 
   useEffect(() => {
     if (replaced || ended) return;
@@ -101,9 +126,26 @@ export function SessionWatch() {
   }, [check, replaced, ended]);
 
   async function signInAgain() {
+    /**
+     * Asked again first, because the person may have signed in again in
+     * another tab while this dialog sat here. Signing out now would end that
+     * new session -- the other tab, a moment after a sign-in that worked,
+     * went straight back to /login. With a live session in the cookie this
+     * tab simply reloads into it.
+     */
+    const live = await fetch(withBasePath("/api/auth/session"), { cache: "no-store" })
+      .then((response) => response.ok)
+      .catch(() => false);
+    if (live) {
+      setReplaced(null);
+      setEnded(null);
+      router.refresh();
+      return;
+    }
+
     // Clears the cookie of a session that is already over; the server has
-    // nothing left to end.
-    await fetch(withBasePath("/api/auth/logout"), { method: "POST" }).catch(() => undefined);
+    // nothing left to end. Named, so it can only ever be this tab's own.
+    await signOutSession(sessionId);
     const reason = ended ? SIGN_IN_REASON[ended.reason] : SIGN_IN_REASON.replaced;
     router.replace(`/login?reason=${reason}`);
     router.refresh();

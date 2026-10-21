@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/core/components/ui/button";
 import { Input } from "@/core/components/ui/input";
@@ -24,6 +24,13 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  /**
+   * Two sign-ins sent at once open two sessions, the second replacing the
+   * first; if their answers came back out of order the browser kept the
+   * replaced one and the next page sent it back to /login. A ref, because a
+   * second submit within the same render still reads isSubmitting as false.
+   */
+  const inFlight = useRef(false);
   /**
    * Set when the password was right and the account has a second factor:
    * a face, an authenticator app, or an authenticator still to be set up.
@@ -61,6 +68,8 @@ export function LoginForm() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (inFlight.current) return;
+    inFlight.current = true;
     setError(null);
     setIsSubmitting(true);
 
@@ -95,6 +104,7 @@ export function LoginForm() {
     } catch {
       setError(tCommon("networkError"));
     } finally {
+      inFlight.current = false;
       setIsSubmitting(false);
     }
   }

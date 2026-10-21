@@ -1,12 +1,14 @@
+import type { NextRequest } from "next/server";
 import type { UserRole } from "@prisma/client";
 import { jsonSuccess } from "@/core/lib/http/api-response";
 import {
   signSessionToken,
   sessionCookieOptions,
+  verifySessionToken,
   SESSION_COOKIE_NAME,
   SESSION_COOKIE_MAX_AGE,
 } from "@/core/lib/auth/auth";
-import { startSession } from "@/core/lib/auth/user-session";
+import { endSession, startSession } from "@/core/lib/auth/user-session";
 import { prisma } from "@/core/lib/prisma";
 
 /**
@@ -20,9 +22,25 @@ import { prisma } from "@/core/lib/prisma";
  */
 export async function issueSessionResponse(
   user: { id: string; name: string; email: string; role: UserRole },
-  headers: Headers,
+  request: NextRequest,
   extra: Record<string, unknown> = {}
 ) {
+  const headers = request.headers;
+
+  /**
+   * The browser's previous session, when it belonged to somebody else.
+   *
+   * Its cookie is about to be overwritten, so nothing on this browser could
+   * ever end it again: it used to stay live for the rest of its seven days,
+   * listed as active and good to anybody holding a copy of the token. The
+   * same account needs nothing here -- startSession replaces it in the slot.
+   */
+  const previousToken = request.cookies.get(SESSION_COOKIE_NAME)?.value;
+  const previous = previousToken ? await verifySessionToken(previousToken) : null;
+  if (previous && previous.userId !== user.id) {
+    await endSession(previous.sessionId, previous.userId);
+  }
+
   const sessionId = await startSession(user.id, headers);
 
   // Read here rather than asked of every caller: the department, which the
@@ -51,7 +69,9 @@ export async function issueSessionResponse(
     user: { id: user.id, name: user.name, email: user.email, role: user.role, department },
   });
 
-  response.cookies.set(SESSION_COOKIE_NAME, token, sessionCookieOptions(SESSION_COOKIE_MAX_AGE));
+  // A body carrying a session token is never kept by a cache along the way.
+  response.headers.set("Cache-Control", "no-store");
+  response.cookies.set(SESSION_COOKIE_NAME, token, sessionCookieOptions(SESSION_COOKIE_MAX_AGE, request));
 
   return response;
 }

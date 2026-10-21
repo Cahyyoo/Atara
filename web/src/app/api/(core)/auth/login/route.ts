@@ -46,23 +46,36 @@ export async function POST(request: NextRequest) {
 
     const user = await prisma.user.findUnique({ where: { email } });
 
+    // Always runs, even with no such user — see DUMMY_PASSWORD_HASH — and
+    // before the lock is looked at, so a locked account costs the same time.
+    const passwordMatch = await bcrypt.compare(
+      body.password,
+      user?.password ?? DUMMY_PASSWORD_HASH
+    );
+
+    /**
+     * A locked account says so only to somebody who knows its password.
+     *
+     * The lock used to be checked first and answered with its minutes to
+     * anybody: five wrong guesses at an address, and the sixth reply told a
+     * stranger the account existed (and skipped bcrypt, so it was quicker
+     * too). A wrong password now gets the same sentence an unknown address
+     * gets, and is not counted again -- the lock is already doing its job.
+     */
     if (user?.lockedUntil && user.lockedUntil > new Date()) {
       await recordSignIn({
         userId: user.id,
         outcome: SignInOutcome.ACCOUNT_LOCKED,
         headers: request.headers,
       });
+      if (!passwordMatch) {
+        throw new ApiError("Incorrect email or password.", 401);
+      }
       throw new ApiError(
         `Too many failed attempts. Try again in ${minutesUntil(user.lockedUntil)} minute(s).`,
         429
       );
     }
-
-    // Always runs, even with no such user — see DUMMY_PASSWORD_HASH.
-    const passwordMatch = await bcrypt.compare(
-      body.password,
-      user?.password ?? DUMMY_PASSWORD_HASH
-    );
 
     if (!user || !passwordMatch) {
       if (user) {
@@ -140,7 +153,7 @@ export async function POST(request: NextRequest) {
     // Awaited, so a failure opening the session reaches the catch below and is
     // answered properly; returned bare, its rejection skipped the catch and the
     // client got an empty 500.
-    return await issueSessionResponse(user, request.headers, { mfaRequired: false });
+    return await issueSessionResponse(user, request, { mfaRequired: false });
   } catch (error) {
     return handleApiError(error);
   }

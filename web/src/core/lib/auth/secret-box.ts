@@ -54,7 +54,9 @@ export function openSecret(
     throw new Error("Sealed secret is malformed.");
   }
   const [iv, tag, ciphertext] = parts.map((part) => Buffer.from(part, "base64url"));
-  const decipher = createDecipheriv(ALGORITHM, key, iv);
+  // The tag length pinned, so a truncated tag -- which GCM would otherwise
+  // accept, at a fraction of the forgery cost -- fails to open.
+  const decipher = createDecipheriv(ALGORITHM, key, iv, { authTagLength: 16 });
   decipher.setAuthTag(tag);
   return Buffer.concat([decipher.update(ciphertext), decipher.final()]).toString("utf8");
 }

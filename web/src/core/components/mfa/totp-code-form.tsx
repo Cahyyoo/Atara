@@ -38,6 +38,12 @@ export function TotpCodeForm({
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  /**
+   * The guard itself; `isSubmitting` is only what the screen shows. The sixth
+   * digit and Enter can both submit within one render, and both read the same
+   * stale state -- the second then spent an attempt against the lockout.
+   */
+  const inFlight = useRef(false);
 
   /**
    * Back in the boxes after a refusal.
@@ -50,7 +56,8 @@ export function TotpCodeForm({
   }, [error, isSubmitting]);
 
   async function submit(value: string) {
-    if (value.length !== CODE_LENGTH || isSubmitting) return;
+    if (value.length !== CODE_LENGTH || inFlight.current) return;
+    inFlight.current = true;
     setError(null);
     setIsSubmitting(true);
 
@@ -74,6 +81,7 @@ export function TotpCodeForm({
     } catch {
       setError(tCommon("networkError"));
     } finally {
+      inFlight.current = false;
       setIsSubmitting(false);
     }
   }

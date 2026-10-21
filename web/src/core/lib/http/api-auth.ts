@@ -3,6 +3,7 @@ import { getSessionFromRequest, type SessionPayload } from "@/core/lib/auth/auth
 import { ApiError } from "@/core/lib/http/api-response";
 import { loadSession, type SessionState } from "@/core/lib/auth/session-user";
 import { can, type Capability } from "@/core/lib/auth/permissions";
+import { isCrossOriginWrite } from "@/core/lib/http/same-origin";
 import { PASSWORD_CHANGE_REQUIRED_CODE, SESSION_ENDED_CODE, SESSION_REPLACED_CODE } from "@/core/lib/auth/session-codes";
 
 /**
@@ -48,6 +49,12 @@ export async function requireSession(
   request: NextRequest,
   { allowPasswordChange = false }: { allowPasswordChange?: boolean } = {}
 ): Promise<SessionPayload> {
+  // Before the token is even read: a write sent from another origin is
+  // refused whoever it would have run as. See same-origin.ts.
+  if (isCrossOriginWrite(request)) {
+    throw new ApiError("This request did not come from this site.", 403);
+  }
+
   const session = await getSessionFromRequest(request);
   if (!session) {
     throw new ApiError("You must be signed in to perform this action.", 401);

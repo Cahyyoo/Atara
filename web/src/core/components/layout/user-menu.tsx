@@ -40,7 +40,7 @@ import {
   IoLogOutOutline,
   IoReloadOutline,
 } from "react-icons/io5";
-import { withBasePath } from "@/core/lib/http/base-path";
+import { signOutSession } from "@/core/lib/auth/sign-out";
 import { initialsOf } from "@/core/lib/ui/initials";
 
 
@@ -59,7 +59,7 @@ export function UserMenu({ user }: { user: SessionPayload }) {
 
   async function handleLogout() {
     setIsLoggingOut(true);
-    await fetch(withBasePath("/api/auth/logout"), { method: "POST" });
+    await signOutSession(user.sessionId);
     router.push("/login");
     router.refresh();
   }

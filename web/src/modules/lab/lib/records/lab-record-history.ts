@@ -2,6 +2,7 @@ import "server-only";
 
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/core/lib/prisma";
+import { ACTIVE_LAB_RECORD } from "@/modules/lab/lib/samples/soft-delete";
 import { RESULT_KEYS } from "@/modules/lab/lib/records/overwrite";
 import { parseDayInput } from "@/core/lib/wita-time";
 import { TtlCache } from "@/core/lib/ttl-cache";
@@ -85,10 +86,17 @@ async function toHistoryEntries(audits: AuditRow[]): Promise<RecordHistoryEntry[
 /**
  * One record's history, newest first. A sample's includes its sub-samples',
  * each marked as such; a sub's is its own.
+ *
+ * A deleted sample's history only for those who may see deletions
+ * (`includeDeleted`); to everybody else it reads as not found, as the sample
+ * itself does.
  */
-export async function loadRecordHistory(recordId: string): Promise<RecordHistoryEntry[] | null> {
-  const record = await prisma.labRecord.findUnique({
-    where: { id: recordId },
+export async function loadRecordHistory(
+  recordId: string,
+  { includeDeleted = true }: { includeDeleted?: boolean } = {}
+): Promise<RecordHistoryEntry[] | null> {
+  const record = await prisma.labRecord.findFirst({
+    where: { id: recordId, ...(includeDeleted ? {} : ACTIVE_LAB_RECORD) },
     select: { id: true, subs: { select: { id: true } } },
   });
   if (!record) return null;
