@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/core/components/ui/card";
 import { ForcePasswordForm } from "@/core/components/auth/force-password-form";
 import { getActiveSession, mustChangePassword, signInPath } from "@/core/lib/http/page-auth";
 import { APP_NAME } from "@/core/lib/app/brand";
-import { IoPrismOutline } from "react-icons/io5";
+import { BrandMark } from "@/core/components/layout/brand-mark";
 
 export const dynamic = "force-dynamic";
 
@@ -30,8 +30,8 @@ export default async function ChangePasswordPage({
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-muted/40 px-4 py-6">
       <header className="flex items-center gap-3">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/15">
-          <IoPrismOutline className="size-5" />
+        <div className="surface-hero flex size-10 shrink-0 items-center justify-center rounded-2xl text-white">
+          <BrandMark className="size-6" />
         </div>
         <div>
           <h1 className="font-heading text-lg font-semibold leading-tight tracking-tight">{APP_NAME}</h1>

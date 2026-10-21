@@ -1,6 +1,6 @@
 import type { IconType } from "react-icons";
 import { APP_NAME } from "@/core/lib/app/brand";
-import { IoPrismOutline } from "react-icons/io5";
+import { BrandMark } from "@/core/components/layout/brand-mark";
 
 export interface BrandPanelPoint {
   key: string;
@@ -43,7 +43,7 @@ export function AuthBrandPanel({
       <div className="relative flex min-h-0 w-full flex-col justify-between gap-8 p-10 xl:p-14">
         <div className="flex items-center gap-3">
           <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 ring-1 ring-white/25">
-            <IoPrismOutline aria-hidden className="size-5" />
+            <BrandMark className="size-6" />
           </span>
           <span className="leading-tight">
             <span className="block font-heading text-lg font-semibold tracking-tight">{APP_NAME}</span>

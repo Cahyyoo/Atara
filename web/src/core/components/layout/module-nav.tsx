@@ -12,7 +12,7 @@ import { APP_NAME } from "@/core/lib/app/brand";
 import type { AppModule } from "@/core/lib/app/module-types";
 import type { SessionPayload } from "@/core/lib/auth/auth";
 import { HOME_PATH, activeNavItem, navFor } from "@/core/lib/app/modules";
-import { IoPrismOutline } from "react-icons/io5";
+import { BrandMark } from "@/core/components/layout/brand-mark";
 
 /**
  * The app's mark, back to the launcher. With its name on the launcher and the
@@ -30,7 +30,7 @@ export function Brand({ compact = false, onNavigate }: { compact?: boolean; onNa
       className="flex shrink-0 items-center gap-2.5 rounded-xl p-1 transition-colors hover:bg-muted"
     >
       <span className="surface-hero flex size-8 shrink-0 items-center justify-center rounded-lg text-white">
-        <IoPrismOutline aria-hidden className="size-4" />
+        <BrandMark className="size-5" />
       </span>
       {compact ? null : (
         <span className="pr-1 leading-tight">

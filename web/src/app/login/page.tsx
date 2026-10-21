@@ -5,7 +5,8 @@ import { AuthBrandPanel } from "@/core/components/auth/auth-brand-panel";
 import { LoginForm } from "@/core/components/auth/login-form";
 import { LoginLocaleSwitch } from "@/core/components/auth/login-locale-switch";
 import { APP_NAME } from "@/core/lib/app/brand";
-import { IoAppsOutline, IoPrismOutline, IoServerOutline, IoShieldCheckmarkOutline } from "react-icons/io5";
+import { IoAppsOutline, IoServerOutline, IoShieldCheckmarkOutline } from "react-icons/io5";
+import { BrandMark } from "@/core/components/layout/brand-mark";
 
 export default async function LoginPage() {
   const [t, tNav] = await Promise.all([getTranslations("auth"), getTranslations("nav")]);
@@ -55,8 +56,8 @@ export default async function LoginPage() {
             authenticator setup below needs more than this does. From lg up
             the panel carries the brand, so this becomes the greeting. */}
         <header className="flex shrink-0 items-center gap-3 lg:hidden">
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/15">
-            <IoPrismOutline className="size-5" />
+          <div className="surface-hero flex size-10 shrink-0 items-center justify-center rounded-2xl text-white">
+            <BrandMark className="size-6" />
           </div>
           <div>
             <h1 className="font-heading text-lg font-semibold leading-tight tracking-tight">{APP_NAME}</h1>

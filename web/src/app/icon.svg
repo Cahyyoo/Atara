@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108">
+  <!-- Atara's mark on the brand tile; the same drawing as
+       src/core/components/layout/brand-mark.tsx. -->
+  <defs>
+    <linearGradient id="t" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#00766A"/>
+      <stop offset="1" stop-color="#00504D"/>
+    </linearGradient>
+  </defs>
+  <rect width="108" height="108" rx="24" fill="url(#t)"/>
+  <path d="M24 72L42 42L54 58L66 38L84 72" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="78" cy="30" r="5" fill="#9BD246"/>
+</svg>
