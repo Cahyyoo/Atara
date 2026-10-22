@@ -376,7 +376,7 @@ class _StageCard extends StatelessWidget {
                         padding: const EdgeInsets.only(top: AppSpacing.md),
                         child: Illustration(
                           Art.forStage(column.stageKey),
-                          height: 72,
+                          height: 80,
                         ),
                       ),
                     ),

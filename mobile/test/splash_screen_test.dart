@@ -73,13 +73,13 @@ void main() {
     expect(trolleyOffset(tester), lessThan(-200));
 
     // On its way in, decelerating.
-    await tester.pump(const Duration(milliseconds: 250));
+    await tester.pump(const Duration(milliseconds: 650));
     final arriving = trolleyOffset(tester);
     expect(arriving, lessThan(0));
     expect(arriving, greaterThan(-200));
 
     // At rest in the middle, and the name starting to come up beneath it.
-    await tester.pump(const Duration(milliseconds: 550));
+    await tester.pump(const Duration(milliseconds: 650));
     expect(trolleyOffset(tester), closeTo(0, 0.5));
     final naming = drawnOpacity(tester, name);
     expect(naming, greaterThan(0));
@@ -100,9 +100,11 @@ void main() {
     // The regression: on a phone the clock never started and the splash was
     // an empty page. Nothing async may stand between the first frames and
     // the trolley moving.
+    // Fourteen frames: the arrival waits 150 ms on the clock before it moves,
+    // so a handful is no longer enough to see it go.
     await pumpSplash(tester, onFinished: () {});
     final before = trolleyOffset(tester);
-    for (var i = 0; i < 4; i++) {
+    for (var i = 0; i < 14; i++) {
       await tester.pump(const Duration(milliseconds: 16));
     }
     expect(trolleyOffset(tester), greaterThan(before));
@@ -113,7 +115,7 @@ void main() {
     await pumpSplash(tester, onFinished: () {});
     await startSplash(tester);
 
-    await tester.pump(const Duration(milliseconds: 2000));
+    await tester.pump(const Duration(milliseconds: 2400));
     expect(trolleyOffset(tester), closeTo(0, 0.5));
 
     // Mid-exit: the trolley has gathered speed to the right, and the name is
@@ -148,7 +150,7 @@ void main() {
     expect(drawnOpacity(tester, find.byType(Illustration)), 0);
 
     await startSplash(tester);
-    await tester.pump(const Duration(milliseconds: 1200));
+    await tester.pump(const Duration(milliseconds: 1500));
     expect(trolleyOffset(tester), closeTo(0, 0.5));
     expect(drawnOpacity(tester, find.byType(Illustration)), 1);
     expect(drawnOpacity(tester, name), 1);

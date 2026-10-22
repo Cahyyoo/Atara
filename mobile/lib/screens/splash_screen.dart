@@ -24,14 +24,14 @@ import '../widgets/brand/wordmark.dart';
 /// Held for [hold] whether or not the app is ready, because the answers
 /// behind [AuthGate] usually land inside a frame or two and a splash that
 /// flickers is worse than none. The reference lingers for nearly four seconds;
-/// this is the same sequence pressed into three, because it is paid on every
-/// cold start of a tool used all shift.
+/// this is the same sequence pressed into three and a half, because it is paid
+/// on every cold start of a tool used all shift.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key, required this.onFinished});
 
   /// How long the whole thing lasts, exit included. Named so the tests can
   /// pump past it without restating the number.
-  static const Duration hold = Duration(milliseconds: 3000);
+  static const Duration hold = Duration(milliseconds: 3400);
 
   final VoidCallback onFinished;
 
@@ -56,12 +56,19 @@ class _SplashScreenState extends State<SplashScreen>
       });
 
   // Every stage off the one timeline, in milliseconds of [SplashScreen.hold].
-  late final _artIn = _stage(0, 700, AppMotion.enter);
-  late final _nameIn = _stage(600, 1000, Curves.easeOut);
-  late final _taglineIn = _stage(750, 1150, Curves.easeOut);
-  late final _taglineOut = _stage(2250, 2400, Curves.easeIn);
-  late final _artOut = _stage(2300, 2800, AppMotion.exit);
-  late final _nameOut = _stage(2350, 2750, Curves.easeIn);
+  //
+  // The arrival waits a beat and then takes its time. It used to run from 0
+  // to 700 on AppMotion.enter, which covers most of its distance in the first
+  // fifth — exactly the first frames of a cold start, the slowest of the
+  // app's life — so the trolley seemed to be in the middle already, never
+  // travelling. This curve starts gently and settles long, so the glide
+  // happens where it can be seen.
+  late final _artIn = _stage(150, 1250, const Cubic(0.3, 0.0, 0.2, 1.0));
+  late final _nameIn = _stage(1000, 1400, Curves.easeOut);
+  late final _taglineIn = _stage(1150, 1550, Curves.easeOut);
+  late final _taglineOut = _stage(2650, 2800, Curves.easeIn);
+  late final _artOut = _stage(2700, 3200, AppMotion.exit);
+  late final _nameOut = _stage(2750, 3150, Curves.easeIn);
 
   CurvedAnimation _stage(int fromMs, int toMs, Curve curve) {
     final total = SplashScreen.hold.inMilliseconds;

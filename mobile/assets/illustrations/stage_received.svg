@@ -1,17 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <ellipse cx="32" cy="58" rx="22" ry="3" fill="#000000" opacity="0.08"/>
-  <path d="M8 26L32 18L56 26V50L32 58L8 50Z" fill="#D9B37C"/>
-  <path d="M32 34V58L8 50V26Z" fill="#C49A5E"/>
-  <path d="M8 26L32 34L56 26L32 18Z" fill="#E7C894"/>
-  <path d="M20 22L44 30V36L20 28Z" fill="#B08549" opacity="0.7"/>
-  <path d="M37 38L51 33V44L37 49Z" fill="#FFFFFF"/>
-  <g stroke="#2A2D25" stroke-width="1.2">
-    <path d="M40 38.5V46.5"/>
-    <path d="M42.5 37.6V45.6"/>
-    <path d="M44 37.1V45.1"/>
-    <path d="M46.5 36.2V44.2"/>
-    <path d="M48 35.7V43.7"/>
-  </g>
-  <circle cx="48" cy="14" r="10" fill="#8CC63F"/>
-  <path d="M48 8V19M43.5 14.5L48 19L52.5 14.5" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <defs>
+    <radialGradient id="received-sh" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#000000" stop-opacity="0.28"/><stop offset="1" stop-color="#000000" stop-opacity="0"/></radialGradient>
+    <linearGradient id="received-g0" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="#E5C492"/><stop offset="1" stop-color="#B68D4F"/></linearGradient>
+    <linearGradient id="received-g1" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="#EFD3A3"/><stop offset="1" stop-color="#C3A065"/></linearGradient>
+    <linearGradient id="received-g2" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#D6D6D6"/></linearGradient>
+    <linearGradient id="received-g3" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="#B1D87C"/><stop offset="1" stop-color="#76A635"/></linearGradient>
+  </defs>
+  <ellipse cx="32" cy="58.5" rx="26" ry="4.5" fill="url(#received-sh)"/>
+  <rect x="9" y="30" width="46" height="24" rx="3" fill="url(#received-g0)"/>
+  <rect x="12" y="31.1" width="40" height="1.4" rx="0.7" fill="#FFFFFF" opacity="0.55"/>
+  <rect x="6" y="23" width="52" height="9" rx="2.5" fill="url(#received-g1)"/>
+  <rect x="8.5" y="24.1" width="47" height="1.4" rx="0.7" fill="#FFFFFF" opacity="0.55"/>
+  <rect x="28" y="24" width="8" height="30" rx="0" fill="#B98543"/>
+  <rect x="13" y="37" width="13" height="11" rx="1.5" fill="url(#received-g2)"/>
+  <rect x="14.5" y="38.1" width="10" height="1.4" rx="0.7" fill="#FFFFFF" opacity="0.55"/>
+  <path d="M15.5 39.5V45.5M17.5 39.5V45.5M18.8 39.5V45.5M20.8 39.5V45.5M22 39.5V45.5M23.6 39.5V45.5" fill="none" stroke="#2A2D25" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="47" cy="12" r="10" fill="url(#received-g3)"/>
+  <circle cx="43.5" cy="8" r="2.8000000000000003" fill="#FFFFFF" opacity="0.5"/>
+  <path d="M47 6.5V17M42.5 12.8L47 17.2L51.5 12.8" fill="none" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
