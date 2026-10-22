@@ -139,7 +139,7 @@ export async function buildAnalytics(
     prisma.$queryRaw<{ day: string; total: bigint }[]>`
       SELECT DATE_FORMAT(DATE_ADD(s.createdAt, INTERVAL 1 HOUR), '%Y-%m-%d') AS day,
              COUNT(*) AS total
-      FROM samples s
+      FROM lab_samples s
       ${rawCodeJoin}
       WHERE ${activeSampleWindowSql(from, to)}
       GROUP BY day
@@ -149,8 +149,8 @@ export async function buildAnalytics(
       ? prisma.$queryRaw<{ day: string; total: bigint }[]>`
           SELECT DATE_FORMAT(DATE_ADD(l.scanned_at, INTERVAL 1 HOUR), '%Y-%m-%d') AS day,
                  COUNT(*) AS total
-          FROM sample_logs l
-          JOIN samples s ON s.id = l.sample_id
+          FROM lab_sample_logs l
+          JOIN lab_samples s ON s.id = l.sample_id
           ${rawCodeJoin}
           WHERE ${activeSampleWindowSql(from, to)}
             AND l.stage_id = ${lastStage.id}
@@ -177,8 +177,8 @@ export async function buildAnalytics(
       FROM (
         SELECT l.stage_id, l.scanned_at,
                LEAD(l.scanned_at) OVER (PARTITION BY l.sample_id ORDER BY l.scanned_at) AS next_at
-        FROM sample_logs l
-        JOIN samples s ON s.id = l.sample_id
+        FROM lab_sample_logs l
+        JOIN lab_samples s ON s.id = l.sample_id
         ${rawCodeJoin}
         WHERE ${activeSampleWindowSql(from, to)}
       ) paired
@@ -197,8 +197,8 @@ export async function buildAnalytics(
                    SUBSTRING_INDEX(
                      GROUP_CONCAT(l.stage_id ORDER BY l.scanned_at DESC), ',', 1
                    ) AS last_stage_id
-            FROM sample_logs l
-            JOIN samples s ON s.id = l.sample_id
+            FROM lab_sample_logs l
+            JOIN lab_samples s ON s.id = l.sample_id
             ${rawCodeJoin}
             WHERE ${activeSampleWindowSql(from, to)}
             GROUP BY l.sample_id

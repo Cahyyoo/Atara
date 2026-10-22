@@ -11,7 +11,7 @@ model RolePasswordDefault {
   updatedById  String?  @map("updated_by")
   updatedBy    User?    @relation("RolePasswordDefaultSetBy", fields: [updatedById], references: [id], onDelete: SetNull)
 
-  @@map("role_password_defaults")
+  @@map("system_role_password_defaults")
 }
 
 /// How loudly an announcement speaks: INFO can be closed by each reader,
@@ -38,5 +38,5 @@ model Announcement {
   updatedAt   DateTime         @updatedAt @map("updated_at")
 
   @@index([startsAt, endsAt])
-  @@map("announcements")
+  @@map("system_announcements")
 }

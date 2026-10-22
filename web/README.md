@@ -83,7 +83,7 @@ Browser hanya menerima teks UI milik core dan milik modul yang dipegang persona.
 3. Buat database MySQL kosong (nama bebas, sesuaikan dengan `DATABASE_URL`):
 
    ```sql
-   CREATE DATABASE atara_tracking CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   CREATE DATABASE atara CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
    ```
 
 4. Jalankan migrasi Prisma untuk membuat seluruh tabel:
@@ -118,7 +118,7 @@ Browser hanya menerima teks UI milik core dan milik modul yang dipegang persona.
 | `NEXT_PUBLIC_BASE_PATH` | Sub-path bila aplikasi disajikan di bawah reverse proxy, mis. `/atara` untuk `http://host/atara`. Kosong = aplikasi memegang seluruh origin. Dibaca saat `next build` — build ulang setelah mengubahnya. Proxy harus meneruskan path **dengan** prefix-nya (Caddy: `handle /atara* { reverse_proxy 127.0.0.1:3010 }`, bukan `handle_path`). Di kode, setiap `fetch`/`location.href`/`<a href>` ke path internal wajib lewat `withBasePath()` dari `@/core/lib/http/base-path`; `<Link>`, router, dan `redirect()` sudah otomatis. App mobile: isi alamat server dengan sub-path-nya. |
 | `FACE_SERVICE_URL`   | Alamat layanan wajah, default `http://127.0.0.1:8001`. Harus loopback. |
 | `FACE_SERVICE_TOKEN` | Rahasia bersama dengan layanan wajah — **harus sama** dengan `FACE_SERVICE_TOKEN` di `face/.env`. Browser tidak pernah melihatnya: frame mengalir browser → Next.js → layanan wajah. |
-| `MFA_ENCRYPTION_KEY` | Kunci untuk mengenkripsi rahasia TOTP sebelum disimpan, sehingga salinan tabel `users` saja tidak cukup untuk membuat kode. 32 byte acak dalam base64: `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`. Mengubahnya membatalkan semua authenticator yang sudah disiapkan; admin harus meresetnya dari halaman Pengguna. |
+| `MFA_ENCRYPTION_KEY` | Kunci untuk mengenkripsi rahasia TOTP sebelum disimpan, sehingga salinan tabel `core_users` saja tidak cukup untuk membuat kode. 32 byte acak dalam base64: `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`. Mengubahnya membatalkan semua authenticator yang sudah disiapkan; admin harus meresetnya dari halaman Pengguna. |
 
 ## Akun Default (hasil seed)
 

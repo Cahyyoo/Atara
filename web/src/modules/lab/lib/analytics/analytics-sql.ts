@@ -8,7 +8,7 @@ export function recordSampleJoinSql(alias = "r", sampleAlias = "s"): Prisma.Sql 
   const s = Prisma.raw(sampleAlias);
   const p = Prisma.raw(`${alias}_parent`);
   return Prisma.sql`LEFT JOIN lab_records ${p} ON ${p}.id = ${r}.parent_id
-    JOIN samples ${s} ON ${s}.id = COALESCE(${r}.sample_id, ${p}.sample_id)`;
+    JOIN lab_samples ${s} ON ${s}.id = COALESCE(${r}.sample_id, ${p}.sample_id)`;
 }
 
 /**

@@ -152,9 +152,9 @@ export async function listHistory(query: HistoryQuery): Promise<{ entries: Recor
   const from_ = Prisma.sql`
     FROM lab_record_audits a
     JOIN lab_records r ON r.id = a.lab_record_id
-    LEFT JOIN samples s ON s.id = r.sample_id
+    LEFT JOIN lab_samples s ON s.id = r.sample_id
     LEFT JOIN lab_records p ON p.id = r.parent_id
-    LEFT JOIN samples ps ON ps.id = p.sample_id
+    LEFT JOIN lab_samples ps ON ps.id = p.sample_id
   `;
 
   // The joins only matter to the search; every audit has its record, so

@@ -98,7 +98,7 @@ prisma/schema/<m>.prisma     Tabel modul.
 | Manifest | `<modul>Module` | `eksplorasiModule` |
 | Namespace i18n | nama fitur, camelCase | `drilling`, `drilling.import` |
 | Route API | kata benda jamak, kebab-case | `/api/drill-holes`, `/api/drill-holes/[id]` |
-| Tabel DB | `snake_case` jamak lewat `@@map` | `model DrillHole { … @@map("drill_holes") }` |
+| Tabel DB | `<modul>_` + `snake_case` jamak lewat `@@map` (dicek test) | `model DrillHole { … @@map("eksplorasi_drill_holes") }` |
 | DTO | `XxxDTO` | `DrillHoleDTO` |
 | Skema zod | `createXxxSchema`, `updateXxxSchema`, `listXxxQuerySchema` | `listDrillHolesQuerySchema` |
 
@@ -264,6 +264,7 @@ Hasil uji: 34.000 baris tersimpan dalam ±10 detik.
 ### 5.9 Skema database
 
 1. Tambah model di `prisma/schema/<m>.prisma`. Relasi ke `User` ditulis di `core.prisma` (field relasi balik).
+   Nama tabelnya wajib diawali nama modul: `@@map("<m>_…")`; tanda hubung di key menjadi `_` (modul `geo-tech` → `geo_tech_`). Tabel bersama di `core.prisma` memakai `core_` (misalnya `core_users`). Aturan ini dicek `architecture.test.ts`, supaya di phpMyAdmin tabel milik satu modul selalu berkumpul.
 2. Jalankan `npx prisma migrate dev --create-only --name <nama>`, lalu baca SQL-nya.
 3. Jalankan `npx prisma migrate deploy` dan `npx prisma generate`.
 4. Pastikan `npx prisma migrate diff --from-schema-datasource prisma/schema --to-schema-datamodel prisma/schema` menghasilkan "No difference".

@@ -38,7 +38,7 @@ model MasterOption {
 
   @@unique([kind, code])
   @@index([kind, isActive, sortOrder])
-  @@map("master_options")
+  @@map("lab_master_options")
 }
 
 model Stage {
@@ -61,7 +61,7 @@ model Stage {
   currentSamples Sample[]    @relation("SampleCurrentStage")
   sampleLogs     SampleLog[] @relation("SampleLogStage")
 
-  @@map("stages")
+  @@map("lab_stages")
 }
 
 model Sample {
@@ -110,7 +110,7 @@ model Sample {
   @@index([deletedAt, updatedAt])
   @@index([deletedAt, status, updatedAt])
   @@index([deletedAt, createdAt])
-  @@map("samples")
+  @@map("lab_samples")
 }
 
 model SampleLog {
@@ -133,7 +133,7 @@ model SampleLog {
   /// The stage-activity trail with no preparator chosen sorts on this, and its
   /// shift-day filter ranges on it. Neither index above starts with it.
   @@index([scannedAt])
-  @@map("sample_logs")
+  @@map("lab_sample_logs")
 }
 
 model LabRecord {
@@ -257,7 +257,7 @@ model LabRecordAudit {
 model AllocationLock {
   name String @id @db.VarChar(64)
 
-  @@map("allocation_locks")
+  @@map("lab_allocation_locks")
 }
 
 /// The lab admin's switches, one row per setting, read through

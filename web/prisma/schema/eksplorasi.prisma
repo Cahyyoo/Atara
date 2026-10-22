@@ -34,5 +34,5 @@ model DrillHole {
 
   @@index([status])
   @@index([area])
-  @@map("drill_holes")
+  @@map("eksplorasi_drill_holes")
 }

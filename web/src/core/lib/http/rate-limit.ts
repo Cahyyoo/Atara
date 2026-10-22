@@ -8,7 +8,7 @@
  * the spent-challenge store had. That store promised "exactly once" and could
  * not keep it across two processes, so it moved to the database. This promises
  * something weaker on purpose, and the thing standing behind it is durable
- * already: `failedLoginAttempts` and `lockedUntil` are columns on `users`,
+ * already: `failedLoginAttempts` and `lockedUntil` are columns on `core_users`,
  * written by the sign-in routes, and they span every instance because the
  * database does.
  *

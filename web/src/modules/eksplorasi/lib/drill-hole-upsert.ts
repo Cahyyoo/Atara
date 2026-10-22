@@ -133,7 +133,7 @@ export async function writeImport(
     // MySQL's affected count leaves out rows whose values did not change;
     // the rows the sheet asked for are what is reported instead.
     await prisma.$executeRaw`
-      UPDATE drill_holes AS d
+      UPDATE eksplorasi_drill_holes AS d
       JOIN (${values}) AS v ON v.id = d.id
       SET d.area = COALESCE(v.area, d.area),
           d.easting = COALESCE(v.easting, d.easting),

@@ -101,7 +101,7 @@ model User {
   drillHolesUpdated DrillHole[]           @relation("DrillHoleUpdatedBy")
 
   @@index([department, role])
-  @@map("users")
+  @@map("core_users")
 }
 
 /// Which slot a session occupies. One of each per account at a time.
@@ -153,7 +153,7 @@ model UserSession {
 
   /// "Is anybody else signed in in this slot?": asked at every sign-in.
   @@index([userId, client, endedAt])
-  @@map("user_sessions")
+  @@map("core_user_sessions")
 }
 
 /// How a sign-in attempt ended.
@@ -230,7 +230,7 @@ model SignInAudit {
   @@index([createdAt])
   /// The trail's per-outcome summary and its outcome filter.
   @@index([outcome, createdAt])
-  @@map("sign_in_audits")
+  @@map("core_sign_in_audits")
 }
 
 /// One enrolled face for one account.
@@ -258,7 +258,7 @@ model FaceEnrollment {
   createdBy   User     @relation("FaceEnrollmentTakenBy", fields: [createdById], references: [id])
 
   @@index([userId])
-  @@map("face_enrollments")
+  @@map("core_face_enrollments")
 }
 
 /// A face or authenticator challenge that has already been spent.
@@ -278,5 +278,5 @@ model SpentChallenge {
   expiresAt DateTime @map("expires_at")
 
   @@index([expiresAt])
-  @@map("spent_challenges")
+  @@map("core_spent_challenges")
 }

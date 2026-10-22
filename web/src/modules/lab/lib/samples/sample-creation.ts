@@ -10,7 +10,7 @@ import { ApiError } from "@/core/lib/http/api-response";
 
 const MAX_ATTEMPTS = 3;
 
-/** The allocation_locks row that serialises code allocation, across processes too. */
+/** The lab_allocation_locks row that serialises code allocation, across processes too. */
 const CODE_LOCK = "sample-codes";
 
 function isUniqueConstraintError(error: unknown): boolean {
@@ -67,9 +67,9 @@ export async function createSamplesWithLabCodes(input: CreateSamplesInput) {
         // until this transaction commits, so the next generation's reads
         // (which start after it gets the lock) see every code issued here.
         const locked = await tx.$queryRaw<{ name: string }[]>`
-          SELECT name FROM allocation_locks WHERE name = ${CODE_LOCK} FOR UPDATE`;
+          SELECT name FROM lab_allocation_locks WHERE name = ${CODE_LOCK} FOR UPDATE`;
         if (locked.length === 0) {
-          throw new Error(`allocation_locks has no "${CODE_LOCK}" row; run the migrations.`);
+          throw new Error(`lab_allocation_locks has no "${CODE_LOCK}" row; run the migrations.`);
         }
         return allocateAndInsert(tx);
       }, { maxWait: 5_000, timeout: 30_000 });

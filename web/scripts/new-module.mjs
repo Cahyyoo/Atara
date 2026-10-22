@@ -169,8 +169,9 @@ export const GET = route({ capability: "${capability}", query: list${pascal}Quer
 `,
 
   [`prisma/schema/${key}.prisma`]: `// ${pascal} module: its tables. Prisma reads every .prisma file in this folder
-// as one schema. Add models here, then: npx prisma migrate dev --create-only,
-// check the SQL, npx prisma migrate deploy.
+// as one schema. Every table is prefixed with the module: @@map("${constant.toLowerCase()}_..."),
+// checked by architecture.test.ts. Add models here, then:
+// npx prisma migrate dev --create-only, check the SQL, npx prisma migrate deploy.
 `,
 };
 

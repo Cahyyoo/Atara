@@ -36,7 +36,7 @@ async function lastSequenceFor(prefix: string, year: number, db: Db): Promise<nu
   // stuck for the rest of the year.
   const rows = await db.$queryRaw<{ last: bigint | number | null }[]>`
     SELECT MAX(CAST(SUBSTRING(sample_code, ${head.length + 1}) AS UNSIGNED)) AS last
-      FROM samples
+      FROM lab_samples
      WHERE sample_code LIKE ${`${head}%`}`;
   const last = Number(rows[0]?.last ?? 0);
   return Number.isFinite(last) ? last : 0;

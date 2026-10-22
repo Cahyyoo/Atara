@@ -103,6 +103,37 @@ describe("the API, one route group per module", () => {
   }
 });
 
+describe("the database, one table prefix per module", () => {
+  const SCHEMA = join(process.cwd(), "prisma", "schema");
+  const schemaFiles = readdirSync(SCHEMA).filter((name) => name.endsWith(".prisma"));
+
+  it("has a schema file for core and for every module that has tables, and no other", () => {
+    const owners = new Set(["core", ...MODULES.map((m) => m.key)]);
+    for (const file of schemaFiles) expect(owners.has(file.replace(/\.prisma$/, "")), file).toBe(true);
+  });
+
+  // A table says which module owns it: prisma/schema/<m>.prisma maps every
+  // model to "<m>_…" (a dash in the key becomes "_"), so the database reads
+  // like src/modules does.
+  for (const file of schemaFiles) {
+    const prefix = `${file.replace(/\.prisma$/, "").replace(/-/g, "_")}_`;
+    it(`maps every model in ${file} to a ${prefix} table`, () => {
+      const source = readFileSync(join(SCHEMA, file), "utf8");
+      const models = [...source.matchAll(/^model (\w+) \{([\s\S]*?)^\}/gm)];
+      for (const [, model, body] of models) {
+        const table = body.match(/@@map\("(\w+)"\)/)?.[1];
+        expect(table, model).toBeDefined();
+        expect(table!.startsWith(prefix), `${model} -> ${table}`).toBe(true);
+      }
+    });
+  }
+
+  it("finds the models, so an empty pass cannot be a broken walk", () => {
+    const models = schemaFiles.flatMap((file) => [...readFileSync(join(SCHEMA, file), "utf8").matchAll(/^model \w+ \{/gm)]);
+    expect(models.length).toBeGreaterThanOrEqual(16);
+  });
+});
+
 describe("the guide and the tours", () => {
   it("tie every section and tour to a capability that exists", () => {
     const all = new Set<string>(Object.values(MODULE_CAPABILITIES).flatMap((table) => Object.keys(table)));

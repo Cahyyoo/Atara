@@ -46,7 +46,7 @@ describe("the raw analytics window", () => {
   });
 
   it("composes into a query without losing either condition", () => {
-    const query = Prisma.sql`SELECT 1 FROM samples s WHERE ${activeSampleWindowSql(from, to)}`;
+    const query = Prisma.sql`SELECT 1 FROM lab_samples s WHERE ${activeSampleWindowSql(from, to)}`;
     expect(query.sql.replace(/\s+/g, " ")).toContain("deleted_at IS NULL");
     expect(query.values).toEqual([from, to]);
   });
