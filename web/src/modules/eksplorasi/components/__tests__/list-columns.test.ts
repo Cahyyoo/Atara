@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { columnWidths, listColumns } from "@/modules/eksplorasi/components/list-columns";
+import { ARRANGEABLE, arrangeColumns, columnWidths, listColumns } from "@/modules/eksplorasi/components/list-columns";
 import { DATA_SOURCE_VIEWS, VIEWS } from "@/modules/eksplorasi/lib/data-source-columns";
 
 describe("a list's columns on screen", () => {
@@ -32,5 +32,17 @@ describe("a list's columns on screen", () => {
       const loading = readFileSync(join(process.cwd(), "src", "app", "(app)", "eksplorasi", folder, "loading.tsx"), "utf8");
       expect(loading, view).toContain(`columns={${listColumns(view).length}}`);
     }
+  });
+
+  it("follow the order somebody dragged them into, show only those ticked, and keep the sample ID and the buttons", () => {
+    const all = ARRANGEABLE.duplicate;
+    expect(arrangeColumns("duplicate", [], all)).toEqual(listColumns("duplicate"));
+
+    const columns = arrangeColumns("duplicate", ["ni", "gone", "sampleId", "control"], ["ni", "control", "campaign"]);
+    // Unknown keys are dropped; columns the saved order does not name go back where they belong.
+    expect(columns).toEqual(["ni", "sampleId", "control", "campaign", "actions"]);
+
+    const total = columnWidths(columns).reduce((sum, width) => sum + parseFloat(width), 0);
+    expect(total).toBeCloseTo(100, 1);
   });
 });

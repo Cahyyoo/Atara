@@ -19,7 +19,8 @@
           "1": "Tambah membuka halaman lembar seperti Excel: ketik atau tempel blok dari Excel ke baris kosong. 50 baris terakhir tampil terkunci di atasnya; klik gembok untuk mengubahnya langsung, lalu Simpan sekaligus.",
           "2": "Cari dengan Sample ID, Hole ID, Control, atau Campaign, dan saring per campaign (serta per tipe sampel di Data Source).",
           "3": "Ikon pensil membuka lembar dengan baris itu sudah terbuka kuncinya; ikon tempat sampah menghapus baris secara permanen.",
-          "4": "Import mengunggah ribuan baris sekaligus dari Excel/CSV (pratinjau dulu, baris error bisa diunduh); Export mengunduh daftar yang sedang tampil dengan kolom menu itu, sehingga bisa langsung di-import kembali."
+          "4": "Import mengunggah ribuan baris sekaligus dari Excel/CSV (pratinjau dulu, baris error bisa diunduh); Export mengunduh daftar yang sedang tampil dengan kolom menu itu, sehingga bisa langsung di-import kembali.",
+          "5": "Seret judul kolom ke kiri atau kanan untuk mengubah urutannya (atau Alt+←/→), dan pilih kolom yang tampil lewat tombol Kolom. Pengaturan disimpan per menu di browser ini; Export tetap berisi semua kolom menu."
         },
         "tip": "Sample ID harus unik. Di menu Standard, Blank, dan Duplicate, tipe sampel terisi otomatis sesuai menunya."
       }
@@ -99,6 +100,11 @@
       "remarks": "Remarks",
       "date": "Tanggal",
       "weight": "Weight"
+    },
+    "layout": {
+      "showAll": "Tampilkan semua",
+      "reset": "Kembalikan tampilan",
+      "move": "Seret untuk memindah kolom ini (atau Alt+←/→)"
     },
     "delete": {
       "label": "Hapus {sampleId}",

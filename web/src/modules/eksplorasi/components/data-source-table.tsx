@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -8,6 +8,7 @@ import { Button, buttonVariants } from "@/core/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/components/ui/select";
 import { InlineNotice } from "@/core/components/ui/inline-notice";
 import { SearchInput } from "@/core/components/form/search-input";
+import { ColumnMenu } from "@/core/components/table/column-menu";
 import { ExportMenu, TablePagination } from "@/core/components/table/table-toolbar";
 import { useApiList } from "@/core/hooks/use-api-list";
 import { apiFetch } from "@/core/lib/http/api-client";
@@ -16,11 +17,12 @@ import type { PaginationDTO } from "@/core/types";
 import { DeleteDataSourceDialog } from "@/modules/eksplorasi/components/delete-data-source-dialog";
 import { DataSourceImportDialog } from "@/modules/eksplorasi/components/import/data-source-import-dialog";
 import { DataSourceRow } from "@/modules/eksplorasi/components/data-source-row";
-import { columnWidths, isNumericColumn, listColumns, type ListColumn } from "@/modules/eksplorasi/components/list-columns";
-import { ELEMENT_LABELS, isElementField, SAMPLE_TYPES, VIEWS } from "@/modules/eksplorasi/lib/data-source-columns";
+import { DataSourceTableHead, useColumnLabel } from "@/modules/eksplorasi/components/data-source-table-head";
+import type { ListColumn } from "@/modules/eksplorasi/components/list-columns";
+import { useListLayout } from "@/modules/eksplorasi/components/use-list-layout";
+import { SAMPLE_TYPES, VIEWS } from "@/modules/eksplorasi/lib/data-source-columns";
 import type { DataSourceDTO, DataSourceView, SampleType } from "@/modules/eksplorasi/types";
 import { IoAddOutline, IoCloudUploadOutline, IoReloadOutline } from "react-icons/io5";
-import { cn } from "@/core/lib/utils";
 
 const ALL = "ALL";
 
@@ -34,6 +36,11 @@ const ALL = "ALL";
  * it (list-columns.ts), and a cell too long for its share is cut with an
  * ellipsis and shown whole on hover. Only a screen too narrow for that many
  * columns -- a phone -- scrolls sideways.
+ *
+ * As on the lab's sample database, the headings can be dragged into another
+ * order and the Columns menu hides the ones not wanted (use-list-layout.ts);
+ * the columns left share the width. Export, the template and the sheet keep
+ * the list's full columns, so a file still reads back in.
  */
 export function DataSourceTable({ view }: { view: DataSourceView }) {
   const t = useTranslations("dataSource");
@@ -50,8 +57,9 @@ export function DataSourceTable({ view }: { view: DataSourceView }) {
   const [exportError, setExportError] = useState<string | null>(null);
 
   const definition = VIEWS[view];
-  const columns = useMemo(() => listColumns(view), [view]);
-  const widths = useMemo(() => columnWidths(columns), [columns]);
+  const layout = useListLayout(view);
+  const columns = layout.columns;
+  const label = useColumnLabel();
   const filters = {
     view,
     search,
@@ -90,12 +98,6 @@ export function DataSourceTable({ view }: { view: DataSourceView }) {
     if (filters.campaign) params.set("campaign", filters.campaign);
     if (filters.sampleType) params.set("sampleType", filters.sampleType);
     setExportError(await downloadFromApi(`/api/data-sources/export?${params.toString()}`, `${definition.fileName}.${format}`));
-  }
-
-  function label(column: ListColumn): string {
-    if (column === "actions") return tCommon("actions");
-    if (isElementField(column)) return ELEMENT_LABELS[column];
-    return t(`fields.${column}`);
   }
 
   const filtered = Boolean(search) || campaign !== ALL || sampleType !== ALL;
@@ -143,6 +145,14 @@ export function DataSourceTable({ view }: { view: DataSourceView }) {
           ) : null}
         </div>
         <div className="flex flex-wrap gap-2">
+          <ColumnMenu
+            columns={layout.order.map((column) => ({ key: column, label: label(column), locked: layout.isLocked(column) }))}
+            visible={layout.visible}
+            onToggle={(key) => layout.toggle(key as ListColumn)}
+            onShowAll={layout.showAll}
+            onReset={layout.reset}
+            labels={{ button: tCommon("columns"), showAll: t("layout.showAll"), reset: t("layout.reset") }}
+          />
           <Button variant="outline" className="gap-2" onClick={() => setImportOpen(true)}>
             <IoCloudUploadOutline className="size-4" />
             {t("import.button")}
@@ -160,27 +170,7 @@ export function DataSourceTable({ view }: { view: DataSourceView }) {
       {/* Clipped for the rounded corners, not scrolled, from a laptop up. */}
       <div className="rounded-lg border bg-background max-lg:overflow-x-auto lg:overflow-clip">
         <table className="w-full table-fixed border-collapse text-[11px] max-lg:min-w-[64rem]">
-          <colgroup>
-            {columns.map((column, index) => (
-              <col key={column} style={{ width: widths[index] }} />
-            ))}
-          </colgroup>
-          <thead className="bg-muted/60">
-            <tr className="border-b">
-              {columns.map((column) => (
-                <th
-                  key={column}
-                  scope="col"
-                  className={cn(
-                    "px-1 py-2 text-[11px] font-semibold leading-tight whitespace-normal text-foreground",
-                    isNumericColumn(column) || column === "actions" ? "text-right" : "text-left"
-                  )}
-                >
-                  {label(column)}
-                </th>
-              ))}
-            </tr>
-          </thead>
+          <DataSourceTableHead layout={layout} />
           <tbody>
             {list.loading ? (
               <tr>

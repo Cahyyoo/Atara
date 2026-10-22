@@ -19,7 +19,8 @@
           "1": "Add opens an Excel-like sheet page: type or paste a block from Excel into the empty rows. The latest 50 rows sit locked above; click the padlock to change one in place, then Save them all at once.",
           "2": "Search by Sample ID, Hole ID, Control or Campaign, and filter by campaign (and by sample type on the Data Source).",
           "3": "The pencil opens the sheet with that row already unlocked; the bin removes the row for good.",
-          "4": "Import uploads thousands of rows at once from Excel/CSV (preview first, failed rows can be downloaded); Export downloads the list on screen with that menu's columns, ready to import back."
+          "4": "Import uploads thousands of rows at once from Excel/CSV (preview first, failed rows can be downloaded); Export downloads the list on screen with that menu's columns, ready to import back.",
+          "5": "Drag a column heading left or right to reorder it (or Alt+←/→), and choose the columns shown with the Columns button. The arrangement is kept per menu in this browser; Export still has all of the menu's columns."
         },
         "tip": "Sample IDs must be unique. On the Standard, Blank and Duplicate menus the sample type is filled in from the menu."
       }
@@ -99,6 +100,11 @@
       "remarks": "Remarks",
       "date": "Date",
       "weight": "Weight"
+    },
+    "layout": {
+      "showAll": "Show all",
+      "reset": "Reset layout",
+      "move": "Drag to move this column (or Alt+←/→)"
     },
     "delete": {
       "label": "Delete {sampleId}",

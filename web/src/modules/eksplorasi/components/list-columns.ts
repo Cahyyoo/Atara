@@ -1,4 +1,11 @@
-import { isElementField, viewFields, type DataSourceField, type DataSourceView } from "@/modules/eksplorasi/lib/data-source-columns";
+import { normalizeOrder } from "@/core/lib/ui/column-layout";
+import {
+  DATA_SOURCE_VIEWS,
+  isElementField,
+  viewFields,
+  type DataSourceField,
+  type DataSourceView,
+} from "@/modules/eksplorasi/lib/data-source-columns";
 
 /**
  * A list's columns on screen, and how wide each is -- so up to twenty-six
@@ -10,6 +17,10 @@ import { isElementField, viewFields, type DataSourceField, type DataSourceView }
  * columns share what is left -- they wrap onto a second line rather than lose
  * their end. From and To share one column on the data source, as the lab's
  * sheet writes them ("12.0–13.0").
+ *
+ * Which columns show and in what order is up to whoever reads the list
+ * (arrangeColumns); the shares are worked out from the columns shown, so a
+ * hidden column gives its room to the others.
  *
  * Pure, so the layout can be checked without a browser.
  */
@@ -45,6 +56,30 @@ export function listColumns(view: DataSourceView): ListColumn[] {
     columns.push(field === "from" ? "fromTo" : field);
   }
   return [...columns, "actions"];
+}
+
+/**
+ * The columns somebody can move and hide on each list: all but the buttons,
+ * which stay last. One array per view, built once, so the hooks that remember
+ * the choice get the same defaults on every render.
+ */
+export const ARRANGEABLE: Record<DataSourceView, ListColumn[]> = Object.fromEntries(
+  DATA_SOURCE_VIEWS.map((view) => [view, listColumns(view).filter((column) => column !== "actions")])
+) as Record<DataSourceView, ListColumn[]>;
+
+/** Always shown: a row without its sample ID cannot be told apart. It still moves. */
+export const LOCKED_COLUMNS: readonly ListColumn[] = ["sampleId"];
+
+/**
+ * The columns a list shows: in the order somebody dragged them into (columns
+ * that order does not know go back to their usual place), only those ticked
+ * plus the locked ones, and the buttons last.
+ */
+export function arrangeColumns(view: DataSourceView, order: readonly string[], visible: readonly string[]): ListColumn[] {
+  const shown = (normalizeOrder(order, ARRANGEABLE[view]) as ListColumn[]).filter(
+    (column) => LOCKED_COLUMNS.includes(column) || visible.includes(column)
+  );
+  return [...shown, "actions"];
 }
 
 /** A column's share before it is turned into a percentage. */

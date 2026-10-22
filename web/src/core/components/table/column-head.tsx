@@ -26,19 +26,27 @@ export interface ColumnHeadProps {
   onDropColumn?: (key: string) => void;
   onDragEndColumn?: () => void;
   onNudge?: (key: string, step: -1 | 1) => void;
+  /** Without an edge to drag when false: a table whose columns share the page's width. */
+  resizable?: boolean;
   /** Called while dragging the edge (`final` false) and once when let go. */
-  onResize: (key: string, width: number, final: boolean) => void;
-  onResetWidth: (key: string) => void;
+  onResize?: (key: string, width: number, final: boolean) => void;
+  onResetWidth?: (key: string) => void;
   /** Accessible names: "Resize Ni", "Move Ni". */
-  resizeLabel: string;
+  resizeLabel?: string;
   moveHint: string;
+  /**
+   * For a narrow column: a long label wraps onto a second line instead of
+   * being cut, and the grip icon is left out (the cursor still shows the
+   * heading can be dragged).
+   */
+  compact?: boolean;
 }
 
 /**
  * A table heading whose width can be dragged and whose place can be dragged.
  *
- * The edge on the right is a handle: drag it, press ←/→ on it, or double-click
- * it to go back to the default width. A movable heading itself is draggable
+ * The edge on the right is a handle (unless `resizable` is false): drag it,
+ * press ←/→ on it, or double-click it to go back to the default width. A movable heading itself is draggable
  * onto another one; Alt+←/→ does the same from the keyboard. Sorting, when the
  * column sorts, stays a click on the label.
  */
@@ -60,10 +68,12 @@ export function ColumnHead({
   onDropColumn,
   onDragEndColumn,
   onNudge,
+  resizable = true,
   onResize,
   onResetWidth,
   resizeLabel,
   moveHint,
+  compact = false,
 }: ColumnHeadProps) {
   const resizing = useRef<{ startX: number; startWidth: number; width: number } | null>(null);
   const isSorted = sortField !== undefined && sort === sortField;
@@ -79,7 +89,7 @@ export function ColumnHead({
     const drag = resizing.current;
     if (!drag) return;
     drag.width = clampWidth(drag.startWidth + event.clientX - drag.startX);
-    onResize(columnKey, drag.width, false);
+    onResize?.(columnKey, drag.width, false);
   }
 
   function onPointerUp(event: PointerEvent<HTMLDivElement>) {
@@ -87,14 +97,14 @@ export function ColumnHead({
     if (!drag) return;
     resizing.current = null;
     event.currentTarget.releasePointerCapture?.(event.pointerId);
-    onResize(columnKey, drag.width, true);
+    onResize?.(columnKey, drag.width, true);
   }
 
   function onHandleKey(event: KeyboardEvent<HTMLDivElement>) {
     if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
     event.preventDefault();
     event.stopPropagation();
-    onResize(columnKey, clampWidth(width + (event.key === "ArrowRight" ? WIDTH_STEP : -WIDTH_STEP)), true);
+    onResize?.(columnKey, clampWidth(width + (event.key === "ArrowRight" ? WIDTH_STEP : -WIDTH_STEP)), true);
   }
 
   function onHeadKey(event: KeyboardEvent<HTMLTableCellElement>) {
@@ -153,6 +163,7 @@ export function ColumnHead({
       onKeyDown={onHeadKey}
       className={cn(
         "group/head relative overflow-hidden text-ellipsis",
+        compact && "whitespace-normal",
         align === "right" && "text-right",
         movable && "cursor-grab active:cursor-grabbing",
         dragging && "opacity-50",
@@ -162,7 +173,7 @@ export function ColumnHead({
       {...dragProps}
     >
       <div className={cn("flex min-w-0 items-center gap-1", align === "right" && "justify-end")}>
-        {movable ? (
+        {movable && !compact ? (
           <IoReorderTwoOutline
             aria-hidden
             className="size-3.5 shrink-0 text-muted-foreground/50 opacity-0 transition-opacity group-hover/head:opacity-100"
@@ -181,25 +192,27 @@ export function ColumnHead({
             {content}
           </button>
         ) : (
-          <span className="truncate">{content}</span>
+          <span className={compact ? "line-clamp-2 break-words" : "truncate"}>{content}</span>
         )}
       </div>
-      <div
-        role="separator"
-        aria-orientation="vertical"
-        aria-label={resizeLabel}
-        aria-valuenow={width}
-        aria-valuemin={MIN_COLUMN_WIDTH}
-        aria-valuemax={MAX_COLUMN_WIDTH}
-        tabIndex={0}
-        draggable={false}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onDoubleClick={() => onResetWidth(columnKey)}
-        onKeyDown={onHandleKey}
-        className="absolute inset-y-1 right-0 w-2 cursor-col-resize touch-none rounded-sm after:absolute after:inset-y-1 after:right-0.5 after:w-px after:bg-border hover:after:w-0.5 hover:after:bg-primary focus-visible:outline-none focus-visible:after:w-0.5 focus-visible:after:bg-primary"
-      />
+      {resizable ? (
+        <div
+          role="separator"
+          aria-orientation="vertical"
+          aria-label={resizeLabel}
+          aria-valuenow={width}
+          aria-valuemin={MIN_COLUMN_WIDTH}
+          aria-valuemax={MAX_COLUMN_WIDTH}
+          tabIndex={0}
+          draggable={false}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onDoubleClick={() => onResetWidth?.(columnKey)}
+          onKeyDown={onHandleKey}
+          className="absolute inset-y-1 right-0 w-2 cursor-col-resize touch-none rounded-sm after:absolute after:inset-y-1 after:right-0.5 after:w-px after:bg-border hover:after:w-0.5 hover:after:bg-primary focus-visible:outline-none focus-visible:after:w-0.5 focus-visible:after:bg-primary"
+        />
+      ) : null}
     </TableHead>
   );
 }
