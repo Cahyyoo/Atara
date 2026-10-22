@@ -20,7 +20,7 @@ Aturan di sini **ditegakkan otomatis**:
 | `eksplorasi` | `/eksplorasi/*` | EKSPLORASI: Admin Eksplorasi |
 | `system` (Pengaturan) | `/admin/*`, `/users` | Super Admin; Admin Lab untuk Pengguna saja |
 
-**Persona** adalah gabungan peran dan departemen, misalnya `ADMIN` + `LAB` = `LAB_ADMIN`. Semua hak akses ditulis per persona dalam bentuk **capability** (`viewDashboard`, `manageDrilling`, …). Setiap pemeriksaan memanggil `can(session, "capability")`.
+**Persona** adalah gabungan peran dan departemen, misalnya `ADMIN` + `LAB` = `LAB_ADMIN`. Semua hak akses ditulis per persona dalam bentuk **capability** (`viewDashboard`, `manageExplorationData`, …). Setiap pemeriksaan memanggil `can(session, "capability")`.
 
 **Dua tampilan, seperti Odoo:**
 
@@ -90,17 +90,17 @@ prisma/schema/<m>.prisma     Tabel modul.
 
 | Hal | Aturan | Contoh |
 | --- | ------ | ------ |
-| File | `kebab-case` | `drill-hole-service.ts`, `drill-holes-table.tsx` |
-| Komponen | `PascalCase` | `DrillHolesTable` |
-| Hook | `useXxx`, file `use-xxx.ts` | `useDrillImport` |
-| Capability | `verbNoun`, camelCase | `manageDrilling`, `viewSignInAudit` |
+| File | `kebab-case` | `data-source-service.ts`, `data-source-table.tsx` |
+| Komponen | `PascalCase` | `DataSourceTable` |
+| Hook | `useXxx`, file `use-xxx.ts` | `useDataSourceImport` |
+| Capability | `verbNoun`, camelCase | `manageExplorationData`, `viewSignInAudit` |
 | Tabel capability | `<MODUL>_CAPABILITIES` | `EKSPLORASI_CAPABILITIES` |
 | Manifest | `<modul>Module` | `eksplorasiModule` |
-| Namespace i18n | nama fitur, camelCase | `drilling`, `drilling.import` |
-| Route API | kata benda jamak, kebab-case | `/api/drill-holes`, `/api/drill-holes/[id]` |
-| Tabel DB | `<modul>_` + `snake_case` jamak lewat `@@map` (dicek test) | `model DrillHole { … @@map("eksplorasi_drill_holes") }` |
-| DTO | `XxxDTO` | `DrillHoleDTO` |
-| Skema zod | `createXxxSchema`, `updateXxxSchema`, `listXxxQuerySchema` | `listDrillHolesQuerySchema` |
+| Namespace i18n | nama fitur, camelCase | `dataSource`, `dataSource.import` |
+| Route API | kata benda jamak, kebab-case | `/api/data-sources`, `/api/data-sources/[id]` |
+| Tabel DB | `<modul>_` + `snake_case` jamak lewat `@@map` (dicek test) | `model DataSource { … @@map("eksplorasi_data_source") }` |
+| DTO | `XxxDTO` | `DataSourceDTO` |
+| Skema zod | `createXxxSchema`, `updateXxxSchema`, `listXxxQuerySchema` | `listDataSourceQuerySchema` |
 
 ---
 
@@ -124,7 +124,7 @@ Unexpected path "@/modules/lab/…" imported in restricted zone.
 The eksplorasi module must not import the lab module; move what both need into src/core
 ```
 
-**Tanpa barrel `index.ts`.** Selalu impor file yang dibutuhkan secara langsung, misalnya `@/modules/eksplorasi/lib/drill-hole`. Barrel memperlambat build dan bisa ikut menyeret kode server ke bundle browser.
+**Tanpa barrel `index.ts`.** Selalu impor file yang dibutuhkan secara langsung, misalnya `@/modules/eksplorasi/lib/data-source`. Barrel memperlambat build dan bisa ikut menyeret kode server ke bundle browser.
 
 ---
 
@@ -135,16 +135,16 @@ Semua contoh di bawah diambil dari modul **eksplorasi**, yang sudah mengikuti se
 ### 5.1 Halaman
 
 ```tsx
-// src/app/(app)/eksplorasi/drilling/page.tsx
+// src/app/(app)/eksplorasi/data-source/page.tsx
 export const dynamic = "force-dynamic";
 
-export default async function DrillingPage() {
-  await requireCapabilityPage("manageDrilling");          // guard di server, selalu
-  const t = await getTranslations("drilling");
+export default async function DataSourcePage() {
+  await requireCapabilityPage("manageExplorationData");   // guard di server, selalu
+  const t = await getTranslations("dataSource");
   return (
     <div className="flex flex-col gap-6">
       <PageHeader title={t("title")} subtitle={t("subtitle")} />   {/* core/components/layout/page-header */}
-      <DrillHolesTable />                                  {/* komponen client modul */}
+      <DataSourceTable view="dataSource" />                {/* komponen client modul */}
     </div>
   );
 }
@@ -156,37 +156,37 @@ export default async function DrillingPage() {
 ### 5.2 Route API
 
 ```ts
-// src/app/api/(eksplorasi)/drill-holes/route.ts
-export const GET = route({ capability: "manageDrilling", query: listDrillHolesQuerySchema }, async ({ query }) =>
-  jsonSuccess(await listDrillHoles(query))
+// src/app/api/(eksplorasi)/data-sources/route.ts
+export const GET = route({ capability: "manageExplorationData", query: listDataSourceQuerySchema }, async ({ query }) =>
+  jsonSuccess(await listDataSource(query))
 );
 
-export const POST = route({ capability: "manageDrilling", body: createDrillHoleSchema }, async ({ body, session }) =>
-  jsonSuccess(await createDrillHole(body, session.userId), 201)
+export const POST = route({ capability: "manageExplorationData", body: createDataSourceSchema }, async ({ body, session }) =>
+  jsonSuccess(await createDataSource(body, session.userId), 201)
 );
 ```
 
 `route()` (`core/lib/http/api-route.ts`) mengurus guard, parse body/query dengan zod (422 bila tidak valid), dan `handleApiError` (409 untuk unique, 404 untuk tidak ditemukan, 503 untuk DB sibuk).
 
 - Kesalahan yang disengaja dilempar dengan `throw new ApiError("pesan", status, "kode")`.
-- Logika bisnis ditaruh di `modules/<m>/lib/*-service.ts`, bukan di route. Contoh: `drill-hole-service.ts`.
+- Logika bisnis ditaruh di `modules/<m>/lib/*-service.ts`, bukan di route. Contoh: `data-source-service.ts`.
 - Route dengan parameter memakai `route<{ id: string }>({ … }, async ({ params }) => …)`.
 
 ### 5.3 Daftar dengan paging (CRUD list)
 
 ```ts
 // validation.ts
-export const listDrillHolesQuerySchema = z.object({ search: …, status: …, ...paginationQuery() });
+export const listDataSourceQuerySchema = z.object({ view: …, search: …, campaign: …, ...paginationQuery() });
 
 // service
 const [total, rows] = await Promise.all([prisma.x.count({ where }), prisma.x.findMany({ where, select, ...pageArgs(query) })]);
-return { drillHoles: rows.map(toDTO), pagination: paginationOf(total, query) };
+return { rows: rows.map(toDTO), pagination: paginationOf(total, query) };
 ```
 
 ```tsx
 // komponen client
-const list = useApiList<DrillHoleDTO, { drillHoles: DrillHoleDTO[]; pagination: PaginationDTO }>(
-  "/api/drill-holes", { search, status, page, pageSize }, (r) => r.drillHoles, { errorMessage: tCommon("loadError") }
+const list = useApiList<DataSourceDTO, { rows: DataSourceDTO[]; pagination: PaginationDTO }>(
+  "/api/data-sources", { view, search, campaign, page, pageSize }, (r) => r.rows, { errorMessage: tCommon("loadError") }
 );
 // list.items, list.loading, list.error, list.pagination, list.reload(), list.setItems(...)
 ```
@@ -207,7 +207,7 @@ Komponen siap pakai:
 ### 5.4 Memanggil API dari browser
 
 ```ts
-const outcome = await apiFetch<DrillHoleDTO>(`/api/drill-holes/${id}`, {
+const outcome = await apiFetch<DataSourceDTO>(`/api/data-sources/${id}`, {
   ...jsonBody("PATCH", body),
   networkError: tCommon("networkError"),
 });
@@ -219,10 +219,10 @@ if (!outcome.ok) return setError(outcome.error);   // outcome.status juga tersed
 ### 5.5 Export Excel/CSV
 
 ```ts
-export const GET = route({ capability: "manageDrilling", query: exportQuery }, async ({ query }) => {
-  assertExportSize(await prisma.drillHole.count({ where }));          // 413 di atas 50.000 baris
+export const GET = route({ capability: "manageExplorationData", query: exportQuery }, async ({ query }) => {
+  assertExportSize(await prisma.dataSource.count({ where }));         // 413 di atas 50.000 baris
   return exportResponse({ format, sheetName, baseFilename, columns, plain: true,
-    rows: () => cursorRows(fetchPage, (row) => row.holeId, toRow, PAGE_SIZE) });   // streaming
+    rows: () => cursorRows(fetchPage, (row) => row.sampleId, toRow, PAGE_SIZE) });   // streaming
 });
 ```
 
@@ -233,7 +233,7 @@ Selalu di-*stream* dengan paging cursor. Jangan mengumpulkan semua baris di memo
 Polanya mengikuti `modules/eksplorasi`:
 
 1. `readUpload(request, maxBytes)` (`core/lib/http/upload.ts`) menolak file kebesaran sebelum dibaca.
-2. Baca CSV/XLSX secara streaming (`drill-hole-file.ts`), lalu validasi per baris dengan zod. Semua error dikumpulkan, bukan hanya error pertama.
+2. Baca CSV/XLSX secara streaming (`data-source-file.ts`), lalu validasi per baris dengan zod. Semua error dikumpulkan, bukan hanya error pertama.
 3. Dua langkah:
    - `apply=0` untuk pratinjau (tidak menulis apa pun);
    - `apply=1` untuk menulis, dengan progres `ndjsonResponse` (`core/lib/http/ndjson.ts`) yang dibaca client lewat `readNdjson`.
@@ -252,7 +252,7 @@ Hasil uji: 34.000 baris tersimpan dalam ±10 detik.
 
 - Semua teks lewat `messages/<locale>.json`. Tidak boleh ada string yang di-*hardcode* di JSX.
 - Kunci `id.json` dan `en.json` harus sama; ini dicek test.
-- Namespace utama adalah nama fitur, misalnya `drilling`.
+- Namespace utama adalah nama fitur, misalnya `dataSource`.
 - Modul boleh menambah bagian ke namespace bersama. Contoh:
   - `nav.<itemKey>` untuk item menu, dan `nav.groups.<modul>` untuk nama modul di app switcher;
   - `home.modules.<modul>` (`name`, `description`) untuk kartu di pemilih aplikasi. Kartu juga menautkan langsung ke setiap halaman `nav` yang boleh dibuka persona (maksimal 6, sisanya "+n"). Kartu membuka `homePath`; bila persona tidak boleh membukanya, kartu membuka menu pertama yang boleh (`moduleEntryPath`);
@@ -281,8 +281,8 @@ Bila sebuah komponen membesar, pecah menjadi folder bernama fitur, **tanpa `inde
 
 ```
 import/
-  drill-hole-import-dialog.tsx   Komponen perakit: menyusun langkah-langkah, tanpa logika berat.
-  use-drill-import.ts            Hook: state, fetch, alur pratinjau → simpan.
+  data-source-import-dialog.tsx  Komponen perakit: menyusun langkah-langkah, tanpa logika berat.
+  use-data-source-import.ts      Hook: state, fetch, alur pratinjau → simpan.
   import-file-picker.tsx         Tampilan langkah 1.
   import-preview.tsx             Tampilan langkah 2.
   import-status.tsx              Tampilan langkah 3 dan 4.
@@ -319,8 +319,8 @@ Batas `"use client"` tidak boleh berubah karena pemecahan. Komponen server tetap
 
 | Jenis | Pola | Contoh |
 | ----- | ---- | ------ |
-| Unit (logika murni) | `describe/it`, tanpa DB | `modules/eksplorasi/lib/__tests__/drill-hole-import.test.ts` |
-| Route + DB | mock `@/core/lib/http/api-auth`, panggil handler route langsung, `describe.skipIf(!reachable)`, bersihkan data di `afterAll` | `modules/eksplorasi/lib/__tests__/drill-hole-import-db.test.ts` |
+| Unit (logika murni) | `describe/it`, tanpa DB | `modules/eksplorasi/lib/__tests__/data-source-import.test.ts` |
+| Route + DB | mock `@/core/lib/http/api-auth`, panggil handler route langsung, `describe.skipIf(!reachable)`, bersihkan data di `afterAll` | `modules/eksplorasi/lib/__tests__/data-source-import-db.test.ts` |
 | Komponen | `// @vitest-environment jsdom`, `NextIntlClientProvider` + `@/core/i18n/test-messages`, `vi.stubGlobal("fetch", …)` | `modules/eksplorasi/components/import/__tests__/…` |
 | Guard API (cek sumber) | `guard("capability")` dari `@/core/testing/guards` | `core/lib/auth/__tests__/permissions.test.ts` |
 

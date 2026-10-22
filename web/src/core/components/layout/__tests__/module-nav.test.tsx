@@ -50,9 +50,9 @@ describe("the module's tabs in the top bar", () => {
 
     expect(nav.getByRole("link", { name: messages.nav.sampleDatabase }).getAttribute("aria-current")).toBe("page");
     expect(nav.getByRole("link", { name: messages.nav.dashboard }).getAttribute("aria-current")).toBeNull();
-    // Users lives in Settings, and drilling in another module altogether.
+    // Users lives in Settings, and the data source in another module altogether.
     expect(nav.queryByRole("link", { name: messages.nav.users })).toBeNull();
-    expect(nav.queryByRole("link", { name: messages.nav.drilling })).toBeNull();
+    expect(nav.queryByRole("link", { name: messages.nav.dataSource })).toBeNull();
   });
 
   it("show the lab admin only Users in Settings", () => {

@@ -1,0 +1,305 @@
+"use client";
+
+import { memo, useMemo, type ClipboardEvent, type HTMLAttributes, type Ref } from "react";
+import { useTranslations } from "next-intl";
+import { cn } from "@/core/lib/utils";
+import { inSelection } from "@/core/hooks/use-grid-selection";
+import { ELEMENT_LABELS, isElementField, SAMPLE_TYPES, type DataSourceField } from "@/modules/eksplorasi/lib/data-source-columns";
+import { columnWeight, isNumericColumn, percentages } from "@/modules/eksplorasi/components/list-columns";
+import { isActive, isChangedCell, type SheetRow } from "@/modules/eksplorasi/components/sheet/sheet-rows";
+import { SHEET_ROW_HEIGHT } from "@/modules/eksplorasi/components/sheet/use-data-source-sheet";
+import type { SampleType, SheetStatus, SheetVerdict } from "@/modules/eksplorasi/types";
+import {
+  IoAddCircle,
+  IoCheckmarkCircle,
+  IoChevronDown,
+  IoCloseCircle,
+  IoLockClosedOutline,
+  IoLockOpenOutline,
+  IoRemoveCircleOutline,
+} from "react-icons/io5";
+
+/** The row-number column's width (list-columns.ts weights): the number, the lock and the verdict mark. */
+const NUMBER_COLUMN_WEIGHT = 52;
+/** Where the sheet needs more than the list: it writes dates whole (YYYY-MM-DD), the list short. */
+const SHEET_WEIGHT: Partial<Record<DataSourceField, number>> = { date: 70, controlDate: 66 };
+
+/** Plain strings, put together once: a sheet draws thousands of boxes at a time. */
+const BOX =
+  "h-8 w-full min-w-0 scroll-mt-[var(--sheet-scroll-top,0px)] rounded-md border border-transparent bg-transparent px-0.5 text-[11px] outline-none transition-colors placeholder:text-transparent focus:placeholder:text-muted-foreground/50 focus-visible:bg-background focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-[selected]:bg-primary/15 data-[selected]:ring-1 data-[selected]:ring-primary/50 read-only:text-muted-foreground";
+const CHANGED = " bg-amber-100/70 dark:bg-amber-500/15";
+/** The type box: a select drawn as the other boxes are, with its own chevron. */
+const SELECT = `${BOX} cursor-pointer appearance-none pr-5 [&>option]:bg-background [&>option]:text-foreground`;
+
+const MARKS: Record<SheetStatus, { icon: typeof IoAddCircle; className: string }> = {
+  create: { icon: IoAddCircle, className: "text-primary" },
+  update: { icon: IoCheckmarkCircle, className: "text-emerald-600 dark:text-emerald-400" },
+  unchanged: { icon: IoRemoveCircleOutline, className: "text-muted-foreground" },
+  invalid: { icon: IoCloseCircle, className: "text-destructive" },
+};
+
+function VerdictMark({ verdict, pending }: { verdict: SheetVerdict | undefined; pending: boolean }) {
+  const t = useTranslations("dataSource.sheet.statuses");
+  if (!verdict) {
+    return pending ? <span aria-hidden className="skeleton-sheen inline-block size-3.5 rounded-full bg-muted" /> : null;
+  }
+  const { icon: Icon, className } = MARKS[verdict.status];
+  const label = verdict.message ? `${t(verdict.status)}: ${verdict.message}` : t(verdict.status);
+  return <Icon role="img" aria-label={label} title={label} className={cn("size-4 shrink-0", className)} />;
+}
+
+/** The attributes every box carries, whatever it is: how the grid finds it, and how it reads aloud. */
+interface BoxProps {
+  "aria-label": string;
+  "data-cell-row": number;
+  "data-cell-col": number;
+  "data-selected": "" | undefined;
+  "aria-invalid": true | undefined;
+  title: string | undefined;
+}
+
+/**
+ * The type of a row that can be changed: a list to pick from, as a sheet's
+ * dropdown cell is. Text the list does not know (pasted, say) stays visible
+ * as its own option, and is marked by the server.
+ */
+function TypeCell({
+  box,
+  value,
+  typeLabels,
+  disabled,
+  className,
+  onChange,
+}: {
+  box: BoxProps;
+  value: string;
+  typeLabels: readonly string[];
+  disabled: boolean;
+  className: string;
+  onChange: (value: string) => void;
+}) {
+  // One value pasted into the box is its own to take: the grid only spreads blocks.
+  const paste = (event: ClipboardEvent<HTMLSelectElement>) => {
+    event.preventDefault();
+    onChange(event.clipboardData.getData("text/plain").trim());
+  };
+  return (
+    <div className="relative">
+      <select
+        {...box}
+        value={value}
+        disabled={disabled}
+        onChange={(event) => onChange(event.target.value)}
+        onPaste={paste}
+        // Blank, the box shows nothing until it is pointed at: an empty sheet
+        // is not a column of dashes.
+        className={value === "" ? `${className} text-transparent focus-visible:text-muted-foreground group-hover:text-muted-foreground` : className}
+      >
+        <option value="">—</option>
+        {typeLabels.map((label) => (
+          <option key={label} value={label}>
+            {label}
+          </option>
+        ))}
+        {value && !typeLabels.includes(value) ? <option value={value}>{value}</option> : null}
+      </select>
+      <IoChevronDown
+        aria-hidden
+        className={cn(
+          "pointer-events-none absolute top-1/2 right-1 size-3 -translate-y-1/2 text-muted-foreground transition-opacity",
+          value === "" && "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"
+        )}
+      />
+    </div>
+  );
+}
+
+interface RowProps {
+  index: number;
+  row: SheetRow;
+  fields: readonly DataSourceField[];
+  labels: Record<DataSourceField, string>;
+  typeLabels: readonly string[];
+  /** A QC list's own type, shown in every row's type box and never typed. */
+  fixedTypeLabel: string | null;
+  verdict: SheetVerdict | undefined;
+  pending: boolean;
+  saving: boolean;
+  selection: string | null;
+  rowLabel: string;
+  lockLabel: string;
+  onCellChange: (row: number, key: string, value: string) => void;
+  onToggleLock: (row: number) => void;
+}
+
+/** One row, memoised: typing re-renders the row being typed in, not the rest. */
+const SheetGridRow = memo(function SheetGridRow(props: RowProps) {
+  const { index, row, fields, labels, typeLabels, fixedTypeLabel, verdict, pending, saving, selection, rowLabel, lockLabel } =
+    props;
+  const existing = row.id !== undefined;
+  const faultField = verdict?.status === "invalid" ? verdict.field : undefined;
+
+  return (
+    <tr
+      style={{ height: SHEET_ROW_HEIGHT }}
+      data-locked={row.locked ? "" : undefined}
+      className={cn("border-b border-border/50", row.locked && "bg-muted/40")}
+    >
+      <td className="px-1">
+        <span className="flex items-center gap-0.5 text-xs tabular-nums text-muted-foreground">
+          {index + 1}
+          {existing ? (
+            <button
+              type="button"
+              aria-label={lockLabel}
+              title={lockLabel}
+              aria-pressed={!row.locked}
+              disabled={saving}
+              onClick={() => props.onToggleLock(index)}
+              className="rounded p-0.5 hover:bg-accent hover:text-foreground"
+            >
+              {row.locked ? <IoLockClosedOutline className="size-3.5" /> : <IoLockOpenOutline className="size-3.5 text-primary" />}
+            </button>
+          ) : null}
+          {isActive(row) ? <VerdictMark verdict={verdict} pending={pending} /> : null}
+        </span>
+      </td>
+      {fields.map((field, col) => {
+        const faulty = faultField === field;
+        const box: BoxProps = {
+          "aria-label": `${rowLabel} ${labels[field]}`,
+          "data-cell-row": index,
+          "data-cell-col": col,
+          "data-selected": inSelection(selection, col) ? "" : undefined,
+          "aria-invalid": faulty ? true : undefined,
+          title: faulty ? verdict?.message : row.cells[field] || undefined,
+        };
+        const changed = isChangedCell(row, field) && !faulty ? CHANGED : "";
+        const value = row.cells[field] ?? "";
+        const change = (next: string) => props.onCellChange(index, field, next);
+        const numeric = isNumericColumn(field);
+        return (
+          <td key={field} className="group p-px">
+            {field === "sampleType" && fixedTypeLabel !== null ? (
+              <input {...box} readOnly tabIndex={-1} value={fixedTypeLabel} className={`${BOX} truncate`} />
+            ) : field === "sampleType" && !row.locked ? (
+              <TypeCell
+                box={box}
+                value={value}
+                typeLabels={typeLabels}
+                disabled={saving}
+                className={SELECT + changed}
+                onChange={change}
+              />
+            ) : (
+              <input
+                {...box}
+                autoComplete="off"
+                inputMode={numeric ? "decimal" : undefined}
+                placeholder={field === "date" ? "YYYY-MM-DD" : undefined}
+                readOnly={row.locked || saving}
+                value={value}
+                onChange={(event) => change(event.target.value)}
+                className={(numeric ? `${BOX} text-right tabular-nums tracking-tight` : field === "date" ? `${BOX} tabular-nums tracking-tight` : BOX) + changed}
+              />
+            )}
+          </td>
+        );
+      })}
+    </tr>
+  );
+});
+
+/**
+ * The sheet: every column within the page's width and every row on the page
+ * -- no scrollbar of its own either way; the page scrolls instead, with the
+ * column headings held under the page's own sticky bars (`headerTop`). At
+ * most a few hundred rows, so all of them are drawn.
+ */
+export function SheetGrid({
+  fields,
+  fixedType,
+  rows,
+  verdictFor,
+  pending,
+  saving,
+  selectionFor,
+  headerTop,
+  containerProps,
+  onCellChange,
+  onToggleLock,
+}: {
+  fields: readonly DataSourceField[];
+  fixedType: SampleType | null;
+  rows: readonly SheetRow[];
+  verdictFor: (row: SheetRow) => SheetVerdict | undefined;
+  pending: boolean;
+  saving: boolean;
+  selectionFor: (row: number) => string | null;
+  /** How far from the top of the window the column headings stick. */
+  headerTop: number;
+  containerProps: HTMLAttributes<HTMLDivElement> & { ref: Ref<HTMLDivElement> };
+  onCellChange: (row: number, key: string, value: string) => void;
+  onToggleLock: (row: number) => void;
+}) {
+  const t = useTranslations("dataSource");
+  // Kept as one object across renders, so the memoised rows are not redrawn for it.
+  const labels = useMemo(
+    () =>
+      Object.fromEntries(
+        fields.map((field) => [field, isElementField(field) ? ELEMENT_LABELS[field] : t(`fields.${field}`)])
+      ) as Record<DataSourceField, string>,
+    [fields, t]
+  );
+  const typeLabels = useMemo(() => SAMPLE_TYPES.map((type) => t(`sampleType.${type}`)), [t]);
+  const fixedTypeLabel = fixedType ? t(`sampleType.${fixedType}`) : null;
+  const widths = useMemo(() => percentages([NUMBER_COLUMN_WEIGHT, ...fields.map((field) => SHEET_WEIGHT[field] ?? columnWeight(field))]), [fields]);
+
+  return (
+    // Clipped for the rounded corners, not scrolled: `overflow: clip` makes no
+    // scroll box, so the sticky headings stick to the window. A phone is the
+    // exception -- two dozen columns cannot fit one -- and scrolls sideways.
+    <div className="rounded-xl border bg-background max-lg:overflow-x-auto lg:overflow-clip">
+      <div {...containerProps} className="data-[dragging]:select-none">
+        <table className="w-full table-fixed border-collapse text-xs max-lg:min-w-[64rem]">
+          <colgroup>
+            {widths.map((width, index) => (
+              <col key={index} style={{ width }} />
+            ))}
+          </colgroup>
+          <thead className="sticky z-20 bg-muted" style={{ top: headerTop }}>
+            <tr className="h-12 border-b text-[11px] font-semibold text-foreground">
+              <th className="px-1 text-left text-muted-foreground">{t("sheet.rowColumn")}</th>
+              {fields.map((field) => (
+                <th key={field} className="border-l border-border/60 px-0.5 text-center leading-tight whitespace-normal">
+                  {labels[field]}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, index) => (
+              <SheetGridRow
+                key={index}
+                index={index}
+                row={row}
+                fields={fields}
+                labels={labels}
+                typeLabels={typeLabels}
+                fixedTypeLabel={fixedTypeLabel}
+                verdict={verdictFor(row)}
+                pending={pending}
+                saving={saving}
+                selection={selectionFor(index)}
+                rowLabel={t("sheet.row", { row: index + 1 })}
+                lockLabel={row.locked ? t("sheet.unlock") : t("sheet.lock")}
+                onCellChange={onCellChange}
+                onToggleLock={onToggleLock}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}

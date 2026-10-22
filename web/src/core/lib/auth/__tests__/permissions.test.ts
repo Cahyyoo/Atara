@@ -58,7 +58,7 @@ const AGREED: Record<Persona, Capability[]> = {
   ],
   ANALISIS: ["viewDashboard", "viewRecordHistory", "enterResults", "readLabRecords"],
   PREPARATOR: ["viewDashboard", "scanSamples", "overrideStage", "editSampleIdentity", "addMasterOption"],
-  EKSPLORASI_ADMIN: ["manageDrilling"],
+  EKSPLORASI_ADMIN: ["manageExplorationData"],
 };
 
 /** One account per persona, as role and department. */
@@ -97,12 +97,12 @@ describe("the role table", () => {
     const lab: Capability[] = ["viewDashboard", "viewDatabase", "readLabRecords", "manageMasterData"];
     for (const cap of lab) expect(can(ACCOUNTS.EKSPLORASI_ADMIN, cap), cap).toBe(false);
     for (const persona of ["LAB_ADMIN", "DATABASE", "ANALISIS", "PREPARATOR"] as const) {
-      expect(can(ACCOUNTS[persona], "manageDrilling"), persona).toBe(false);
+      expect(can(ACCOUNTS[persona], "manageExplorationData"), persona).toBe(false);
     }
   });
 
   it("keeps the super admin out of the modules' work", () => {
-    for (const cap of ["viewDashboard", "viewDatabase", "manageDrilling", "manageMasterData"] as const) {
+    for (const cap of ["viewDashboard", "viewDatabase", "manageExplorationData", "manageMasterData"] as const) {
       expect(can(ACCOUNTS.SUPER_ADMIN, cap), cap).toBe(false);
     }
   });
@@ -170,9 +170,19 @@ describe("where the table is enforced", () => {
       [["app", "(app)", "lab", "samples", "labels", "layout.tsx"], "printLabels"],
       [["app", "(app)", "lab", "grade", "page.tsx"], "readLabRecords"],
       [["app", "(app)", "lab", "dashboard", "page.tsx"], "viewDashboard"],
-      [["app", "(app)", "eksplorasi", "drilling", "page.tsx"], "manageDrilling"],
-      [["app", "(app)", "eksplorasi", "drilling", "new", "page.tsx"], "manageDrilling"],
-      [["app", "(app)", "eksplorasi", "drilling", "[id]", "edit", "page.tsx"], "manageDrilling"],
+      [["app", "(app)", "eksplorasi", "dashboard", "page.tsx"], "manageExplorationData"],
+      [["app", "(app)", "eksplorasi", "data-source", "page.tsx"], "manageExplorationData"],
+      [["app", "(app)", "eksplorasi", "data-source", "new", "page.tsx"], "manageExplorationData"],
+      [["app", "(app)", "eksplorasi", "data-source", "[id]", "edit", "page.tsx"], "manageExplorationData"],
+      [["app", "(app)", "eksplorasi", "standard", "page.tsx"], "manageExplorationData"],
+      [["app", "(app)", "eksplorasi", "standard", "new", "page.tsx"], "manageExplorationData"],
+      [["app", "(app)", "eksplorasi", "standard", "[id]", "edit", "page.tsx"], "manageExplorationData"],
+      [["app", "(app)", "eksplorasi", "blank", "page.tsx"], "manageExplorationData"],
+      [["app", "(app)", "eksplorasi", "blank", "new", "page.tsx"], "manageExplorationData"],
+      [["app", "(app)", "eksplorasi", "blank", "[id]", "edit", "page.tsx"], "manageExplorationData"],
+      [["app", "(app)", "eksplorasi", "duplicate", "page.tsx"], "manageExplorationData"],
+      [["app", "(app)", "eksplorasi", "duplicate", "new", "page.tsx"], "manageExplorationData"],
+      [["app", "(app)", "eksplorasi", "duplicate", "[id]", "edit", "page.tsx"], "manageExplorationData"],
       [["app", "(app)", "admin", "page.tsx"], "manageAnnouncements"],
       [["app", "(app)", "admin", "sign-ins", "page.tsx"], "viewSignInAudit"],
     ];
@@ -187,7 +197,7 @@ describe("where the table is enforced", () => {
   it("guards each module as a whole as well as page by page", () => {
     expect(read("app", "(app)", "lab", "layout.tsx")).toContain('requireCapabilityPage("viewDashboard")');
     expect(read("app", "(app)", "eksplorasi", "layout.tsx")).toContain(
-      'requireCapabilityPage("manageDrilling")'
+      'requireCapabilityPage("manageExplorationData")'
     );
   });
 

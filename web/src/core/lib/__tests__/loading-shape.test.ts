@@ -68,7 +68,10 @@ describe("the skeletons are shaped like the pages", () => {
     "lab/database": 10,
     "lab/assay": 9,
     "lab/samples/labels": 5,
-    "eksplorasi/drilling": 8,
+    "eksplorasi/data-source": 24,
+    "eksplorasi/standard": 24,
+    "eksplorasi/blank": 25,
+    "eksplorasi/duplicate": 27,
   };
 
   for (const [route, columns] of Object.entries(COLUMNS)) {

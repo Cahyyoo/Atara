@@ -73,7 +73,7 @@ describe("the guide", () => {
     expect(keys("ADMIN")).not.toContain("mobile");
     expect(keys("ANALISIS")).toEqual(expect.arrayContaining(["assay", "grade"]));
     expect(keys("SUPER_ADMIN", null)).toEqual(["users", "admin", "account"]);
-    expect(keys("ADMIN", "EKSPLORASI")).toEqual(["drilling", "account"]);
+    expect(keys("ADMIN", "EKSPLORASI")).toEqual(["qcDashboard", "dataSource", "account"]);
   });
 
   it("has words for every section in both languages", () => {

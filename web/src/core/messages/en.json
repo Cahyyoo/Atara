@@ -82,7 +82,11 @@
     "admin": "Administration",
     "help": "Guide",
     "home": "Home",
-    "drilling": "Drilling Data",
+    "explorationDashboard": "Dashboard",
+    "dataSource": "Data Source",
+    "qcStandard": "Standard (CRM)",
+    "qcBlank": "Blank",
+    "qcDuplicate": "Duplicate",
     "signInAudit": "Sign-in Audit",
     "groups": {
       "lab": "Lab",
@@ -141,7 +145,7 @@
       "roleLabAdmin": "Lab Admin",
       "roleLabAdminHint": "Lab module: dashboard, lab staff, master data and activity. Reads the sample database without changing it.",
       "roleEksplorasiAdmin": "Exploration Admin",
-      "roleEksplorasiAdminHint": "Exploration module: manages the drilling data.",
+      "roleEksplorasiAdminHint": "Exploration module: manages the data source and its QC samples.",
       "departmentLab": "Lab",
       "departmentEksplorasi": "Exploration"
     }
@@ -346,7 +350,7 @@
       },
       "eksplorasi": {
         "name": "Exploration",
-        "description": "Manage drilling data: drill holes, collar coordinates, orientation, depth and status."
+        "description": "Manage the assay data source and its QC samples (standard, blank, duplicate), with QC charts."
       },
       "system": {
         "name": "Settings",

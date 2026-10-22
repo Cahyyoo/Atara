@@ -1,87 +1,121 @@
 {
   "help": {
     "sections": {
-      "drilling": {
-        "title": "Drilling Data",
-        "intro": "The drill holes of the Exploration module.",
+      "qcDashboard": {
+        "title": "Exploration Dashboard",
+        "intro": "QC charts of the data source: the standard (CRM) and duplicate samples.",
         "steps": {
-          "1": "Add Drill Hole opens a spreadsheet-like page: type or paste a block from Excel into the empty rows. The latest 50 holes sit above, locked; click the lock to change one in place, then Save them all at once.",
-          "2": "Search by hole ID or area, and filter by status.",
-          "3": "Edit opens the same sheet page with that hole already unlocked; the bin icon removes a hole for good.",
-          "4": "Import uploads thousands of drill holes at once from Excel/CSV (previewed first; rows with errors can be downloaded); Export downloads the list on screen in the same format."
+          "1": "Pick the element (Ni, Fe, SiO2, …) for both charts. Leave the dates empty to see every assay.",
+          "2": "Standard (CRM): each point is one standard assay at its date, one colour per Control (the CRM's name). A point that wanders from its group is a standard off its value.",
+          "3": "Duplicate: X is the original sample's value, Y its duplicate's. The original is found through the Control column of the duplicate row. The closer to the 1:1 line, the better the precision.",
+          "4": "Values that are not numbers (such as <0.01) are not drawn; how many is said under the chart."
         },
-        "tip": "The hole ID must be unique. Every other field may be left empty and completed later."
+        "tip": "Fill the Control column of a DUPLICATE row with the original sample's Sample ID so the pair can be found."
+      },
+      "dataSource": {
+        "title": "Data Source",
+        "intro": "Every assayed sample and its QC samples. The Standard, Blank and Duplicate menus show one type each.",
+        "steps": {
+          "1": "Add opens an Excel-like sheet page: type or paste a block from Excel into the empty rows. The latest 50 rows sit locked above; click the padlock to change one in place, then Save them all at once.",
+          "2": "Search by Sample ID, Hole ID, Control or Campaign, and filter by campaign (and by sample type on the Data Source).",
+          "3": "The pencil opens the sheet with that row already unlocked; the bin removes the row for good.",
+          "4": "Import uploads thousands of rows at once from Excel/CSV (preview first, failed rows can be downloaded); Export downloads the list on screen with that menu's columns, ready to import back."
+        },
+        "tip": "Sample IDs must be unique. On the Standard, Blank and Duplicate menus the sample type is filled in from the menu."
       }
     },
     "welcome": {
       "EKSPLORASI_ADMIN": {
         "steps": {
           "1": {
-            "title": "You run the Exploration module",
-            "body": "Drilling Data holds every drill hole: add, edit, search and delete."
+            "title": "You run the Eksplorasi module",
+            "body": "The Data Source holds every sample; Standard, Blank and Duplicate keep the QC samples apart; the Dashboard charts them."
           },
           "2": {
-            "title": "Help is always here",
-            "body": "Press ? at the top of any page for the part of the guide about it."
+            "title": "Help is always there",
+            "body": "Press ? at the top of any page for that page's guide."
           }
         }
       }
     }
   },
-  "drilling": {
-    "title": "Drilling Data",
-    "subtitle": "The drill holes of the Exploration module.",
-    "add": "Add Drill Hole",
-    "searchPlaceholder": "Search hole ID or area…",
-    "allStatuses": "All statuses",
-    "empty": "No drilling data yet.",
-    "emptyFiltered": "No drill holes match.",
-    "noun": "drill holes",
-    "status": {
-      "PLANNED": "Planned",
-      "ONGOING": "Ongoing",
-      "COMPLETED": "Completed",
-      "ABANDONED": "Abandoned"
+  "dataSource": {
+    "views": {
+      "dataSource": {
+        "title": "Data Source",
+        "subtitle": "Every assayed sample and its QC samples.",
+        "add": "Add Data",
+        "empty": "No data yet."
+      },
+      "standard": {
+        "title": "Standard (CRM)",
+        "subtitle": "The standard (CRM) samples of the data source.",
+        "add": "Add Standard",
+        "empty": "No standard samples yet."
+      },
+      "blank": {
+        "title": "Blank",
+        "subtitle": "The blank samples of the data source.",
+        "add": "Add Blank",
+        "empty": "No blank samples yet."
+      },
+      "duplicate": {
+        "title": "Duplicate",
+        "subtitle": "The duplicate samples of the data source. Control holds the original sample's Sample ID.",
+        "add": "Add Duplicate",
+        "empty": "No duplicate samples yet."
+      }
+    },
+    "searchPlaceholder": "Search Sample ID, Hole ID, Control, Campaign…",
+    "allCampaigns": "All campaigns",
+    "allTypes": "All types",
+    "emptyFiltered": "No rows match.",
+    "noun": "rows",
+    "editRow": "Edit {sampleId}",
+    "editTitle": "Edit {sampleId}",
+    "sampleType": {
+      "ORIGINAL": "Original",
+      "STANDARD": "Standard (CRM)",
+      "BLANK": "Blank",
+      "DUPLICATE": "Duplicate"
+    },
+    "sampleTypeShort": {
+      "ORIGINAL": "Original",
+      "STANDARD": "Standard",
+      "BLANK": "Blank",
+      "DUPLICATE": "Duplicate"
     },
     "fields": {
+      "controlDate": "Control Date",
+      "control": "Control",
+      "campaign": "Campaign",
+      "no": "No",
       "holeId": "Hole ID",
-      "area": "Area / Prospect",
-      "status": "Status",
-      "easting": "Easting",
-      "northing": "Northing",
-      "elevation": "Elevation (m)",
-      "azimuth": "Azimuth (°)",
-      "dip": "Dip (°)",
-      "totalDepth": "Total Depth (m)",
-      "startDate": "Start Date",
-      "endDate": "End Date",
-      "remarks": "Remarks"
+      "sampleId": "Sample ID",
+      "sampleType": "Sample Type",
+      "from": "From",
+      "to": "To",
+      "fromTo": "From–To",
+      "remarks": "Remarks",
+      "date": "Date",
+      "weight": "Weight"
     },
-    "columns": {
-      "coordinates": "Collar Coordinates",
-      "orientation": "Orientation",
-      "period": "Start / End",
-      "azimuthShort": "Az",
-      "dipShort": "Dip"
-    },
-    "editTitle": "Edit {holeId}",
     "delete": {
-      "label": "Delete {holeId}",
-      "title": "Delete drill hole?",
-      "confirm": "{holeId} will be deleted permanently and cannot be restored.",
+      "label": "Delete {sampleId}",
+      "title": "Delete this row?",
+      "confirm": "{sampleId} will be deleted for good and cannot be brought back.",
       "action": "Delete",
-      "done": "{holeId} deleted."
-    },
-    "export": {
-      "button": "Export"
+      "done": "{sampleId} deleted."
     },
     "import": {
       "button": "Import",
-      "title": "Import Drilling Data",
-      "description": "Upload an Excel (.xlsx) or CSV file. Rows are matched by hole ID: new hole IDs are added, existing ones can be updated. At most 50,000 rows, 20 MB.",
+      "title": "Import {list}",
+      "description": "Upload an Excel (.xlsx) or CSV file. Rows are matched by Sample ID: new Sample IDs are added, existing ones can be updated. Up to 50,000 rows, 20 MB.",
+      "descriptionQc": "Upload an Excel (.xlsx) or CSV file. Every row becomes this menu's type; a row of another type is refused. Rows are matched by Sample ID. Up to 50,000 rows, 20 MB.",
       "choose": "Choose file",
       "chooseAnother": "Choose another file",
-      "columnsHint": "The first row holds the column headers: {columns}. Only Hole ID is required; other columns may be left out. Dates: YYYY-MM-DD or DD/MM/YYYY.",
+      "columnsHint": "Row 1 holds the headers: {columns}. Sample ID and Sample Type (ORIGINAL, STANDARD, BLANK, DUPLICATE) are required; other columns may be left out. Dates: YYYY-MM-DD or DD/MM/YYYY.",
+      "columnsHintQc": "Row 1 holds the headers: {columns}. Only Sample ID is required; other columns may be left out. Dates: YYYY-MM-DD or DD/MM/YYYY.",
       "template": "Download template",
       "reading": "Reading and checking the file…",
       "summary": {
@@ -94,8 +128,8 @@
         "updated": "Updated",
         "skipped": "Skipped"
       },
-      "updateExisting": "Update the {count} drill holes that already exist (same hole ID)",
-      "updateExistingHint": "Empty cells in the file do not erase what is already stored.",
+      "updateExisting": "Update {count} existing rows (same Sample ID)",
+      "updateExistingHint": "Empty cells in the file do not erase what is stored.",
       "ignoredHeaders": "Unknown columns, ignored: {headers}",
       "errorsTitle": "{count, plural, one {# row has errors and will not be imported} other {# rows have errors and will not be imported}}",
       "downloadErrors": "Download error report (CSV)",
@@ -104,10 +138,10 @@
       "run": "Import {count} rows",
       "runEmpty": "Import",
       "doneTitle": "Import finished",
-      "doneToast": "{created} drill holes added, {updated} updated.",
+      "doneToast": "{created} rows added, {updated} updated.",
       "another": "Import another file",
       "report": {
-        "line": "Line",
+        "line": "Row",
         "column": "Column",
         "error": "Error"
       }
@@ -118,14 +152,14 @@
       "row": "Row {row}",
       "lock": "Lock again (undo changes)",
       "unlock": "Unlock to change",
-      "loading": "Loading the latest drill holes…",
+      "loading": "Loading the latest rows…",
       "checking": "Checking…",
       "addRows": "Add 50 rows",
       "clear": "Clear",
       "save": "Save {count, plural, one {# row} other {# rows}}",
-      "nothing": "Fill in an empty row, or unlock a hole to change it.",
-      "fixInvalid": "{count, plural, one {# row needs} other {# rows need}} fixing before saving.",
-      "saved": "{created, plural, one {# hole} other {# holes}} added, {updated} changed.",
+      "nothing": "Fill an empty row, or unlock a row to change it.",
+      "fixInvalid": "{count, plural, one {# row needs fixing before saving.} other {# rows need fixing before saving.}}",
+      "saved": "{created, plural, one {# row} other {# rows}} added, {updated} changed.",
       "counts": {
         "create": "{count} new",
         "update": "{count} changed",
@@ -135,16 +169,45 @@
       "statuses": {
         "create": "Will be added",
         "update": "Will be changed",
-        "unchanged": "No change",
+        "unchanged": "Unchanged",
         "invalid": "Needs fixing"
       },
-      "back": "Data Drilling",
-      "addTitle": "Add Drill Holes",
       "leaveTitle": "Leave this page?",
-      "leaveBody": "Anything not saved yet will be lost.",
+      "leaveBody": "What has not been saved will be lost.",
       "leave": "Leave",
-      "lockedHint": "{count, plural, one {The latest hole is locked above — click its lock to change it.} other {The latest # holes are locked above — click a lock to change one.}}",
-      "formats": "The header row from Excel may be pasted along. Dates as YYYY-MM-DD or DD/MM/YYYY; numbers may use a decimal comma. A box emptied on an unlocked hole clears that value."
+      "lockedHint": "{count, plural, one {The latest row is locked above — click the padlock to change it.} other {The latest # rows are locked above — click a padlock to change one.}}",
+      "formats": "A header row copied from Excel may be pasted too. Dates YYYY-MM-DD or DD/MM/YYYY. Element values are kept as written (such as <0.01). Emptying a box on an unlocked row clears it."
+    }
+  },
+  "qcDashboard": {
+    "title": "Dashboard",
+    "subtitle": "QC charts: the standard (CRM) and duplicate samples.",
+    "element": "Element",
+    "from": "From date",
+    "to": "To date",
+    "loading": "Loading charts…",
+    "axisValue": "{element}",
+    "truncated": "Too many assays; only the oldest 5,000 points are drawn. Narrow the dates.",
+    "standard": {
+      "title": "Standard (CRM)",
+      "description": "{element} of every standard sample by date, one colour per Control.",
+      "axisX": "Date",
+      "empty": "No standard samples with a date and an {element} value yet.",
+      "skipped": "{count, plural, one {# standard sample is not drawn (no date, no Control, or not a number).} other {# standard samples are not drawn (no date, no Control, or not a number).}}"
+    },
+    "duplicate": {
+      "title": "Duplicate",
+      "description": "{element} of the original sample (X) against its duplicate (Y).",
+      "axisX": "{element} original",
+      "axisY": "{element} duplicate",
+      "pairs": "Pairs",
+      "oneToOne": "1:1 line",
+      "original": "Original",
+      "duplicate": "Duplicate",
+      "empty": "No duplicate pairs with an {element} value yet. Fill the Control column of a duplicate row with the original's Sample ID.",
+      "count": "{count, plural, one {# pair drawn.} other {# pairs drawn.}}",
+      "unmatched": "{count, plural, one {# duplicate has no original (check its Control).} other {# duplicates have no original (check their Control).}}",
+      "skipped": "{count, plural, one {# pair is not drawn: a value is not a number.} other {# pairs are not drawn: a value is not a number.}}"
     }
   }
 }

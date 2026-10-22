@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-/** The module's own address opens its one page for now. */
+/** The module's own address opens its dashboard. */
 export default function EksplorasiPage() {
-  redirect("/eksplorasi/drilling");
+  redirect("/eksplorasi/dashboard");
 }

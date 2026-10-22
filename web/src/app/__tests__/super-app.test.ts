@@ -13,8 +13,8 @@ import {
 import { HOME_PATH, canAccessModule, modulesFor } from "@/core/lib/app/modules";
 import { MODULES } from "@/modules/registry";
 import { samplePath, subSamplePath } from "@/modules/lab/lib/samples/sample-ident";
-import { createDrillHoleSchema, updateDrillHoleSchema } from "@/modules/eksplorasi/validation";
-import { toDateColumn, blankToNull } from "@/modules/eksplorasi/lib/drill-hole";
+import { createDataSourceSchema, updateDataSourceSchema } from "@/modules/eksplorasi/validation";
+import { toDateColumn, blankToNull, dataSourceWhere } from "@/modules/eksplorasi/lib/data-source";
 
 const SUPER: Access = { role: "SUPER_ADMIN", department: null };
 const LAB_ADMIN: Access = { role: "ADMIN", department: "LAB" };
@@ -102,32 +102,34 @@ describe("the modules", () => {
   });
 });
 
-describe("a drill hole", () => {
-  it("needs only its hole ID, and starts as planned", () => {
-    const parsed = createDrillHoleSchema.parse({ holeId: "  DH-001 " });
-    expect(parsed).toMatchObject({ holeId: "DH-001", status: "PLANNED" });
+describe("a row of the data source", () => {
+  it("needs only its sample ID and its type", () => {
+    const parsed = createDataSourceSchema.parse({ sampleId: "  SMP-001 ", sampleType: "ORIGINAL" });
+    expect(parsed).toMatchObject({ sampleId: "SMP-001", sampleType: "ORIGINAL" });
+    expect(createDataSourceSchema.safeParse({ sampleId: "SMP-001" }).success).toBe(false);
+    expect(createDataSourceSchema.safeParse({ sampleId: " ", sampleType: "BLANK" }).success).toBe(false);
   });
 
-  it("refuses an orientation that cannot be", () => {
-    expect(createDrillHoleSchema.safeParse({ holeId: "A", azimuth: 361 }).success).toBe(false);
-    expect(createDrillHoleSchema.safeParse({ holeId: "A", dip: -91 }).success).toBe(false);
-    expect(createDrillHoleSchema.safeParse({ holeId: "A", totalDepth: -1 }).success).toBe(false);
-    expect(createDrillHoleSchema.safeParse({ holeId: "A", azimuth: 0, dip: -90 }).success).toBe(true);
-  });
-
-  it("refuses an end before the start", () => {
-    const body = { holeId: "A", startDate: "2026-10-02", endDate: "2026-10-01" };
-    expect(createDrillHoleSchema.safeParse(body).success).toBe(false);
-    expect(updateDrillHoleSchema.safeParse(body).success).toBe(false);
-    expect(createDrillHoleSchema.safeParse({ ...body, endDate: "2026-10-02" }).success).toBe(true);
+  it("keeps a value as the lab wrote it, within the column's length", () => {
+    const parsed = createDataSourceSchema.parse({ sampleId: "A", sampleType: "BLANK", ni: "<0.01" });
+    expect(parsed.ni).toBe("<0.01");
+    expect(createDataSourceSchema.safeParse({ sampleId: "A", sampleType: "BLANK", ni: "x".repeat(21) }).success).toBe(false);
+    expect(createDataSourceSchema.safeParse({ sampleId: "A", sampleType: "BLANK", date: "01/10/2026" }).success).toBe(false);
   });
 
   it("clears a column with null, and leaves it alone when it is not sent", () => {
-    expect(updateDrillHoleSchema.parse({ area: null })).toEqual({ area: null });
-    expect(updateDrillHoleSchema.parse({})).toEqual({});
+    expect(updateDataSourceSchema.parse({ campaign: null })).toEqual({ campaign: null });
+    expect(updateDataSourceSchema.parse({})).toEqual({});
     expect(blankToNull("")).toBeNull();
     expect(blankToNull(undefined)).toBeUndefined();
     expect(toDateColumn("2026-10-11")?.toISOString()).toBe("2026-10-11T00:00:00.000Z");
     expect(toDateColumn(null)).toBeNull();
+  });
+
+  it("holds a QC list to its own type, whatever the query asks", () => {
+    expect(dataSourceWhere({ view: "standard" })).toEqual({ sampleType: "STANDARD" });
+    expect(dataSourceWhere({ view: "blank", sampleType: "DUPLICATE" })).toEqual({ sampleType: "BLANK" });
+    expect(dataSourceWhere({ view: "dataSource" })).toEqual({});
+    expect(dataSourceWhere({ view: "dataSource", sampleType: "ORIGINAL" })).toEqual({ sampleType: "ORIGINAL" });
   });
 });

@@ -82,7 +82,11 @@
     "admin": "Administrasi",
     "help": "Panduan",
     "home": "Beranda",
-    "drilling": "Data Drilling",
+    "explorationDashboard": "Dashboard",
+    "dataSource": "Data Source",
+    "qcStandard": "Standard (CRM)",
+    "qcBlank": "Blank",
+    "qcDuplicate": "Duplicate",
     "signInAudit": "Audit Login",
     "groups": {
       "lab": "Lab",
@@ -141,7 +145,7 @@
       "roleLabAdmin": "Admin Lab",
       "roleLabAdminHint": "Modul Lab: dashboard, staf lab, master data, dan aktivitas. Melihat database sampel tanpa mengubahnya.",
       "roleEksplorasiAdmin": "Admin Eksplorasi",
-      "roleEksplorasiAdminHint": "Modul Eksplorasi: mengelola data drilling.",
+      "roleEksplorasiAdminHint": "Modul Eksplorasi: mengelola data source dan sampel QC.",
       "departmentLab": "Lab",
       "departmentEksplorasi": "Eksplorasi"
     }
@@ -346,7 +350,7 @@
       },
       "eksplorasi": {
         "name": "Eksplorasi",
-        "description": "Kelola data drilling: lubang bor, koordinat collar, orientasi, kedalaman, dan statusnya."
+        "description": "Kelola data source hasil analisis dan sampel QC-nya (standard, blank, duplicate), lengkap dengan grafik QC."
       },
       "system": {
         "name": "Pengaturan",

@@ -6,9 +6,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { StatTile } from "@/core/components/feedback/stat-tile";
 import { downloadBlob } from "@/core/lib/http/api-client";
 import { CSV_BOM, csvLine } from "@/core/lib/sheets/csv";
-import { DRILL_HOLE_COLUMNS } from "@/modules/eksplorasi/lib/drill-hole-columns";
-import type { ImportError } from "@/modules/eksplorasi/lib/drill-hole-import";
-import type { ImportPreview as Preview } from "@/modules/eksplorasi/components/import/use-drill-import";
+import { HEADERS } from "@/modules/eksplorasi/lib/data-source-columns";
+import type { ImportError } from "@/modules/eksplorasi/lib/data-source-import";
+import type { ImportPreview as Preview } from "@/modules/eksplorasi/components/import/use-data-source-import";
 import { IoAlertCircleOutline, IoDownloadOutline } from "react-icons/io5";
 
 /** Errors shown on screen; the full list is in the downloadable report. */
@@ -26,7 +26,7 @@ export function ImportPreview({
   disabled: boolean;
   onUpdateExisting: (value: boolean) => void;
 }) {
-  const t = useTranslations("drilling.import");
+  const t = useTranslations("dataSource.import");
   const tCommon = useTranslations("common");
   const format = useFormatter();
   const n = (value: number) => format.number(value);
@@ -34,10 +34,10 @@ export function ImportPreview({
   /** Every error, as a CSV to fix the file by. Built here: the server already sent them. */
   function downloadErrors(errors: ImportError[]) {
     const lines = [
-      csvLine([t("report.line"), "Hole ID", t("report.column"), t("report.error")]),
-      ...errors.map((e) => csvLine([e.line, e.holeId, DRILL_HOLE_COLUMNS.find((c) => c.key === e.field)?.header ?? "", e.message])),
+      csvLine([t("report.line"), HEADERS.sampleId, t("report.column"), t("report.error")]),
+      ...errors.map((e) => csvLine([e.line, e.sampleId, e.field ? HEADERS[e.field] : "", e.message])),
     ];
-    downloadBlob(new Blob([CSV_BOM + lines.join("\r\n")], { type: "text/csv;charset=utf-8" }), `drill-holes-import-errors-${Date.now()}.csv`);
+    downloadBlob(new Blob([CSV_BOM + lines.join("\r\n")], { type: "text/csv;charset=utf-8" }), `data-source-import-errors-${Date.now()}.csv`);
   }
 
   return (
@@ -86,7 +86,7 @@ export function ImportPreview({
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-16">{t("report.line")}</TableHead>
-                  <TableHead>Hole ID</TableHead>
+                  <TableHead>{HEADERS.sampleId}</TableHead>
                   <TableHead>{t("report.error")}</TableHead>
                 </TableRow>
               </TableHeader>
@@ -94,7 +94,7 @@ export function ImportPreview({
                 {preview.errors.slice(0, SHOWN_ERRORS).map((e, index) => (
                   <TableRow key={`${e.line}-${index}`}>
                     <TableCell className="font-mono text-xs">{e.line}</TableCell>
-                    <TableCell className="font-mono text-xs">{e.holeId ?? tCommon("empty")}</TableCell>
+                    <TableCell className="font-mono text-xs">{e.sampleId ?? tCommon("empty")}</TableCell>
                     <TableCell className="text-xs">{e.message}</TableCell>
                   </TableRow>
                 ))}

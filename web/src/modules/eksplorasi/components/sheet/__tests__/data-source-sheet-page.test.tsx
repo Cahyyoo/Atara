@@ -1,0 +1,228 @@
+// @vitest-environment jsdom
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
+
+import { en } from "@/core/i18n/test-messages";
+import { DataSourceSheetPage } from "@/modules/eksplorasi/components/sheet/data-source-sheet-page";
+import { ELEMENT_FIELDS } from "@/modules/eksplorasi/lib/data-source-columns";
+import type { DataSourceDTO, DataSourceView, SheetVerdict } from "@/modules/eksplorasi/types";
+
+vi.mock("@/core/components/ui/toast", () => ({ toast: vi.fn() }));
+const { push } = vi.hoisted(() => ({ push: vi.fn() }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
+
+/**
+ * A list's sheet, on its own page: the list's latest rows on top, read-only
+ * until unlocked, new rows typed or pasted below, every active row checked,
+ * and Save sending the new rows and the unlocked ones together -- with the
+ * list's own columns, and on a QC list its own type.
+ */
+
+const ROW: DataSourceDTO = {
+  id: "r1",
+  controlDate: null,
+  control: null,
+  campaign: "C1",
+  no: null,
+  holeId: "DH-1",
+  sampleId: "S-001",
+  sampleType: "ORIGINAL",
+  from: "10",
+  to: "11",
+  remarks: null,
+  date: "2026-10-01",
+  weight: "2.5",
+  ...(Object.fromEntries(ELEMENT_FIELDS.map((field) => [field, null])) as Record<(typeof ELEMENT_FIELDS)[number], null>),
+  ni: "1.5",
+  createdBy: null,
+  updatedBy: null,
+  createdAt: "2026-10-01T00:00:00.000Z",
+  updatedAt: "2026-10-01T00:00:00.000Z",
+};
+
+type Sent = { dryRun: boolean; view: string; rows: { line: number; id?: string; cells: Record<string, string> }[] };
+let sent: Sent[] = [];
+let listed: string[] = [];
+
+beforeEach(() => {
+  sent = [];
+  listed = [];
+  push.mockReset();
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string, init?: RequestInit) => {
+      if (url.startsWith("/api/data-sources?")) {
+        listed.push(url);
+        const data = { rows: [ROW], pagination: { page: 1, pageSize: 50, total: 1, totalPages: 1 } };
+        return { ok: true, json: async () => ({ success: true, data }) };
+      }
+      const body = JSON.parse(String(init?.body)) as Sent;
+      sent.push(body);
+      const rows: SheetVerdict[] = body.rows.map((row) => ({ line: row.line, status: row.id ? "update" : "create" }));
+      const count = (status: string) => rows.filter((row) => row.status === status).length;
+      const summary = { create: count("create"), update: count("update"), unchanged: 0, invalid: 0 };
+      const data = { rows, summary, created: body.dryRun ? 0 : summary.create, updated: body.dryRun ? 0 : summary.update };
+      return { ok: true, json: async () => ({ success: true, data }) };
+    })
+  );
+});
+afterEach(() => {
+  cleanup();
+  vi.unstubAllGlobals();
+});
+
+async function show(view: DataSourceView = "dataSource", editing?: DataSourceDTO) {
+  render(
+    <NextIntlClientProvider locale="en" messages={en} timeZone="Asia/Makassar" onError={() => {}}>
+      <DataSourceSheetPage view={view} editing={editing} />
+    </NextIntlClientProvider>
+  );
+  await screen.findByRole("textbox", { name: "Row 1 Sample ID" }, { timeout: 3000 });
+}
+
+const box = (row: number, field: string) => screen.getByRole("textbox", { name: `Row ${row} ${field}` }) as HTMLInputElement;
+const LONG = { timeout: 3000 };
+const types = en.dataSource.sampleType;
+
+async function save(name: string) {
+  const button = await screen.findByRole("button", { name }, LONG);
+  await waitFor(() => expect((button as HTMLButtonElement).disabled).toBe(false), LONG);
+  fireEvent.click(button);
+}
+
+describe("a list's sheet", () => {
+  it("shows the list's latest rows read-only, with the new rows below, in the list's columns", async () => {
+    await show();
+    expect(listed[0]).toContain("view=dataSource");
+    expect(box(1, "Sample ID").value).toBe("S-001");
+    expect(box(1, "Sample ID").readOnly).toBe(true);
+    expect(box(1, "Sample Type").value).toBe(types.ORIGINAL);
+    expect(box(1, "Ni").value).toBe("1.5");
+    expect(box(2, "Sample ID").readOnly).toBe(false);
+    // The data source has no Control column; the duplicate list does.
+    expect(screen.queryByRole("textbox", { name: "Row 1 Control" })).toBeNull();
+  });
+
+  it("offers the sample types as a list on a row that can be changed, and sends the one picked", async () => {
+    await show();
+    const type = () => screen.getByRole("combobox", { name: "Row 2 Sample Type" }) as HTMLSelectElement;
+    expect([...type().options].map((option) => option.text)).toEqual([
+      "—",
+      ...(["ORIGINAL", "STANDARD", "BLANK", "DUPLICATE"] as const).map((key) => types[key]),
+    ]);
+
+    fireEvent.change(box(2, "Sample ID"), { target: { value: "S-300" } });
+    fireEvent.change(type(), { target: { value: types.BLANK } });
+
+    await save("Save 1 row");
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/eksplorasi/data-source"), LONG);
+    expect(sent.at(-1)).toMatchObject({ view: "dataSource", rows: [{ line: 2, cells: { sampleId: "S-300", sampleType: types.BLANK } }] });
+  });
+
+  it("shows a pasted type by its name, however the sheet wrote it", async () => {
+    await show();
+    fireEvent.paste(box(2, "Sample ID"), {
+      clipboardData: { getData: () => "Sample ID\tSample Type\nS-1\tSTD\nS-2\tstandart\nS-3\tsomeday" },
+    });
+    const type = (row: number) => (screen.getByRole("combobox", { name: `Row ${row} Sample Type` }) as HTMLSelectElement).value;
+    expect([type(2), type(3), type(4)]).toEqual([types.STANDARD, types.STANDARD, "someday"]);
+  });
+
+  it("spreads a block pasted with its header across the new rows", async () => {
+    await show();
+    fireEvent.paste(box(2, "Sample ID"), {
+      clipboardData: { getData: () => "Sample ID\tNi (%)\tCampaign\nS-100\t1,25\tC2\nS-101\t<0.01\t" },
+    });
+    expect([box(2, "Sample ID").value, box(2, "Ni").value, box(2, "Campaign").value]).toEqual(["S-100", "1,25", "C2"]);
+    expect(box(3, "Ni").value).toBe("<0.01");
+    // A paste never reaches the locked row above.
+    expect(box(1, "Sample ID").value).toBe("S-001");
+  });
+
+  it("unlocks a row to change it, and saves it with the new rows", async () => {
+    await show();
+    fireEvent.click(screen.getByRole("button", { name: en.dataSource.sheet.unlock }));
+    expect(box(1, "Ni").readOnly).toBe(false);
+    fireEvent.change(box(1, "Ni"), { target: { value: "1.55" } });
+    fireEvent.change(box(2, "Sample ID"), { target: { value: "S-200" } });
+
+    await save("Save 2 rows");
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/eksplorasi/data-source"), LONG);
+    expect(sent.at(-1)!.rows).toEqual([
+      { line: 1, id: "r1", cells: expect.objectContaining({ sampleId: "S-001", ni: "1.55" }) },
+      { line: 2, cells: { sampleId: "S-200" } },
+    ]);
+  });
+
+  it("puts a row back as it was when it is locked again", async () => {
+    await show();
+    fireEvent.click(screen.getByRole("button", { name: en.dataSource.sheet.unlock }));
+    fireEvent.change(box(1, "Ni"), { target: { value: "9.99" } });
+    fireEvent.click(screen.getByRole("button", { name: en.dataSource.sheet.lock }));
+    expect(box(1, "Ni").value).toBe("1.5");
+    expect(box(1, "Ni").readOnly).toBe(true);
+  });
+
+  it("on a QC list, shows the list's type in every row and never sends one typed", async () => {
+    await show("duplicate");
+    expect(listed[0]).toContain("view=duplicate");
+    expect(box(2, "Sample Type").value).toBe(types.DUPLICATE);
+    expect(box(2, "Sample Type").readOnly).toBe(true);
+    expect(screen.getByRole("textbox", { name: "Row 2 Control" })).toBeTruthy();
+
+    fireEvent.paste(box(2, "Sample ID"), { clipboardData: { getData: () => "Sample ID\tSample Type\tControl\nD-1\tBlank\tS-001" } });
+    await save("Save 1 row");
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/eksplorasi/duplicate"), LONG);
+    expect(sent.at(-1)).toMatchObject({ view: "duplicate", rows: [{ line: 2, cells: { sampleId: "D-1", control: "S-001" } }] });
+  });
+
+  it("opened from a row's edit, has that row unlocked already", async () => {
+    await show("dataSource", ROW);
+    expect(screen.getByRole("heading", { name: "Edit S-001" })).toBeTruthy();
+    expect(box(1, "Sample ID").readOnly).toBe(false);
+    expect(screen.getByRole("button", { name: en.dataSource.sheet.lock })).toBeTruthy();
+    await waitFor(() => expect(document.activeElement).toBe(box(1, "Campaign")), LONG);
+  });
+
+  it("brings an older row onto the sheet, unlocked, right above the empty rows", async () => {
+    const older: DataSourceDTO = { ...ROW, id: "r0", sampleId: "S-000", ni: "0.9" };
+    await show("dataSource", older);
+    expect(box(1, "Sample ID").value).toBe("S-001");
+    expect(box(1, "Sample ID").readOnly).toBe(true);
+    expect(box(2, "Sample ID").value).toBe("S-000");
+    expect(box(2, "Sample ID").readOnly).toBe(false);
+    expect(box(3, "Sample ID").value).toBe("");
+  });
+
+  // No scroll box of its own: every row is on the page, the last empty one too.
+  it("draws every row, so the sheet needs no scrollbar of its own", async () => {
+    await show();
+    expect(box(21, "Sample ID").value).toBe("");
+    expect(screen.queryByRole("textbox", { name: "Row 22 Sample ID" })).toBeNull();
+  });
+
+  it("says above the sheet how many rows are locked, until something is entered", async () => {
+    await show();
+    const hint = "The latest row is locked above — click the padlock to change it.";
+    expect(screen.getByText(hint)).toBeTruthy();
+    fireEvent.change(box(2, "Sample ID"), { target: { value: "S-500" } });
+    expect(screen.queryByText(hint)).toBeNull();
+  });
+
+  it("asks before leaving work that is not saved, and stays until told to go", async () => {
+    await show("standard");
+    fireEvent.change(box(2, "Sample ID"), { target: { value: "S-400" } });
+    fireEvent.click(screen.getByRole("button", { name: en.common.cancel }));
+    const dialog = await screen.findByRole("dialog", { name: en.dataSource.sheet.leaveTitle });
+    expect(push).not.toHaveBeenCalled();
+
+    fireEvent.click(within(dialog).getByRole("button", { name: en.common.cancel }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(box(2, "Sample ID").value).toBe("S-400");
+
+    fireEvent.click(screen.getByRole("button", { name: en.dataSource.views.standard.title }));
+    fireEvent.click(await screen.findByRole("button", { name: en.dataSource.sheet.leave }));
+    expect(push).toHaveBeenCalledWith("/eksplorasi/standard");
+  });
+});

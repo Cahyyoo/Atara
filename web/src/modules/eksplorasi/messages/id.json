@@ -1,16 +1,27 @@
 {
   "help": {
     "sections": {
-      "drilling": {
-        "title": "Data Drilling",
-        "intro": "Daftar lubang bor modul Eksplorasi.",
+      "qcDashboard": {
+        "title": "Dashboard Eksplorasi",
+        "intro": "Grafik QC data source: sampel standard (CRM) dan duplicate.",
         "steps": {
-          "1": "Tambah Lubang Bor membuka halaman lembar seperti Excel: ketik atau tempel blok dari Excel ke baris kosong. 50 lubang bor terakhir tampil terkunci di atasnya; klik gembok untuk mengubahnya langsung di lembar, lalu Simpan sekaligus.",
-          "2": "Cari dengan Hole ID atau area, dan saring per status.",
-          "3": "Ubah membuka halaman lembar yang sama dengan lubang bor itu sudah terbuka kuncinya; ikon tempat sampah menghapus lubang bor secara permanen.",
-          "4": "Import untuk mengunggah ribuan lubang bor sekaligus dari Excel/CSV (pratinjau dulu, baris error bisa diunduh); Export mengunduh daftar yang sedang tampil dalam format yang sama."
+          "1": "Pilih unsur (Ni, Fe, SiO2, …) untuk kedua grafik. Rentang tanggal boleh dikosongkan agar semua data tampil.",
+          "2": "Standard (CRM): setiap titik adalah satu analisis standard pada tanggalnya, satu warna per Control (nama CRM). Titik yang menjauh dari kelompoknya menandakan standard yang menyimpang.",
+          "3": "Duplicate: sumbu X adalah nilai sampel asli, sumbu Y nilai duplikatnya. Sampel asli dicari dari kolom Control pada baris duplicate. Makin dekat ke garis 1:1, makin presisi.",
+          "4": "Nilai yang bukan angka (misalnya <0.01) tidak digambar; jumlahnya disebutkan di bawah grafik."
         },
-        "tip": "Hole ID harus unik. Kolom lain boleh dikosongkan lalu dilengkapi nanti."
+        "tip": "Isi kolom Control pada baris DUPLICATE dengan Sample ID sampel aslinya agar pasangan bisa ditemukan."
+      },
+      "dataSource": {
+        "title": "Data Source",
+        "intro": "Semua sampel hasil analisis beserta sampel QC-nya. Menu Standard, Blank, dan Duplicate menampilkan tipe masing-masing.",
+        "steps": {
+          "1": "Tambah membuka halaman lembar seperti Excel: ketik atau tempel blok dari Excel ke baris kosong. 50 baris terakhir tampil terkunci di atasnya; klik gembok untuk mengubahnya langsung, lalu Simpan sekaligus.",
+          "2": "Cari dengan Sample ID, Hole ID, Control, atau Campaign, dan saring per campaign (serta per tipe sampel di Data Source).",
+          "3": "Ikon pensil membuka lembar dengan baris itu sudah terbuka kuncinya; ikon tempat sampah menghapus baris secara permanen.",
+          "4": "Import mengunggah ribuan baris sekaligus dari Excel/CSV (pratinjau dulu, baris error bisa diunduh); Export mengunduh daftar yang sedang tampil dengan kolom menu itu, sehingga bisa langsung di-import kembali."
+        },
+        "tip": "Sample ID harus unik. Di menu Standard, Blank, dan Duplicate, tipe sampel terisi otomatis sesuai menunya."
       }
     },
     "welcome": {
@@ -18,7 +29,7 @@
         "steps": {
           "1": {
             "title": "Anda mengelola modul Eksplorasi",
-            "body": "Data Drilling berisi semua lubang bor: tambah, ubah, cari, dan hapus."
+            "body": "Data Source berisi semua sampel; Standard, Blank, dan Duplicate memisahkan sampel QC; Dashboard menggambar grafik QC-nya."
           },
           "2": {
             "title": "Bantuan selalu ada",
@@ -28,60 +39,83 @@
       }
     }
   },
-  "drilling": {
-    "title": "Data Drilling",
-    "subtitle": "Daftar lubang bor modul Eksplorasi.",
-    "add": "Tambah Lubang Bor",
-    "searchPlaceholder": "Cari Hole ID atau area…",
-    "allStatuses": "Semua status",
-    "empty": "Belum ada data drilling.",
-    "emptyFiltered": "Tidak ada lubang bor yang cocok.",
-    "noun": "lubang bor",
-    "status": {
-      "PLANNED": "Direncanakan",
-      "ONGOING": "Berjalan",
-      "COMPLETED": "Selesai",
-      "ABANDONED": "Dibatalkan"
+  "dataSource": {
+    "views": {
+      "dataSource": {
+        "title": "Data Source",
+        "subtitle": "Semua sampel hasil analisis dan sampel QC-nya.",
+        "add": "Tambah Data",
+        "empty": "Belum ada data."
+      },
+      "standard": {
+        "title": "Standard (CRM)",
+        "subtitle": "Sampel standard (CRM) dari data source.",
+        "add": "Tambah Standard",
+        "empty": "Belum ada sampel standard."
+      },
+      "blank": {
+        "title": "Blank",
+        "subtitle": "Sampel blank dari data source.",
+        "add": "Tambah Blank",
+        "empty": "Belum ada sampel blank."
+      },
+      "duplicate": {
+        "title": "Duplicate",
+        "subtitle": "Sampel duplikat dari data source. Kolom Control berisi Sample ID sampel aslinya.",
+        "add": "Tambah Duplicate",
+        "empty": "Belum ada sampel duplikat."
+      }
+    },
+    "searchPlaceholder": "Cari Sample ID, Hole ID, Control, Campaign…",
+    "allCampaigns": "Semua campaign",
+    "allTypes": "Semua tipe",
+    "emptyFiltered": "Tidak ada data yang cocok.",
+    "noun": "baris",
+    "editRow": "Ubah {sampleId}",
+    "editTitle": "Ubah {sampleId}",
+    "sampleType": {
+      "ORIGINAL": "Sampel biasa",
+      "STANDARD": "Standard (CRM)",
+      "BLANK": "Blank",
+      "DUPLICATE": "Duplicate"
+    },
+    "sampleTypeShort": {
+      "ORIGINAL": "Biasa",
+      "STANDARD": "Standard",
+      "BLANK": "Blank",
+      "DUPLICATE": "Duplicate"
     },
     "fields": {
+      "controlDate": "Control Date",
+      "control": "Control",
+      "campaign": "Campaign",
+      "no": "No",
       "holeId": "Hole ID",
-      "area": "Area / Prospek",
-      "status": "Status",
-      "easting": "Easting",
-      "northing": "Northing",
-      "elevation": "Elevasi (m)",
-      "azimuth": "Azimuth (°)",
-      "dip": "Dip (°)",
-      "totalDepth": "Kedalaman Total (m)",
-      "startDate": "Tanggal Mulai",
-      "endDate": "Tanggal Selesai",
-      "remarks": "Catatan"
+      "sampleId": "Sample ID",
+      "sampleType": "Sample Type",
+      "from": "From",
+      "to": "To",
+      "fromTo": "From–To",
+      "remarks": "Remarks",
+      "date": "Tanggal",
+      "weight": "Weight"
     },
-    "columns": {
-      "coordinates": "Koordinat Collar",
-      "orientation": "Orientasi",
-      "period": "Mulai / Selesai",
-      "azimuthShort": "Az",
-      "dipShort": "Dip"
-    },
-    "editTitle": "Ubah {holeId}",
     "delete": {
-      "label": "Hapus {holeId}",
-      "title": "Hapus lubang bor?",
-      "confirm": "{holeId} akan dihapus permanen dan tidak bisa dikembalikan.",
+      "label": "Hapus {sampleId}",
+      "title": "Hapus baris ini?",
+      "confirm": "{sampleId} akan dihapus permanen dan tidak bisa dikembalikan.",
       "action": "Hapus",
-      "done": "{holeId} dihapus."
-    },
-    "export": {
-      "button": "Export"
+      "done": "{sampleId} dihapus."
     },
     "import": {
       "button": "Import",
-      "title": "Import Data Drilling",
-      "description": "Unggah file Excel (.xlsx) atau CSV. Data dicocokkan dengan Hole ID: Hole ID baru ditambahkan, yang sudah ada bisa diperbarui. Maksimal 50.000 baris, 20 MB.",
+      "title": "Import {list}",
+      "description": "Unggah file Excel (.xlsx) atau CSV. Data dicocokkan dengan Sample ID: Sample ID baru ditambahkan, yang sudah ada bisa diperbarui. Maksimal 50.000 baris, 20 MB.",
+      "descriptionQc": "Unggah file Excel (.xlsx) atau CSV. Semua baris menjadi tipe menu ini; baris bertipe lain ditolak. Data dicocokkan dengan Sample ID. Maksimal 50.000 baris, 20 MB.",
       "choose": "Pilih file",
       "chooseAnother": "Ganti file",
-      "columnsHint": "Baris pertama berisi judul kolom: {columns}. Hanya Hole ID yang wajib; kolom lain boleh dihilangkan. Tanggal: YYYY-MM-DD atau DD/MM/YYYY.",
+      "columnsHint": "Baris pertama berisi judul kolom: {columns}. Sample ID dan Sample Type (ORIGINAL, STANDARD, BLANK, DUPLICATE) wajib; kolom lain boleh dihilangkan. Tanggal: YYYY-MM-DD atau DD/MM/YYYY.",
+      "columnsHintQc": "Baris pertama berisi judul kolom: {columns}. Hanya Sample ID yang wajib; kolom lain boleh dihilangkan. Tanggal: YYYY-MM-DD atau DD/MM/YYYY.",
       "template": "Unduh template",
       "reading": "Membaca dan memeriksa file…",
       "summary": {
@@ -94,7 +128,7 @@
         "updated": "Diperbarui",
         "skipped": "Dilewati"
       },
-      "updateExisting": "Perbarui {count} lubang bor yang sudah ada (Hole ID sama)",
+      "updateExisting": "Perbarui {count} baris yang sudah ada (Sample ID sama)",
       "updateExistingHint": "Sel yang kosong di file tidak menghapus data yang sudah tersimpan.",
       "ignoredHeaders": "Kolom tidak dikenal, diabaikan: {headers}",
       "errorsTitle": "{count, plural, other {# baris error, tidak akan di-import}}",
@@ -104,7 +138,7 @@
       "run": "Import {count} baris",
       "runEmpty": "Import",
       "doneTitle": "Import selesai",
-      "doneToast": "{created} lubang bor ditambahkan, {updated} diperbarui.",
+      "doneToast": "{created} baris ditambahkan, {updated} diperbarui.",
       "another": "Import file lain",
       "report": {
         "line": "Baris",
@@ -118,14 +152,14 @@
       "row": "Baris {row}",
       "lock": "Kunci lagi (batalkan perubahan)",
       "unlock": "Buka kunci untuk mengubah",
-      "loading": "Memuat lubang bor terakhir…",
+      "loading": "Memuat data terakhir…",
       "checking": "Memeriksa…",
       "addRows": "Tambah 50 baris",
       "clear": "Kosongkan",
       "save": "Simpan {count} baris",
-      "nothing": "Isi baris kosong atau buka kunci lubang bor untuk mengubahnya.",
+      "nothing": "Isi baris kosong atau buka kunci baris untuk mengubahnya.",
       "fixInvalid": "{count} baris perlu diperbaiki sebelum disimpan.",
-      "saved": "{created} lubang bor ditambahkan, {updated} diubah.",
+      "saved": "{created} baris ditambahkan, {updated} diubah.",
       "counts": {
         "create": "{count} baru",
         "update": "{count} diubah",
@@ -138,13 +172,42 @@
         "unchanged": "Tidak berubah",
         "invalid": "Perlu diperbaiki"
       },
-      "back": "Data Drilling",
-      "addTitle": "Tambah Lubang Bor",
       "leaveTitle": "Tinggalkan halaman ini?",
       "leaveBody": "Isian yang belum disimpan akan hilang.",
       "leave": "Tinggalkan",
-      "lockedHint": "{count, plural, other {# lubang bor terakhir terkunci di atas — klik ikon gembok untuk mengubahnya.}}",
-      "formats": "Baris judul dari Excel boleh ikut ditempel. Tanggal YYYY-MM-DD atau DD/MM/YYYY; angka boleh pakai koma. Sel yang dikosongkan pada lubang bor yang dibuka kuncinya akan dihapus isinya."
+      "lockedHint": "{count, plural, other {# baris terakhir terkunci di atas — klik ikon gembok untuk mengubahnya.}}",
+      "formats": "Baris judul dari Excel boleh ikut ditempel. Tanggal YYYY-MM-DD atau DD/MM/YYYY. Nilai unsur disimpan apa adanya (misalnya <0.01). Sel yang dikosongkan pada baris yang dibuka kuncinya akan dihapus isinya."
+    }
+  },
+  "qcDashboard": {
+    "title": "Dashboard",
+    "subtitle": "Grafik QC: sampel standard (CRM) dan duplicate.",
+    "element": "Unsur",
+    "from": "Dari tanggal",
+    "to": "Sampai tanggal",
+    "loading": "Memuat grafik…",
+    "axisValue": "{element}",
+    "truncated": "Data terlalu banyak; hanya 5.000 titik terlama yang digambar. Persempit rentang tanggal.",
+    "standard": {
+      "title": "Standard (CRM)",
+      "description": "Nilai {element} setiap sampel standard menurut tanggal, satu warna per Control.",
+      "axisX": "Tanggal",
+      "empty": "Belum ada sampel standard dengan tanggal dan nilai {element}.",
+      "skipped": "{count, plural, other {# sampel standard tidak digambar (tanpa tanggal, tanpa Control, atau nilainya bukan angka).}}"
+    },
+    "duplicate": {
+      "title": "Duplicate",
+      "description": "Nilai {element} sampel asli (X) terhadap duplikatnya (Y).",
+      "axisX": "{element} sampel asli",
+      "axisY": "{element} duplikat",
+      "pairs": "Pasangan",
+      "oneToOne": "Garis 1:1",
+      "original": "Asli",
+      "duplicate": "Duplikat",
+      "empty": "Belum ada pasangan duplikat dengan nilai {element}. Isi kolom Control pada baris duplicate dengan Sample ID sampel aslinya.",
+      "count": "{count, plural, other {# pasangan digambar.}}",
+      "unmatched": "{count, plural, other {# duplikat tidak menemukan sampel aslinya (cek kolom Control).}}",
+      "skipped": "{count, plural, other {# pasangan tidak digambar karena nilainya bukan angka.}}"
     }
   }
 }

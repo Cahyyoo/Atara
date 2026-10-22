@@ -6,6 +6,6 @@ import { requireCapabilityPage } from "@/core/lib/http/page-auth";
  * to the portal. Each page still checks its own capability.
  */
 export default async function EksplorasiLayout({ children }: { children: ReactNode }) {
-  await requireCapabilityPage("manageDrilling");
+  await requireCapabilityPage("manageExplorationData");
   return children;
 }

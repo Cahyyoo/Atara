@@ -4,27 +4,33 @@ import { useRef } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { Button } from "@/core/components/ui/button";
 import { downloadFromApi } from "@/core/lib/http/download";
-import { DRILL_HOLE_COLUMNS } from "@/modules/eksplorasi/lib/drill-hole-columns";
+import { viewColumns, VIEWS } from "@/modules/eksplorasi/lib/data-source-columns";
+import type { DataSourceView } from "@/modules/eksplorasi/types";
 import { IoCloudUploadOutline, IoDocumentOutline } from "react-icons/io5";
 
 /** Step 1: the file, the columns it may have, and the templates to start from. */
 export function ImportFilePicker({
+  view,
   file,
   disabled,
   onChoose,
   onError,
 }: {
+  view: DataSourceView;
   file: File | null;
   disabled: boolean;
   onChoose: (file: File | null) => void;
   onError: (message: string) => void;
 }) {
-  const t = useTranslations("drilling.import");
+  const t = useTranslations("dataSource.import");
   const format = useFormatter();
   const input = useRef<HTMLInputElement>(null);
 
   async function template(fileFormat: "xlsx" | "csv") {
-    const failure = await downloadFromApi(`/api/drill-holes/template?format=${fileFormat}`, `drill-holes-template.${fileFormat}`);
+    const failure = await downloadFromApi(
+      `/api/data-sources/template?view=${view}&format=${fileFormat}`,
+      `${VIEWS[view].fileName}-template.${fileFormat}`
+    );
     if (failure) onError(failure);
   }
 
@@ -35,7 +41,7 @@ export function ImportFilePicker({
         type="file"
         accept=".xlsx,.csv"
         className="sr-only"
-        id="drill-import-file"
+        id="data-source-import-file"
         disabled={disabled}
         onChange={(event) => {
           onChoose(event.target.files?.[0] ?? null);
@@ -59,7 +65,7 @@ export function ImportFilePicker({
         ) : null}
       </div>
       <p className="text-xs text-muted-foreground">
-        {t("columnsHint", { columns: DRILL_HOLE_COLUMNS.map((c) => c.header).join(", ") })}
+        {t(view === "dataSource" ? "columnsHint" : "columnsHintQc", { columns: viewColumns(view).map((c) => c.header).join(", ") })}
       </p>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
         <span className="text-muted-foreground">{t("template")}:</span>

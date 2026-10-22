@@ -12,8 +12,8 @@ import { handleApiError } from "@/core/lib/http/api-response";
  * status (handleApiError). The route keeps only what is its own.
  *
  *   export const GET = route(
- *     { capability: "manageDrilling", query: listDrillHolesQuerySchema },
- *     async ({ query }) => jsonSuccess(await listHoles(query))
+ *     { capability: "manageExplorationData", query: listDataSourceQuerySchema },
+ *     async ({ query }) => jsonSuccess(await listDataSource(query))
  *   );
  *
  * A plain function around the handler -- the same awaits in the same order

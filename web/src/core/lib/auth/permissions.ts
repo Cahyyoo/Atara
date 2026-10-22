@@ -27,7 +27,7 @@
  *   ANALISIS          (LAB) enters assay results.
  *   PREPARATOR        (LAB) moves samples between stages with the mobile app,
  *                     including the corrections that step back or skip one.
- *   EKSPLORASI_ADMIN  ADMIN in EKSPLORASI. Manages the drilling data.
+ *   EKSPLORASI_ADMIN  ADMIN in EKSPLORASI. Manages the data source and its QC samples.
  */
 
 import { CAPABILITIES } from "@/modules/capabilities";

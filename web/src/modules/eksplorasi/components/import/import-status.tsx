@@ -2,12 +2,12 @@
 
 import { useFormatter, useTranslations } from "next-intl";
 import { StatTile } from "@/core/components/feedback/stat-tile";
-import type { ImportDone } from "@/modules/eksplorasi/components/import/use-drill-import";
+import type { ImportDone } from "@/modules/eksplorasi/components/import/use-data-source-import";
 import { IoCheckmarkCircleOutline } from "react-icons/io5";
 
 /** Step 3: the write, as a bar filling up chunk by chunk. */
 export function ImportProgress({ done, total }: { done: number; total: number }) {
-  const t = useTranslations("drilling.import");
+  const t = useTranslations("dataSource.import");
   const format = useFormatter();
   return (
     <div className="flex flex-col gap-1.5" role="status">
@@ -26,7 +26,7 @@ export function ImportProgress({ done, total }: { done: number; total: number })
 
 /** Step 4: what was written, what was left alone, what was wrong. */
 export function ImportResult({ result }: { result: ImportDone }) {
-  const t = useTranslations("drilling.import");
+  const t = useTranslations("dataSource.import");
   const format = useFormatter();
   const n = (value: number) => format.number(value);
   return (

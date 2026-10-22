@@ -7,7 +7,7 @@ Backend REST API dan web untuk **Atara Super App**. Atara adalah satu aplikasi d
 | Modul | Path | Untuk siapa | Isi |
 | ----- | ---- | ----------- | --- |
 | **Lab · Monitoring Sampel** | `/lab/*` | Departemen **LAB** | Seluruh fitur tracking sampel: barcode, database sampel, hasil uji, kesimpulan, dashboard, Mode TV, master data, aktivitas. |
-| **Eksplorasi** | `/eksplorasi/*` | Departemen **EKSPLORASI** | Manage Data Drilling: CRUD lubang bor, serta import/export Excel & CSV (import ±34.000 baris dalam hitungan detik). Fitur detail menyusul. |
+| **Eksplorasi** | `/eksplorasi/*` | Departemen **EKSPLORASI** | Data source hasil analisis dan sampel QC-nya (Standard/CRM, Blank, Duplicate): dashboard scatterplot QC, CRUD lewat lembar seperti Excel, serta import/export Excel & CSV (import ±34.000 baris dalam hitungan detik). |
 | **Pengaturan** | `/users`, `/admin/*` | **Super Admin**, **Admin Lab** (hanya Pengguna) | Akun admin setiap departemen (super admin) atau staf lab (admin lab), pengumuman, audit login, backup. |
 
 Tampilannya dibagi dua, seperti Odoo:
@@ -144,7 +144,7 @@ Setiap akun punya **peran** dan **departemen** (kolom `users.department`; null h
 | DATABASE (LAB) | Dashboard, Buat Barcode, Cetak Ulang Label, Database Sampel (edit, hapus/pulihkan, export), Kesimpulan | — |
 | ANALISIS (LAB) | Dashboard, Input Hasil Uji, Kesimpulan | — |
 | PREPARATOR (LAB) | Dashboard | Scan & perbarui tahap, termasuk koreksi (mundur/lompat tahap) dengan alasan |
-| **Admin Eksplorasi** (ADMIN + EKSPLORASI) | Data Drilling (tambah, ubah, cari, hapus) | — |
+| **Admin Eksplorasi** (ADMIN + EKSPLORASI) | Dashboard QC, Data Source, Standard, Blank, Duplicate (tambah, ubah, cari, hapus, import, export) | — |
 
 **Siapa mengelola akun siapa** (`src/modules/system/lib/user-scope.ts`):
 
@@ -186,9 +186,11 @@ Akun baru dan akun yang kata sandinya direset memakai kata sandi default per per
 | `/lab/master-data`                  | Kosakata penyusun Sample ID (tempat, jenis batuan, non-prod, pit, SIR). |
 | `/lab/tv`                           | Tampilan monitoring layar penuh untuk TV di lab. |
 | **Modul Eksplorasi**                | |
-| `/eksplorasi/drilling`              | Data Drilling: daftar lubang bor, cari (Hole ID/area), filter status, tambah & ubah (di halaman sendiri, lihat di bawah), hapus per baris, import & export Excel/CSV. |
-| `/eksplorasi/drilling/new`          | Tambah lubang bor lewat lembar seperti Excel: ketik/tempel blok dari Excel; 50 data terakhir tampil terkunci dan bisa dibuka kuncinya untuk diubah. Meninggalkan isian yang belum disimpan ditanyakan dulu. |
-| `/eksplorasi/drilling/[id]/edit`    | Lembar yang sama dengan lubang bor itu sudah terbuka kuncinya (tombol Ubah). |
+| `/eksplorasi/dashboard`             | Dashboard QC: scatterplot Standard (CRM) per tanggal, satu warna per Control, dan scatterplot Duplicate (sampel asli vs duplikat, dengan garis 1:1). Pilih unsur dan rentang tanggal. |
+| `/eksplorasi/data-source`           | Data Source: semua baris, semua tipe sampel. Cari (Sample ID/Hole ID/Control/Campaign), filter campaign dan tipe, import & export Excel/CSV. Semua kolom muat tanpa scroll horizontal (di layar laptop ke atas). |
+| `/eksplorasi/standard`, `/blank`, `/duplicate` | Daftar yang sama untuk satu tipe QC, dengan kolom masing-masing sheet lab. |
+| `/eksplorasi/<daftar>/new`          | Tambah baris lewat lembar seperti Excel dengan kolom daftar itu: ketik/tempel blok dari Excel; 50 data terakhir tampil terkunci dan bisa dibuka kuncinya. Di daftar QC, tipe sampel terisi otomatis. |
+| `/eksplorasi/<daftar>/[id]/edit`    | Lembar yang sama dengan baris itu sudah terbuka kuncinya (ikon pensil). |
 | **Modul Pengaturan & bersama**      | |
 | `/users`                            | Super admin: akun admin setiap departemen. Admin Lab: staf lab. Termasuk sesi aktif, wajah, TOTP, dan password default per peran. |
 | `/admin`                            | Super admin: pengumuman di atas semua halaman dan backup lengkap. |
@@ -252,45 +254,53 @@ Semua endpoint berada di bawah `/api` dan mengembalikan bentuk `{ success, data 
 | GET    | `/api/lab-records/history`, `/[id]/history` | Riwayat perubahan hasil uji (semua / per record). |
 | GET    | `/api/grade-control`                  | Rata-rata kadar per dimensi untuk halaman Kesimpulan. |
 
-### Eksplorasi: drilling
+### Eksplorasi: data source
 
-Semua endpoint di bawah ini membutuhkan capability `manageDrilling` (Admin Eksplorasi).
+Semua endpoint di bawah ini membutuhkan capability `manageExplorationData` (Admin Eksplorasi). `view` adalah daftar yang dipakai: `dataSource` (semua tipe, default), `standard`, `blank`, atau `duplicate`. Daftar QC selalu dibatasi pada tipenya sendiri.
 
-| Method               | Endpoint                | Deskripsi |
-| -------------------- | ----------------------- | --------- |
-| GET / POST           | `/api/drill-holes`      | Daftar lubang bor (`search`, `status`, `page`, `pageSize`) / tambah lubang bor. Hole ID yang sudah dipakai → `409`. |
-| GET / PATCH / DELETE | `/api/drill-holes/[id]` | Detail / ubah sebagian kolom / hapus permanen. |
-| POST                 | `/api/drill-holes/sheet` | Lembar "Tambah Lubang Bor": `{ dryRun, rows: [{ line, id?, cells }] }`, maks. 500 baris. Baris tanpa `id` = lubang bor baru (Hole ID yang sudah ada ditolak), baris dengan `id` = lubang bor yang dibuka kuncinya (sel kosong menghapus isinya). Sel dibaca sama seperti import. Menjawab status per baris (`create`/`update`/`unchanged`/`invalid`); tidak ada yang disimpan selama masih ada baris invalid, lalu semua disimpan dalam satu transaksi. |
-| GET                  | `/api/drill-holes/export` | Unduh daftar sebagai `format=xlsx` (default) atau `csv`, dengan filter `search`/`status` yang sama seperti di layar. Di-stream baris per baris; maksimal 50.000 baris. |
-| GET                  | `/api/drill-holes/template` | Template kosong (`format=xlsx`/`csv`) berisi header kolom. |
-| POST                 | `/api/drill-holes/import` | Multipart `file` (.xlsx/.csv, ≤ 20 MB, ≤ 50.000 baris), `apply` (`0` pratinjau / `1` simpan), `updateExisting` (`0`/`1`). Pratinjau menjawab JSON (jumlah baru/sudah ada/error + daftar error per baris). Simpan menjawab NDJSON berisi progres per batch lalu total. |
+| Method               | Endpoint                     | Deskripsi |
+| -------------------- | ---------------------------- | --------- |
+| GET / POST           | `/api/data-sources`          | Daftar baris (`view`, `search`, `campaign`, `sampleType`, `page`, `pageSize`) / tambah baris. Sample ID yang sudah dipakai → `409`. |
+| GET / PATCH / DELETE | `/api/data-sources/[id]`     | Detail / ubah sebagian kolom / hapus permanen. |
+| GET                  | `/api/data-sources/campaigns` | Daftar campaign untuk filter. |
+| GET                  | `/api/data-sources/qc`       | Data dashboard untuk satu unsur (`element`, default `ni`; opsional `from`/`to`): titik Standard per tanggal dan pasangan Duplicate–asli. |
+| POST                 | `/api/data-sources/sheet`    | Lembar tambah/ubah: `{ dryRun, view, rows: [{ line, id?, cells }] }`, maks. 500 baris. Baris tanpa `id` = baris baru (Sample ID yang sudah ada ditolak), baris dengan `id` = baris yang dibuka kuncinya (sel kosong menghapus isinya; kolom yang tidak ada di daftar itu tidak disentuh). Menjawab status per baris; tidak ada yang disimpan selama masih ada baris invalid. |
+| GET                  | `/api/data-sources/export`   | Unduh daftar sebagai `format=xlsx` (default) atau `csv` dengan kolom dan filter daftar itu. Di-stream; maksimal 50.000 baris. |
+| GET                  | `/api/data-sources/template` | Template kosong (`view`, `format=xlsx`/`csv`) berisi header kolom daftar itu. |
+| POST                 | `/api/data-sources/import`   | Multipart `file` (.xlsx/.csv, ≤ 20 MB, ≤ 50.000 baris), `view`, `apply` (`0` pratinjau / `1` simpan), `updateExisting` (`0`/`1`). Pratinjau menjawab JSON; simpan menjawab NDJSON berisi progres per batch lalu total. |
 
-Field: `holeId` (wajib, unik), `area`, `easting`, `northing`, `elevation`, `azimuth` (0–360), `dip` (−90–90), `totalDepth`, `status` (`PLANNED`/`ONGOING`/`COMPLETED`/`ABANDONED`), `startDate`, `endDate` (`YYYY-MM-DD`, selesai ≥ mulai), `remarks`.
+Field (tabel `eksplorasi_data_source`): `sampleId` (wajib, unik), `sampleType` (wajib: `ORIGINAL`/`STANDARD`/`BLANK`/`DUPLICATE`), `controlDate`, `control`, `campaign`, `no`, `holeId`, `from`, `to`, `remarks`, `date` (`YYYY-MM-DD`), `weight`, dan 16 unsur: `ni`, `fe`, `fe2o3`, `co`, `na2o`, `mgo`, `al2o3`, `sio2`, `p2o5`, `so3`, `k2o`, `cao`, `tio2`, `cr2o3`, `mno`, `mc`. Nilai disimpan sebagai teks apa adanya (misalnya `<0.01`); nilai yang bukan angka tidak digambar di grafik.
+
+Pada baris `DUPLICATE`, kolom `control` berisi Sample ID sampel aslinya; dari situ dashboard memasangkan duplikat dengan aslinya. Pada baris `STANDARD`, `control` berisi nama CRM.
 
 #### Import & export Excel/CSV
 
-Format file export, template, dan import sama persis (`src/modules/eksplorasi/lib/drill-hole-columns.ts`). File hasil export bisa diedit di Excel lalu di-import kembali.
+Kolom tiap daftar, header file, template, dan import diambil dari satu tempat (`src/modules/eksplorasi/lib/data-source-columns.ts`). File hasil export sebuah daftar bisa diedit di Excel lalu di-import kembali ke daftar yang sama.
 
-Baris 1 berisi header. Kolomnya: `Hole ID`, `Area`, `Status`, `Easting`, `Northing`, `Elevation (m)`, `Azimuth (°)`, `Dip (°)`, `Total Depth (m)`, `Start Date`, `End Date`, `Remarks`.
+| Daftar | Kolom (lalu 16 unsur: Ni, Fe, Fe2O3, Co, Na2O, MgO, Al2O3, SiO2, P2O5, SO3, K2O, CaO, TiO2, Cr2O3, MnO, MC) |
+| ------ | ------ |
+| Data Source | Campaign, Hole ID, Sample ID, Sample Type, From, To, Date, Weight |
+| Standard (CRM) | Control, Campaign, Hole ID, Sample ID, Remarks, Date, Weight |
+| Blank | Control, Campaign, Hole ID, Sample ID, Sample Type, Remarks, Date, Weight |
+| Duplicate | Control Date, Control, Campaign, No, Hole ID, Sample ID, Sample Type, Remarks, Date, Weight |
 
 Aturan pembacaan file saat import:
 
 - **Header**
-  - Hanya `Hole ID` yang wajib; urutan kolom bebas.
-  - Header tidak peka huruf besar/kecil, dan satuan dalam kurung diabaikan.
-  - Alias Indonesia juga diterima, misalnya `Elevasi`, `Kedalaman Total`, `Tanggal Mulai`, `Catatan`.
+  - `Sample ID` wajib. Di Data Source, `Sample Type` juga wajib; di daftar QC kolom itu boleh tidak ada (semua baris menjadi tipe daftar itu, baris bertipe lain ditolak).
+  - Urutan kolom bebas; header tidak peka huruf besar/kecil, dan satuan dalam kurung diabaikan (`Ni (%)`).
+  - Alias juga diterima, misalnya `BHID`, `CRM`, `Tanggal`, `Tipe Sampel`.
   - Kolom yang tidak dikenal diabaikan dan dilaporkan.
 - **Format nilai**
   - CSV boleh dipisah koma, titik koma (Excel berlokal Indonesia), atau tab.
-  - Angka boleh pakai koma atau titik desimal.
   - Tanggal: `YYYY-MM-DD`, `DD/MM/YYYY`, atau sel tanggal Excel.
-  - Status: kode (`COMPLETED`) atau label (`Selesai`/`Completed`).
+  - Sample type: kode (`STANDARD`) atau kata yang biasa dipakai (`Standart`, `CRM`, `Blk`, `Dup`, `Sampel biasa`).
 - **Pencocokan baris**
-  - Baris dicocokkan lewat Hole ID. Hole ID baru dibuat.
-  - Hole ID yang sudah ada dilewati, kecuali "Perbarui data yang sudah ada" dicentang.
+  - Baris dicocokkan lewat Sample ID. Sample ID baru dibuat.
+  - Sample ID yang sudah ada dilewati, kecuali "Perbarui data yang sudah ada" dicentang.
   - Saat update, sel kosong **tidak** menghapus nilai yang tersimpan.
 - **Baris error**
-  - Termasuk Hole ID ganda di dalam file.
+  - Termasuk Sample ID ganda di dalam file.
   - Baris error dilewati; baris lain tetap masuk.
   - Semua error bisa diunduh sebagai CSV dari dialog import.
 
@@ -300,11 +310,11 @@ Hasil uji di MySQL 8 lokal untuk 34.000 baris:
 
 | Langkah | Waktu |
 | ------- | ----- |
-| Pratinjau CSV | ±1,7 detik |
-| Simpan baris baru | ±10 detik |
-| Update semua dari .xlsx | ±14 detik |
+| Pratinjau CSV | ±2 detik |
+| Simpan baris baru | ±25 detik |
+| Update semua dari .xlsx | ±22 detik |
 
-Lihat `src/modules/eksplorasi/lib/__tests__/drill-hole-import-db.test.ts`.
+Lihat `src/modules/eksplorasi/lib/__tests__/data-source-import-db.test.ts`.
 
 ### Dashboard & laporan
 
@@ -327,7 +337,7 @@ Lihat `src/modules/eksplorasi/lib/__tests__/drill-hole-import-db.test.ts`.
 | GET / POST, PATCH / DELETE | `/api/master-options`, `/[id]`     | Kelola master data. |
 | GET / POST, PATCH / DELETE | `/api/announcements`, `/[id]`      | Kelola pengumuman. |
 | GET / PUT           | `/api/admin/role-passwords`               | Kata sandi default per peran yang dikelola pemanggil (kata sandinya sendiri tidak pernah dikembalikan). |
-| GET                 | `/api/admin/backup`                       | Backup seluruh database (termasuk departemen akun dan data drilling) sebagai satu workbook. Super admin. |
+| GET                 | `/api/admin/backup`                       | Backup seluruh database (termasuk departemen akun dan data source eksplorasi) sebagai satu workbook. Super admin. |
 | GET                 | `/api/health`                             | Cek kesehatan untuk load balancer/monitor, tanpa autentikasi. |
 
 ## Perintah Berguna
@@ -364,7 +374,6 @@ Tes end-to-end wajah (`src/core/lib/__tests__/face-e2e.test.ts`) dilewati kecual
 ## Roadmap
 
 - **Komunikasi antar-admin.** Super admin dan admin setiap departemen akan bisa saling berkirim pesan. Admin bisa dikenali lewat persona `SUPER_ADMIN`, `LAB_ADMIN`, dan `EKSPLORASI_ADMIN` (`personaOf` di `permissions.ts`).
-- **Detail modul Eksplorasi.** Interval/logging, survey downhole, dan assay per lubang bor. Model `DrillHole` saat ini sengaja dibuat minimal.
 
 ## Catatan Konfigurasi Perangkat Mobile
 

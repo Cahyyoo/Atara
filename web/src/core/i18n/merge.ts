@@ -1,6 +1,6 @@
 /**
  * Merges message catalogues key by key, so a module can add its own sections
- * under a shared namespace (`help.sections.drilling`) without repeating the
+ * under a shared namespace (`help.sections.dataSource`) without repeating the
  * rest of it. Later catalogues win on a clash, which the split never makes.
  */
 export type MessageTree = { [key: string]: string | MessageTree };

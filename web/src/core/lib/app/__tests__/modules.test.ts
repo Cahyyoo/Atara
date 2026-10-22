@@ -18,7 +18,7 @@ describe("the module a page belongs to", () => {
     expect(keyOf("/lab")).toBe("lab");
     expect(keyOf("/lab/dashboard")).toBe("lab");
     expect(keyOf("/lab/samples/NKL-1/sub/-20")).toBe("lab");
-    expect(keyOf("/eksplorasi/drilling")).toBe("eksplorasi");
+    expect(keyOf("/eksplorasi/data-source")).toBe("eksplorasi");
     expect(keyOf("/admin")).toBe("system");
     expect(keyOf("/admin/sign-ins")).toBe("system");
   });

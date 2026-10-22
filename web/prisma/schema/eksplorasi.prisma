@@ -1,38 +1,60 @@
-// Eksplorasi module: drill holes.
+// Eksplorasi module: the assay data source and its QC samples.
 
-enum DrillHoleStatus {
-  PLANNED
-  ONGOING
-  COMPLETED
-  ABANDONED
+/// What a row of the data source is: an ordinary sample, or one of the three
+/// QC checks laid among them.
+enum SampleType {
+  ORIGINAL
+  STANDARD
+  BLANK
+  DUPLICATE
 }
 
-/// One drill hole: where it is, which way it points, how deep it went.
-/// Deliberately minimal for now; intervals, logs and assays come later.
-model DrillHole {
-  id         String          @id @default(cuid())
-  holeId     String          @unique @map("hole_id") @db.VarChar(50)
-  /// Prospect or block.
-  area       String?         @db.VarChar(100)
-  easting    Decimal?        @db.Decimal(12, 3)
-  northing   Decimal?        @db.Decimal(12, 3)
-  elevation  Decimal?        @db.Decimal(8, 2)
-  azimuth    Decimal?        @db.Decimal(5, 2)
-  dip        Decimal?        @db.Decimal(5, 2)
-  totalDepth Decimal?        @map("total_depth") @db.Decimal(8, 2)
-  status     DrillHoleStatus @default(PLANNED)
-  startDate  DateTime?       @map("start_date") @db.Date
-  endDate    DateTime?       @map("end_date") @db.Date
-  remarks    String?         @db.Text
+/// One assayed sample. The values are kept as the lab wrote them (varchar):
+/// a result such as "<0.01" is a result, not a number, and is only left out
+/// of the charts. A DUPLICATE names the sample it repeats in `control`.
+model DataSource {
+  id          String     @id @default(cuid())
+  controlDate String?    @map("control_date") @db.VarChar(50)
+  /// The CRM a STANDARD is, or the sample a DUPLICATE repeats.
+  control     String?    @db.VarChar(100)
+  campaign    String?    @db.VarChar(100)
+  no          String?    @db.VarChar(50)
+  holeId      String?    @map("hole_id") @db.VarChar(50)
+  sampleId    String     @unique @map("sample_id") @db.VarChar(50)
+  sampleType  SampleType @map("sample_type")
+  from        String?    @db.VarChar(20)
+  to          String?    @db.VarChar(20)
+  remarks     String?    @db.VarChar(500)
+  date        DateTime?  @db.Date
+  weight      String?    @db.VarChar(20)
+
+  ni    String? @db.VarChar(20)
+  fe    String? @db.VarChar(20)
+  fe2o3 String? @db.VarChar(20)
+  co    String? @db.VarChar(20)
+  na2o  String? @db.VarChar(20)
+  mgo   String? @db.VarChar(20)
+  al2o3 String? @db.VarChar(20)
+  sio2  String? @db.VarChar(20)
+  p2o5  String? @db.VarChar(20)
+  so3   String? @db.VarChar(20)
+  k2o   String? @db.VarChar(20)
+  cao   String? @db.VarChar(20)
+  tio2  String? @db.VarChar(20)
+  cr2o3 String? @db.VarChar(20)
+  mno   String? @db.VarChar(20)
+  mc    String? @db.VarChar(20)
 
   createdById String   @map("created_by")
-  createdBy   User     @relation("DrillHoleCreatedBy", fields: [createdById], references: [id])
+  createdBy   User     @relation("DataSourceCreatedBy", fields: [createdById], references: [id])
   updatedById String?  @map("updated_by")
-  updatedBy   User?    @relation("DrillHoleUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  updatedBy   User?    @relation("DataSourceUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  @@index([status])
-  @@index([area])
-  @@map("eksplorasi_drill_holes")
+  @@index([sampleType, date])
+  @@index([control])
+  @@index([campaign])
+  @@index([holeId])
+  @@map("eksplorasi_data_source")
 }

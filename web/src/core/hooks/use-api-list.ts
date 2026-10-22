@@ -11,7 +11,7 @@ import type { PaginationDTO } from "@/core/types";
  * top of a newer one.
  *
  * `pick` takes the rows out of the answer -- each list names them its own way
- * (`users`, `drillHoles`) -- and `setItems` lets a page update a row in place
+ * (`users`, `rows`) -- and `setItems` lets a page update a row in place
  * after an edit, without refetching.
  */
 export function useApiList<T, R extends { pagination: PaginationDTO }>(
