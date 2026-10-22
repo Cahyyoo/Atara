@@ -40,7 +40,11 @@ const ROW: DataSourceDTO = {
   updatedAt: "2026-10-01T00:00:00.000Z",
 };
 
+/** The page the list's answer says it is on. */
+let listPage = 1;
+
 beforeEach(() => {
+  listPage = 1;
   window.localStorage.clear();
   resetPersistedColumns();
   resetTableLayouts();
@@ -55,7 +59,7 @@ beforeEach(() => {
           ok: true,
           json: async () => ({
             success: true,
-            data: { rows: [ROW], pagination: { page: 1, pageSize: 25, total: 1, totalPages: 1 } },
+            data: { rows: [ROW], pagination: { page: listPage, pageSize: 25, total: 26, totalPages: 2 } },
           }),
         };
       }
@@ -97,11 +101,23 @@ async function openMenu(user: ReturnType<typeof userEvent.setup>) {
   await user.click(screen.getByRole("button", { name: en.common.columns }));
 }
 
+describe("the row number", () => {
+  it("comes first, stays put, and counts on from the pages before", async () => {
+    listPage = 2;
+    show();
+    await row();
+    const first = screen.getAllByRole("columnheader")[0];
+    expect(first.textContent).toBe(en.dataSource.fields.rowNo);
+    expect(first.getAttribute("draggable")).toBeNull();
+    expect((await cells())[0]).toBe("26");
+  });
+});
+
 describe("arranging a list's columns", () => {
   it("shows the list's columns in their usual order, with no edge to resize", async () => {
     show();
     await row();
-    expect(headingOrder()).toEqual(defaultColumns("dataSource").filter((column) => column !== "actions"));
+    expect(headingOrder()).toEqual(defaultColumns("dataSource").filter((column) => column !== "rowNo" && column !== "actions"));
     expect(headingOrder()).not.toContain("na2o");
     expect(screen.queryByRole("separator")).toBeNull();
     const widths = [...document.querySelectorAll("col")].reduce((sum, col) => sum + parseFloat(col.style.width), 0);
@@ -117,7 +133,7 @@ describe("arranging a list's columns", () => {
     fireEvent.dragOver(heading("campaign"));
     fireEvent.drop(heading("campaign"));
     await waitFor(() => expect(headingOrder().slice(0, 3)).toEqual(["sampleId", "campaign", "holeId"]));
-    expect((await cells()).slice(0, 3)).toEqual(["S-001", "CAMP-A", "DH-001"]);
+    expect((await cells()).slice(0, 4)).toEqual(["1", "S-001", "CAMP-A", "DH-001"]);
 
     // A fresh visit: the in-memory store is gone, localStorage is not.
     cleanup();
@@ -168,7 +184,7 @@ describe("arranging a list's columns", () => {
     await waitFor(() => expect(headingOrder()).not.toContain("weight"));
 
     await user.click(screen.getByRole("menuitem", { name: en.dataSource.layout.reset }));
-    await waitFor(() => expect(headingOrder()).toEqual(defaultColumns("dataSource").filter((column) => column !== "actions")));
+    await waitFor(() => expect(headingOrder()).toEqual(defaultColumns("dataSource").filter((column) => column !== "rowNo" && column !== "actions")));
   });
 
   it("shows a hidden oxide when ticked, every column with Show all, and hides them again on Reset layout", async () => {

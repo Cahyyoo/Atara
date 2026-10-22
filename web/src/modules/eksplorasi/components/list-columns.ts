@@ -26,10 +26,18 @@ import {
  * Pure, so the layout can be checked without a browser.
  */
 
-/** A column of the list: a field, the joined depth interval, or the row's buttons. */
-export type ListColumn = DataSourceField | "fromTo" | "actions";
+/**
+ * A column of the list: the row's running number, a field, the joined depth
+ * interval, or the row's buttons.
+ */
+export type ListColumn = "rowNo" | DataSourceField | "fromTo" | "actions";
+
+/** Columns that stay where they are: the number first, the buttons last. */
+const FIXED: readonly ListColumn[] = ["rowNo", "actions"];
 
 const WEIGHT: Partial<Record<ListColumn, number>> = {
+  /** Up to four digits, "1250". */
+  rowNo: 30,
   controlDate: 54,
   control: 56,
   campaign: 56,
@@ -49,23 +57,23 @@ const WEIGHT: Partial<Record<ListColumn, number>> = {
 /** An element's share, and anything not listed. */
 const UNIT = 43;
 
-/** The list's columns for a view: its fields, From and To joined, then the buttons. */
+/** The list's columns for a view: the number, its fields, From and To joined, then the buttons. */
 export function listColumns(view: DataSourceView): ListColumn[] {
   const columns: ListColumn[] = [];
   for (const field of viewFields(view)) {
     if (field === "to" && columns.at(-1) === "fromTo") continue;
     columns.push(field === "from" ? "fromTo" : field);
   }
-  return [...columns, "actions"];
+  return ["rowNo", ...columns, "actions"];
 }
 
 /**
- * The columns somebody can move and hide on each list: all but the buttons,
- * which stay last. One array per view, built once, so the hooks that remember
+ * The columns somebody can move and hide on each list: all but the number
+ * and the buttons, which stay first and last. One array per view, built once, so the hooks that remember
  * the choice get the same defaults on every render.
  */
 export const ARRANGEABLE: Record<DataSourceView, ListColumn[]> = Object.fromEntries(
-  DATA_SOURCE_VIEWS.map((view) => [view, listColumns(view).filter((column) => column !== "actions")])
+  DATA_SOURCE_VIEWS.map((view) => [view, listColumns(view).filter((column) => !FIXED.includes(column))])
 ) as Record<DataSourceView, ListColumn[]>;
 
 /**
@@ -85,13 +93,13 @@ export const LOCKED_COLUMNS: readonly ListColumn[] = ["sampleId"];
 /**
  * The columns a list shows: in the order somebody dragged them into (columns
  * that order does not know go back to their usual place), only those ticked
- * plus the locked ones, and the buttons last.
+ * plus the locked ones, between the number and the buttons.
  */
 export function arrangeColumns(view: DataSourceView, order: readonly string[], visible: readonly string[]): ListColumn[] {
   const shown = (normalizeOrder(order, ARRANGEABLE[view]) as ListColumn[]).filter(
     (column) => LOCKED_COLUMNS.includes(column) || visible.includes(column)
   );
-  return [...shown, "actions"];
+  return ["rowNo", ...shown, "actions"];
 }
 
 /** A list's columns on a first visit: the usual order, the minor oxides hidden. */
@@ -112,4 +120,5 @@ export function columnWidths(columns: readonly ListColumn[]): string[] {
 }
 
 /** Numbers line up on the right. */
-export const isNumericColumn = (column: ListColumn) => column === "weight" || isElementField(column);
+export const isNumericColumn = (column: ListColumn) =>
+  column === "rowNo" || column === "weight" || isElementField(column);

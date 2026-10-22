@@ -87,6 +87,7 @@
       "DUPLICATE": "Duplicate"
     },
     "fields": {
+      "rowNo": "No.",
       "controlDate": "Control Date",
       "control": "Control",
       "campaign": "Campaign",

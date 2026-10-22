@@ -24,11 +24,14 @@ const CELL = "px-1 py-1.5 align-middle";
  */
 export function DataSourceRow({
   row,
+  number,
   columns,
   onEdit,
   onDelete,
 }: {
   row: DataSourceDTO;
+  /** Its place in the whole list, counting on from the pages before. */
+  number: number;
   columns: readonly ListColumn[];
   onEdit: (row: DataSourceDTO) => void;
   onDelete: (row: DataSourceDTO) => void;
@@ -39,6 +42,7 @@ export function DataSourceRow({
   const empty = tCommon("empty");
 
   function text(column: ListColumn): string | null {
+    if (column === "rowNo") return String(number);
     if (column === "fromTo") return row.from || row.to ? `${row.from ?? empty}–${row.to ?? empty}` : null;
     if (column === "date") return row.date ? format.dateTime(new Date(`${row.date}T00:00:00`), { dateStyle: "short" }) : null;
     if (column === "actions" || column === "sampleType") return null;
@@ -95,6 +99,7 @@ export function DataSourceRow({
               numeric && "truncate px-0.5 text-right tabular-nums tracking-tight",
               column === "date" && "whitespace-nowrap",
               column === "sampleId" && "font-medium",
+              column === "rowNo" && "text-muted-foreground",
               value === null && "text-muted-foreground/60"
             )}
           >

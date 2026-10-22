@@ -101,6 +101,8 @@ export function DataSourceTable({ view }: { view: DataSourceView }) {
   }
 
   const filtered = Boolean(search) || campaign !== ALL || sampleType !== ALL;
+  /** The running number of the page's first row: page 2 of 25 starts at 26. */
+  const firstNumber = ((list.pagination?.page ?? page) - 1) * (list.pagination?.pageSize ?? Number(pageSize)) + 1;
 
   return (
     <div className="flex flex-col gap-4">
@@ -185,10 +187,11 @@ export function DataSourceTable({ view }: { view: DataSourceView }) {
                 </td>
               </tr>
             ) : (
-              list.items.map((row) => (
+              list.items.map((row, index) => (
                 <DataSourceRow
                   key={row.id}
                   row={row}
+                  number={firstNumber + index}
                   columns={columns}
                   onEdit={(target) => router.push(`${definition.path}/${target.id}/edit`)}
                   onDelete={setDeleteTarget}

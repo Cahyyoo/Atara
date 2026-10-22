@@ -22,8 +22,8 @@ export function useColumnLabel() {
 
 /**
  * The list's headings and the widths of its columns. Every heading but the
- * buttons can be dragged onto another to move its column there; nothing is
- * resized, so the columns keep sharing the page's width.
+ * number and the buttons can be dragged onto another to move its column
+ * there; nothing is resized, so the columns keep sharing the page's width.
  */
 export function DataSourceTableHead({ layout }: { layout: ReturnType<typeof useListLayout> }) {
   const t = useTranslations("dataSource");
@@ -39,7 +39,7 @@ export function DataSourceTableHead({ layout }: { layout: ReturnType<typeof useL
       <thead className="bg-muted/60">
         <tr className="border-b">
           {layout.columns.map((column) =>
-            column === "actions" ? (
+            column === "rowNo" || column === "actions" ? (
               <th key={column} scope="col" className={cn(HEAD, "text-right")}>
                 {label(column)}
               </th>

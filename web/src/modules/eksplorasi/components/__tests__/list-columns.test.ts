@@ -12,8 +12,9 @@ import {
 import { DATA_SOURCE_VIEWS, VIEWS } from "@/modules/eksplorasi/lib/data-source-columns";
 
 describe("a list's columns on screen", () => {
-  it("join From and To on the data source, and end on the buttons", () => {
-    expect(listColumns("dataSource").slice(0, 8)).toEqual([
+  it("start on the row number, join From and To on the data source, and end on the buttons", () => {
+    expect(listColumns("dataSource").slice(0, 9)).toEqual([
+      "rowNo",
       "campaign",
       "holeId",
       "sampleId",
@@ -23,7 +24,11 @@ describe("a list's columns on screen", () => {
       "weight",
       "ni",
     ]);
-    for (const view of DATA_SOURCE_VIEWS) expect(listColumns(view).at(-1)).toBe("actions");
+    for (const view of DATA_SOURCE_VIEWS) {
+      expect(listColumns(view)[0]).toBe("rowNo");
+      expect(listColumns(view).at(-1)).toBe("actions");
+      expect(ARRANGEABLE[view]).not.toContain("rowNo");
+    }
   });
 
   it("share the whole width between them, so nothing scrolls sideways", () => {
@@ -47,7 +52,7 @@ describe("a list's columns on screen", () => {
 
     const columns = arrangeColumns("duplicate", ["ni", "gone", "sampleId", "control"], ["ni", "control", "campaign"]);
     // Unknown keys are dropped; columns the saved order does not name go back where they belong.
-    expect(columns).toEqual(["ni", "sampleId", "control", "campaign", "actions"]);
+    expect(columns).toEqual(["rowNo", "ni", "sampleId", "control", "campaign", "actions"]);
 
     const total = columnWidths(columns).reduce((sum, width) => sum + parseFloat(width), 0);
     expect(total).toBeCloseTo(100, 1);
