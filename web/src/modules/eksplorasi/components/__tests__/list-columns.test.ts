@@ -1,7 +1,14 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { ARRANGEABLE, arrangeColumns, columnWidths, listColumns } from "@/modules/eksplorasi/components/list-columns";
+import {
+  ARRANGEABLE,
+  DEFAULT_VISIBLE,
+  arrangeColumns,
+  columnWidths,
+  defaultColumns,
+  listColumns,
+} from "@/modules/eksplorasi/components/list-columns";
 import { DATA_SOURCE_VIEWS, VIEWS } from "@/modules/eksplorasi/lib/data-source-columns";
 
 describe("a list's columns on screen", () => {
@@ -30,7 +37,7 @@ describe("a list's columns on screen", () => {
     for (const view of DATA_SOURCE_VIEWS) {
       const folder = VIEWS[view].path.split("/").at(-1)!;
       const loading = readFileSync(join(process.cwd(), "src", "app", "(app)", "eksplorasi", folder, "loading.tsx"), "utf8");
-      expect(loading, view).toContain(`columns={${listColumns(view).length}}`);
+      expect(loading, view).toContain(`columns={${defaultColumns(view).length}}`);
     }
   });
 
@@ -44,5 +51,16 @@ describe("a list's columns on screen", () => {
 
     const total = columnWidths(columns).reduce((sum, width) => sum + parseFloat(width), 0);
     expect(total).toBeCloseTo(100, 1);
+  });
+
+  it("open with Ni to Co and leave Na2O to MC for somebody to tick", () => {
+    for (const view of DATA_SOURCE_VIEWS) {
+      expect(DEFAULT_VISIBLE[view], view).toEqual(expect.arrayContaining(["ni", "fe", "fe2o3", "co"]));
+      for (const hidden of ["na2o", "mgo", "sio2", "cr2o3", "mc"]) expect(DEFAULT_VISIBLE[view], view).not.toContain(hidden);
+      const columns = defaultColumns(view);
+      expect(columns.filter((column) => ARRANGEABLE[view].includes(column))).toEqual(DEFAULT_VISIBLE[view]);
+      const total = columnWidths(columns).reduce((sum, width) => sum + parseFloat(width), 0);
+      expect(total, view).toBeCloseTo(100, 1);
+    }
   });
 });

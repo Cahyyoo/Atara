@@ -6,6 +6,7 @@ import { EMPTY_LAYOUT, useTableLayout } from "@/core/hooks/use-table-layout";
 import { moveBefore, normalizeOrder, nudge } from "@/core/lib/ui/column-layout";
 import {
   ARRANGEABLE,
+  DEFAULT_VISIBLE,
   LOCKED_COLUMNS,
   arrangeColumns,
   columnWidths,
@@ -15,13 +16,19 @@ import type { DataSourceView } from "@/modules/eksplorasi/lib/data-source-column
 
 /**
  * Which columns a list shows and in what order, as the lab's sample database
- * does it: drag a heading onto another (or Alt+←/→), tick columns on and off.
- * Remembered per list in this browser. Nothing is resized: the shown columns
- * share the page's width, so the list still fits without scrolling sideways.
+ * does it: drag a heading onto another (or Alt+←/→), tick columns on and off
+ * (Na2O to MC start off). Remembered per list in this browser. Nothing is
+ * resized: the shown columns share the page's width, so the list still fits
+ * without scrolling sideways.
  */
 export function useListLayout(view: DataSourceView) {
   const defaults = ARRANGEABLE[view];
-  const [visible, setVisible] = usePersistedColumns<ListColumn>(`atara.columns.eksplorasi.${view}`, defaults, defaults);
+  // v2: Na2O to MC became hidden by default; a choice saved before that is let go.
+  const [visible, setVisible] = usePersistedColumns<ListColumn>(
+    `atara.columns.eksplorasi.v2.${view}`,
+    DEFAULT_VISIBLE[view],
+    defaults
+  );
   const [layout, setLayout] = useTableLayout(`atara.table-layout.eksplorasi.${view}`);
   const [dragKey, setDragKey] = useState<string | null>(null);
   const [dropKey, setDropKey] = useState<string | null>(null);
@@ -63,7 +70,7 @@ export function useListLayout(view: DataSourceView) {
     showAll: () => setVisible([...defaults]),
     /** Back to the list's usual columns, in their usual order. */
     reset: () => {
-      setVisible([...defaults]);
+      setVisible([...DEFAULT_VISIBLE[view]]);
       setLayout(EMPTY_LAYOUT);
     },
     dragKey,

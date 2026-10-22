@@ -353,6 +353,7 @@ npm run db:migrate        # jalankan migrasi Prisma
 npm run db:seed           # isi akun & tahapan awal
 npm run db:seed-master    # isi master data Sample ID
 npm run db:seed-dummy     # isi sampel dummy untuk pengembangan
+npm run db:seed-eksplorasi-dummy  # isi data source eksplorasi dummy (ORIGINAL + QC)
 npm run db:reset-samples  # hapus SEMUA sampel, log, dan hasil uji (akun & tahapan tetap)
 npm run db:studio         # buka Prisma Studio (GUI database)
 ```

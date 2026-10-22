@@ -1,6 +1,7 @@
 import { normalizeOrder } from "@/core/lib/ui/column-layout";
 import {
   DATA_SOURCE_VIEWS,
+  ELEMENT_FIELDS,
   isElementField,
   viewFields,
   type DataSourceField,
@@ -67,6 +68,17 @@ export const ARRANGEABLE: Record<DataSourceView, ListColumn[]> = Object.fromEntr
   DATA_SOURCE_VIEWS.map((view) => [view, listColumns(view).filter((column) => column !== "actions")])
 ) as Record<DataSourceView, ListColumn[]>;
 
+/**
+ * The minor oxides, Na2O to MC: hidden until somebody ticks them, so a list
+ * opens on the elements read most (Ni, Fe, Fe2O3, Co) with room to spare.
+ */
+export const HIDDEN_BY_DEFAULT: readonly ListColumn[] = ELEMENT_FIELDS.slice(ELEMENT_FIELDS.indexOf("na2o"));
+
+/** The columns ticked on a first visit, and after Reset layout. One array per view, built once. */
+export const DEFAULT_VISIBLE: Record<DataSourceView, ListColumn[]> = Object.fromEntries(
+  DATA_SOURCE_VIEWS.map((view) => [view, ARRANGEABLE[view].filter((column) => !HIDDEN_BY_DEFAULT.includes(column))])
+) as Record<DataSourceView, ListColumn[]>;
+
 /** Always shown: a row without its sample ID cannot be told apart. It still moves. */
 export const LOCKED_COLUMNS: readonly ListColumn[] = ["sampleId"];
 
@@ -81,6 +93,9 @@ export function arrangeColumns(view: DataSourceView, order: readonly string[], v
   );
   return [...shown, "actions"];
 }
+
+/** A list's columns on a first visit: the usual order, the minor oxides hidden. */
+export const defaultColumns = (view: DataSourceView) => arrangeColumns(view, [], DEFAULT_VISIBLE[view]);
 
 /** A column's share before it is turned into a percentage. */
 export const columnWeight = (column: ListColumn) => WEIGHT[column] ?? UNIT;

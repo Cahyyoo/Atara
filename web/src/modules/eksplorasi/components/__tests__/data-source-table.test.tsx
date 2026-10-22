@@ -8,7 +8,7 @@ import { en } from "@/core/i18n/test-messages";
 import { resetPersistedColumns } from "@/core/hooks/use-persisted-columns";
 import { resetTableLayouts } from "@/core/hooks/use-table-layout";
 import { DataSourceTable } from "@/modules/eksplorasi/components/data-source-table";
-import { ARRANGEABLE } from "@/modules/eksplorasi/components/list-columns";
+import { ARRANGEABLE, defaultColumns } from "@/modules/eksplorasi/components/list-columns";
 import { ELEMENT_FIELDS } from "@/modules/eksplorasi/lib/data-source-columns";
 import type { DataSourceDTO, DataSourceView } from "@/modules/eksplorasi/types";
 
@@ -101,7 +101,8 @@ describe("arranging a list's columns", () => {
   it("shows the list's columns in their usual order, with no edge to resize", async () => {
     show();
     await row();
-    expect(headingOrder()).toEqual(ARRANGEABLE.dataSource);
+    expect(headingOrder()).toEqual(defaultColumns("dataSource").filter((column) => column !== "actions"));
+    expect(headingOrder()).not.toContain("na2o");
     expect(screen.queryByRole("separator")).toBeNull();
     const widths = [...document.querySelectorAll("col")].reduce((sum, col) => sum + parseFloat(col.style.width), 0);
     expect(widths).toBeCloseTo(100, 1);
@@ -145,7 +146,7 @@ describe("arranging a list's columns", () => {
     expect((await row()).querySelectorAll("td").length).toBe(screen.getAllByRole("columnheader").length);
     const widths = [...document.querySelectorAll("col")].reduce((sum, col) => sum + parseFloat(col.style.width), 0);
     expect(widths).toBeCloseTo(100, 1);
-    expect(JSON.parse(window.localStorage.getItem("atara.columns.eksplorasi.dataSource")!)).not.toContain("holeId");
+    expect(JSON.parse(window.localStorage.getItem("atara.columns.eksplorasi.v2.dataSource")!)).not.toContain("holeId");
 
     // The sample ID cannot be hidden: a row without it cannot be told apart.
     expect(screen.getByRole("menuitemcheckbox", { name: en.dataSource.fields.sampleId }).getAttribute("aria-disabled")).toBe("true");
@@ -167,6 +168,22 @@ describe("arranging a list's columns", () => {
     await waitFor(() => expect(headingOrder()).not.toContain("weight"));
 
     await user.click(screen.getByRole("menuitem", { name: en.dataSource.layout.reset }));
+    await waitFor(() => expect(headingOrder()).toEqual(defaultColumns("dataSource").filter((column) => column !== "actions")));
+  });
+
+  it("shows a hidden oxide when ticked, every column with Show all, and hides them again on Reset layout", async () => {
+    const user = userEvent.setup({ delay: null });
+    show();
+    await row();
+    await openMenu(user);
+    await user.click(await screen.findByRole("menuitemcheckbox", { name: "Na2O" }));
+    await waitFor(() => expect(headingOrder()).toContain("na2o"));
+    expect(headingOrder()).not.toContain("mgo");
+
+    await user.click(screen.getByRole("menuitemcheckbox", { name: en.dataSource.layout.showAll }));
     await waitFor(() => expect(headingOrder()).toEqual(ARRANGEABLE.dataSource));
+
+    await user.click(screen.getByRole("menuitem", { name: en.dataSource.layout.reset }));
+    await waitFor(() => expect(headingOrder()).not.toContain("na2o"));
   });
 });
