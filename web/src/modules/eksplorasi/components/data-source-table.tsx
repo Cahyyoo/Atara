@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button, buttonVariants } from "@/core/components/ui/button";
@@ -11,6 +12,7 @@ import { SearchInput } from "@/core/components/form/search-input";
 import { ColumnMenu } from "@/core/components/table/column-menu";
 import { ExportMenu, TablePagination } from "@/core/components/table/table-toolbar";
 import { useApiList } from "@/core/hooks/use-api-list";
+import { cn } from "@/core/lib/utils";
 import { apiFetch } from "@/core/lib/http/api-client";
 import { downloadFromApi } from "@/core/lib/http/download";
 import type { PaginationDTO } from "@/core/types";
@@ -18,13 +20,19 @@ import { DeleteDataSourceDialog } from "@/modules/eksplorasi/components/delete-d
 import { DataSourceImportDialog } from "@/modules/eksplorasi/components/import/data-source-import-dialog";
 import { DataSourceRow } from "@/modules/eksplorasi/components/data-source-row";
 import { DataSourceTableHead, useColumnLabel } from "@/modules/eksplorasi/components/data-source-table-head";
-import type { ListColumn } from "@/modules/eksplorasi/components/list-columns";
+import { isCompact, type ListColumn } from "@/modules/eksplorasi/components/list-columns";
 import { useListLayout } from "@/modules/eksplorasi/components/use-list-layout";
 import { SAMPLE_TYPES, VIEWS } from "@/modules/eksplorasi/lib/data-source-columns";
 import type { DataSourceDTO, DataSourceView, SampleType } from "@/modules/eksplorasi/types";
 import { IoAddOutline, IoCloudUploadOutline, IoReloadOutline } from "react-icons/io5";
 
 const ALL = "ALL";
+
+/** A row's detail panel, loaded when a row is first opened. */
+const DataSourceDetail = dynamic(
+  () => import("@/modules/eksplorasi/components/data-source-detail").then((m) => m.DataSourceDetail),
+  { ssr: false }
+);
 
 /**
  * One of the four lists: the whole data source, or the rows of one QC type.
@@ -34,8 +42,10 @@ const ALL = "ALL";
  *
  * Every column fits the page: the table is fixed-width, each column a share of
  * it (list-columns.ts), and a cell too long for its share is cut with an
- * ellipsis and shown whole on hover. Only a screen too narrow for that many
- * columns -- a phone -- scrolls sideways.
+ * ellipsis and shown whole on hover. With the usual columns it reads at 13px;
+ * with most elements ticked on it tightens to 11px (isCompact). Only a screen
+ * too narrow for that many columns -- a phone -- scrolls sideways. A row opens
+ * its detail panel, with every assay result.
  *
  * As on the lab's sample database, the headings can be dragged into another
  * order and the Columns menu hides the ones not wanted (use-list-layout.ts);
@@ -53,12 +63,14 @@ export function DataSourceTable({ view }: { view: DataSourceView }) {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState("25");
   const [deleteTarget, setDeleteTarget] = useState<DataSourceDTO | null>(null);
+  const [openRow, setOpenRow] = useState<DataSourceDTO | null>(null);
   const [importOpen, setImportOpen] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
 
   const definition = VIEWS[view];
   const layout = useListLayout(view);
   const columns = layout.columns;
+  const compact = isCompact(columns);
   const label = useColumnLabel();
   const filters = {
     view,
@@ -171,8 +183,13 @@ export function DataSourceTable({ view }: { view: DataSourceView }) {
 
       {/* Clipped for the rounded corners, not scrolled, from a laptop up. */}
       <div className="rounded-lg border bg-background max-lg:overflow-x-auto lg:overflow-clip">
-        <table className="w-full table-fixed border-collapse text-[11px] max-lg:min-w-[64rem]">
-          <DataSourceTableHead layout={layout} />
+        <table
+          className={cn(
+            "w-full table-fixed border-collapse",
+            compact ? "text-[11px] max-lg:min-w-[64rem]" : "text-[13px] max-lg:min-w-[48rem]"
+          )}
+        >
+          <DataSourceTableHead layout={layout} compact={compact} />
           <tbody>
             {list.loading ? (
               <tr>
@@ -193,6 +210,8 @@ export function DataSourceTable({ view }: { view: DataSourceView }) {
                   row={row}
                   number={firstNumber + index}
                   columns={columns}
+                  compact={compact}
+                  onOpen={setOpenRow}
                   onEdit={(target) => router.push(`${definition.path}/${target.id}/edit`)}
                   onDelete={setDeleteTarget}
                 />
@@ -220,6 +239,16 @@ export function DataSourceTable({ view }: { view: DataSourceView }) {
         onImported={() => {
           setPage(1);
           list.reload();
+        }}
+      />
+
+      <DataSourceDetail
+        row={openRow}
+        editHref={openRow ? `${definition.path}/${openRow.id}/edit` : definition.path}
+        onClose={() => setOpenRow(null)}
+        onDelete={(target) => {
+          setOpenRow(null);
+          setDeleteTarget(target);
         }}
       />
 

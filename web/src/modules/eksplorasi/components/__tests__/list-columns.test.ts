@@ -4,12 +4,14 @@ import { describe, expect, it } from "vitest";
 import {
   ARRANGEABLE,
   DEFAULT_VISIBLE,
+  alignOf,
   arrangeColumns,
   columnWidths,
   defaultColumns,
+  isCompact,
   listColumns,
 } from "@/modules/eksplorasi/components/list-columns";
-import { DATA_SOURCE_VIEWS, VIEWS } from "@/modules/eksplorasi/lib/data-source-columns";
+import { DATA_SOURCE_VIEWS, ELEMENT_FIELDS, VIEWS } from "@/modules/eksplorasi/lib/data-source-columns";
 
 describe("a list's columns on screen", () => {
   it("start on the row number, join From and To on the data source, and end on the buttons", () => {
@@ -58,14 +60,29 @@ describe("a list's columns on screen", () => {
     expect(total).toBeCloseTo(100, 1);
   });
 
-  it("open with Ni to Co and leave Na2O to MC for somebody to tick", () => {
+  it("open without the assay results, which are left for somebody to tick", () => {
     for (const view of DATA_SOURCE_VIEWS) {
-      expect(DEFAULT_VISIBLE[view], view).toEqual(expect.arrayContaining(["ni", "fe", "fe2o3", "co"]));
-      for (const hidden of ["na2o", "mgo", "sio2", "cr2o3", "mc"]) expect(DEFAULT_VISIBLE[view], view).not.toContain(hidden);
+      for (const element of ELEMENT_FIELDS) expect(DEFAULT_VISIBLE[view], view).not.toContain(element);
+      expect(DEFAULT_VISIBLE[view], view).toContain("sampleId");
       const columns = defaultColumns(view);
       expect(columns.filter((column) => ARRANGEABLE[view].includes(column))).toEqual(DEFAULT_VISIBLE[view]);
       const total = columnWidths(columns).reduce((sum, width) => sum + parseFloat(width), 0);
       expect(total, view).toBeCloseTo(100, 1);
     }
+  });
+
+  it("read at a comfortable size by default, and tighten only when most elements are ticked on", () => {
+    for (const view of DATA_SOURCE_VIEWS) {
+      expect(isCompact(defaultColumns(view)), view).toBe(false);
+      expect(isCompact(listColumns(view)), view).toBe(true);
+    }
+  });
+
+  it("centre short marks and dates, put numbers right and words left", () => {
+    for (const column of ["rowNo", "sampleType", "date", "controlDate", "no", "actions"] as const) {
+      expect(alignOf(column), column).toBe("center");
+    }
+    for (const column of ["ni", "mc", "weight"] as const) expect(alignOf(column), column).toBe("right");
+    for (const column of ["campaign", "sampleId", "remarks", "fromTo"] as const) expect(alignOf(column), column).toBe("left");
   });
 });

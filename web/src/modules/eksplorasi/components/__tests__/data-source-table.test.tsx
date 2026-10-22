@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 
@@ -9,7 +9,7 @@ import { resetPersistedColumns } from "@/core/hooks/use-persisted-columns";
 import { resetTableLayouts } from "@/core/hooks/use-table-layout";
 import { DataSourceTable } from "@/modules/eksplorasi/components/data-source-table";
 import { ARRANGEABLE, defaultColumns } from "@/modules/eksplorasi/components/list-columns";
-import { ELEMENT_FIELDS } from "@/modules/eksplorasi/lib/data-source-columns";
+import { ELEMENT_FIELDS, ELEMENT_LABELS } from "@/modules/eksplorasi/lib/data-source-columns";
 import type { DataSourceDTO, DataSourceView } from "@/modules/eksplorasi/types";
 
 vi.mock("next/navigation", () => ({
@@ -101,6 +101,36 @@ async function openMenu(user: ReturnType<typeof userEvent.setup>) {
   await user.click(screen.getByRole("button", { name: en.common.columns }));
 }
 
+describe("a sample's detail", () => {
+  it("opens from the row with every field and all sixteen assay results", async () => {
+    show();
+    fireEvent.click(await row());
+    const panel = await screen.findByRole("dialog", { name: "S-001" });
+    expect(panel.textContent).toContain(en.dataSource.detail.results);
+    expect(panel.textContent).toContain("DH-001");
+    expect(panel.textContent).toContain("1.52");
+    for (const element of ELEMENT_FIELDS) expect(panel.textContent).toContain(ELEMENT_LABELS[element]);
+  });
+
+  it("opens with Enter, but not from the row's own buttons", async () => {
+    show();
+    const tr = await row();
+    fireEvent.click(screen.getByRole("button", { name: en.dataSource.editRow.replace("{sampleId}", "S-001") }));
+    expect(screen.queryByRole("dialog", { name: "S-001" })).toBeNull();
+    fireEvent.keyDown(tr, { key: "Enter" });
+    expect(await screen.findByRole("dialog", { name: "S-001" })).toBeTruthy();
+  });
+
+  it("hands Delete over to the delete dialog", async () => {
+    show();
+    fireEvent.click(await row());
+    const panel = await screen.findByRole("dialog", { name: "S-001" });
+    fireEvent.click(within(panel).getByRole("button", { name: en.dataSource.delete.action }));
+    expect(await screen.findByText(en.dataSource.delete.title)).toBeTruthy();
+    await waitFor(() => expect(screen.queryByRole("dialog", { name: "S-001" })).toBeNull());
+  });
+});
+
 describe("the row number", () => {
   it("comes first, stays put, and counts on from the pages before", async () => {
     listPage = 2;
@@ -118,8 +148,10 @@ describe("arranging a list's columns", () => {
     show();
     await row();
     expect(headingOrder()).toEqual(defaultColumns("dataSource").filter((column) => column !== "rowNo" && column !== "actions"));
-    expect(headingOrder()).not.toContain("na2o");
+    for (const element of ELEMENT_FIELDS) expect(headingOrder()).not.toContain(element);
     expect(screen.queryByRole("separator")).toBeNull();
+    // The usual columns read at the comfortable size.
+    expect(screen.getByRole("table").className).toContain("text-[13px]");
     const widths = [...document.querySelectorAll("col")].reduce((sum, col) => sum + parseFloat(col.style.width), 0);
     expect(widths).toBeCloseTo(100, 1);
   });
@@ -162,7 +194,7 @@ describe("arranging a list's columns", () => {
     expect((await row()).querySelectorAll("td").length).toBe(screen.getAllByRole("columnheader").length);
     const widths = [...document.querySelectorAll("col")].reduce((sum, col) => sum + parseFloat(col.style.width), 0);
     expect(widths).toBeCloseTo(100, 1);
-    expect(JSON.parse(window.localStorage.getItem("atara.columns.eksplorasi.v2.dataSource")!)).not.toContain("holeId");
+    expect(JSON.parse(window.localStorage.getItem("atara.columns.eksplorasi.v3.dataSource")!)).not.toContain("holeId");
 
     // The sample ID cannot be hidden: a row without it cannot be told apart.
     expect(screen.getByRole("menuitemcheckbox", { name: en.dataSource.fields.sampleId }).getAttribute("aria-disabled")).toBe("true");
@@ -187,19 +219,21 @@ describe("arranging a list's columns", () => {
     await waitFor(() => expect(headingOrder()).toEqual(defaultColumns("dataSource").filter((column) => column !== "rowNo" && column !== "actions")));
   });
 
-  it("shows a hidden oxide when ticked, every column with Show all, and hides them again on Reset layout", async () => {
+  it("shows an assay result when ticked, every column (tightened) with Show all, and hides them again on Reset layout", async () => {
     const user = userEvent.setup({ delay: null });
     show();
     await row();
     await openMenu(user);
-    await user.click(await screen.findByRole("menuitemcheckbox", { name: "Na2O" }));
-    await waitFor(() => expect(headingOrder()).toContain("na2o"));
-    expect(headingOrder()).not.toContain("mgo");
+    await user.click(await screen.findByRole("menuitemcheckbox", { name: "Ni" }));
+    await waitFor(() => expect(headingOrder()).toContain("ni"));
+    expect(headingOrder()).not.toContain("fe");
+    expect(await cells()).toContain("1.52");
 
     await user.click(screen.getByRole("menuitemcheckbox", { name: en.dataSource.layout.showAll }));
     await waitFor(() => expect(headingOrder()).toEqual(ARRANGEABLE.dataSource));
+    expect(screen.getByRole("table").className).toContain("text-[11px]");
 
     await user.click(screen.getByRole("menuitem", { name: en.dataSource.layout.reset }));
-    await waitFor(() => expect(headingOrder()).not.toContain("na2o"));
+    await waitFor(() => expect(headingOrder()).not.toContain("ni"));
   });
 });

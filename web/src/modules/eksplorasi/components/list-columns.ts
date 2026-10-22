@@ -77,10 +77,11 @@ export const ARRANGEABLE: Record<DataSourceView, ListColumn[]> = Object.fromEntr
 ) as Record<DataSourceView, ListColumn[]>;
 
 /**
- * The minor oxides, Na2O to MC: hidden until somebody ticks them, so a list
- * opens on the elements read most (Ni, Fe, Fe2O3, Co) with room to spare.
+ * The assay results, Ni to MC: hidden until somebody ticks them. A list opens
+ * on who and where each sample is, readable at a comfortable size; a row's
+ * detail panel has all sixteen values.
  */
-export const HIDDEN_BY_DEFAULT: readonly ListColumn[] = ELEMENT_FIELDS.slice(ELEMENT_FIELDS.indexOf("na2o"));
+export const HIDDEN_BY_DEFAULT: readonly ListColumn[] = ELEMENT_FIELDS;
 
 /** The columns ticked on a first visit, and after Reset layout. One array per view, built once. */
 export const DEFAULT_VISIBLE: Record<DataSourceView, ListColumn[]> = Object.fromEntries(
@@ -102,7 +103,7 @@ export function arrangeColumns(view: DataSourceView, order: readonly string[], v
   return ["rowNo", ...shown, "actions"];
 }
 
-/** A list's columns on a first visit: the usual order, the minor oxides hidden. */
+/** A list's columns on a first visit: the usual order, the assay results hidden. */
 export const defaultColumns = (view: DataSourceView) => arrangeColumns(view, [], DEFAULT_VISIBLE[view]);
 
 /** A column's share before it is turned into a percentage. */
@@ -117,6 +118,22 @@ export function percentages(weights: readonly number[]): string[] {
 /** Each column's width as a percentage of the table, adding up to 100. */
 export function columnWidths(columns: readonly ListColumn[]): string[] {
   return percentages(columns.map(columnWeight));
+}
+
+/**
+ * More columns than fit at a comfortable size: the table drops to 11px with
+ * narrow padding so it still needs no sideways scrolling. Every list fits
+ * comfortably with its default columns and a few elements ticked on.
+ */
+export const COMFORTABLE_MAX = 16;
+export const isCompact = (columns: readonly ListColumn[]) => columns.length > COMFORTABLE_MAX;
+
+const CENTERED: readonly ListColumn[] = ["rowNo", "sampleType", "date", "controlDate", "no", "actions"];
+
+/** Short marks and dates in the middle, numbers on the right, words on the left -- heading and cells alike. */
+export function alignOf(column: ListColumn): "left" | "center" | "right" {
+  if (CENTERED.includes(column)) return "center";
+  return isNumericColumn(column) ? "right" : "left";
 }
 
 /** Numbers line up on the right. */

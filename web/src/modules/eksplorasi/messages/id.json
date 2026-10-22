@@ -18,9 +18,9 @@
         "steps": {
           "1": "Tambah membuka halaman lembar seperti Excel: ketik atau tempel blok dari Excel ke baris kosong. 50 baris terakhir tampil terkunci di atasnya; klik gembok untuk mengubahnya langsung, lalu Simpan sekaligus.",
           "2": "Cari dengan Sample ID, Hole ID, Control, atau Campaign, dan saring per campaign (serta per tipe sampel di Data Source).",
-          "3": "Ikon pensil membuka lembar dengan baris itu sudah terbuka kuncinya; ikon tempat sampah menghapus baris secara permanen.",
+          "3": "Klik sebuah baris untuk membuka detailnya di panel kanan: identitas sampel, ke-16 hasil assay, dan riwayatnya, dengan tombol Ubah dan Hapus. Ikon pensil dan tempat sampah di baris melakukan hal yang sama secara langsung.",
           "4": "Import mengunggah ribuan baris sekaligus dari Excel/CSV (pratinjau dulu, baris error bisa diunduh); Export mengunduh daftar yang sedang tampil dengan kolom menu itu, sehingga bisa langsung di-import kembali.",
-          "5": "Seret judul kolom ke kiri atau kanan untuk mengubah urutannya (atau Alt+←/→), dan pilih kolom yang tampil lewat tombol Kolom. Pengaturan disimpan per menu di browser ini; Export tetap berisi semua kolom menu. Na2O s.d. MC tersembunyi secara default; centang lewat Kolom bila diperlukan."
+          "5": "Seret judul kolom ke kiri atau kanan untuk mengubah urutannya (atau Alt+←/→), dan pilih kolom yang tampil lewat tombol Kolom. Hasil assay (Ni s.d. MC) tersembunyi secara default; centang lewat Kolom bila ingin melihatnya di tabel. Pengaturan disimpan per menu di browser ini; Export tetap berisi semua kolom menu."
         },
         "tip": "Sample ID harus unik. Di menu Standard, Blank, dan Duplicate, tipe sampel terisi otomatis sesuai menunya."
       }
@@ -106,6 +106,14 @@
       "showAll": "Tampilkan semua",
       "reset": "Kembalikan tampilan",
       "move": "Seret untuk memindah kolom ini (atau Alt+←/→)"
+    },
+    "detail": {
+      "open": "Lihat detail {sampleId}",
+      "identity": "Identitas sampel",
+      "results": "Hasil assay",
+      "history": "Riwayat",
+      "created": "Dibuat oleh {name}, {date}",
+      "updated": "Diubah oleh {name}, {date}"
     },
     "delete": {
       "label": "Hapus {sampleId}",

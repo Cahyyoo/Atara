@@ -10,7 +10,7 @@ export interface ColumnHeadProps {
   columnKey: string;
   label: string;
   width: number;
-  align?: "left" | "right";
+  align?: "left" | "center" | "right";
   className?: string;
   /** Sortable when given: the field the API sorts by. */
   sortField?: string;
@@ -165,6 +165,7 @@ export function ColumnHead({
         "group/head relative overflow-hidden text-ellipsis",
         compact && "whitespace-normal",
         align === "right" && "text-right",
+        align === "center" && "text-center",
         movable && "cursor-grab active:cursor-grabbing",
         dragging && "opacity-50",
         dropTarget && "bg-primary/10 shadow-[inset_2px_0_0_var(--color-primary)]",
@@ -172,7 +173,13 @@ export function ColumnHead({
       )}
       {...dragProps}
     >
-      <div className={cn("flex min-w-0 items-center gap-1", align === "right" && "justify-end")}>
+      <div
+        className={cn(
+          "flex min-w-0 items-center gap-1",
+          align === "right" && "justify-end",
+          align === "center" && "justify-center"
+        )}
+      >
         {movable && !compact ? (
           <IoReorderTwoOutline
             aria-hidden

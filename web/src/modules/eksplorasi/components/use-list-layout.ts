@@ -17,15 +17,15 @@ import type { DataSourceView } from "@/modules/eksplorasi/lib/data-source-column
 /**
  * Which columns a list shows and in what order, as the lab's sample database
  * does it: drag a heading onto another (or Alt+←/→), tick columns on and off
- * (Na2O to MC start off). Remembered per list in this browser. Nothing is
+ * (the assay results start off). Remembered per list in this browser. Nothing is
  * resized: the shown columns share the page's width, so the list still fits
  * without scrolling sideways.
  */
 export function useListLayout(view: DataSourceView) {
   const defaults = ARRANGEABLE[view];
-  // v2: Na2O to MC became hidden by default; a choice saved before that is let go.
+  // v3: the assay results became hidden by default; a choice saved before that is let go.
   const [visible, setVisible] = usePersistedColumns<ListColumn>(
-    `atara.columns.eksplorasi.v2.${view}`,
+    `atara.columns.eksplorasi.v3.${view}`,
     DEFAULT_VISIBLE[view],
     defaults
   );
