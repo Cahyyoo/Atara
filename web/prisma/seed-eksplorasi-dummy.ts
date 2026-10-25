@@ -152,7 +152,7 @@ function buildRows(createdById: string): Prisma.DataSourceCreateManyInput[] {
         const sampleId = `${PREFIX}${campaign.code}-${String(serial).padStart(5, "0")}`;
         const assay = lateriteAssay(metre, depth);
         const common = { campaign: campaign.name, holeId, date, weight: text(rng.decimal(1.5, 3.5), 2) };
-        push("ORIGINAL", { ...common, from: text(metre, 1), to: text(metre + 1, 1), ...assay }, sampleId);
+        push("FIELD", { ...common, from: text(metre, 1), to: text(metre + 1, 1), ...assay }, sampleId);
 
         if (serial >= nextDuplicate) {
           duplicates += 1;
@@ -166,7 +166,7 @@ function buildRows(createdById: string): Prisma.DataSourceCreateManyInput[] {
               no: String(duplicates),
               from: text(metre, 1),
               to: text(metre + 1, 1),
-              remarks: "Field duplicate",
+              originalSampleIdRemarks: "Field duplicate",
               ...duplicateAssay(assay),
             },
             `${sampleId}-D`
@@ -178,7 +178,7 @@ function buildRows(createdById: string): Prisma.DataSourceCreateManyInput[] {
           const control = rng.pick(Object.keys(STANDARDS) as Control[]);
           push(
             "STANDARD",
-            { ...common, control, remarks: `Inserted after ${sampleId}`, ...standardAssay(control) },
+            { ...common, control, oreasRemarks: `Inserted after ${sampleId}`, ...standardAssay(control) },
             `${PREFIX}STD-${String(standards).padStart(4, "0")}`
           );
         }
@@ -187,7 +187,7 @@ function buildRows(createdById: string): Prisma.DataSourceCreateManyInput[] {
           nextBlank = serial + rng.int(12, 18);
           push(
             "BLANK",
-            { ...common, control: "BLANK-QZ", remarks: `Inserted after ${sampleId}`, ...blankAssay() },
+            { ...common, control: "BLANK-QZ", oreasRemarks: `Inserted after ${sampleId}`, ...blankAssay() },
             `${PREFIX}BLK-${String(blanks).padStart(4, "0")}`
           );
         }

@@ -15,7 +15,10 @@ export type DataSourceDTO = {
   sampleType: SampleType;
   from: string | null;
   to: string | null;
-  remarks: string | null;
+  /** The Duplicate list's Remarks. */
+  originalSampleIdRemarks: string | null;
+  /** The Data Source, Standard and Blank lists' Remarks. */
+  oreasRemarks: string | null;
   /** YYYY-MM-DD. */
   date: string | null;
   weight: string | null;

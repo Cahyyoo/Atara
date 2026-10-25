@@ -10,7 +10,7 @@ import { IoPencilOutline, IoTrashOutline } from "react-icons/io5";
 
 /** One colour per type, so the data source reads at a glance. */
 export const TYPE_VARIANT: Record<SampleType, "default" | "secondary" | "outline" | "destructive"> = {
-  ORIGINAL: "outline",
+  FIELD: "outline",
   STANDARD: "default",
   BLANK: "secondary",
   DUPLICATE: "secondary",

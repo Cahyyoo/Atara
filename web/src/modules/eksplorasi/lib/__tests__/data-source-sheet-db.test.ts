@@ -65,7 +65,7 @@ describe.skipIf(!reachable)("a list's sheet", () => {
     session.userId = user.id;
     stored = (
       await prisma.dataSource.create({
-        data: { sampleId: `${tag}-OLD`, sampleType: "ORIGINAL", campaign: "C1", ni: "1.5", createdById: user.id },
+        data: { sampleId: `${tag}-OLD`, sampleType: "FIELD", campaign: "C1", ni: "1.5", createdById: user.id },
       })
     ).id;
     standard = (
@@ -92,8 +92,8 @@ describe.skipIf(!reachable)("a list's sheet", () => {
       [
         unchanged(),
         { line: 2, cells: { sampleId: `${tag}-NEW`, sampleType: "std", date: "01/10/2026", ni: "<0.01" } },
-        { line: 3, cells: { sampleId: `${tag}-OLD`, sampleType: "ORIGINAL" } },
-        { line: 4, cells: { sampleId: `${tag}-BAD`, sampleType: "ORIGINAL", date: "2026-13-01" } },
+        { line: 3, cells: { sampleId: `${tag}-OLD`, sampleType: "FIELD" } },
+        { line: 4, cells: { sampleId: `${tag}-BAD`, sampleType: "FIELD", date: "2026-13-01" } },
         { line: 5, cells: { sampleId: `${tag}-NOTYPE` } },
       ],
       true
@@ -165,6 +165,44 @@ describe.skipIf(!reachable)("a list's sheet", () => {
     });
     expect(await prisma.dataSource.findUniqueOrThrow({ where: { sampleId: `${tag}-STD2` } })).toMatchObject({
       sampleType: "STANDARD",
+    });
+  });
+
+  it("writes each list's Remarks to its own column, the other list's left as it was", async () => {
+    const dup = (
+      await prisma.dataSource.create({
+        data: { sampleId: `${tag}-DUP`, sampleType: "DUPLICATE", oreasRemarks: "OREAS note", createdById: session.userId! },
+      })
+    ).id;
+
+    // The Duplicate list's Remarks is the original sample's remarks.
+    const duplicate = await send(
+      "duplicate",
+      [
+        { line: 1, id: dup, cells: { sampleId: `${tag}-DUP`, originalSampleIdRemarks: "Repeats DH-3 12 m" } },
+        { line: 2, cells: { sampleId: `${tag}-DUP2`, originalSampleIdRemarks: "New pair" } },
+      ],
+      false
+    );
+    expect(duplicate.body.data).toMatchObject({ created: 1, updated: 1 });
+    expect(await prisma.dataSource.findUniqueOrThrow({ where: { id: dup } })).toMatchObject({
+      originalSampleIdRemarks: "Repeats DH-3 12 m",
+      oreasRemarks: "OREAS note",
+    });
+    expect(await prisma.dataSource.findUniqueOrThrow({ where: { sampleId: `${tag}-DUP2` } })).toMatchObject({
+      originalSampleIdRemarks: "New pair",
+      oreasRemarks: null,
+    });
+
+    // The Standard list's is the OREAS remarks; the duplicate's own stays untouched.
+    await send(
+      "standard",
+      [{ line: 1, id: standard, cells: { sampleId: `${tag}-STD`, control: "OREAS-2", oreasRemarks: "CRM ok", ni: "2.1" } }],
+      false
+    );
+    expect(await prisma.dataSource.findUniqueOrThrow({ where: { id: standard } })).toMatchObject({
+      oreasRemarks: "CRM ok",
+      originalSampleIdRemarks: null,
     });
   });
 

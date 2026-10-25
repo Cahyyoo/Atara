@@ -1,6 +1,12 @@
 import { z } from "zod";
 import { createDataSourceSchema } from "@/modules/eksplorasi/validation";
-import { fieldForHeader, SAMPLE_TYPES, type DataSourceField, type SampleType } from "@/modules/eksplorasi/lib/data-source-columns";
+import {
+  fieldForHeader,
+  SAMPLE_TYPES,
+  viewOfType,
+  type DataSourceField,
+  type SampleType,
+} from "@/modules/eksplorasi/lib/data-source-columns";
 
 /**
  * Reading a data-source sheet: from cells to rows that are ready to write, and
@@ -126,16 +132,21 @@ export function readDateCell(cell: Cell): string | null | "invalid" {
   return "invalid";
 }
 
-/** The codes, and the words the lab's sheets and the screen use for them. */
+/**
+ * The codes, and the words the lab's sheets and the screen use for them. A
+ * field sample was called ORIGINAL once; files written then still read.
+ */
 const TYPE_WORDS = new Map<string, SampleType>([
   ...SAMPLE_TYPES.map((type) => [type.toLowerCase(), type] as const),
-  ["original", "ORIGINAL"],
-  ["ori", "ORIGINAL"],
-  ["orig", "ORIGINAL"],
-  ["sample", "ORIGINAL"],
-  ["sampel", "ORIGINAL"],
-  ["sampel biasa", "ORIGINAL"],
-  ["primary", "ORIGINAL"],
+  ["field sample", "FIELD"],
+  ["sampel lapangan", "FIELD"],
+  ["original", "FIELD"],
+  ["ori", "FIELD"],
+  ["orig", "FIELD"],
+  ["sample", "FIELD"],
+  ["sampel", "FIELD"],
+  ["sampel biasa", "FIELD"],
+  ["primary", "FIELD"],
   ["standard", "STANDARD"],
   ["standart", "STANDARD"],
   ["standar", "STANDARD"],
@@ -164,7 +175,7 @@ export function readSampleTypeCell(cell: Cell): SampleType | null | "invalid" {
 
 const isBlankLine = (cells: Cell[]) => cells.every((cell) => textOf(cell) === "");
 
-const TYPE_HINT = "ORIGINAL, STANDARD, BLANK or DUPLICATE";
+const TYPE_HINT = "FIELD, STANDARD, BLANK or DUPLICATE";
 
 /**
  * The sheet's rows, read and validated.
@@ -180,6 +191,8 @@ const TYPE_HINT = "ORIGINAL, STANDARD, BLANK or DUPLICATE";
  * its own type.
  */
 export function readDataSourceSheet(lines: Iterable<SheetLine>, fixedType: SampleType | null = null): SheetRead {
+  // The list the file is for: its Remarks column is that list's own.
+  const view = fixedType ? viewOfType(fixedType) : "dataSource";
   let columns: (DataSourceField | null)[] | null = null;
   const fields: DataSourceField[] = [];
   const ignoredHeaders: string[] = [];
@@ -195,7 +208,7 @@ export function readDataSourceSheet(lines: Iterable<SheetLine>, fixedType: Sampl
     if (columns === null) {
       columns = cells.map((cell) => {
         const header = textOf(cell);
-        const field = header ? fieldForHeader(header) : null;
+        const field = header ? fieldForHeader(header, view) : null;
         // A column named twice is read from its first appearance only.
         if (field === null || fields.includes(field)) {
           if (header) ignoredHeaders.push(header);

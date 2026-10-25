@@ -15,13 +15,14 @@ import { DATA_SOURCE_VIEWS, ELEMENT_FIELDS, VIEWS } from "@/modules/eksplorasi/l
 
 describe("a list's columns on screen", () => {
   it("start on the row number, join From and To on the data source, and end on the buttons", () => {
-    expect(listColumns("dataSource").slice(0, 9)).toEqual([
+    expect(listColumns("dataSource").slice(0, 10)).toEqual([
       "rowNo",
       "campaign",
       "holeId",
       "sampleId",
       "sampleType",
       "fromTo",
+      "oreasRemarks",
       "date",
       "weight",
       "ni",
@@ -78,11 +79,20 @@ describe("a list's columns on screen", () => {
     }
   });
 
+  it("show Remarks from the list's own column: the original sample's on Duplicate, the OREAS remarks elsewhere", () => {
+    expect(listColumns("duplicate")).toContain("originalSampleIdRemarks");
+    expect(listColumns("duplicate")).not.toContain("oreasRemarks");
+    for (const view of ["dataSource", "standard", "blank"] as const) {
+      expect(listColumns(view), view).toContain("oreasRemarks");
+      expect(listColumns(view), view).not.toContain("originalSampleIdRemarks");
+    }
+  });
+
   it("centre short marks and dates, put numbers right and words left", () => {
     for (const column of ["rowNo", "sampleType", "date", "controlDate", "no", "actions"] as const) {
       expect(alignOf(column), column).toBe("center");
     }
     for (const column of ["ni", "mc", "weight"] as const) expect(alignOf(column), column).toBe("right");
-    for (const column of ["campaign", "sampleId", "remarks", "fromTo"] as const) expect(alignOf(column), column).toBe("left");
+    for (const column of ["campaign", "sampleId", "oreasRemarks", "originalSampleIdRemarks", "fromTo"] as const) expect(alignOf(column), column).toBe("left");
   });
 });

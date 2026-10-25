@@ -1,9 +1,9 @@
 // Eksplorasi module: the assay data source and its QC samples.
 
-/// What a row of the data source is: an ordinary sample, or one of the three
+/// What a row of the data source is: a field sample, or one of the three
 /// QC checks laid among them.
 enum SampleType {
-  ORIGINAL
+  FIELD
   STANDARD
   BLANK
   DUPLICATE
@@ -24,7 +24,10 @@ model DataSource {
   sampleType  SampleType @map("sample_type")
   from        String?    @db.VarChar(20)
   to          String?    @db.VarChar(20)
-  remarks     String?    @db.VarChar(500)
+  /// The Duplicate list's Remarks: about the original sample the duplicate repeats.
+  originalSampleIdRemarks String? @map("original_sample_id_remarks") @db.VarChar(500)
+  /// The Remarks of the Data Source, Standard and Blank lists (the OREAS standards' notes).
+  oreasRemarks            String? @map("oreas_remarks") @db.VarChar(500)
   date        DateTime?  @db.Date
   weight      String?    @db.VarChar(20)
 

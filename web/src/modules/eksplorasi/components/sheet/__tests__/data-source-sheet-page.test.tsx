@@ -27,10 +27,11 @@ const ROW: DataSourceDTO = {
   no: null,
   holeId: "DH-1",
   sampleId: "S-001",
-  sampleType: "ORIGINAL",
+  sampleType: "FIELD",
   from: "10",
   to: "11",
-  remarks: null,
+  originalSampleIdRemarks: null,
+  oreasRemarks: null,
   date: "2026-10-01",
   weight: "2.5",
   ...(Object.fromEntries(ELEMENT_FIELDS.map((field) => [field, null])) as Record<(typeof ELEMENT_FIELDS)[number], null>),
@@ -97,7 +98,7 @@ describe("a list's sheet", () => {
     expect(listed[0]).toContain("view=dataSource");
     expect(box(1, "Sample ID").value).toBe("S-001");
     expect(box(1, "Sample ID").readOnly).toBe(true);
-    expect(box(1, "Sample Type").value).toBe(types.ORIGINAL);
+    expect(box(1, "Sample Type").value).toBe(types.FIELD);
     expect(box(1, "Ni").value).toBe("1.5");
     expect(box(2, "Sample ID").readOnly).toBe(false);
     // The data source has no Control column; the duplicate list does.
@@ -109,7 +110,7 @@ describe("a list's sheet", () => {
     const type = () => screen.getByRole("combobox", { name: "Row 2 Sample Type" }) as HTMLSelectElement;
     expect([...type().options].map((option) => option.text)).toEqual([
       "—",
-      ...(["ORIGINAL", "STANDARD", "BLANK", "DUPLICATE"] as const).map((key) => types[key]),
+      ...(["FIELD", "STANDARD", "BLANK", "DUPLICATE"] as const).map((key) => types[key]),
     ]);
 
     fireEvent.change(box(2, "Sample ID"), { target: { value: "S-300" } });

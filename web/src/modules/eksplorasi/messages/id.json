@@ -75,13 +75,13 @@
     "editRow": "Ubah {sampleId}",
     "editTitle": "Ubah {sampleId}",
     "sampleType": {
-      "ORIGINAL": "Sampel biasa",
+      "FIELD": "Field",
       "STANDARD": "Standard (CRM)",
       "BLANK": "Blank",
       "DUPLICATE": "Duplicate"
     },
     "sampleTypeShort": {
-      "ORIGINAL": "Biasa",
+      "FIELD": "Field",
       "STANDARD": "Standard",
       "BLANK": "Blank",
       "DUPLICATE": "Duplicate"
@@ -98,7 +98,8 @@
       "from": "From",
       "to": "To",
       "fromTo": "From–To",
-      "remarks": "Remarks",
+      "originalSampleIdRemarks": "Remarks",
+      "oreasRemarks": "Remarks",
       "date": "Tanggal",
       "weight": "Weight"
     },
@@ -129,7 +130,7 @@
       "descriptionQc": "Unggah file Excel (.xlsx) atau CSV. Semua baris menjadi tipe menu ini; baris bertipe lain ditolak. Data dicocokkan dengan Sample ID. Maksimal 50.000 baris, 20 MB.",
       "choose": "Pilih file",
       "chooseAnother": "Ganti file",
-      "columnsHint": "Baris pertama berisi judul kolom: {columns}. Sample ID dan Sample Type (ORIGINAL, STANDARD, BLANK, DUPLICATE) wajib; kolom lain boleh dihilangkan. Tanggal: YYYY-MM-DD atau DD/MM/YYYY.",
+      "columnsHint": "Baris pertama berisi judul kolom: {columns}. Sample ID dan Sample Type (FIELD, STANDARD, BLANK, DUPLICATE) wajib; kolom lain boleh dihilangkan. Tanggal: YYYY-MM-DD atau DD/MM/YYYY.",
       "columnsHintQc": "Baris pertama berisi judul kolom: {columns}. Hanya Sample ID yang wajib; kolom lain boleh dihilangkan. Tanggal: YYYY-MM-DD atau DD/MM/YYYY.",
       "template": "Unduh template",
       "reading": "Membaca dan memeriksa file…",

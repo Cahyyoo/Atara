@@ -38,7 +38,7 @@ if (!reachable) {
 
 const ROWS = 34_000;
 const HEADER = "Campaign,Hole ID,Sample ID,Sample Type,From,To,Date,Weight,Ni,Fe,SiO2,Remarks";
-const TYPES = ["ORIGINAL", "STANDARD", "BLANK", "DUPLICATE"] as const;
+const TYPES = ["FIELD", "STANDARD", "BLANK", "DUPLICATE"] as const;
 
 function upload(name: string, content: BlobPart, fields: Record<string, string>) {
   const form = new FormData();
@@ -121,7 +121,9 @@ describe.skipIf(!reachable)("importing 34,000 rows of the data source", () => {
       ni: "1.42",
       fe: "42.5",
       sio2: "<0.01",
-      remarks: "Note, 42",
+      // The data source's Remarks is the OREAS remarks column.
+      oreasRemarks: "Note, 42",
+      originalSampleIdRemarks: null,
     });
     expect(row.date?.toISOString().slice(0, 10)).toBe("2026-01-07");
 
@@ -153,7 +155,7 @@ describe.skipIf(!reachable)("importing 34,000 rows of the data source", () => {
 
     const row = await prisma.dataSource.findUniqueOrThrow({ where: { sampleId: sampleId(42) } });
     // `from` is a reserved word: written through the quoted column.
-    expect(row).toMatchObject({ ni: "2.25", from: "7.5", to: "43.0", remarks: "Note, 42", updatedById: session.userId });
+    expect(row).toMatchObject({ ni: "2.25", from: "7.5", to: "43.0", oreasRemarks: "Note, 42", updatedById: session.userId });
     expect(row.date?.toISOString().slice(0, 10)).toBe("2026-02-15");
 
     console.info(`[data-source-import] ${ROWS} rows XLSX update: ${ms} ms`);

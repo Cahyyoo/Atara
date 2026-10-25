@@ -68,7 +68,7 @@ describe("the skeletons are shaped like the pages", () => {
     "lab/database": 10,
     "lab/assay": 9,
     "lab/samples/labels": 5,
-    "eksplorasi/data-source": 9,
+    "eksplorasi/data-source": 10,
     "eksplorasi/standard": 9,
     "eksplorasi/blank": 10,
     "eksplorasi/duplicate": 12,

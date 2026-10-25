@@ -269,9 +269,16 @@ Semua endpoint di bawah ini membutuhkan capability `manageExplorationData` (Admi
 | GET                  | `/api/data-sources/template` | Template kosong (`view`, `format=xlsx`/`csv`) berisi header kolom daftar itu. |
 | POST                 | `/api/data-sources/import`   | Multipart `file` (.xlsx/.csv, ≤ 20 MB, ≤ 50.000 baris), `view`, `apply` (`0` pratinjau / `1` simpan), `updateExisting` (`0`/`1`). Pratinjau menjawab JSON; simpan menjawab NDJSON berisi progres per batch lalu total. |
 
-Field (tabel `eksplorasi_data_source`): `sampleId` (wajib, unik), `sampleType` (wajib: `ORIGINAL`/`STANDARD`/`BLANK`/`DUPLICATE`), `controlDate`, `control`, `campaign`, `no`, `holeId`, `from`, `to`, `remarks`, `date` (`YYYY-MM-DD`), `weight`, dan 16 unsur: `ni`, `fe`, `fe2o3`, `co`, `na2o`, `mgo`, `al2o3`, `sio2`, `p2o5`, `so3`, `k2o`, `cao`, `tio2`, `cr2o3`, `mno`, `mc`. Nilai disimpan sebagai teks apa adanya (misalnya `<0.01`); nilai yang bukan angka tidak digambar di grafik.
+Field (tabel `eksplorasi_data_source`): `sampleId` (wajib, unik), `sampleType` (wajib: `FIELD`/`STANDARD`/`BLANK`/`DUPLICATE`; file lama bertipe `Original` tetap terbaca sebagai `FIELD`), `controlDate`, `control`, `campaign`, `no`, `holeId`, `from`, `to`, `originalSampleIdRemarks`, `oreasRemarks`, `date` (`YYYY-MM-DD`), `weight`, dan 16 unsur: `ni`, `fe`, `fe2o3`, `co`, `na2o`, `mgo`, `al2o3`, `sio2`, `p2o5`, `so3`, `k2o`, `cao`, `tio2`, `cr2o3`, `mno`, `mc`. Nilai disimpan sebagai teks apa adanya (misalnya `<0.01`); nilai yang bukan angka tidak digambar di grafik.
 
 Pada baris `DUPLICATE`, kolom `control` berisi Sample ID sampel aslinya; dari situ dashboard memasangkan duplikat dengan aslinya. Pada baris `STANDARD`, `control` berisi nama CRM.
+
+Remarks punya dua kolom database, keduanya tampil sebagai "Remarks". Setiap daftar hanya membaca dan menulis kolomnya sendiri, lewat lembar tambah/ubah, import, maupun export:
+
+- `original_sample_id_remarks`: daftar Duplicate.
+- `oreas_remarks`: daftar Data Source, Standard, dan Blank.
+
+Saat import, header `OREAS Remarks` atau `Original Sample ID Remarks` yang bukan milik daftar itu diabaikan.
 
 #### Import & export Excel/CSV
 
@@ -279,10 +286,10 @@ Kolom tiap daftar, header file, template, dan import diambil dari satu tempat (`
 
 | Daftar | Kolom (lalu 16 unsur: Ni, Fe, Fe2O3, Co, Na2O, MgO, Al2O3, SiO2, P2O5, SO3, K2O, CaO, TiO2, Cr2O3, MnO, MC) |
 | ------ | ------ |
-| Data Source | Campaign, Hole ID, Sample ID, Sample Type, From, To, Date, Weight |
-| Standard (CRM) | Control, Campaign, Hole ID, Sample ID, Remarks, Date, Weight |
-| Blank | Control, Campaign, Hole ID, Sample ID, Sample Type, Remarks, Date, Weight |
-| Duplicate | Control Date, Control, Campaign, No, Hole ID, Sample ID, Sample Type, Remarks, Date, Weight |
+| Data Source | Campaign, Hole ID, Sample ID, Sample Type, From, To, Remarks (`oreas_remarks`), Date, Weight |
+| Standard (CRM) | Control, Campaign, Hole ID, Sample ID, Remarks (`oreas_remarks`), Date, Weight |
+| Blank | Control, Campaign, Hole ID, Sample ID, Sample Type, Remarks (`oreas_remarks`), Date, Weight |
+| Duplicate | Control Date, Control, Campaign, No, Hole ID, Sample ID, Sample Type, Remarks (`original_sample_id_remarks`), Date, Weight |
 
 Aturan pembacaan file saat import:
 
@@ -353,7 +360,7 @@ npm run db:migrate        # jalankan migrasi Prisma
 npm run db:seed           # isi akun & tahapan awal
 npm run db:seed-master    # isi master data Sample ID
 npm run db:seed-dummy     # isi sampel dummy untuk pengembangan
-npm run db:seed-eksplorasi-dummy  # isi data source eksplorasi dummy (ORIGINAL + QC)
+npm run db:seed-eksplorasi-dummy  # isi data source eksplorasi dummy (FIELD + QC)
 npm run db:reset-samples  # hapus SEMUA sampel, log, dan hasil uji (akun & tahapan tetap)
 npm run db:studio         # buka Prisma Studio (GUI database)
 ```

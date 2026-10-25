@@ -104,8 +104,8 @@ describe("the modules", () => {
 
 describe("a row of the data source", () => {
   it("needs only its sample ID and its type", () => {
-    const parsed = createDataSourceSchema.parse({ sampleId: "  SMP-001 ", sampleType: "ORIGINAL" });
-    expect(parsed).toMatchObject({ sampleId: "SMP-001", sampleType: "ORIGINAL" });
+    const parsed = createDataSourceSchema.parse({ sampleId: "  SMP-001 ", sampleType: "FIELD" });
+    expect(parsed).toMatchObject({ sampleId: "SMP-001", sampleType: "FIELD" });
     expect(createDataSourceSchema.safeParse({ sampleId: "SMP-001" }).success).toBe(false);
     expect(createDataSourceSchema.safeParse({ sampleId: " ", sampleType: "BLANK" }).success).toBe(false);
   });
@@ -130,6 +130,6 @@ describe("a row of the data source", () => {
     expect(dataSourceWhere({ view: "standard" })).toEqual({ sampleType: "STANDARD" });
     expect(dataSourceWhere({ view: "blank", sampleType: "DUPLICATE" })).toEqual({ sampleType: "BLANK" });
     expect(dataSourceWhere({ view: "dataSource" })).toEqual({});
-    expect(dataSourceWhere({ view: "dataSource", sampleType: "ORIGINAL" })).toEqual({ sampleType: "ORIGINAL" });
+    expect(dataSourceWhere({ view: "dataSource", sampleType: "FIELD" })).toEqual({ sampleType: "FIELD" });
   });
 });

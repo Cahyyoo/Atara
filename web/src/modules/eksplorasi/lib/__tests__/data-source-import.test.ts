@@ -12,6 +12,7 @@ import {
   DATA_SOURCE_VIEWS,
   ELEMENT_FIELDS,
   fieldForHeader,
+  remarksFieldOf,
   viewColumns,
   viewFields,
   viewOf,
@@ -24,9 +25,19 @@ const sheet = (...rows: Cell[][]): SheetLine[] => rows.map((cells, index) => ({ 
 
 describe("the lists' columns", () => {
   it("are the lab's sheets: each list's own columns, then the sixteen elements", () => {
-    expect(VIEWS.dataSource.leading).toEqual(["campaign", "holeId", "sampleId", "sampleType", "from", "to", "date", "weight"]);
-    expect(VIEWS.standard.leading).toEqual(["control", "campaign", "holeId", "sampleId", "remarks", "date", "weight"]);
-    expect(VIEWS.blank.leading).toEqual(["control", "campaign", "holeId", "sampleId", "sampleType", "remarks", "date", "weight"]);
+    expect(VIEWS.dataSource.leading).toEqual([
+      "campaign",
+      "holeId",
+      "sampleId",
+      "sampleType",
+      "from",
+      "to",
+      "oreasRemarks",
+      "date",
+      "weight",
+    ]);
+    expect(VIEWS.standard.leading).toEqual(["control", "campaign", "holeId", "sampleId", "oreasRemarks", "date", "weight"]);
+    expect(VIEWS.blank.leading).toEqual(["control", "campaign", "holeId", "sampleId", "sampleType", "oreasRemarks", "date", "weight"]);
     expect(VIEWS.duplicate.leading).toEqual([
       "controlDate",
       "control",
@@ -35,7 +46,7 @@ describe("the lists' columns", () => {
       "holeId",
       "sampleId",
       "sampleType",
-      "remarks",
+      "originalSampleIdRemarks",
       "date",
       "weight",
     ]);
@@ -45,7 +56,7 @@ describe("the lists' columns", () => {
   it("hold each QC list to one type, and send each type to its list", () => {
     expect(DATA_SOURCE_VIEWS.map((view) => VIEWS[view].sampleType)).toEqual([null, "STANDARD", "BLANK", "DUPLICATE"]);
     expect(viewOfType("BLANK")).toBe("blank");
-    expect(viewOfType("ORIGINAL")).toBe("dataSource");
+    expect(viewOfType("FIELD")).toBe("dataSource");
     expect(viewOf("duplicate")).toBe("duplicate");
     expect(viewOf("drilling")).toBe("dataSource");
     expect(viewOf(null)).toBe("dataSource");
@@ -53,8 +64,39 @@ describe("the lists' columns", () => {
 
   it("read back every header each list's export writes", () => {
     for (const view of DATA_SOURCE_VIEWS) {
-      for (const column of viewColumns(view)) expect(fieldForHeader(column.header), column.header).toBe(column.key);
+      for (const column of viewColumns(view)) expect(fieldForHeader(column.header, view), column.header).toBe(column.key);
     }
+  });
+
+  it("keep each list's Remarks in its own column: the Duplicate list's apart from the others'", () => {
+    expect(remarksFieldOf("duplicate")).toBe("originalSampleIdRemarks");
+    for (const view of ["dataSource", "standard", "blank"] as const) expect(remarksFieldOf(view)).toBe("oreasRemarks");
+    // Every list's export heads it "Remarks", and reads it back into its own column.
+    for (const view of DATA_SOURCE_VIEWS) {
+      expect(viewColumns(view).find((column) => column.key === remarksFieldOf(view))?.header).toBe("Remarks");
+      expect(fieldForHeader("Keterangan", view)).toBe(remarksFieldOf(view));
+    }
+    // A column naming the other list's remarks is not this list's to write.
+    expect(fieldForHeader("OREAS Remarks", "standard")).toBe("oreasRemarks");
+    expect(fieldForHeader("OREAS Remarks", "duplicate")).toBeNull();
+    expect(fieldForHeader("Original Sample ID Remarks", "duplicate")).toBe("originalSampleIdRemarks");
+    expect(fieldForHeader("original_sample_id_remarks", "blank")).toBeNull();
+  });
+
+  it("read the Remarks of a file for a list into that list's column only", () => {
+    const duplicate = readDataSourceSheet(sheet(["Sample ID", "Remarks"], ["D-1", "from DH-3"]), "DUPLICATE");
+    expect(duplicate.ok && duplicate.rows[0].data).toMatchObject({ originalSampleIdRemarks: "from DH-3" });
+    expect(duplicate.ok && duplicate.rows[0].data).not.toHaveProperty("oreasRemarks");
+
+    const standard = readDataSourceSheet(sheet(["Sample ID", "Remarks", "Original Sample ID Remarks"], ["S-1", "OREAS 190", "x"]), "STANDARD");
+    expect(standard.ok && standard.rows[0].data).toMatchObject({ oreasRemarks: "OREAS 190" });
+    expect(standard.ok && standard.rows[0].data).not.toHaveProperty("originalSampleIdRemarks");
+    expect(standard.ok && standard.ignoredHeaders).toEqual(["Original Sample ID Remarks"]);
+  });
+
+  it("read a field sample under its old name too", () => {
+    const read = readDataSourceSheet(sheet(["Sample ID", "Sample Type"], ["A", "Original"], ["B", "Field"], ["C", "sampel lapangan"]));
+    expect(read.ok && read.rows.map((row) => row.data.sampleType)).toEqual(["FIELD", "FIELD", "FIELD"]);
   });
 
   it("read the usual spellings, whatever the case or unit", () => {
@@ -86,7 +128,7 @@ describe("a cell", () => {
     expect(readSampleTypeCell("crm")).toBe("STANDARD");
     expect(readSampleTypeCell("BLK")).toBe("BLANK");
     expect(readSampleTypeCell("dup")).toBe("DUPLICATE");
-    expect(readSampleTypeCell("Sampel biasa")).toBe("ORIGINAL");
+    expect(readSampleTypeCell("Sampel biasa")).toBe("FIELD");
     expect(readSampleTypeCell("")).toBeNull();
     expect(readSampleTypeCell("reference")).toBe("invalid");
   });
@@ -100,13 +142,13 @@ describe("readDataSourceSheet", () => {
     expect(read).toMatchObject({ ok: true, total: 2, invalid: 0, ignoredHeaders: ["Geologist"] });
     if (!read.ok) return;
     expect(read.rows).toEqual([
-      { line: 3, data: { sampleId: "S-1", sampleType: "ORIGINAL", ni: "1.5" } },
+      { line: 3, data: { sampleId: "S-1", sampleType: "FIELD", ni: "1.5" } },
       { line: 5, data: { sampleId: "S-2", sampleType: "BLANK", ni: null } },
     ]);
   });
 
   it("keeps a value as written, and a workbook number without its binary tail", () => {
-    const read = readDataSourceSheet(sheet(["Sample ID", "Sample Type", "Ni", "SiO2"], ["S-1", "ORIGINAL", 0.1 + 0.2, "<0.01"]));
+    const read = readDataSourceSheet(sheet(["Sample ID", "Sample Type", "Ni", "SiO2"], ["S-1", "FIELD", 0.1 + 0.2, "<0.01"]));
     expect(read.ok && read.rows[0].data).toMatchObject({ ni: "0.3", sio2: "<0.01" });
   });
 

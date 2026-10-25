@@ -33,6 +33,8 @@ const MAPPED: Partial<Record<UpdatedField, string>> = {
   controlDate: "control_date",
   holeId: "hole_id",
   sampleType: "sample_type",
+  originalSampleIdRemarks: "original_sample_id_remarks",
+  oreasRemarks: "oreas_remarks",
 };
 
 /** Each field's column, quoted: `from` and `to` are reserved words. Constants, never request data. */

@@ -244,6 +244,7 @@ export function DataSourceTable({ view }: { view: DataSourceView }) {
 
       <DataSourceDetail
         row={openRow}
+        view={view}
         editHref={openRow ? `${definition.path}/${openRow.id}/edit` : definition.path}
         onClose={() => setOpenRow(null)}
         onDelete={(target) => {

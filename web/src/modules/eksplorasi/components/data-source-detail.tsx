@@ -7,8 +7,13 @@ import { Button, buttonVariants } from "@/core/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/core/components/ui/dialog";
 import { cn } from "@/core/lib/utils";
 import { TYPE_VARIANT } from "@/modules/eksplorasi/components/data-source-row";
-import { ELEMENT_FIELDS, ELEMENT_LABELS, type DataSourceField } from "@/modules/eksplorasi/lib/data-source-columns";
-import type { DataSourceDTO } from "@/modules/eksplorasi/types";
+import {
+  ELEMENT_FIELDS,
+  ELEMENT_LABELS,
+  remarksFieldOf,
+  type DataSourceField,
+} from "@/modules/eksplorasi/lib/data-source-columns";
+import type { DataSourceDTO, DataSourceView } from "@/modules/eksplorasi/types";
 import { IoPencilOutline, IoTrashOutline } from "react-icons/io5";
 
 /** Who and where the sample is, in the order the lab's sheet writes it. */
@@ -35,11 +40,14 @@ const SECTION_TITLE = "text-xs font-medium uppercase tracking-wider text-muted-f
  */
 export function DataSourceDetail({
   row,
+  view,
   editHref,
   onClose,
   onDelete,
 }: {
   row: DataSourceDTO | null;
+  /** The list it was opened from: its Remarks is the one shown (remarksFieldOf). */
+  view: DataSourceView;
   /** Where the row is changed: its list's sheet, opened at this row. */
   editHref: string;
   onClose: () => void;
@@ -49,6 +57,7 @@ export function DataSourceDetail({
   const tCommon = useTranslations("common");
   const format = useFormatter();
   const empty = tCommon("empty");
+  const remarksField = remarksFieldOf(view);
 
   const day = (value: string | null) =>
     value ? format.dateTime(new Date(`${value}T00:00:00`), { dateStyle: "medium" }) : null;
@@ -121,10 +130,10 @@ export function DataSourceDetail({
                 </dl>
               </section>
 
-              {row.remarks ? (
+              {row[remarksField] ? (
                 <section className="flex flex-col gap-2">
-                  <h3 className={SECTION_TITLE}>{t("fields.remarks")}</h3>
-                  <p className="whitespace-pre-wrap break-words text-sm">{row.remarks}</p>
+                  <h3 className={SECTION_TITLE}>{t(`fields.${remarksField}`)}</h3>
+                  <p className="whitespace-pre-wrap break-words text-sm">{row[remarksField]}</p>
                 </section>
               ) : null}
 

@@ -29,7 +29,7 @@ const textFields = Object.fromEntries(
 const dataSourceFields = {
   ...textFields,
   sampleId: z.string().trim().min(1, "Sample ID is required.").max(MAX_LENGTH.sampleId),
-  sampleType: z.enum(SAMPLE_TYPES, { error: "Sample type must be ORIGINAL, STANDARD, BLANK or DUPLICATE." }),
+  sampleType: z.enum(SAMPLE_TYPES, { error: "Sample type must be FIELD, STANDARD, BLANK or DUPLICATE." }),
   date: optionalDate,
 };
 

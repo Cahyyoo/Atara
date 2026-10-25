@@ -48,7 +48,8 @@ const WEIGHT: Partial<Record<ListColumn, number>> = {
   from: 44,
   to: 44,
   fromTo: 64,
-  remarks: 54,
+  originalSampleIdRemarks: 54,
+  oreasRemarks: 54,
   date: 54,
   weight: 42,
   /** Edit above delete: the rows are two lines tall anyway. */
