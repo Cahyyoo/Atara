@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { SESSION_COOKIE_NAME, verifySessionToken } from "@/core/lib/auth/auth";
+import { SESSION_COOKIE_NAME, sessionCookieOptions, verifySessionToken } from "@/core/lib/auth/auth";
 
 /**
  * The first, cheap check: a page of the app with no valid session token goes
@@ -41,7 +41,19 @@ export async function proxy(request: NextRequest) {
     loginUrl.pathname = "/login";
     loginUrl.search = "";
     loginUrl.searchParams.set("next", pathname);
-    return NextResponse.redirect(loginUrl);
+    const response = NextResponse.redirect(loginUrl);
+    /**
+     * A cookie that is there but no longer a token -- its seven days are up,
+     * or it was signed with another secret -- can never be good again. It
+     * used to stay, sent with every request and decoded on every page; it is
+     * cleared on the way out, with the flags sign-out uses. A cookie whose
+     * signature is fine but whose session was ended is the pages' to judge
+     * (page-auth.ts reads the database); this file never does.
+     */
+    if (token) {
+      response.cookies.set(SESSION_COOKIE_NAME, "", sessionCookieOptions(0, request));
+    }
+    return response;
   }
 
   return NextResponse.next();

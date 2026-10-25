@@ -4,6 +4,7 @@ import { ForcePasswordForm } from "@/core/components/auth/force-password-form";
 import { getActiveSession, mustChangePassword, signInPath } from "@/core/lib/http/page-auth";
 import { APP_NAME } from "@/core/lib/app/brand";
 import { BrandMark } from "@/core/components/layout/brand-mark";
+import { SessionWatch } from "@/core/components/layout/session-watch";
 
 export const dynamic = "force-dynamic";
 
@@ -43,6 +44,9 @@ export default async function ChangePasswordPage({
           <ForcePasswordForm next={next ?? null} sessionId={session.sessionId} />
         </CardContent>
       </Card>
+      {/* Outside the app shell, so it brings its own: a session ended while
+          somebody sits on this form is said so, not met as a failed submit. */}
+      <SessionWatch sessionId={session.sessionId} />
     </div>
   );
 }

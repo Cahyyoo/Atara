@@ -170,3 +170,48 @@ describe("results entry", () => {
     expect(bulk).toContain('!can(session, "editSampleIdentity") && planned.some((entry) => touchesIdentity(entry.values))');
   });
 });
+
+describe("the sign-in page and the browser's history", () => {
+  /** Typing /login into a signed-in browser used to show the form. */
+  it("sends somebody already signed in on, by their live session", () => {
+    const page = read("app", "login", "page.tsx");
+    expect(page).toContain("await getActiveSession()");
+    expect(page).toContain("redirect(safeRedirectPath(");
+    expect(page).toContain('redirect("/change-password")');
+    // The signature alone would loop an ended session between /home and here.
+    expect(page).not.toContain("getSessionFromCookies");
+  });
+
+  it("replaces the page rather than pushing, after signing in and after signing out", () => {
+    expect(read("core", "components", "auth", "login-form.tsx")).toContain("router.replace(mustChangePassword");
+    expect(read("core", "components", "layout", "user-menu.tsx")).toContain('router.replace("/login")');
+    expect(read("core", "components", "auth", "force-password-form.tsx")).toContain('router.replace("/login")');
+    expect(read("core", "components", "auth", "force-password-form.tsx")).not.toContain('router.push("/login")');
+  });
+
+  it("watches the session on the change-password page too", () => {
+    expect(read("app", "change-password", "page.tsx")).toContain("<SessionWatch sessionId={session.sessionId} />");
+  });
+});
+
+describe("a cookie that is no longer a token", () => {
+  it("is cleared on the way to the sign-in page", async () => {
+    vi.stubEnv("JWT_SECRET", "x".repeat(48));
+    const { proxy } = await import("@/proxy");
+    const response = await proxy(
+      new NextRequest("http://localhost/home", { headers: { cookie: "atara_session=not-a-token" } })
+    );
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toContain("/login?next=%2Fhome");
+    const cleared = response.headers.get("set-cookie") ?? "";
+    expect(cleared).toMatch(/atara_session=;/);
+    expect(cleared).toMatch(/Max-Age=0/);
+  });
+
+  it("is left alone when there is no cookie to clear", async () => {
+    const { proxy } = await import("@/proxy");
+    const response = await proxy(new NextRequest("http://localhost/home"));
+    expect(response.status).toBe(307);
+    expect(response.headers.get("set-cookie")).toBeNull();
+  });
+});

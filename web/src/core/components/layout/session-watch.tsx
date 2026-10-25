@@ -38,6 +38,28 @@ import { signOutSession } from "@/core/lib/auth/sign-out";
  */
 export const SESSION_CHECK_MS = 15_000;
 
+/** The session's own requests: answering their 401 by asking again would loop. */
+const SELF = ["/api/auth/session", "/api/auth/logout"];
+
+/**
+ * Whether a refused request says something about this tab's session: a 401
+ * from this app's own API (on this origin, under its base path), other than
+ * the session check and sign-out themselves.
+ */
+export function isSessionRefusal(input: RequestInfo | URL, status: number, origin: string): boolean {
+  if (status !== 401) return false;
+  let url: URL;
+  try {
+    url = new URL(typeof input === "string" ? input : input instanceof URL ? input.href : input.url, origin);
+  } catch {
+    return false;
+  }
+  if (url.origin !== origin) return false;
+  const api = withBasePath("/api/");
+  if (!url.pathname.startsWith(api)) return false;
+  return !SELF.some((path) => url.pathname === withBasePath(path));
+}
+
 /**
  * Tells this browser, promptly, that a sign-in on another device ended its
  * session -- the WhatsApp Web behaviour -- or that an administrator or a
@@ -118,10 +140,31 @@ export function SessionWatch({ sessionId }: { sessionId: string }) {
     };
     document.addEventListener("visibilitychange", onVisible);
     window.addEventListener("focus", onVisible);
+
+    /**
+     * Every request this page makes, watched -- not changed -- for a 401.
+     *
+     * Fifty-odd screens call the API, each with its own error line. A session
+     * ended elsewhere used to surface there as "You must be signed in", and
+     * the real explanation only came with the next poll, up to fifteen
+     * seconds later. The first refusal now asks straight away, so the
+     * click that failed is the one that brings the dialog (or the sign-in
+     * page). The response goes back to its caller untouched.
+     */
+    const original = window.fetch;
+    const observed: typeof fetch = async (input, init) => {
+      const response = await original(input, init);
+      if (isSessionRefusal(input, response.status, window.location.origin)) void check();
+      return response;
+    };
+    window.fetch = observed;
+
     return () => {
       clearInterval(timer);
       document.removeEventListener("visibilitychange", onVisible);
       window.removeEventListener("focus", onVisible);
+      // Only undone if nothing has wrapped it since, so another wrapper is never lost.
+      if (window.fetch === observed) window.fetch = original;
     };
   }, [check, replaced, ended]);
 

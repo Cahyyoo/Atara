@@ -72,7 +72,7 @@ export function ForcePasswordForm({ next, sessionId }: { next: string | null; se
 
   async function signOut() {
     await signOutSession(sessionId);
-    router.push("/login");
+    router.replace("/login");
     router.refresh();
   }
 

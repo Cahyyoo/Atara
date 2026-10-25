@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Card, CardContent } from "@/core/components/ui/card";
 import { AuthBrandPanel } from "@/core/components/auth/auth-brand-panel";
@@ -7,8 +8,35 @@ import { LoginLocaleSwitch } from "@/core/components/auth/login-locale-switch";
 import { APP_NAME } from "@/core/lib/app/brand";
 import { IoAppsOutline, IoServerOutline, IoShieldCheckmarkOutline } from "react-icons/io5";
 import { BrandMark } from "@/core/components/layout/brand-mark";
+import { getActiveSession, mustChangePassword } from "@/core/lib/http/page-auth";
+import { safeRedirectPath } from "@/core/lib/auth/safe-redirect";
 
-export default async function LoginPage() {
+// Asks the database who is signed in, so it can never be served from a cache.
+export const dynamic = "force-dynamic";
+
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string | string[] }>;
+}) {
+  /**
+   * Somebody already signed in has no business here: on to where they were
+   * going, or to the portal. This page used to show the form to anyone, so
+   * typing /login in the address bar of a signed-in browser looked like being
+   * signed out.
+   *
+   * The session's live state is read (getActiveSession, which asks the
+   * database), not just the token's signature. A cookie whose session was
+   * ended -- replaced by another device, ended by an administrator -- still
+   * has a good signature, and sending it to /home would have sent it straight
+   * back here: a loop instead of the form with its notice.
+   */
+  if (await getActiveSession()) {
+    if (await mustChangePassword()) redirect("/change-password");
+    const { next } = await searchParams;
+    redirect(safeRedirectPath(typeof next === "string" ? next : null));
+  }
+
   const [t, tNav] = await Promise.all([getTranslations("auth"), getTranslations("nav")]);
   // What the platform offers, not which modules it has: true as modules are added.
   const points = [

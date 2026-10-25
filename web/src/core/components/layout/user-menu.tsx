@@ -60,7 +60,8 @@ export function UserMenu({ user }: { user: SessionPayload }) {
   async function handleLogout() {
     setIsLoggingOut(true);
     await signOutSession(user.sessionId);
-    router.push("/login");
+    // Replaced, not pushed: Back must not reopen a page of the session just ended.
+    router.replace("/login");
     router.refresh();
   }
 

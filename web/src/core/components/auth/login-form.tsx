@@ -62,7 +62,9 @@ export function LoginForm() {
     const next = safeRedirectPath(searchParams.get("next"));
     // A password an administrator chose is replaced first; the app layout
     // would send them there anyway, this saves the detour.
-    router.push(mustChangePassword ? `/change-password?next=${encodeURIComponent(next)}` : next);
+    // Replaced, not pushed: Back from the app must not land on a sign-in form
+    // for somebody who is signed in.
+    router.replace(mustChangePassword ? `/change-password?next=${encodeURIComponent(next)}` : next);
     router.refresh();
   }
 

@@ -7,12 +7,12 @@ import { NextIntlClientProvider } from "next-intl";
 import { id as messages } from "@/core/i18n/test-messages";
 import { LoginForm } from "@/core/components/auth/login-form";
 
-const push = vi.fn();
+const replace = vi.fn();
 const refresh = vi.fn();
 const searchParams = new URLSearchParams();
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push, refresh }),
+  useRouter: () => ({ replace, refresh }),
   useSearchParams: () => searchParams,
 }));
 
@@ -78,7 +78,7 @@ describe("LoginForm", () => {
 
     const alert = await screen.findByRole("alert");
     expect(alert.textContent).toBe("Incorrect email or password.");
-    expect(push).not.toHaveBeenCalled();
+    expect(replace).not.toHaveBeenCalled();
   });
 
   it("goes to the portal on success", async () => {
@@ -89,7 +89,7 @@ describe("LoginForm", () => {
     await user.type(screen.getByLabelText("Kata Sandi"), "Admin123!");
     await user.click(screen.getByRole("button", { name: "Masuk" }));
 
-    await waitFor(() => expect(push).toHaveBeenCalledWith("/home"));
+    await waitFor(() => expect(replace).toHaveBeenCalledWith("/home"));
   });
 
   it("goes to change the password first when an administrator chose it", async () => {
@@ -102,7 +102,7 @@ describe("LoginForm", () => {
     await user.type(screen.getByLabelText("Kata Sandi"), "Given1234!");
     await user.click(screen.getByRole("button", { name: "Masuk" }));
 
-    await waitFor(() => expect(push).toHaveBeenCalledWith("/change-password?next=%2Fassay"));
+    await waitFor(() => expect(replace).toHaveBeenCalledWith("/change-password?next=%2Fassay"));
   });
 
   it("refuses to follow an off-site next parameter", async () => {
@@ -114,8 +114,8 @@ describe("LoginForm", () => {
     await user.type(screen.getByLabelText("Kata Sandi"), "Admin123!");
     await user.click(screen.getByRole("button", { name: "Masuk" }));
 
-    await waitFor(() => expect(push).toHaveBeenCalledWith("/home"));
-    expect(push).not.toHaveBeenCalledWith("https://evil.example");
+    await waitFor(() => expect(replace).toHaveBeenCalledWith("/home"));
+    expect(replace).not.toHaveBeenCalledWith("https://evil.example");
   });
 
   describe("the second factor", () => {
@@ -144,7 +144,7 @@ describe("LoginForm", () => {
 
       expect(await screen.findByRole("button", { name: /Verifikasi wajah/ })).toBeTruthy();
       expect(screen.getByRole("button", { name: /Kode Authenticator/ })).toBeTruthy();
-      expect(push).not.toHaveBeenCalled();
+      expect(replace).not.toHaveBeenCalled();
     });
 
     it("signs in with a code and can go back to the choice", async () => {
@@ -164,7 +164,7 @@ describe("LoginForm", () => {
 
       await user.type(screen.getByLabelText("Kode 6 digit"), "123456");
 
-      await waitFor(() => expect(push).toHaveBeenCalledWith("/home"));
+      await waitFor(() => expect(replace).toHaveBeenCalledWith("/home"));
       const [url, init] = fetchMock.mock.calls[1];
       expect(url).toBe("/api/auth/totp");
       expect(JSON.parse(init.body)).toEqual({ challenge: "challenge-token", code: "123456" });
@@ -184,7 +184,7 @@ describe("LoginForm", () => {
       const alert = await screen.findByRole("alert");
       expect(alert.textContent).toContain("Kode salah");
       expect(screen.queryByRole("button", { name: "Gunakan metode lain" })).toBeNull();
-      expect(push).not.toHaveBeenCalled();
+      expect(replace).not.toHaveBeenCalled();
 
       // Emptied and back in focus, so the next code is simply typed.
       const input = screen.getByLabelText("Kode 6 digit") as HTMLInputElement;
@@ -204,7 +204,7 @@ describe("LoginForm", () => {
       await user.click(await screen.findByLabelText("Kode 6 digit"));
       await user.paste("123 456");
 
-      await waitFor(() => expect(push).toHaveBeenCalledWith("/home"));
+      await waitFor(() => expect(replace).toHaveBeenCalledWith("/home"));
       expect(JSON.parse(fetchMock.mock.calls[1][1].body).code).toBe("123456");
     });
 
@@ -250,7 +250,7 @@ describe("LoginForm", () => {
 
       await user.type(screen.getByLabelText("Kode 6 digit"), "654321");
 
-      await waitFor(() => expect(push).toHaveBeenCalledWith("/home"));
+      await waitFor(() => expect(replace).toHaveBeenCalledWith("/home"));
       // The code goes with the challenge the setup handed back.
       expect(JSON.parse(fetchMock.mock.calls[2][1].body)).toEqual({
         challenge: "fresh-challenge",

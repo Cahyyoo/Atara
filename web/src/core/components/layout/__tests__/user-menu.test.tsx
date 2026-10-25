@@ -9,10 +9,11 @@ import { UserMenu } from "@/core/components/layout/user-menu";
 import type { SessionPayload } from "@/core/lib/auth/auth";
 
 const push = vi.fn();
+const replace = vi.fn();
 const refresh = vi.fn();
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push, refresh }),
+  useRouter: () => ({ push, replace, refresh }),
 }));
 
 // A "use server" module cannot be imported into a component test.
@@ -110,6 +111,7 @@ describe("signing out", () => {
     // The whole point: nothing has happened yet.
     expect(fetch).not.toHaveBeenCalled();
     expect(push).not.toHaveBeenCalled();
+    expect(replace).not.toHaveBeenCalled();
   });
 
   it("does nothing when the confirmation is cancelled", async () => {
@@ -123,6 +125,7 @@ describe("signing out", () => {
     await waitFor(() => expect(screen.queryByText("Keluar dari akun?")).toBeNull());
     expect(fetch).not.toHaveBeenCalled();
     expect(push).not.toHaveBeenCalled();
+    expect(replace).not.toHaveBeenCalled();
   });
 
   it("signs out only after the confirmation is accepted", async () => {
@@ -145,7 +148,8 @@ describe("signing out", () => {
         body: JSON.stringify({ sessionId: "s1" }),
       })
     );
-    await waitFor(() => expect(push).toHaveBeenCalledWith("/login"));
+    // Replaced, so Back cannot reopen a page of the ended session.
+    await waitFor(() => expect(replace).toHaveBeenCalledWith("/login"));
   });
 });
 
