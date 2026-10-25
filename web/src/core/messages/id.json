@@ -87,6 +87,7 @@
     "qcStandard": "Standard (CRM)",
     "qcBlank": "Blank",
     "qcDuplicate": "Duplicate",
+    "crmList": "CRM List",
     "signInAudit": "Audit Login",
     "groups": {
       "lab": "Lab",

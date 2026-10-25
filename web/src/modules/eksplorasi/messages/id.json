@@ -225,5 +225,46 @@
       "unmatched": "{count, plural, other {# duplikat tidak menemukan sampel aslinya (cek kolom Control).}}",
       "skipped": "{count, plural, other {# pasangan tidak digambar karena nilainya bukan angka.}}"
     }
+  },
+  "crmList": {
+    "title": "CRM List",
+    "subtitle": "Nilai acuan QC: standard (CRM) per metode uji, batas blank, dan batas duplicate.",
+    "tables": {
+      "standard": {
+        "title": "Standart",
+        "description": "Nilai bersertifikat dan SD tiap unsur, per standard dan metode uji."
+      },
+      "blank": {
+        "title": "Blank",
+        "description": "Nilai maksimum yang masih diterima untuk sampel blank."
+      },
+      "duplicate": {
+        "title": "Duplicate",
+        "description": "Batas kesesuaian pasangan duplicate: R², RPD, dan porsi pasangan di atas 10% RPD."
+      }
+    },
+    "add": "Tambah",
+    "edit": "Ubah",
+    "delete": "Hapus",
+    "actions": "Aksi",
+    "empty": "Belum ada data. Tekan Tambah untuk mengisi baris pertama.",
+    "loadFailed": "Data tidak bisa dimuat.",
+    "retry": "Coba lagi",
+    "required": "Wajib diisi",
+    "dialog": {
+      "addTitle": "Tambah baris {table}",
+      "editTitle": "Ubah baris {table}",
+      "description": "Nilai disimpan apa adanya seperti yang ditulis lab, mis. 0.71 atau <=10%.",
+      "save": "Simpan",
+      "saving": "Menyimpan…",
+      "duplicate": "Baris dengan nama ini sudah ada di tabel {table}."
+    },
+    "deleteDialog": {
+      "title": "Hapus baris ini?",
+      "confirm": "{name} akan dihapus permanen dari tabel {table} dan tidak bisa dikembalikan.",
+      "action": "Hapus"
+    },
+    "saved": "{name} disimpan.",
+    "deleted": "{name} dihapus."
   }
 }

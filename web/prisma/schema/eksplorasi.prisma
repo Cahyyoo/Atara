@@ -13,23 +13,23 @@ enum SampleType {
 /// a result such as "<0.01" is a result, not a number, and is only left out
 /// of the charts. A DUPLICATE names the sample it repeats in `control`.
 model DataSource {
-  id          String     @id @default(cuid())
-  controlDate String?    @map("control_date") @db.VarChar(50)
+  id                      String     @id @default(cuid())
+  controlDate             String?    @map("control_date") @db.VarChar(50)
   /// The CRM a STANDARD is, or the sample a DUPLICATE repeats.
-  control     String?    @db.VarChar(100)
-  campaign    String?    @db.VarChar(100)
-  no          String?    @db.VarChar(50)
-  holeId      String?    @map("hole_id") @db.VarChar(50)
-  sampleId    String     @unique @map("sample_id") @db.VarChar(50)
-  sampleType  SampleType @map("sample_type")
-  from        String?    @db.VarChar(20)
-  to          String?    @db.VarChar(20)
+  control                 String?    @db.VarChar(100)
+  campaign                String?    @db.VarChar(100)
+  no                      String?    @db.VarChar(50)
+  holeId                  String?    @map("hole_id") @db.VarChar(50)
+  sampleId                String     @unique @map("sample_id") @db.VarChar(50)
+  sampleType              SampleType @map("sample_type")
+  from                    String?    @db.VarChar(20)
+  to                      String?    @db.VarChar(20)
   /// The Duplicate list's Remarks: about the original sample the duplicate repeats.
-  originalSampleIdRemarks String? @map("original_sample_id_remarks") @db.VarChar(500)
+  originalSampleIdRemarks String?    @map("original_sample_id_remarks") @db.VarChar(500)
   /// The Remarks of the Data Source, Standard and Blank lists (the OREAS standards' notes).
-  oreasRemarks            String? @map("oreas_remarks") @db.VarChar(500)
-  date        DateTime?  @db.Date
-  weight      String?    @db.VarChar(20)
+  oreasRemarks            String?    @map("oreas_remarks") @db.VarChar(500)
+  date                    DateTime?  @db.Date
+  weight                  String?    @db.VarChar(20)
 
   ni    String? @db.VarChar(20)
   fe    String? @db.VarChar(20)
@@ -60,4 +60,85 @@ model DataSource {
   @@index([campaign])
   @@index([holeId])
   @@map("eksplorasi_data_source")
+}
+
+// CRM List: the reference values the QC samples are judged against, one
+// table per check, read and edited from the CRM List menu. Values stay
+// varchar as the lab writes them, like the data source.
+
+/// A certified reference material by test method: its expected values and
+/// their standard deviations (the "Standart" table of the CRM List).
+model CrmStandard {
+  id         String @id @default(cuid())
+  /// The CRM's name, e.g. "Oreas182".
+  standard   String @db.VarChar(50)
+  testMethod String @map("test_method") @db.VarChar(50)
+
+  ni    String? @db.VarChar(20)
+  co    String? @db.VarChar(20)
+  fe2o3 String? @db.VarChar(20)
+  al2o3 String? @db.VarChar(20)
+  cr2o3 String? @db.VarChar(20)
+  mgo   String? @db.VarChar(20)
+  sio2  String? @db.VarChar(20)
+
+  sdNi    String? @map("sd_ni") @db.VarChar(20)
+  sdCo    String? @map("sd_co") @db.VarChar(20)
+  sdFe2o3 String? @map("sd_fe2o3") @db.VarChar(20)
+  sdAl2o3 String? @map("sd_al2o3") @db.VarChar(20)
+  sdCr2o3 String? @map("sd_cr2o3") @db.VarChar(20)
+  sdMgo   String? @map("sd_mgo") @db.VarChar(20)
+  sdSio2  String? @map("sd_sio2") @db.VarChar(20)
+
+  createdById String   @map("created_by")
+  createdBy   User     @relation("CrmStandardCreatedBy", fields: [createdById], references: [id])
+  updatedById String?  @map("updated_by")
+  updatedBy   User?    @relation("CrmStandardUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([standard, testMethod])
+  @@map("eksplorasi_crm_list_standart")
+}
+
+/// What a blank may read and still pass (the "Blank" table of the CRM List).
+model CrmBlank {
+  id    String  @id @default(cuid())
+  /// The row's name, e.g. "Preferred Value".
+  label String  @unique @db.VarChar(50)
+  ni    String? @db.VarChar(20)
+  co    String? @db.VarChar(20)
+  fe2o3 String? @db.VarChar(20)
+  cr2o3 String? @db.VarChar(20)
+
+  createdById String   @map("created_by")
+  createdBy   User     @relation("CrmBlankCreatedBy", fields: [createdById], references: [id])
+  updatedById String?  @map("updated_by")
+  updatedBy   User?    @relation("CrmBlankUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("eksplorasi_crm_list_blank")
+}
+
+/// How closely duplicates must agree (the "Duplicate" table of the CRM List):
+/// the R² of the pairs, the RPD each pair should stay within, and the share
+/// of pairs allowed past it.
+model CrmDuplicate {
+  id      String  @id @default(cuid())
+  /// The row's name, e.g. "Preferred Value".
+  label   String  @unique @db.VarChar(50)
+  r2      String? @db.VarChar(20)
+  rpd     String? @db.VarChar(20)
+  /// The ">10% RPD" column: the share of pairs allowed past the RPD.
+  overRpd String? @map("over_rpd") @db.VarChar(20)
+
+  createdById String   @map("created_by")
+  createdBy   User     @relation("CrmDuplicateCreatedBy", fields: [createdById], references: [id])
+  updatedById String?  @map("updated_by")
+  updatedBy   User?    @relation("CrmDuplicateUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("eksplorasi_crm_list_duplicate")
 }

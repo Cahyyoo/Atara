@@ -85,3 +85,14 @@ export interface QcCharts {
     truncated: boolean;
   };
 }
+
+export type { CrmKind } from "@/modules/eksplorasi/lib/crm-list-columns";
+
+/**
+ * One row of a CRM List table (see crm-list-columns.ts for each table's
+ * fields). Values are text, as the lab writes them.
+ */
+export type CrmRowDTO = {
+  id: string;
+  updatedAt: string;
+} & Record<string, string | null>;

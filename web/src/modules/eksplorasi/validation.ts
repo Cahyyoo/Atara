@@ -1,4 +1,4 @@
-/** Input schemas of the Eksplorasi module: the data source. */
+/** Input schemas of the Eksplorasi module: the data source and the CRM List. */
 import { z } from "zod";
 import { paginationQuery } from "@/core/lib/http/pagination";
 import {
@@ -10,6 +10,7 @@ import {
   TEXT_FIELDS,
   type DataSourceField,
 } from "@/modules/eksplorasi/lib/data-source-columns";
+import { CRM_COLUMNS, CRM_KINDS, type CrmKind } from "@/modules/eksplorasi/lib/crm-list-columns";
 
 const optionalDate = z
   .string()
@@ -83,3 +84,26 @@ export const qcChartsQuerySchema = z.object({
   from: optionalDate,
   to: optionalDate,
 });
+
+/** The CRM List's three tables, by the name the API path carries. */
+export const crmKindSchema = z.enum(CRM_KINDS);
+
+/**
+ * A row of one CRM table. What names the row is required; every value is
+ * optional text, as the lab writes it -- "<=10%" is a value too.
+ */
+export function crmRowSchema(kind: CrmKind) {
+  return z.object(
+    Object.fromEntries(
+      CRM_COLUMNS[kind].map((column) => [
+        column.field,
+        column.key
+          ? z.string().trim().min(1, `${column.header} is required.`).max(column.maxLength)
+          : optionalText(column.maxLength),
+      ])
+    ) as Record<string, z.ZodType<string | null | undefined>>
+  );
+}
+
+/** A change to a row: only the fields sent, and a name, if sent, still not blank. */
+export const crmRowChangeSchema = (kind: CrmKind) => crmRowSchema(kind).partial();

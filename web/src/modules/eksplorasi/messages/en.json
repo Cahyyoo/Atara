@@ -225,5 +225,46 @@
       "unmatched": "{count, plural, one {# duplicate has no original (check its Control).} other {# duplicates have no original (check their Control).}}",
       "skipped": "{count, plural, one {# pair is not drawn: a value is not a number.} other {# pairs are not drawn: a value is not a number.}}"
     }
+  },
+  "crmList": {
+    "title": "CRM List",
+    "subtitle": "QC reference values: standards (CRM) by test method, blank limits and duplicate limits.",
+    "tables": {
+      "standard": {
+        "title": "Standart",
+        "description": "Certified values and SD of each element, by standard and test method."
+      },
+      "blank": {
+        "title": "Blank",
+        "description": "The highest values a blank may read and still pass."
+      },
+      "duplicate": {
+        "title": "Duplicate",
+        "description": "How closely duplicate pairs must agree: R², RPD, and the share of pairs past 10% RPD."
+      }
+    },
+    "add": "Add",
+    "edit": "Edit",
+    "delete": "Delete",
+    "actions": "Actions",
+    "empty": "Nothing here yet. Press Add to fill in the first row.",
+    "loadFailed": "The data could not be loaded.",
+    "retry": "Try again",
+    "required": "Required",
+    "dialog": {
+      "addTitle": "Add a {table} row",
+      "editTitle": "Edit a {table} row",
+      "description": "Values are kept exactly as the lab writes them, e.g. 0.71 or <=10%.",
+      "save": "Save",
+      "saving": "Saving…",
+      "duplicate": "A row with this name is already in the {table} table."
+    },
+    "deleteDialog": {
+      "title": "Delete this row?",
+      "confirm": "{name} will be permanently deleted from the {table} table and cannot be restored.",
+      "action": "Delete"
+    },
+    "saved": "{name} saved.",
+    "deleted": "{name} deleted."
   }
 }

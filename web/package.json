@@ -17,6 +17,7 @@
     "db:seed-dummy": "tsx prisma/seed-dummy.ts",
     "db:seed-eksplorasi-dummy": "tsx prisma/seed-eksplorasi-dummy.ts",
     "db:seed-master": "tsx prisma/seed-master.ts",
+    "db:seed-crm": "tsx prisma/seed-crm.ts",
     "db:fill-dummy": "tsx prisma/fill-dummy.ts",
     "module:new": "node scripts/new-module.mjs"
   },
