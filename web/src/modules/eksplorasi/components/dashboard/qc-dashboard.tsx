@@ -10,7 +10,8 @@ import { InlineNotice } from "@/core/components/ui/inline-notice";
 import { Skeleton } from "@/core/components/ui/skeleton";
 import { apiFetch } from "@/core/lib/http/api-client";
 import { ELEMENT_FIELDS, ELEMENT_LABELS, type ElementField } from "@/modules/eksplorasi/lib/data-source-columns";
-import type { QcCharts } from "@/modules/eksplorasi/types";
+import type { QcCharts, QcControl } from "@/modules/eksplorasi/types";
+import { QcControlSection } from "@/modules/eksplorasi/components/dashboard/qc-control-section";
 import { IoReloadOutline } from "react-icons/io5";
 
 /**
@@ -34,9 +35,10 @@ function ChartsSkeleton() {
 /**
  * The eksplorasi dashboard: the QC charts for one element (Ni to start with),
  * over every assay or a window of dates. The first set comes with the page;
- * a change of element or dates asks for the next.
+ * a change of element or dates asks for the next. Below them, the control
+ * charts of one OREAS standard, over the same dates.
  */
-export function QcDashboard({ initial }: { initial: QcCharts }) {
+export function QcDashboard({ initial, initialControl }: { initial: QcCharts; initialControl: QcControl }) {
   const t = useTranslations("qcDashboard");
   const tCommon = useTranslations("common");
   const [element, setElement] = useState<ElementField>(initial.element);
@@ -115,6 +117,8 @@ export function QcDashboard({ initial }: { initial: QcCharts }) {
       <InlineNotice tone="error">{error}</InlineNotice>
 
       <QcScatterCharts data={data} />
+
+      <QcControlSection initial={initialControl} from={from} to={to} />
     </div>
   );
 }

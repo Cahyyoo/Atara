@@ -224,6 +224,28 @@
       "count": "{count, plural, one {# pair drawn.} other {# pairs drawn.}}",
       "unmatched": "{count, plural, one {# duplicate has no original (check its Control).} other {# duplicates have no original (check their Control).}}",
       "skipped": "{count, plural, one {# pair is not drawn: a value is not a number.} other {# pairs are not drawn: a value is not a number.}}"
+    },
+    "control": {
+      "title": "Standard control charts (OREAS)",
+      "description": "Each standard assay by sample index (its row in the Data Source), against the certified value ±1σ, ±2σ, ±3σ from the CRM List ({method}).",
+      "criteria": "Oreas Criteria",
+      "axisX": "Sample index",
+      "axisY": "{element} (%)",
+      "certified": "Value {value} · SD {sd}",
+      "readings": "{element}",
+      "plus1": "+1σ",
+      "minus1": "−1σ",
+      "plus2": "+2σ",
+      "minus2": "−2σ",
+      "plus3": "+3σ",
+      "minus3": "−3σ",
+      "point": "Index {index} · {date} · {value} ({sigma}σ)",
+      "pointNoDate": "Index {index} · {value} ({sigma}σ)",
+      "noStandards": "The CRM List has no {method} standards yet. Add them on the CRM List page.",
+      "noLimits": "The CRM List has no value or SD of {element} for {standard} ({method}) yet.",
+      "empty": "No assays of {standard} with a {element} value yet.",
+      "skipped": "{count, plural, one {# assay is not drawn: its value is not a number.} other {# assays are not drawn: their value is not a number.}}",
+      "outside": "{count, plural, one {# point outside ±3σ.} other {# points outside ±3σ.}}"
     }
   },
   "crmList": {

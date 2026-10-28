@@ -224,6 +224,28 @@
       "count": "{count, plural, other {# pasangan digambar.}}",
       "unmatched": "{count, plural, other {# duplikat tidak menemukan sampel aslinya (cek kolom Control).}}",
       "skipped": "{count, plural, other {# pasangan tidak digambar karena nilainya bukan angka.}}"
+    },
+    "control": {
+      "title": "Grafik Kontrol Standard (OREAS)",
+      "description": "Setiap analisis standard menurut Sample index (urutan baris di Data Source), terhadap nilai bersertifikat ±1σ, ±2σ, ±3σ dari CRM List ({method}).",
+      "criteria": "Oreas Criteria",
+      "axisX": "Sample index",
+      "axisY": "{element} (%)",
+      "certified": "Nilai {value} · SD {sd}",
+      "readings": "{element}",
+      "plus1": "+1σ",
+      "minus1": "−1σ",
+      "plus2": "+2σ",
+      "minus2": "−2σ",
+      "plus3": "+3σ",
+      "minus3": "−3σ",
+      "point": "Index {index} · {date} · {value} ({sigma}σ)",
+      "pointNoDate": "Index {index} · {value} ({sigma}σ)",
+      "noStandards": "CRM List belum berisi standard {method}. Tambahkan di menu CRM List.",
+      "noLimits": "Nilai atau SD {element} untuk {standard} ({method}) belum diisi di CRM List.",
+      "empty": "Belum ada analisis {standard} dengan nilai {element}.",
+      "skipped": "{count, plural, other {# analisis tidak digambar karena nilainya bukan angka.}}",
+      "outside": "{count, plural, other {# titik di luar ±3σ.}}"
     }
   },
   "crmList": {

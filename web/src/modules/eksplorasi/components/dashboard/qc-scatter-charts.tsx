@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, type ReactNode } from "react";
+import { useMemo } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import {
   Chart as ChartJS,
@@ -14,8 +14,8 @@ import {
   type TooltipItem,
 } from "chart.js";
 import { Scatter } from "react-chartjs-2";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/core/components/ui/card";
-import { CHART_ANIMATION_MS, GRID_DASH, SERIES, categoricalColor, readChartChrome, type ChartChrome } from "@/core/lib/ui/chart-theme";
+import { SERIES, categoricalColor, readChartChrome } from "@/core/lib/ui/chart-theme";
+import { ChartCard, ChartLegend, POINT, axis, baseOptions } from "@/modules/eksplorasi/components/dashboard/qc-chart-parts";
 import { useTheme } from "@/core/components/layout/theme-provider";
 import { useReducedMotion } from "@/core/lib/ui/use-reduced-motion";
 import { ELEMENT_LABELS } from "@/modules/eksplorasi/lib/data-source-columns";
@@ -25,105 +25,6 @@ import type { DuplicatePair, QcCharts, StandardPoint } from "@/modules/eksploras
 // Only the pieces a scatter with a reference line uses. The legend is DOM
 // above each chart (ChartLegend), so Chart.js's own is registered but off.
 ChartJS.register(LinearScale, PointElement, LineElement, Tooltip, Legend);
-
-/** A point's look: small, filled, a ring of the card's colour so overlapping points stay apart. */
-const POINT = { pointRadius: 3.5, pointHoverRadius: 5.5, pointBorderWidth: 1 };
-
-function axis(chrome: ChartChrome, title: string) {
-  return {
-    type: "linear" as const,
-    title: { display: true, text: title, color: chrome.axisText, font: { size: 11 } },
-    grid: { color: chrome.grid, drawTicks: false, lineWidth: 1 },
-    border: { display: false, dash: [...GRID_DASH] },
-    ticks: { color: chrome.axisText, font: { size: 11 } },
-  };
-}
-
-function baseOptions(chrome: ChartChrome, reducedMotion: boolean): ChartOptions<"scatter"> {
-  return {
-    responsive: true,
-    maintainAspectRatio: false,
-    animation: reducedMotion ? false : { duration: CHART_ANIMATION_MS, easing: "easeOutQuart" },
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        backgroundColor: chrome.popover,
-        titleColor: chrome.popoverText,
-        bodyColor: chrome.popoverText,
-        borderWidth: 0,
-        padding: 12,
-        cornerRadius: 12,
-        boxWidth: 8,
-        boxHeight: 8,
-        usePointStyle: true,
-      },
-    },
-  };
-}
-
-/**
- * Identity never rests on colour alone: a chart with more than one series
- * names them in plain DOM, outside the canvas a screen reader cannot enter.
- */
-function ChartLegend({ items }: { items: { label: string; color: string; line?: boolean }[] }) {
-  return (
-    <ul className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-      {items.map((item) => (
-        <li key={item.label} className="flex items-center gap-1.5">
-          <span
-            aria-hidden
-            className={item.line ? "h-0.5 w-4 rounded-full" : "size-2.5 rounded-full"}
-            style={{ backgroundColor: item.color }}
-          />
-          {item.label}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-/** A chart's card: its name, what it shows, its legend, and the chart or why there is none. */
-function ChartCard({
-  title,
-  description,
-  legend,
-  notes,
-  emptyMessage,
-  children,
-}: {
-  title: string;
-  description: string;
-  legend?: ReactNode;
-  notes: string[];
-  emptyMessage: string | null;
-  children: ReactNode;
-}) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
-        {legend ? <div className="pt-1">{legend}</div> : null}
-      </CardHeader>
-      <CardContent className="flex flex-col gap-2">
-        {emptyMessage ? (
-          <p className="flex h-72 items-center justify-center rounded-lg border border-dashed px-4 text-center text-sm text-muted-foreground">
-            {emptyMessage}
-          </p>
-        ) : (
-          <div className="h-80">{children}</div>
-        )}
-        {notes.length > 0 ? (
-          <ul className="flex flex-col gap-0.5 text-xs text-muted-foreground">
-            {notes.map((note) => (
-              <li key={note}>{note}</li>
-            ))}
-          </ul>
-        ) : null}
-      </CardContent>
-    </Card>
-  );
-}
 
 /**
  * The two QC scatter plots for one element.

@@ -85,6 +85,13 @@ export const qcChartsQuerySchema = z.object({
   to: optionalDate,
 });
 
+/** The dashboard's control charts: which OREAS standard (its CRM List name), over which dates. */
+export const qcControlQuerySchema = z.object({
+  standard: z.string().trim().min(1).max(50).optional(),
+  from: optionalDate,
+  to: optionalDate,
+});
+
 /** The CRM List's three tables, by the name the API path carries. */
 export const crmKindSchema = z.enum(CRM_KINDS);
 

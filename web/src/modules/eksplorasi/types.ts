@@ -1,5 +1,6 @@
 /** What the Eksplorasi module's routes send to the browser. */
 import type { ElementField, SampleType } from "@/modules/eksplorasi/lib/data-source-columns";
+import type { ControlElement } from "@/modules/eksplorasi/lib/qc-control";
 
 export type { DataSourceField, DataSourceView, ElementField, SampleType } from "@/modules/eksplorasi/lib/data-source-columns";
 
@@ -96,3 +97,44 @@ export type CrmRowDTO = {
   id: string;
   updatedAt: string;
 } & Record<string, string | null>;
+
+/** A standard's certified value from the CRM List, and the lines ±1σ, ±2σ and ±3σ about it. */
+export interface ControlLimits {
+  certified: number;
+  sd: number;
+  plus1: number;
+  minus1: number;
+  plus2: number;
+  minus2: number;
+  plus3: number;
+  minus3: number;
+}
+
+/** One assay of a standard on its control chart. */
+export interface ControlPoint {
+  sampleId: string;
+  /** YYYY-MM-DD. */
+  date: string | null;
+  /** The sample index: the row's place in the data source, counting from 1. */
+  x: number;
+  y: number;
+}
+
+/** The control charts of one OREAS standard: one per element it is certified for. */
+export interface QcControl {
+  /** Every standard the CRM List has for the test method, for the "Oreas Criteria" choice. */
+  standards: string[];
+  /** The one shown; null when the CRM List has none yet. */
+  standard: string | null;
+  testMethod: string;
+  elements: {
+    element: ControlElement;
+    /** Null when the CRM List has no usable value or SD for this element. */
+    limits: ControlLimits | null;
+    points: ControlPoint[];
+    /** Assays of this standard whose value is not a number. */
+    skipped: number;
+  }[];
+  /** More assays than the charts draw; the earliest are shown. */
+  truncated: boolean;
+}
