@@ -17,7 +17,7 @@
         "title": "Data Source",
         "intro": "Every assayed sample and its QC samples. The Standard, Blank and Duplicate menus show one type each.",
         "steps": {
-          "1": "Add opens an Excel-like sheet page: type or paste a block from Excel into the empty rows. The latest 50 rows sit locked above; click the padlock to change one in place, then Save them all at once.",
+          "1": "Add opens an Excel-like sheet page: type or paste a block from Excel into the empty rows. The latest 50 rows sit above, locked unless they have no assay results yet; click the padlock to change a locked one in place, then Save them all at once.",
           "2": "Search by Sample ID, Hole ID, Control or Campaign, and filter by campaign (and by sample type on the Data Source).",
           "3": "Click a row to open its details in a panel on the right: the sample's identity, all sixteen assay results and its history, with Edit and Delete buttons. The pencil and bin icons in the row do the same directly.",
           "4": "Import uploads thousands of rows at once from Excel/CSV (preview first, failed rows can be downloaded); Export downloads the list on screen with that menu's columns, ready to import back.",
@@ -201,7 +201,8 @@
       "sampleIdLoading": "Searching…",
       "sampleIdNarrow": "Showing the first {count}. Type more to narrow it down.",
       "typeSearch": "Search sample type…",
-      "typeNoResults": "No sample type matches."
+      "typeNoResults": "No sample type matches.",
+      "openHint": "{count, plural, one {# sample without assay results is open — type its results in.} other {# samples without assay results are open — type their results in.}}"
     }
   },
   "qcDashboard": {

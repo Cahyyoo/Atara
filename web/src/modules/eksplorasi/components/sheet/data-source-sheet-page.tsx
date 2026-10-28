@@ -51,7 +51,8 @@ function useStickyOffsets() {
  * Adding and changing a list's samples as in a spreadsheet, on a page of its
  * own, with the list's own columns: type or paste a block from Excel (with its
  * header or without) into the empty rows, each row checked as it lands. The
- * list's latest samples sit above, read-only; one unlocked is changed in place
+ * list's latest samples sit above, read-only unless they have no assay
+ * results yet; one unlocked is changed in place
  * and saved with the rest. Opened from a sample's Ubah, that sample comes
  * already unlocked, with the cursor in it. On a QC list every row is that
  * list's type.
@@ -94,8 +95,15 @@ export function DataSourceSheetPage({ view, editing }: { view: DataSourceView; e
   const hint =
     summary && summary.invalid > 0 ? (
       <span className="text-destructive">{t("sheet.fixInvalid", { count: summary.invalid })}</span>
-    ) : !sheet.hasActive ? (
-      sheet.existing > 0 ? t("sheet.lockedHint", { count: sheet.existing }) : t("sheet.nothing")
+    ) : !sheet.isDirty ? (
+      sheet.existing === 0 ? (
+        t("sheet.nothing")
+      ) : (
+        [
+          ...(sheet.lockedCount > 0 ? [t("sheet.lockedHint", { count: sheet.lockedCount })] : []),
+          ...(sheet.openCount > 0 ? [t("sheet.openHint", { count: sheet.openCount })] : []),
+        ].join(" ")
+      )
     ) : null;
 
   return (
@@ -149,7 +157,7 @@ export function DataSourceSheetPage({ view, editing }: { view: DataSourceView; e
               {t("sheet.addRows")}
             </Button>
           ) : null}
-          <Button variant="ghost" size="sm" disabled={sheet.isSaving || !sheet.hasActive} onClick={sheet.clearAll}>
+          <Button variant="ghost" size="sm" disabled={sheet.isSaving || !sheet.isDirty} onClick={sheet.clearAll}>
             {t("sheet.clear")}
           </Button>
           <Button variant="outline" disabled={sheet.isSaving} onClick={leave}>

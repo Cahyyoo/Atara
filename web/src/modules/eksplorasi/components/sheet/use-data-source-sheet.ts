@@ -20,9 +20,11 @@ import {
 } from "@/modules/eksplorasi/lib/oreas-match";
 import {
   blankRows,
+  asLoaded,
   cellsOf,
-  isActive,
+  hasAssay,
   isDirtyRow,
+  lockCounts,
   SHEET_BLANK_ROWS,
   SHEET_RECENT_ROWS,
   withEditing,
@@ -34,8 +36,9 @@ import type { DataSourceDTO, DataSourceView } from "@/modules/eksplorasi/types";
 export const SHEET_ROW_HEIGHT = 36;
 
 /**
- * A list's sheet state: the list's latest samples on top, locked, then empty
- * rows to type or paste new ones into. A locked sample can be unlocked and
+ * A list's sheet state: the list's latest samples on top -- locked, except
+ * those with no assay results yet, whose results are still to be typed in --
+ * then empty rows to type or paste new ones into. A locked sample can be unlocked and
  * changed in place; locking it again puts back what was loaded. Every active
  * row is checked by the server as it changes, and Save writes them all in one
  * go. The boxes are the list's own columns.
@@ -79,7 +82,7 @@ export function useDataSourceSheet(view: DataSourceView, onSaved: () => void, ed
     const controller = new AbortController();
     const rowOf = (sample: DataSourceDTO): SheetRow => {
       const cells = cellsOf(sample, keys, (type) => t(`sampleType.${type}`));
-      return { id: sample.id, locked: true, original: cells, cells };
+      return { id: sample.id, locked: hasAssay(cells), original: cells, cells };
     };
     const opened = editing ? rowOf(editing) : null;
     (async () => {
@@ -250,10 +253,10 @@ export function useDataSourceSheet(view: DataSourceView, onSaved: () => void, ed
     copyText: (range: GridRange) => rangeToTsv(range, keys, (row, key) => rows[row]?.cells[key as DataSourceField] ?? ""),
   });
 
-  /** Empties the new rows and locks every sample again: the sheet as it opened. */
+  /** Empties the new rows and puts every sample back as loaded, locked unless it has no assay yet: the sheet as it opened. */
   function clearAll() {
     setRows((previous) => [
-      ...previous.flatMap((row) => (row.id ? [{ ...row, locked: true, cells: row.original ?? {} }] : [])),
+      ...previous.flatMap((row) => (row.id ? [asLoaded(row)] : [])),
       ...blankRows(SHEET_BLANK_ROWS),
     ]);
   }
@@ -265,6 +268,7 @@ export function useDataSourceSheet(view: DataSourceView, onSaved: () => void, ed
     oreasNames: useMemo(() => oreasNames(standards), [standards]),
     loading,
     existing,
+    ...lockCounts(rows),
     focusRow,
     verdictFor: check.verdictFor,
     progress: check.progress,
@@ -274,7 +278,6 @@ export function useDataSourceSheet(view: DataSourceView, onSaved: () => void, ed
     isChecking: check.isChecking,
     isSaving,
     error,
-    hasActive: rows.some(isActive),
     isDirty,
     canAddRows: rows.length < maxRows,
     setCell,

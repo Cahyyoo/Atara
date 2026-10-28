@@ -1,4 +1,4 @@
-import { DATA_SOURCE_FIELDS, type DataSourceField } from "@/modules/eksplorasi/lib/data-source-columns";
+import { DATA_SOURCE_FIELDS, ELEMENT_FIELDS, type DataSourceField } from "@/modules/eksplorasi/lib/data-source-columns";
 import type { DataSourceDTO, SampleType } from "@/modules/eksplorasi/types";
 
 /**
@@ -12,7 +12,7 @@ export type Cells = Partial<Record<DataSourceField, string>>;
 export interface SheetRow {
   /** Set on an existing sample; absent on a new row. */
   id?: string;
-  /** An existing sample stays read-only until it is unlocked. */
+  /** An existing sample with assay results stays read-only until it is unlocked (hasAssay). */
   locked: boolean;
   /** An existing sample's cells as loaded, to tell what changed and to undo it. */
   original?: Cells;
@@ -47,6 +47,26 @@ export function withEditing(rows: readonly SheetRow[], editing: SheetRow | null)
   const at = rows.findIndex((row) => row.id === editing.id);
   if (at === -1) return [...rows, { ...editing, locked: false }];
   return rows.map((row, index) => (index === at ? { ...row, locked: false } : row));
+}
+
+/**
+ * Whether a sample has any assay result -- one of the sixteen elements, even
+ * "<0.01". A sample without one comes onto the sheet unlocked: its results
+ * are what is left to type in, and a padlock in the way is only a click more.
+ */
+export const hasAssay = (cells: Cells) => ELEMENT_FIELDS.some((field) => (cells[field] ?? "").trim() !== "");
+
+/** A loaded sample put back as it came: its cells as loaded, locked unless it has no assay yet. */
+export function asLoaded(row: SheetRow): SheetRow {
+  const original = row.original ?? {};
+  return { ...row, locked: hasAssay(original), cells: original };
+}
+
+/** The loaded samples still locked, and those open -- no assay yet, or unlocked by hand. */
+export function lockCounts(rows: readonly SheetRow[]): { lockedCount: number; openCount: number } {
+  const loaded = rows.filter((row) => row.id !== undefined);
+  const lockedCount = loaded.filter((row) => row.locked).length;
+  return { lockedCount, openCount: loaded.length - lockedCount };
 }
 
 export const isFilled = (cells: Cells) => DATA_SOURCE_FIELDS.some((field) => (cells[field] ?? "").trim() !== "");

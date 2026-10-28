@@ -55,10 +55,13 @@ let searched: URLSearchParams[] = [];
 type Sent = { dryRun: boolean; view: string; rows: { line: number; id?: string; cells: Record<string, string> }[] };
 let sent: Sent[] = [];
 let listed: string[] = [];
+/** The list's latest samples, as /api/data-sources answers. */
+let latest: DataSourceDTO[] = [];
 
 beforeEach(() => {
   sent = [];
   listed = [];
+  latest = [ROW];
   searched = [];
   push.mockReset();
   vi.stubGlobal(
@@ -75,7 +78,7 @@ beforeEach(() => {
       }
       if (url.startsWith("/api/data-sources?")) {
         listed.push(url);
-        const data = { rows: [ROW], pagination: { page: 1, pageSize: 50, total: 1, totalPages: 1 } };
+        const data = { rows: latest, pagination: { page: 1, pageSize: 50, total: latest.length, totalPages: 1 } };
         return { ok: true, json: async () => ({ success: true, data }) };
       }
       const body = JSON.parse(String(init?.body)) as Sent;
@@ -339,4 +342,41 @@ describe("the Duplicate list's Remarks", () => {
     fireEvent.change(await screen.findByRole("combobox", { name: sheet.sampleIdSearch }, LONG), { target: { value: "ZZZ" } });
     expect(await screen.findByText(sheet.sampleIdNoResults, {}, LONG)).toBeTruthy();
   }, 60_000);
+});
+
+describe("a sample without assay results", () => {
+  /** No element filled in yet: only who and where the sample is. The list answers newest first. */
+  const bare: DataSourceDTO = {
+    ...ROW,
+    id: "r2",
+    sampleId: "S-002",
+    ...(Object.fromEntries(ELEMENT_FIELDS.map((field) => [field, null])) as Record<(typeof ELEMENT_FIELDS)[number], null>),
+  };
+
+  it("comes onto the sheet unlocked, ready for its results, and saves them as a change", async () => {
+    latest = [bare, ROW];
+    await show();
+    expect(box(1, "Sample ID").value).toBe("S-001");
+    expect(box(1, "Ni").readOnly).toBe(true);
+    expect(box(2, "Sample ID").value).toBe("S-002");
+    expect(box(2, "Ni").readOnly).toBe(false);
+    expect(screen.getByRole("button", { name: en.dataSource.sheet.lock })).toBeTruthy();
+    expect(screen.getByText(/The latest row is locked above.*1 sample without assay results is open/)).toBeTruthy();
+
+    fireEvent.change(box(2, "Ni"), { target: { value: "1.1" } });
+    await save("Save 1 row");
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/eksplorasi/data-source"), LONG);
+    expect(sent.at(-1)?.rows).toEqual([expect.objectContaining({ line: 2, id: "r2", cells: expect.objectContaining({ ni: "1.1" }) })]);
+  });
+
+  it("is open on a QC list's sheet too, and goes back to open on Clear", async () => {
+    latest = [{ ...bare, sampleType: "STANDARD" }, { ...ROW, sampleType: "STANDARD" }];
+    await show("standard");
+    expect(box(2, "Ni").readOnly).toBe(false);
+    fireEvent.change(box(2, "Ni"), { target: { value: "1.1" } });
+    fireEvent.click(screen.getByRole("button", { name: en.dataSource.sheet.clear }));
+    await waitFor(() => expect(box(2, "Ni").value).toBe(""));
+    expect(box(2, "Ni").readOnly).toBe(false);
+    expect(box(1, "Ni").readOnly).toBe(true);
+  });
 });

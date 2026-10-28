@@ -17,7 +17,7 @@
         "title": "Data Source",
         "intro": "Semua sampel hasil analisis beserta sampel QC-nya. Menu Standard, Blank, dan Duplicate menampilkan tipe masing-masing.",
         "steps": {
-          "1": "Tambah membuka halaman lembar seperti Excel: ketik atau tempel blok dari Excel ke baris kosong. 50 baris terakhir tampil terkunci di atasnya; klik gembok untuk mengubahnya langsung, lalu Simpan sekaligus.",
+          "1": "Tambah membuka halaman lembar seperti Excel: ketik atau tempel blok dari Excel ke baris kosong. 50 baris terakhir tampil di atasnya, terkunci kecuali yang belum punya hasil assay; klik gembok untuk mengubah baris yang terkunci, lalu Simpan sekaligus.",
           "2": "Cari dengan Sample ID, Hole ID, Control, atau Campaign, dan saring per campaign (serta per tipe sampel di Data Source).",
           "3": "Klik sebuah baris untuk membuka detailnya di panel kanan: identitas sampel, ke-16 hasil assay, dan riwayatnya, dengan tombol Ubah dan Hapus. Ikon pensil dan tempat sampah di baris melakukan hal yang sama secara langsung.",
           "4": "Import mengunggah ribuan baris sekaligus dari Excel/CSV (pratinjau dulu, baris error bisa diunduh); Export mengunduh daftar yang sedang tampil dengan kolom menu itu, sehingga bisa langsung di-import kembali.",
@@ -201,7 +201,8 @@
       "sampleIdLoading": "Mencari…",
       "sampleIdNarrow": "Menampilkan {count} pertama. Ketik lebih banyak untuk mempersempit.",
       "typeSearch": "Cari tipe sampel…",
-      "typeNoResults": "Tidak ada tipe sampel yang cocok."
+      "typeNoResults": "Tidak ada tipe sampel yang cocok.",
+      "openHint": "{count, plural, other {# sampel tanpa hasil assay terbuka — isi hasilnya langsung.}}"
     }
   },
   "qcDashboard": {
