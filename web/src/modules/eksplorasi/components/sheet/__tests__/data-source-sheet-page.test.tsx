@@ -125,16 +125,23 @@ describe("a list's sheet", () => {
     expect(screen.queryByRole("textbox", { name: "Row 1 Control" })).toBeNull();
   });
 
-  it("offers the sample types as a list on a row that can be changed, and sends the one picked", async () => {
+  it("offers the sample types as a list that can be searched, and sends the one picked", async () => {
     await show();
-    const type = () => screen.getByRole("combobox", { name: "Row 2 Sample Type" }) as HTMLSelectElement;
-    expect([...type().options].map((option) => option.text)).toEqual([
+    const type = () => screen.getByRole("combobox", { name: "Row 2 Sample Type" });
+    fireEvent.click(type());
+    const options = await screen.findAllByRole("option", {}, LONG);
+    expect(options.map((option) => option.textContent)).toEqual([
       "—",
       ...(["FIELD", "STANDARD", "BLANK", "DUPLICATE"] as const).map((key) => types[key]),
     ]);
 
+    const search = await screen.findByRole("combobox", { name: en.dataSource.sheet.typeSearch }, LONG);
+    fireEvent.change(search, { target: { value: "bla" } });
+    await waitFor(() => expect(screen.queryByRole("option", { name: types.FIELD })).toBeNull(), LONG);
+    fireEvent.click(await screen.findByRole("option", { name: types.BLANK }, LONG));
+    await waitFor(() => expect(type().textContent).toContain(types.BLANK), LONG);
+
     fireEvent.change(box(2, "Sample ID"), { target: { value: "S-300" } });
-    fireEvent.change(type(), { target: { value: types.BLANK } });
 
     await save("Save 1 row");
     await waitFor(() => expect(push).toHaveBeenCalledWith("/eksplorasi/data-source"), LONG);
@@ -146,7 +153,7 @@ describe("a list's sheet", () => {
     fireEvent.paste(box(2, "Sample ID"), {
       clipboardData: { getData: () => "Sample ID\tSample Type\nS-1\tSTD\nS-2\tstandart\nS-3\tsomeday" },
     });
-    const type = (row: number) => (screen.getByRole("combobox", { name: `Row ${row} Sample Type` }) as HTMLSelectElement).value;
+    const type = (row: number) => screen.getByRole("combobox", { name: `Row ${row} Sample Type` }).textContent;
     expect([type(2), type(3), type(4)]).toEqual([types.STANDARD, types.STANDARD, "someday"]);
   });
 

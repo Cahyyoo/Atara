@@ -198,7 +198,9 @@
       "sampleIdSearch": "Cari Sample ID…",
       "sampleIdNoResults": "Tidak ada sampel FIELD yang cocok.",
       "sampleIdLoading": "Mencari…",
-      "sampleIdNarrow": "Menampilkan {count} pertama. Ketik lebih banyak untuk mempersempit."
+      "sampleIdNarrow": "Menampilkan {count} pertama. Ketik lebih banyak untuk mempersempit.",
+      "typeSearch": "Cari tipe sampel…",
+      "typeNoResults": "Tidak ada tipe sampel yang cocok."
     }
   },
   "qcDashboard": {

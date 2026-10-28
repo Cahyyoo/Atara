@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useMemo, type ClipboardEvent, type HTMLAttributes, type Ref } from "react";
+import { memo, useMemo, type HTMLAttributes, type Ref } from "react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/core/lib/utils";
 import { inSelection } from "@/core/hooks/use-grid-selection";
@@ -11,10 +11,10 @@ import { SHEET_ROW_HEIGHT } from "@/modules/eksplorasi/components/sheet/use-data
 import type { SampleType, SheetStatus, SheetVerdict } from "@/modules/eksplorasi/types";
 import { OreasCell } from "@/modules/eksplorasi/components/sheet/oreas-cell";
 import { SampleIdCell } from "@/modules/eksplorasi/components/sheet/sample-id-cell";
+import { TypeCell } from "@/modules/eksplorasi/components/sheet/type-cell";
 import {
   IoAddCircle,
   IoCheckmarkCircle,
-  IoChevronDown,
   IoCloseCircle,
   IoLockClosedOutline,
   IoLockOpenOutline,
@@ -30,8 +30,8 @@ const SHEET_WEIGHT: Partial<Record<DataSourceField, number>> = { date: 70, contr
 const BOX =
   "h-8 w-full min-w-0 scroll-mt-[var(--sheet-scroll-top,0px)] rounded-md border border-transparent bg-transparent px-0.5 text-[11px] outline-none transition-colors placeholder:text-transparent focus:placeholder:text-muted-foreground/50 focus-visible:bg-background focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-[selected]:bg-primary/15 data-[selected]:ring-1 data-[selected]:ring-primary/50 read-only:text-muted-foreground";
 const CHANGED = " bg-amber-100/70 dark:bg-amber-500/15";
-/** The type box: a select drawn as the other boxes are, with its own chevron. */
-const SELECT = `${BOX} cursor-pointer appearance-none pr-5 [&>option]:bg-background [&>option]:text-foreground`;
+/** A box picked from a list (type, Remarks): drawn as the other boxes are, with room for its chevron. */
+const PICKER = `${BOX} cursor-pointer pr-5 truncate`;
 
 const MARKS: Record<SheetStatus, { icon: typeof IoAddCircle; className: string }> = {
   create: { icon: IoAddCircle, className: "text-primary" },
@@ -58,62 +58,6 @@ export interface BoxProps {
   "data-selected": "" | undefined;
   "aria-invalid": true | undefined;
   title: string | undefined;
-}
-
-/**
- * The type of a row that can be changed: a list to pick from, as a sheet's
- * dropdown cell is. Text the list does not know (pasted, say) stays visible
- * as its own option, and is marked by the server.
- */
-function TypeCell({
-  box,
-  value,
-  typeLabels,
-  disabled,
-  className,
-  onChange,
-}: {
-  box: BoxProps;
-  value: string;
-  typeLabels: readonly string[];
-  disabled: boolean;
-  className: string;
-  onChange: (value: string) => void;
-}) {
-  // One value pasted into the box is its own to take: the grid only spreads blocks.
-  const paste = (event: ClipboardEvent<HTMLSelectElement>) => {
-    event.preventDefault();
-    onChange(event.clipboardData.getData("text/plain").trim());
-  };
-  return (
-    <div className="relative">
-      <select
-        {...box}
-        value={value}
-        disabled={disabled}
-        onChange={(event) => onChange(event.target.value)}
-        onPaste={paste}
-        // Blank, the box shows nothing until it is pointed at: an empty sheet
-        // is not a column of dashes.
-        className={value === "" ? `${className} text-transparent focus-visible:text-muted-foreground group-hover:text-muted-foreground` : className}
-      >
-        <option value="">—</option>
-        {typeLabels.map((label) => (
-          <option key={label} value={label}>
-            {label}
-          </option>
-        ))}
-        {value && !typeLabels.includes(value) ? <option value={value}>{value}</option> : null}
-      </select>
-      <IoChevronDown
-        aria-hidden
-        className={cn(
-          "pointer-events-none absolute top-1/2 right-1 size-3 -translate-y-1/2 text-muted-foreground transition-opacity",
-          value === "" && "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"
-        )}
-      />
-    </div>
-  );
 }
 
 interface RowProps {
@@ -189,14 +133,16 @@ const SheetGridRow = memo(function SheetGridRow(props: RowProps) {
             {field === "sampleType" && fixedTypeLabel !== null ? (
               <input {...box} readOnly tabIndex={-1} value={fixedTypeLabel} className={`${BOX} truncate`} />
             ) : field === "sampleType" && !row.locked ? (
-              <TypeCell
-                box={box}
-                value={value}
-                typeLabels={typeLabels}
-                disabled={saving}
-                className={SELECT + changed}
-                onChange={change}
-              />
+              <div className="relative">
+                <TypeCell
+                  box={box}
+                  value={value}
+                  typeLabels={typeLabels}
+                  disabled={saving}
+                  className={PICKER + changed}
+                  onChange={change}
+                />
+              </div>
             ) : field === "oreasRemarks" && props.oreasChoices && !row.locked ? (
               <div className="relative">
                 <OreasCell
@@ -204,7 +150,7 @@ const SheetGridRow = memo(function SheetGridRow(props: RowProps) {
                   value={value}
                   names={props.oreasChoices}
                   disabled={saving}
-                  className={`${SELECT} truncate` + changed}
+                  className={PICKER + changed}
                   onChange={change}
                 />
               </div>
@@ -214,7 +160,7 @@ const SheetGridRow = memo(function SheetGridRow(props: RowProps) {
                   box={box}
                   value={value}
                   disabled={saving}
-                  className={`${SELECT} truncate` + changed}
+                  className={PICKER + changed}
                   onChange={change}
                 />
               </div>

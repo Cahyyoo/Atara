@@ -198,7 +198,9 @@
       "sampleIdSearch": "Search Sample ID…",
       "sampleIdNoResults": "No FIELD sample matches.",
       "sampleIdLoading": "Searching…",
-      "sampleIdNarrow": "Showing the first {count}. Type more to narrow it down."
+      "sampleIdNarrow": "Showing the first {count}. Type more to narrow it down.",
+      "typeSearch": "Search sample type…",
+      "typeNoResults": "No sample type matches."
     }
   },
   "qcDashboard": {
