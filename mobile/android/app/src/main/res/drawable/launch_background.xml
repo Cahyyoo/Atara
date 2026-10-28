@@ -6,10 +6,16 @@
     <!-- And the app icon on top of it. Never an empty window: a blank field
          for however long the app takes to boot - seconds, on a debug build -
          reads as a frozen app. The whole icon rather than its foreground,
-         so the lime ground the launcher shows comes with it. -->
+         so the lime ground the launcher shows comes with it.
+
+         A copy of the launcher PNGs, not @mipmap/ic_launcher. From API 26
+         that name resolves to the adaptive-icon XML, which <bitmap> cannot
+         load; the system then drops the starting window without a word, and
+         on Android 8 to 11 nothing at all happened between the tap and
+         Flutter's first frame - well over a second on a tablet. -->
     <item>
         <bitmap
             android:gravity="center"
-            android:src="@mipmap/ic_launcher" />
+            android:src="@drawable/launch_icon" />
     </item>
 </layer-list>
