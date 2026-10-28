@@ -43,9 +43,12 @@ const ROW: DataSourceDTO = {
 
 /** The page the list's answer says it is on. */
 let listPage = 1;
+/** The rows the list's answer carries. */
+let listRows: DataSourceDTO[] = [ROW];
 
 beforeEach(() => {
   listPage = 1;
+  listRows = [ROW];
   window.localStorage.clear();
   resetPersistedColumns();
   resetTableLayouts();
@@ -60,7 +63,7 @@ beforeEach(() => {
           ok: true,
           json: async () => ({
             success: true,
-            data: { rows: [ROW], pagination: { page: listPage, pageSize: 25, total: 26, totalPages: 2 } },
+            data: { rows: listRows, pagination: { page: listPage, pageSize: 25, total: 26, totalPages: 2 } },
           }),
         };
       }
@@ -236,5 +239,22 @@ describe("arranging a list's columns", () => {
 
     await user.click(screen.getByRole("menuitem", { name: en.dataSource.layout.reset }));
     await waitFor(() => expect(headingOrder()).not.toContain("ni"));
+  });
+});
+
+describe("the data source's Remarks", () => {
+  it("is each row's OREAS Remarks, as on the Standard and Blank lists, and a dash where there is none", async () => {
+    listRows = [
+      { ...ROW, id: "d2", sampleId: "S-002", sampleType: "STANDARD", control: "Oreas184", oreasRemarks: "Oreas184", originalSampleIdRemarks: "not this one" },
+      ROW,
+    ];
+    show();
+    await row();
+    const column = screen.getAllByRole("columnheader").indexOf(heading("oreasRemarks"));
+    const remarksOf = (sampleId: string) =>
+      screen.getByText(sampleId).closest("tr")!.querySelectorAll("td")[column].textContent;
+    expect(heading("oreasRemarks").textContent).toBe("Remarks");
+    expect(remarksOf("S-002")).toBe("Oreas184");
+    expect(remarksOf("S-001")).toBe(en.common.empty);
   });
 });
