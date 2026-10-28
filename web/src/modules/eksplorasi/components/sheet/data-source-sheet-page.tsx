@@ -172,7 +172,8 @@ export function DataSourceSheetPage({ view, editing }: { view: DataSourceView; e
             <SheetGrid
               fields={sheet.keys}
               fixedType={VIEWS[view].sampleType}
-              oreasChoices={view === "standard" ? sheet.oreasNames : null}
+              // Every list whose Remarks is an OREAS one (not Duplicate's, which is about the original).
+              oreasChoices={sheet.keys.includes("oreasRemarks") ? sheet.oreasNames : null}
               rows={sheet.rows}
               verdictFor={sheet.verdictFor}
               pending={sheet.isChecking}

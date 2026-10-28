@@ -123,7 +123,7 @@ interface RowProps {
   typeLabels: readonly string[];
   /** A QC list's own type, shown in every row's type box and never typed. */
   fixedTypeLabel: string | null;
-  /** The OREAS names Remarks is picked from (the Standard list); null where it is typed. */
+  /** The OREAS names Remarks is picked from (Data Source, Standard, Blank); null where it is typed. */
   oreasChoices: readonly string[] | null;
   verdict: SheetVerdict | undefined;
   pending: boolean;
@@ -246,7 +246,7 @@ export function SheetGrid({
 }: {
   fields: readonly DataSourceField[];
   fixedType: SampleType | null;
-  /** The OREAS names Remarks is picked from, on the Standard list's sheet; null elsewhere. */
+  /** The OREAS names Remarks is picked from, on every list with an OREAS Remarks; null elsewhere (Duplicate). */
   oreasChoices?: readonly string[] | null;
   rows: readonly SheetRow[];
   verdictFor: (row: SheetRow) => SheetVerdict | undefined;

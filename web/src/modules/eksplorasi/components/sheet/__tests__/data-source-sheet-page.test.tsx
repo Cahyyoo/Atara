@@ -238,6 +238,16 @@ describe("a list's sheet", () => {
 });
 
 describe("the OREAS Remarks", () => {
+  const remarks = (row: number) => screen.findByRole("combobox", { name: `Row ${row} Remarks` }, LONG);
+
+  /** Opens a row's Remarks, searches it, and picks the one name left. */
+  async function pick(row: number, search: string, name: string) {
+    fireEvent.click(await remarks(row));
+    const box = await screen.findByRole("combobox", { name: en.dataSource.sheet.oreasSearch }, LONG);
+    fireEvent.change(box, { target: { value: search } });
+    fireEvent.click(await screen.findByRole("option", { name }, LONG));
+  }
+
   it("is filled with the standard whose five values were typed, while Remarks is empty", async () => {
     await show();
     const values = { Ni: "1.020", Co: "0.09", Fe2O3: "39.3", Al2O3: "4.62", Cr2O3: "1.75" };
@@ -245,22 +255,32 @@ describe("the OREAS Remarks", () => {
     await waitFor(() => expect(fetch).toHaveBeenCalledWith("/api/crm-list/standard", expect.anything()), LONG);
     await act(async () => {});
     for (const [field, value] of Object.entries(values)) fireEvent.change(box(2, field), { target: { value } });
-    await waitFor(() => expect(box(2, "Remarks").value).toBe("Oreas184"), LONG);
+    await waitFor(async () => expect((await remarks(2)).textContent).toContain("Oreas184"), LONG);
 
-    // A remark somebody wrote stays: a value changed again does not replace it.
-    fireEvent.change(box(2, "Remarks"), { target: { value: "By hand" } });
+    // A remark somebody picked stays: a value changed again does not replace it.
+    await pick(2, "189", "Oreas189");
+    await waitFor(async () => expect((await remarks(2)).textContent).toContain("Oreas189"), LONG);
     fireEvent.change(box(2, "Ni"), { target: { value: "1.02" } });
-    expect(box(2, "Remarks").value).toBe("By hand");
+    expect((await remarks(2)).textContent).toContain("Oreas189");
   }, 60_000);
 
-  it("is picked from the OREAS standards on the Standard list, and the list can be searched", async () => {
-    await show("standard");
-    const remarks = await screen.findByRole("combobox", { name: "Row 2 Remarks" }, LONG);
-    fireEvent.click(remarks);
-    const search = await screen.findByRole("combobox", { name: en.dataSource.sheet.oreasSearch }, LONG);
-    fireEvent.change(search, { target: { value: "189" } });
-    await waitFor(() => expect(screen.queryByRole("option", { name: "Oreas184" })).toBeNull(), LONG);
-    fireEvent.click(await screen.findByRole("option", { name: "Oreas189" }, LONG));
-    await waitFor(() => expect(remarks.textContent).toContain("Oreas189"), LONG);
-  }, 60_000);
+  it.each(["dataSource", "standard", "blank"] as const)(
+    "is picked on the %s list from the OREAS standards, and the list can be searched",
+    async (view) => {
+      await show(view);
+      fireEvent.click(await remarks(2));
+      const search = await screen.findByRole("combobox", { name: en.dataSource.sheet.oreasSearch }, LONG);
+      fireEvent.change(search, { target: { value: "189" } });
+      await waitFor(() => expect(screen.queryByRole("option", { name: "Oreas184" })).toBeNull(), LONG);
+      fireEvent.click(await screen.findByRole("option", { name: "Oreas189" }, LONG));
+      await waitFor(async () => expect((await remarks(2)).textContent).toContain("Oreas189"), LONG);
+    },
+    60_000
+  );
+
+  it("stays typed on the Duplicate list, whose Remarks is about the original sample", async () => {
+    await show("duplicate");
+    expect(box(2, "Remarks").tagName).toBe("INPUT");
+    expect(screen.queryByRole("combobox", { name: "Row 2 Remarks" })).toBeNull();
+  });
 });

@@ -11,8 +11,9 @@ import { IoCheckmark, IoChevronDown, IoSearchOutline } from "react-icons/io5";
 const NONE = "";
 
 /**
- * The Standard list's Remarks: an OREAS standard from the CRM List, picked
- * from a list that can be searched -- type "189" and only Oreas189 is left.
+ * The Remarks of the Data Source, Standard and Blank lists: an OREAS standard
+ * from the CRM List, picked from a list that can be searched -- type "189"
+ * and only Oreas189 is left.
  *
  * Drawn as the sheet's other boxes are, and carries their grid attributes
  * (`box`), so selecting, copying and moving through the sheet go on working.
