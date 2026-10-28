@@ -23,6 +23,7 @@ import {
   ChartCard,
   ChartLegend,
   POINT,
+  STATUS,
   axis,
   baseOptions,
   type LegendItem,
@@ -31,16 +32,11 @@ import type { ControlLimits, ControlPoint, QcControl } from "@/modules/eksploras
 
 ChartJS.register(LinearScale, PointElement, LineElement, Tooltip, Legend);
 
-/**
- * The control lines are thresholds, so they wear status colours -- good,
- * warning, critical -- and never a series colour. The same steps in both
- * themes; the yellow is under 3:1 on a light card, so each band also has its
- * own line pattern (dotted, dashed, solid) and is named in the legend.
- */
+/** The control lines in status colours (STATUS), each band with its own pattern: dotted, dashed, solid. */
 const BANDS = [
-  { sigma: 1, color: "#0ca30c", dash: [2, 3], legendDash: "dotted" },
-  { sigma: 2, color: "#fab219", dash: [6, 4], legendDash: "dashed" },
-  { sigma: 3, color: "#d03b3b", dash: [], legendDash: "solid" },
+  { sigma: 1, color: STATUS.good, dash: [2, 3], legendDash: "dotted" },
+  { sigma: 2, color: STATUS.warning, dash: [6, 4], legendDash: "dashed" },
+  { sigma: 3, color: STATUS.critical, dash: [], legendDash: "solid" },
 ] as const;
 
 /** A reading past ±3σ: drawn in the critical colour, and counted under the chart. */

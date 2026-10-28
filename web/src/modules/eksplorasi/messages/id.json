@@ -3,12 +3,13 @@
     "sections": {
       "qcDashboard": {
         "title": "Dashboard Eksplorasi",
-        "intro": "Grafik kontrol standar OREAS dari data source, terhadap nilai tersertifikasi di CRM List.",
+        "intro": "Grafik kontrol standar OREAS terhadap CRM List, dan duplikat terhadap sampel aslinya.",
         "steps": {
           "1": "Pilih standar lewat Oreas Criteria. Setiap titik adalah satu analisis standar itu pada urutan barisnya di Data Source.",
           "2": "Garis hijau, kuning, dan merah adalah ±1σ, ±2σ, dan ±3σ dari nilai tersertifikasi (Fusion XRF) di CRM List. Titik di luar ±3σ digambar merah dan dihitung di bawah grafik.",
           "3": "Tombol Unsur memilih grafik unsur mana yang tampil (Ni, Co, Fe2O3, Al2O3, Cr2O3, MgO, SiO2). Pilihan disimpan di browser ini.",
-          "4": "Nilai yang bukan angka (misalnya <0.01) tidak digambar; jumlahnya disebutkan di bawah grafik."
+          "4": "Nilai yang bukan angka (misalnya <0.01) tidak digambar; jumlahnya disebutkan di bawah grafik.",
+          "5": "Duplicate: setiap duplikat (Y) terhadap sampel aslinya (X), yaitu sampel FIELD yang Sample ID-nya dipilih di Remarks menu Duplicate. Titik di luar garis ±10% digambar merah dan dihitung; garis titik-titik adalah tren linear beserta R²-nya."
         },
         "tip": "Isi kolom Control pada baris STANDARD dengan nama OREAS-nya (mis. OREAS-184) agar analisisnya masuk ke grafik."
       },
@@ -205,7 +206,7 @@
   },
   "qcDashboard": {
     "title": "Dashboard",
-    "subtitle": "Grafik kontrol standar OREAS (±1σ, ±2σ, ±3σ).",
+    "subtitle": "Grafik kontrol standar OREAS (±1σ, ±2σ, ±3σ) dan duplikat terhadap sampel aslinya (±10%).",
     "loading": "Memuat grafik…",
     "truncated": "Data terlalu banyak; hanya 5.000 titik terlama yang digambar.",
     "control": {
@@ -232,6 +233,24 @@
       "elements": "Unsur",
       "elementsCount": "Unsur ({shown}/{total})",
       "showAll": "Tampilkan semua"
+    },
+    "duplicate": {
+      "title": "Duplicate",
+      "description": "Setiap duplikat (Y) terhadap sampel FIELD yang tertulis di Remarks-nya (X), dengan batas ±10% dan garis tren.",
+      "pairs": "{count, plural, other {# pasangan}}",
+      "axisX": "{element} asli (%)",
+      "axisY": "{element} duplikat (%)",
+      "readings": "Duplikat",
+      "band": "±10%",
+      "plus10": "+10%",
+      "minus10": "−10%",
+      "trend": "Linear (R² = {r2})",
+      "point": "Asli {originalId}: {x} · Duplikat: {y} ({difference}%)",
+      "empty": "Belum ada duplikat dengan nilai {element} yang dipasangkan dengan sampel aslinya. Pilih Sample ID sampel asli di Remarks menu Duplicate.",
+      "outside": "{count, plural, other {# pasangan di luar ±10%.}}",
+      "skipped": "{count, plural, other {# pasangan tidak digambar: ada nilai yang bukan angka.}}",
+      "unmatched": "{count, plural, other {# duplikat belum punya sampel asli: Remarks-nya bukan Sample ID sampel FIELD.}}",
+      "truncated": "Duplikat terlalu banyak; hanya 5.000 pasangan terawal yang digambar."
     }
   },
   "crmList": {

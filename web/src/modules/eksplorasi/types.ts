@@ -100,3 +100,29 @@ export interface QcControl {
   /** More assays than the charts draw; the earliest are shown. */
   truncated: boolean;
 }
+
+/** One DUPLICATE against the FIELD sample its Remarks names. */
+export interface DuplicatePair {
+  /** The duplicate's Sample ID. */
+  sampleId: string;
+  /** The original's Sample ID (the duplicate's Remarks). */
+  originalId: string;
+  /** The original's value. */
+  x: number;
+  /** The duplicate's value. */
+  y: number;
+}
+
+/** The duplicate charts: one per element, each duplicate against its original. */
+export interface QcDuplicate {
+  elements: {
+    element: ControlElement;
+    pairs: DuplicatePair[];
+    /** Pairs left off because either value is not a number. */
+    skipped: number;
+  }[];
+  /** Duplicates whose Remarks names no FIELD sample: blank, free text, or a Sample ID not in the data source. */
+  unmatched: number;
+  /** More pairs than the charts draw; the earliest are shown. */
+  truncated: boolean;
+}

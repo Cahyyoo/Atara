@@ -8,11 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { InlineNotice } from "@/core/components/ui/inline-notice";
 import { Skeleton } from "@/core/components/ui/skeleton";
 import { apiFetch } from "@/core/lib/http/api-client";
+import type { ControlElement } from "@/modules/eksplorasi/lib/qc-control";
 import type { QcControl } from "@/modules/eksplorasi/types";
-import { ControlElementPicker, useControlElements } from "@/modules/eksplorasi/components/dashboard/control-element-picker";
 import { IoReloadOutline } from "react-icons/io5";
 
-/** The chart library in its own chunk, as for the scatter plots. */
+/** The chart library is the heaviest thing the page loads, so it comes in its own chunk. */
 const QcControlCharts = dynamic(
   () => import("@/modules/eksplorasi/components/dashboard/qc-control-charts").then((m) => m.QcControlCharts),
   { ssr: false, loading: () => <ControlChartsSkeleton /> }
@@ -30,11 +30,11 @@ export function ControlChartsSkeleton() {
 
 /**
  * The dashboard's control charts: one OREAS standard, chosen by its CRM List
- * name ("Oreas Criteria"), and the elements ticked under Elements. The first
+ * name ("Oreas Criteria"), for the dashboard's chosen `elements`. The first
  * standard comes with the page; another choice asks for the next. Every
  * element comes in each answer, so ticking one shows it at once.
  */
-export function QcControlSection({ initial }: { initial: QcControl }) {
+export function QcControlSection({ initial, elements }: { initial: QcControl; elements: readonly ControlElement[] }) {
   const t = useTranslations("qcDashboard");
   const tCommon = useTranslations("common");
   const [standard, setStandard] = useState(initial.standard ?? "");
@@ -42,7 +42,6 @@ export function QcControlSection({ initial }: { initial: QcControl }) {
   // once it matches what is asked, and the previous ones until then.
   const [answer, setAnswer] = useState<{ query: string; data?: QcControl; error?: string } | null>(null);
   const [shown, setShown] = useState<QcControl>(initial);
-  const [elements, setElements] = useControlElements();
 
   const isInitial = standard === (initial.standard ?? "");
   const query = standard ? new URLSearchParams({ standard }).toString() : "";
@@ -88,7 +87,6 @@ export function QcControlSection({ initial }: { initial: QcControl }) {
                 {t("loading")}
               </span>
             ) : null}
-            <ControlElementPicker shown={elements} onChange={setElements} />
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="qc-control-standard">{t("control.criteria")}</Label>
               <Select value={standard} items={choices} onValueChange={(value) => setStandard(String(value ?? ""))}>

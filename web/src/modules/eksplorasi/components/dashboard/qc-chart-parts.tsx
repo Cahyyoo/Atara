@@ -7,9 +7,16 @@ import { CHART_ANIMATION_MS, GRID_DASH, type ChartChrome } from "@/core/lib/ui/c
 
 /**
  * What the dashboard's charts share: the look of a point, the axes, the
- * tooltip, the DOM legend and the card around each chart -- the scatter plots
- * and the control charts read as one set.
+ * tooltip, the DOM legend and the card around each chart -- the control
+ * charts and the duplicate charts read as one set.
  */
+
+/**
+ * Thresholds wear status colours -- good, warning, critical -- and never a
+ * series colour, the same in both themes. The yellow is under 3:1 on a light
+ * card, so every line also has its own pattern and is named in the legend.
+ */
+export const STATUS = { good: "#0ca30c", warning: "#fab219", critical: "#d03b3b" } as const;
 
 /** A point's look: small, filled, a ring of the card's colour so overlapping points stay apart. */
 export const POINT = { pointRadius: 3.5, pointHoverRadius: 5.5, pointBorderWidth: 1 };

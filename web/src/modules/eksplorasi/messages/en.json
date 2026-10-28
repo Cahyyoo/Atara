@@ -3,12 +3,13 @@
     "sections": {
       "qcDashboard": {
         "title": "Exploration Dashboard",
-        "intro": "Control charts of the OREAS standards in the data source, against their certified values in the CRM List.",
+        "intro": "Control charts of the OREAS standards against the CRM List, and the duplicates against their originals.",
         "steps": {
           "1": "Pick a standard under Oreas Criteria. Each point is one assay of that standard, at its row in the Data Source.",
           "2": "The green, yellow and red lines are ±1σ, ±2σ and ±3σ of the certified value (Fusion XRF) in the CRM List. Points outside ±3σ are drawn red and counted under the chart.",
           "3": "The Elements button chooses which elements' charts show (Ni, Co, Fe2O3, Al2O3, Cr2O3, MgO, SiO2). The choice is kept in this browser.",
-          "4": "Values that are not numbers (such as <0.01) are not drawn; how many is said under the chart."
+          "4": "Values that are not numbers (such as <0.01) are not drawn; how many is said under the chart.",
+          "5": "Duplicate: each duplicate (Y) against its original (X), the FIELD sample whose Sample ID is picked in the Duplicate list's Remarks. Points outside the ±10% lines are drawn red and counted; the dotted line is the linear trend with its R²."
         },
         "tip": "Fill the Control column of a STANDARD row with its OREAS name (e.g. OREAS-184) so its assays reach the charts."
       },
@@ -205,7 +206,7 @@
   },
   "qcDashboard": {
     "title": "Dashboard",
-    "subtitle": "Control charts of the OREAS standards (±1σ, ±2σ, ±3σ).",
+    "subtitle": "Control charts of the OREAS standards (±1σ, ±2σ, ±3σ) and the duplicates against their originals (±10%).",
     "loading": "Loading charts…",
     "truncated": "Too many assays; only the oldest 5,000 points are drawn.",
     "control": {
@@ -232,6 +233,24 @@
       "elements": "Elements",
       "elementsCount": "Elements ({shown}/{total})",
       "showAll": "Show all"
+    },
+    "duplicate": {
+      "title": "Duplicate",
+      "description": "Each duplicate (Y) against the FIELD sample named in its Remarks (X), with the ±10% band and the trend line.",
+      "pairs": "{count, plural, one {# pair} other {# pairs}}",
+      "axisX": "{element} original (%)",
+      "axisY": "{element} duplicate (%)",
+      "readings": "Duplicate",
+      "band": "±10%",
+      "plus10": "+10%",
+      "minus10": "−10%",
+      "trend": "Linear (R² = {r2})",
+      "point": "Original {originalId}: {x} · Duplicate: {y} ({difference}%)",
+      "empty": "No duplicate with a {element} value is paired with its original yet. Pick the original's Sample ID in the Remarks of the Duplicate list.",
+      "outside": "{count, plural, one {# pair outside ±10%.} other {# pairs outside ±10%.}}",
+      "skipped": "{count, plural, one {# pair is not drawn: a value is not a number.} other {# pairs are not drawn: a value is not a number.}}",
+      "unmatched": "{count, plural, one {# duplicate has no original yet: its Remarks is not the Sample ID of a FIELD sample.} other {# duplicates have no original yet: their Remarks is not the Sample ID of a FIELD sample.}}",
+      "truncated": "Too many duplicates; only the earliest 5,000 pairs are drawn."
     }
   },
   "crmList": {
