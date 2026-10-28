@@ -1,6 +1,5 @@
 import "server-only";
 import type { z } from "zod";
-import { Prisma } from "@prisma/client";
 import { prisma } from "@/core/lib/prisma";
 import { dayOf } from "@/modules/eksplorasi/lib/data-source";
 import {
@@ -24,7 +23,7 @@ import type { QcControl } from "@/modules/eksplorasi/types";
  * the rows came in (created_at, then the cuid, which Prisma hands out in
  * sequence even within one createMany). It is counted over every row --
  * field samples, blanks, duplicates -- so a standard sits where the lab's
- * sheet has it, and a date filter thins the points without moving them.
+ * sheet has it.
  */
 
 /** As the other dashboard charts: past this a scatter is a smear. */
@@ -52,9 +51,7 @@ async function assayedKeys(): Promise<Set<string>> {
 }
 
 /** Every assay of one standard, with its sample index, earliest first. */
-function assaysOf(key: string, query: Query) {
-  const from = query.from ? Prisma.sql`AND date >= ${query.from}` : Prisma.empty;
-  const to = query.to ? Prisma.sql`AND date <= ${query.to}` : Prisma.empty;
+function assaysOf(key: string) {
   return prisma.$queryRaw<AssayRow[]>`
     SELECT sample_id, date, ni, co, fe2o3, al2o3, cr2o3, mgo, sio2, idx
     FROM (
@@ -64,7 +61,6 @@ function assaysOf(key: string, query: Query) {
     ) AS indexed
     WHERE sample_type = 'STANDARD'
       AND LOWER(REGEXP_REPLACE(control, '[^A-Za-z0-9]', '')) = ${key}
-      ${from} ${to}
     ORDER BY idx
     LIMIT ${MAX_POINTS + 1}`;
 }
@@ -85,7 +81,7 @@ export async function loadStandardControl(query: Query): Promise<QcControl> {
     return { standards: names, standard: null, testMethod: CONTROL_TEST_METHOD, elements: [], truncated: false };
   }
 
-  const rows = await assaysOf(crmKey(chosen.standard), query);
+  const rows = await assaysOf(crmKey(chosen.standard));
   const shown = rows.slice(0, MAX_POINTS);
   const certified = chosen as unknown as Record<string, string | null>;
 

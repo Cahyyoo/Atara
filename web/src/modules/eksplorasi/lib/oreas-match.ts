@@ -1,4 +1,4 @@
-import { chartValue } from "@/modules/eksplorasi/lib/qc-chart";
+import { chartValue } from "@/modules/eksplorasi/lib/qc-control";
 
 /**
  * Which OREAS standard a row's assay is, when its values are the CRM List's.

@@ -3,14 +3,14 @@
     "sections": {
       "qcDashboard": {
         "title": "Exploration Dashboard",
-        "intro": "QC charts of the data source: the standard (CRM) and duplicate samples.",
+        "intro": "Control charts of the OREAS standards in the data source, against their certified values in the CRM List.",
         "steps": {
-          "1": "Pick the element (Ni, Fe, SiO2, …) for both charts. Leave the dates empty to see every assay.",
-          "2": "Standard (CRM): each point is one standard assay at its date, one colour per Control (the CRM's name). A point that wanders from its group is a standard off its value.",
-          "3": "Duplicate: X is the original sample's value, Y its duplicate's. The original is found through the Control column of the duplicate row. The closer to the 1:1 line, the better the precision.",
+          "1": "Pick a standard under Oreas Criteria. Each point is one assay of that standard, at its row in the Data Source.",
+          "2": "The green, yellow and red lines are ±1σ, ±2σ and ±3σ of the certified value (Fusion XRF) in the CRM List. Points outside ±3σ are drawn red and counted under the chart.",
+          "3": "The Elements button chooses which elements' charts show (Ni, Co, Fe2O3, Al2O3, Cr2O3, MgO, SiO2). The choice is kept in this browser.",
           "4": "Values that are not numbers (such as <0.01) are not drawn; how many is said under the chart."
         },
-        "tip": "Fill the Control column of a DUPLICATE row with the original sample's Sample ID so the pair can be found."
+        "tip": "Fill the Control column of a STANDARD row with its OREAS name (e.g. OREAS-184) so its assays reach the charts."
       },
       "dataSource": {
         "title": "Data Source",
@@ -203,34 +203,9 @@
   },
   "qcDashboard": {
     "title": "Dashboard",
-    "subtitle": "QC charts: the standard (CRM) and duplicate samples.",
-    "element": "Element",
-    "from": "From date",
-    "to": "To date",
+    "subtitle": "Control charts of the OREAS standards (±1σ, ±2σ, ±3σ).",
     "loading": "Loading charts…",
-    "axisValue": "{element}",
-    "truncated": "Too many assays; only the oldest 5,000 points are drawn. Narrow the dates.",
-    "standard": {
-      "title": "Standard (CRM)",
-      "description": "{element} of every standard sample by date, one colour per Control.",
-      "axisX": "Date",
-      "empty": "No standard samples with a date and an {element} value yet.",
-      "skipped": "{count, plural, one {# standard sample is not drawn (no date, no Control, or not a number).} other {# standard samples are not drawn (no date, no Control, or not a number).}}"
-    },
-    "duplicate": {
-      "title": "Duplicate",
-      "description": "{element} of the original sample (X) against its duplicate (Y).",
-      "axisX": "{element} original",
-      "axisY": "{element} duplicate",
-      "pairs": "Pairs",
-      "oneToOne": "1:1 line",
-      "original": "Original",
-      "duplicate": "Duplicate",
-      "empty": "No duplicate pairs with an {element} value yet. Fill the Control column of a duplicate row with the original's Sample ID.",
-      "count": "{count, plural, one {# pair drawn.} other {# pairs drawn.}}",
-      "unmatched": "{count, plural, one {# duplicate has no original (check its Control).} other {# duplicates have no original (check their Control).}}",
-      "skipped": "{count, plural, one {# pair is not drawn: a value is not a number.} other {# pairs are not drawn: a value is not a number.}}"
-    },
+    "truncated": "Too many assays; only the oldest 5,000 points are drawn.",
     "control": {
       "title": "Standard control charts (OREAS)",
       "description": "Each standard assay by sample index (its row in the Data Source), against the certified value ±1σ, ±2σ, ±3σ from the CRM List ({method}).",
@@ -251,7 +226,10 @@
       "noLimits": "The CRM List has no value or SD of {element} for {standard} ({method}) yet.",
       "empty": "No assays of {standard} with a {element} value yet.",
       "skipped": "{count, plural, one {# assay is not drawn: its value is not a number.} other {# assays are not drawn: their value is not a number.}}",
-      "outside": "{count, plural, one {# point outside ±3σ.} other {# points outside ±3σ.}}"
+      "outside": "{count, plural, one {# point outside ±3σ.} other {# points outside ±3σ.}}",
+      "elements": "Elements",
+      "elementsCount": "Elements ({shown}/{total})",
+      "showAll": "Show all"
     }
   },
   "crmList": {

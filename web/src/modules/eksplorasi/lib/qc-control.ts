@@ -1,4 +1,4 @@
-import { chartValue } from "@/modules/eksplorasi/lib/qc-chart";
+import { parseNumber } from "@/core/lib/number-parse";
 import type { ControlLimits, ControlPoint } from "@/modules/eksplorasi/types";
 
 /**
@@ -7,6 +7,16 @@ import type { ControlLimits, ControlPoint } from "@/modules/eksplorasi/types";
  * from the CRM List. Pure, so the arithmetic can be checked without a
  * database.
  */
+
+/**
+ * A value as a number for a chart, or null when it is not one. Values are
+ * text as the lab wrote them: "1,25" is 1.25, while "<0.01", "n/a" or blank
+ * are results but not points -- counted as skipped, never drawn as zero.
+ */
+export function chartValue(value: string | null | undefined): number | null {
+  if (value === null || value === undefined) return null;
+  return parseNumber(value);
+}
 
 /** The elements a standard is certified for, in the CRM List's order -- one chart each. */
 export const CONTROL_ELEMENTS = ["ni", "co", "fe2o3", "al2o3", "cr2o3", "mgo", "sio2"] as const;

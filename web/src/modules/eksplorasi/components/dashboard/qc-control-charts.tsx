@@ -18,7 +18,7 @@ import { readChartChrome, type ChartChrome } from "@/core/lib/ui/chart-theme";
 import { useTheme } from "@/core/components/layout/theme-provider";
 import { useReducedMotion } from "@/core/lib/ui/use-reduced-motion";
 import { ELEMENT_LABELS } from "@/modules/eksplorasi/lib/data-source-columns";
-import { valueRange, zScore } from "@/modules/eksplorasi/lib/qc-control";
+import { valueRange, zScore, type ControlElement } from "@/modules/eksplorasi/lib/qc-control";
 import {
   ChartCard,
   ChartLegend,
@@ -143,12 +143,12 @@ function ControlChart({
 }
 
 /**
- * One OREAS standard's control charts: a card per element it is certified
- * for, each reading at its sample index against the certified value's ±1σ,
- * ±2σ and ±3σ. A card says why it has no chart rather than drawing an empty
- * one: no value or SD in the CRM List, or no assays of the standard yet.
+ * One OREAS standard's control charts: a card per element shown (`elements`),
+ * each reading at its sample index against the certified value's ±1σ, ±2σ
+ * and ±3σ. A card says why it has no chart rather than drawing an empty one:
+ * no value or SD in the CRM List, or no assays of the standard yet.
  */
-export function QcControlCharts({ data }: { data: QcControl }) {
+export function QcControlCharts({ data, elements }: { data: QcControl; elements: readonly ControlElement[] }) {
   const t = useTranslations("qcDashboard.control");
   const format = useFormatter();
   const theme = useTheme();
@@ -168,7 +168,7 @@ export function QcControlCharts({ data }: { data: QcControl }) {
 
   return (
     <div className="grid gap-6 xl:grid-cols-2">
-      {data.elements.map(({ element: field, limits, points, skipped }) => {
+      {data.elements.filter(({ element }) => elements.includes(element)).map(({ element: field, limits, points, skipped }) => {
         const element = ELEMENT_LABELS[field];
         const outside = limits ? points.filter((point) => isOutside(point, limits)).length : 0;
         const notes = [

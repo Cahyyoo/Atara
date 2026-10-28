@@ -6,7 +6,7 @@ import { NextIntlClientProvider } from "next-intl";
 
 import { en } from "@/core/i18n/test-messages";
 import { QcControlCharts } from "@/modules/eksplorasi/components/dashboard/qc-control-charts";
-import { CONTROL_ELEMENTS, controlLimits } from "@/modules/eksplorasi/lib/qc-control";
+import { CONTROL_ELEMENTS, controlLimits, type ControlElement } from "@/modules/eksplorasi/lib/qc-control";
 import type { QcControl } from "@/modules/eksplorasi/types";
 
 // Chart.js measures its box and watches it resize; jsdom has neither (as in dashboard-charts.test.tsx).
@@ -40,10 +40,10 @@ function data(overrides: Partial<Record<string, Partial<QcControl["elements"][nu
   };
 }
 
-function show(value: QcControl) {
+function show(value: QcControl, elements: readonly ControlElement[] = CONTROL_ELEMENTS) {
   return render(
     <NextIntlClientProvider locale="en" messages={en} timeZone="Asia/Makassar" onError={() => {}}>
-      <QcControlCharts data={value} />
+      <QcControlCharts data={value} elements={elements} />
     </NextIntlClientProvider>
   );
 }
@@ -54,6 +54,12 @@ describe("a standard's control charts", () => {
     for (const name of ["Ni", "Co", "Fe2O3", "Al2O3", "Cr2O3", "MgO", "SiO2"]) {
       expect(screen.getByText(name)).toBeTruthy();
     }
+  });
+
+  it("has a card only for the elements chosen, in the usual order", () => {
+    show(data(), ["sio2", "ni"]);
+    const titles = screen.getAllByText(/^(Ni|Co|Fe2O3|Al2O3|Cr2O3|MgO|SiO2)$/).map((node) => node.textContent);
+    expect(titles).toEqual(["Ni", "SiO2"]);
   });
 
   it("says why a card has no chart: no CRM value, or no assays yet", () => {

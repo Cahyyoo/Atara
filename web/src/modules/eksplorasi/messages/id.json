@@ -3,14 +3,14 @@
     "sections": {
       "qcDashboard": {
         "title": "Dashboard Eksplorasi",
-        "intro": "Grafik QC data source: sampel standard (CRM) dan duplicate.",
+        "intro": "Grafik kontrol standar OREAS dari data source, terhadap nilai tersertifikasi di CRM List.",
         "steps": {
-          "1": "Pilih unsur (Ni, Fe, SiO2, …) untuk kedua grafik. Rentang tanggal boleh dikosongkan agar semua data tampil.",
-          "2": "Standard (CRM): setiap titik adalah satu analisis standard pada tanggalnya, satu warna per Control (nama CRM). Titik yang menjauh dari kelompoknya menandakan standard yang menyimpang.",
-          "3": "Duplicate: sumbu X adalah nilai sampel asli, sumbu Y nilai duplikatnya. Sampel asli dicari dari kolom Control pada baris duplicate. Makin dekat ke garis 1:1, makin presisi.",
+          "1": "Pilih standar lewat Oreas Criteria. Setiap titik adalah satu analisis standar itu pada urutan barisnya di Data Source.",
+          "2": "Garis hijau, kuning, dan merah adalah ±1σ, ±2σ, dan ±3σ dari nilai tersertifikasi (Fusion XRF) di CRM List. Titik di luar ±3σ digambar merah dan dihitung di bawah grafik.",
+          "3": "Tombol Unsur memilih grafik unsur mana yang tampil (Ni, Co, Fe2O3, Al2O3, Cr2O3, MgO, SiO2). Pilihan disimpan di browser ini.",
           "4": "Nilai yang bukan angka (misalnya <0.01) tidak digambar; jumlahnya disebutkan di bawah grafik."
         },
-        "tip": "Isi kolom Control pada baris DUPLICATE dengan Sample ID sampel aslinya agar pasangan bisa ditemukan."
+        "tip": "Isi kolom Control pada baris STANDARD dengan nama OREAS-nya (mis. OREAS-184) agar analisisnya masuk ke grafik."
       },
       "dataSource": {
         "title": "Data Source",
@@ -203,34 +203,9 @@
   },
   "qcDashboard": {
     "title": "Dashboard",
-    "subtitle": "Grafik QC: sampel standard (CRM) dan duplicate.",
-    "element": "Unsur",
-    "from": "Dari tanggal",
-    "to": "Sampai tanggal",
+    "subtitle": "Grafik kontrol standar OREAS (±1σ, ±2σ, ±3σ).",
     "loading": "Memuat grafik…",
-    "axisValue": "{element}",
-    "truncated": "Data terlalu banyak; hanya 5.000 titik terlama yang digambar. Persempit rentang tanggal.",
-    "standard": {
-      "title": "Standard (CRM)",
-      "description": "Nilai {element} setiap sampel standard menurut tanggal, satu warna per Control.",
-      "axisX": "Tanggal",
-      "empty": "Belum ada sampel standard dengan tanggal dan nilai {element}.",
-      "skipped": "{count, plural, other {# sampel standard tidak digambar (tanpa tanggal, tanpa Control, atau nilainya bukan angka).}}"
-    },
-    "duplicate": {
-      "title": "Duplicate",
-      "description": "Nilai {element} sampel asli (X) terhadap duplikatnya (Y).",
-      "axisX": "{element} sampel asli",
-      "axisY": "{element} duplikat",
-      "pairs": "Pasangan",
-      "oneToOne": "Garis 1:1",
-      "original": "Asli",
-      "duplicate": "Duplikat",
-      "empty": "Belum ada pasangan duplikat dengan nilai {element}. Isi kolom Control pada baris duplicate dengan Sample ID sampel aslinya.",
-      "count": "{count, plural, other {# pasangan digambar.}}",
-      "unmatched": "{count, plural, other {# duplikat tidak menemukan sampel aslinya (cek kolom Control).}}",
-      "skipped": "{count, plural, other {# pasangan tidak digambar karena nilainya bukan angka.}}"
-    },
+    "truncated": "Data terlalu banyak; hanya 5.000 titik terlama yang digambar.",
     "control": {
       "title": "Grafik Kontrol Standard (OREAS)",
       "description": "Setiap analisis standard menurut Sample index (urutan baris di Data Source), terhadap nilai bersertifikat ±1σ, ±2σ, ±3σ dari CRM List ({method}).",
@@ -251,7 +226,10 @@
       "noLimits": "Nilai atau SD {element} untuk {standard} ({method}) belum diisi di CRM List.",
       "empty": "Belum ada analisis {standard} dengan nilai {element}.",
       "skipped": "{count, plural, other {# analisis tidak digambar karena nilainya bukan angka.}}",
-      "outside": "{count, plural, other {# titik di luar ±3σ.}}"
+      "outside": "{count, plural, other {# titik di luar ±3σ.}}",
+      "elements": "Unsur",
+      "elementsCount": "Unsur ({shown}/{total})",
+      "showAll": "Tampilkan semua"
     }
   },
   "crmList": {

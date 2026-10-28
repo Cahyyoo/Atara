@@ -1,7 +1,25 @@
 import { describe, expect, it } from "vitest";
-import { controlLimits, controlPoints, crmKey, sdFieldOf, valueRange, zScore } from "@/modules/eksplorasi/lib/qc-control";
+import {
+  chartValue,
+  controlLimits,
+  controlPoints,
+  crmKey,
+  sdFieldOf,
+  valueRange,
+  zScore,
+} from "@/modules/eksplorasi/lib/qc-control";
 
 /** The control charts' arithmetic, without a database. */
+
+describe("a value on a chart", () => {
+  it("is a number however the lab wrote it, or nothing", () => {
+    expect(chartValue("1.25")).toBe(1.25);
+    expect(chartValue("1,25")).toBe(1.25);
+    expect(chartValue("<0.01")).toBeNull();
+    expect(chartValue("")).toBeNull();
+    expect(chartValue(null)).toBeNull();
+  });
+});
 
 describe("a standard's name in both lists", () => {
   it("is the same however each list writes it", () => {

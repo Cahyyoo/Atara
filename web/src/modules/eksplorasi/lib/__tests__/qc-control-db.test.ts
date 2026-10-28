@@ -6,8 +6,8 @@ import { loadStandardControl } from "@/modules/eksplorasi/lib/qc-control-service
 /**
  * The control charts against the real database: a standard's assays found
  * under the data source's spelling of its name, placed at their row in the
- * data source, against the CRM List's lines -- and a date filter thinning the
- * points without moving them. Skipped when there is no database.
+ * data source, against the CRM List's lines. Skipped when there is no
+ * database.
  */
 
 vi.mock("@/core/lib/http/api-auth", () => ({
@@ -88,15 +88,6 @@ describe.skipIf(!reachable)("a standard's control charts", () => {
     // Co has a value but no SD in the CRM row.
     expect(data.elements.find((entry) => entry.element === "co")!.limits).toBeNull();
     expect(data.elements).toHaveLength(7);
-  });
-
-  it("thins the points by date without moving them", async () => {
-    const all = await loadStandardControl({ standard: crmName });
-    const later = await loadStandardControl({ standard: crmName, from: "2026-01-04" });
-    const allNi = all.elements.find((entry) => entry.element === "ni")!.points;
-    const laterNi = later.elements.find((entry) => entry.element === "ni")!.points;
-    expect(laterNi.map((point) => point.sampleId)).toEqual([`${tag}-S2`]);
-    expect(laterNi[0].x).toBe(allNi[1].x);
   });
 
   it("refuses a standard name longer than any in the CRM List", async () => {

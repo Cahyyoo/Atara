@@ -49,44 +49,6 @@ export interface SheetResult {
   updated: number;
 }
 
-/** One STANDARD assay on the CRM chart: when (ms since epoch) and what it read. */
-export interface StandardPoint {
-  sampleId: string;
-  control: string;
-  x: number;
-  y: number;
-}
-
-/** One DUPLICATE beside the sample it repeats. */
-export interface DuplicatePair {
-  sampleId: string;
-  originalId: string;
-  /** The original's value. */
-  x: number;
-  /** The duplicate's value. */
-  y: number;
-}
-
-/** The dashboard's two charts for one element. */
-export interface QcCharts {
-  element: ElementField;
-  standard: {
-    points: StandardPoint[];
-    /** STANDARD rows left off the chart: no date, no control, or a value that is not a number. */
-    skipped: number;
-    /** More rows than the chart draws; the oldest are shown. */
-    truncated: boolean;
-  };
-  duplicate: {
-    pairs: DuplicatePair[];
-    /** DUPLICATE rows whose control names no sample in the data source. */
-    unmatched: number;
-    /** Pairs left off because either value is not a number. */
-    skipped: number;
-    truncated: boolean;
-  };
-}
-
 export type { CrmKind } from "@/modules/eksplorasi/lib/crm-list-columns";
 
 /**

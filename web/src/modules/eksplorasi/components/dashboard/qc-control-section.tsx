@@ -9,6 +9,7 @@ import { InlineNotice } from "@/core/components/ui/inline-notice";
 import { Skeleton } from "@/core/components/ui/skeleton";
 import { apiFetch } from "@/core/lib/http/api-client";
 import type { QcControl } from "@/modules/eksplorasi/types";
+import { ControlElementPicker, useControlElements } from "@/modules/eksplorasi/components/dashboard/control-element-picker";
 import { IoReloadOutline } from "react-icons/io5";
 
 /** The chart library in its own chunk, as for the scatter plots. */
@@ -29,23 +30,22 @@ export function ControlChartsSkeleton() {
 
 /**
  * The dashboard's control charts: one OREAS standard, chosen by its CRM List
- * name ("Oreas Criteria"), over the dashboard's own dates. The first standard
- * comes with the page; another choice, or other dates, asks for the next.
+ * name ("Oreas Criteria"), and the elements ticked under Elements. The first
+ * standard comes with the page; another choice asks for the next. Every
+ * element comes in each answer, so ticking one shows it at once.
  */
-export function QcControlSection({ initial, from, to }: { initial: QcControl; from: string; to: string }) {
+export function QcControlSection({ initial }: { initial: QcControl }) {
   const t = useTranslations("qcDashboard");
   const tCommon = useTranslations("common");
   const [standard, setStandard] = useState(initial.standard ?? "");
-  // The last answer with the question it answers, as QcDashboard keeps it.
+  // The last answer, kept with the question it answers: the charts show it
+  // once it matches what is asked, and the previous ones until then.
   const [answer, setAnswer] = useState<{ query: string; data?: QcControl; error?: string } | null>(null);
   const [shown, setShown] = useState<QcControl>(initial);
+  const [elements, setElements] = useControlElements();
 
-  const isInitial = standard === (initial.standard ?? "") && !from && !to;
-  const params = new URLSearchParams();
-  if (standard) params.set("standard", standard);
-  if (from) params.set("from", from);
-  if (to) params.set("to", to);
-  const query = params.toString();
+  const isInitial = standard === (initial.standard ?? "");
+  const query = standard ? new URLSearchParams({ standard }).toString() : "";
 
   useEffect(() => {
     if (isInitial) return;
@@ -88,6 +88,7 @@ export function QcControlSection({ initial, from, to }: { initial: QcControl; fr
                 {t("loading")}
               </span>
             ) : null}
+            <ControlElementPicker shown={elements} onChange={setElements} />
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="qc-control-standard">{t("control.criteria")}</Label>
               <Select value={standard} items={choices} onValueChange={(value) => setStandard(String(value ?? ""))}>
@@ -115,7 +116,7 @@ export function QcControlSection({ initial, from, to }: { initial: QcControl; fr
         </p>
       ) : (
         <>
-          <QcControlCharts data={data} />
+          <QcControlCharts data={data} elements={elements} />
           {data.truncated ? <p className="text-xs text-muted-foreground">{t("truncated")}</p> : null}
         </>
       )}
