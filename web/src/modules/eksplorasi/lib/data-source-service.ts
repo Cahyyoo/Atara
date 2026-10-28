@@ -14,6 +14,7 @@ import {
 import type {
   createDataSourceSchema,
   listDataSourceQuerySchema,
+  sampleIdSearchQuerySchema,
   updateDataSourceSchema,
 } from "@/modules/eksplorasi/validation";
 
@@ -62,6 +63,21 @@ export async function listCampaigns(): Promise<string[]> {
     take: 500,
   });
   return rows.flatMap((row) => (row.campaign ? [row.campaign] : []));
+}
+
+/**
+ * The FIELD samples' Sample IDs holding the search, in order: what the
+ * Duplicate list's Remarks is picked from. A page at most -- the data source
+ * holds thousands -- so the dropdown asks again as more is typed.
+ */
+export async function searchFieldSampleIds({ search, limit }: z.output<typeof sampleIdSearchQuerySchema>): Promise<string[]> {
+  const rows = await prisma.dataSource.findMany({
+    where: { sampleType: "FIELD", ...(search ? { sampleId: { contains: search } } : {}) },
+    select: { sampleId: true },
+    orderBy: { sampleId: "asc" },
+    take: limit,
+  });
+  return rows.map((row) => row.sampleId);
 }
 
 /** A new row. A sample ID already in use is a 409 (handleApiError, P2002). */

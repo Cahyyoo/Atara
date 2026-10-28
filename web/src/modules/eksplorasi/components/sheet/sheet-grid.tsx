@@ -10,6 +10,7 @@ import { isActive, isChangedCell, type SheetRow } from "@/modules/eksplorasi/com
 import { SHEET_ROW_HEIGHT } from "@/modules/eksplorasi/components/sheet/use-data-source-sheet";
 import type { SampleType, SheetStatus, SheetVerdict } from "@/modules/eksplorasi/types";
 import { OreasCell } from "@/modules/eksplorasi/components/sheet/oreas-cell";
+import { SampleIdCell } from "@/modules/eksplorasi/components/sheet/sample-id-cell";
 import {
   IoAddCircle,
   IoCheckmarkCircle,
@@ -125,6 +126,8 @@ interface RowProps {
   fixedTypeLabel: string | null;
   /** The OREAS names Remarks is picked from (Data Source, Standard, Blank); null where it is typed. */
   oreasChoices: readonly string[] | null;
+  /** The Duplicate list: its Remarks is a FIELD sample's Sample ID, picked from a search. */
+  pickSampleIds: boolean;
   verdict: SheetVerdict | undefined;
   pending: boolean;
   saving: boolean;
@@ -205,6 +208,16 @@ const SheetGridRow = memo(function SheetGridRow(props: RowProps) {
                   onChange={change}
                 />
               </div>
+            ) : field === "originalSampleIdRemarks" && props.pickSampleIds && !row.locked ? (
+              <div className="relative">
+                <SampleIdCell
+                  box={box}
+                  value={value}
+                  disabled={saving}
+                  className={`${SELECT} truncate` + changed}
+                  onChange={change}
+                />
+              </div>
             ) : (
               <input
                 {...box}
@@ -234,6 +247,7 @@ export function SheetGrid({
   fields,
   fixedType,
   oreasChoices = null,
+  pickSampleIds = false,
   rows,
   verdictFor,
   pending,
@@ -248,6 +262,8 @@ export function SheetGrid({
   fixedType: SampleType | null;
   /** The OREAS names Remarks is picked from, on every list with an OREAS Remarks; null elsewhere (Duplicate). */
   oreasChoices?: readonly string[] | null;
+  /** The Duplicate list: its Remarks is a FIELD sample's Sample ID, picked from a search. */
+  pickSampleIds?: boolean;
   rows: readonly SheetRow[];
   verdictFor: (row: SheetRow) => SheetVerdict | undefined;
   pending: boolean;
@@ -305,6 +321,7 @@ export function SheetGrid({
                 typeLabels={typeLabels}
                 fixedTypeLabel={fixedTypeLabel}
                 oreasChoices={oreasChoices}
+                pickSampleIds={pickSampleIds}
                 verdict={verdictFor(row)}
                 pending={pending}
                 saving={saving}

@@ -54,7 +54,7 @@ export function useDataSourceSheet(view: DataSourceView, onSaved: () => void, ed
   const [isSaving, setIsSaving] = useState(false);
   const [saveFailure, setSaveFailure] = useState<{ rows: SheetRow[]; message: string } | null>(null);
   const check = useSheetCheck(view, rows, tCommon("networkError"));
-  /** The CRM List's OREAS standards: the Remarks fill's values, and the Standard list's dropdown. */
+  /** The CRM List's OREAS standards: the Remarks fill's values, and the Remarks dropdown's choices. */
   const [standards, setStandards] = useState<OreasStandard[]>([]);
   const hasRemarks = keys.includes("oreasRemarks");
 
@@ -261,7 +261,7 @@ export function useDataSourceSheet(view: DataSourceView, onSaved: () => void, ed
   return {
     keys,
     rows,
-    /** The Remarks dropdown's choices (the Standard list's sheet). */
+    /** The OREAS Remarks dropdown's choices (Data Source, Standard, Blank). */
     oreasNames: useMemo(() => oreasNames(standards), [standards]),
     loading,
     existing,

@@ -78,6 +78,15 @@ export const listDataSourceQuerySchema = z.object({
   ...paginationQuery(),
 });
 
+/** Most Sample IDs one search answers with: typing more narrows it. */
+export const SAMPLE_ID_SEARCH_LIMIT = 50;
+
+/** The Duplicate list's Remarks dropdown: the FIELD samples whose Sample ID holds the search. */
+export const sampleIdSearchQuerySchema = z.object({
+  search: z.string().trim().max(100).optional(),
+  limit: z.coerce.number().int().min(1).max(SAMPLE_ID_SEARCH_LIMIT).default(SAMPLE_ID_SEARCH_LIMIT),
+});
+
 /** The dashboard's charts: one element, an optional window of assay dates. */
 export const qcChartsQuerySchema = z.object({
   element: z.enum(ELEMENT_FIELDS).default("ni"),

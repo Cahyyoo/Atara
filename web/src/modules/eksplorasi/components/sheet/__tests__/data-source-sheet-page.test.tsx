@@ -48,6 +48,10 @@ const OREAS = [
   { id: "c2", standard: "Oreas189", testMethod: "Fusion XRF", ni: "1.48", co: "0.03", fe2o3: "15.04", al2o3: "2.09", cr2o3: "7.65" },
 ];
 
+/** The FIELD samples /api/data-sources/sample-ids searches: more than one answer holds. */
+const FIELD_IDS = Array.from({ length: 60 }, (_, index) => `DMY-A-${String(index + 1).padStart(5, "0")}`);
+let searched: URLSearchParams[] = [];
+
 type Sent = { dryRun: boolean; view: string; rows: { line: number; id?: string; cells: Record<string, string> }[] };
 let sent: Sent[] = [];
 let listed: string[] = [];
@@ -55,12 +59,19 @@ let listed: string[] = [];
 beforeEach(() => {
   sent = [];
   listed = [];
+  searched = [];
   push.mockReset();
   vi.stubGlobal(
     "fetch",
     vi.fn(async (url: string, init?: RequestInit) => {
       if (url.startsWith("/api/crm-list/standard")) {
         return { ok: true, status: 200, json: async () => ({ success: true, data: OREAS }) };
+      }
+      if (url.startsWith("/api/data-sources/sample-ids?")) {
+        const params = new URLSearchParams(url.split("?")[1]);
+        searched.push(params);
+        const data = FIELD_IDS.filter((id) => id.includes(params.get("search") ?? "")).slice(0, Number(params.get("limit")));
+        return { ok: true, status: 200, json: async () => ({ success: true, data }) };
       }
       if (url.startsWith("/api/data-sources?")) {
         listed.push(url);
@@ -277,10 +288,48 @@ describe("the OREAS Remarks", () => {
     },
     60_000
   );
+});
 
-  it("stays typed on the Duplicate list, whose Remarks is about the original sample", async () => {
+describe("the Duplicate list's Remarks", () => {
+  const remarks = (row: number) => screen.findByRole("combobox", { name: `Row ${row} Remarks` }, LONG);
+  const sheet = en.dataSource.sheet;
+
+  it("is a FIELD sample's Sample ID, searched on the server as it is typed, and saved", async () => {
     await show("duplicate");
-    expect(box(2, "Remarks").tagName).toBe("INPUT");
-    expect(screen.queryByRole("combobox", { name: "Row 2 Remarks" })).toBeNull();
-  });
+    // Nothing is asked until the box is opened.
+    expect(searched).toHaveLength(0);
+    fireEvent.click(await remarks(2));
+    expect(await screen.findByRole("option", { name: "DMY-A-00001" }, LONG)).toBeTruthy();
+    // One answer holds 50 of the 60: typing more narrows it.
+    expect(await screen.findByText(sheet.sampleIdNarrow.replace("{count}", "50"), {}, LONG)).toBeTruthy();
+    expect(screen.queryByRole("option", { name: "DMY-A-00051" })).toBeNull();
+
+    const search = await screen.findByRole("combobox", { name: sheet.sampleIdSearch }, LONG);
+    fireEvent.change(search, { target: { value: "0009" } });
+    await waitFor(() => expect(screen.queryByRole("option", { name: "DMY-A-00001" })).toBeNull(), LONG);
+    expect(searched.at(-1)?.get("search")).toBe("0009");
+    fireEvent.click(await screen.findByRole("option", { name: "DMY-A-00009" }, LONG));
+    await waitFor(async () => expect((await remarks(2)).textContent).toContain("DMY-A-00009"), LONG);
+
+    fireEvent.change(box(2, "Sample ID"), { target: { value: "D-9" } });
+    await save("Save 1 row");
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/eksplorasi/duplicate"), LONG);
+    expect(sent.at(-1)).toMatchObject({ rows: [{ line: 2, cells: { sampleId: "D-9", originalSampleIdRemarks: "DMY-A-00009" } }] });
+  }, 60_000);
+
+  it("keeps a remark that is not a Sample ID visible, as its own choice", async () => {
+    const old: DataSourceDTO = { ...ROW, id: "r9", sampleId: "D-OLD", sampleType: "DUPLICATE", originalSampleIdRemarks: "Field duplicate" };
+    await show("duplicate", old);
+    expect((await remarks(2)).textContent).toContain("Field duplicate");
+    fireEvent.click(await remarks(2));
+    expect(await screen.findByRole("option", { name: "Field duplicate" }, LONG)).toBeTruthy();
+    expect(await screen.findByRole("option", { name: "DMY-A-00001" }, LONG)).toBeTruthy();
+  }, 60_000);
+
+  it("says so when no FIELD sample matches", async () => {
+    await show("duplicate");
+    fireEvent.click(await remarks(2));
+    fireEvent.change(await screen.findByRole("combobox", { name: sheet.sampleIdSearch }, LONG), { target: { value: "ZZZ" } });
+    expect(await screen.findByText(sheet.sampleIdNoResults, {}, LONG)).toBeTruthy();
+  }, 60_000);
 });

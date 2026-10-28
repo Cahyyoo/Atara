@@ -174,6 +174,8 @@ export function DataSourceSheetPage({ view, editing }: { view: DataSourceView; e
               fixedType={VIEWS[view].sampleType}
               // Every list whose Remarks is an OREAS one (not Duplicate's, which is about the original).
               oreasChoices={sheet.keys.includes("oreasRemarks") ? sheet.oreasNames : null}
+              // Duplicate's Remarks: the original FIELD sample's Sample ID.
+              pickSampleIds={sheet.keys.includes("originalSampleIdRemarks")}
               rows={sheet.rows}
               verdictFor={sheet.verdictFor}
               pending={sheet.isChecking}
