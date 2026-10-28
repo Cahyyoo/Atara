@@ -192,7 +192,9 @@
       "leaveBody": "Isian yang belum disimpan akan hilang.",
       "leave": "Tinggalkan",
       "lockedHint": "{count, plural, other {# baris terakhir terkunci di atas — klik ikon gembok untuk mengubahnya.}}",
-      "formats": "Baris judul dari Excel boleh ikut ditempel. Tanggal YYYY-MM-DD atau DD/MM/YYYY. Nilai unsur disimpan apa adanya (misalnya <0.01). Sel yang dikosongkan pada baris yang dibuka kuncinya akan dihapus isinya."
+      "formats": "Baris judul dari Excel boleh ikut ditempel. Tanggal YYYY-MM-DD atau DD/MM/YYYY. Nilai unsur disimpan apa adanya (misalnya <0.01). Sel yang dikosongkan pada baris yang dibuka kuncinya akan dihapus isinya.",
+      "oreasSearch": "Cari OREAS…",
+      "oreasNoResults": "Tidak ada OREAS yang cocok."
     }
   },
   "qcDashboard": {

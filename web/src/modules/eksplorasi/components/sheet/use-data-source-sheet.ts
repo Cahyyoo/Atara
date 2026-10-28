@@ -6,10 +6,18 @@ import { toast } from "@/core/components/ui/toast";
 import { useGridSelection, type GridRange } from "@/core/hooks/use-grid-selection";
 import { rangeToTsv, spreadBlock, type CellWrite } from "@/core/lib/sheets/clipboard-block";
 import { withBasePath } from "@/core/lib/http/base-path";
+import { apiFetch } from "@/core/lib/http/api-client";
 import type { ApiResult, PaginationDTO } from "@/core/types";
 import { fieldForHeader, viewFields, VIEWS, type DataSourceField } from "@/modules/eksplorasi/lib/data-source-columns";
 import { SHEET_MAX_ROWS } from "@/modules/eksplorasi/validation";
 import { readSampleTypeCell } from "@/modules/eksplorasi/lib/data-source-import";
+import {
+  isBlankRemark,
+  matchOreas,
+  MATCH_ELEMENTS,
+  oreasNames,
+  type OreasStandard,
+} from "@/modules/eksplorasi/lib/oreas-match";
 import {
   blankRows,
   cellsOf,
@@ -46,6 +54,25 @@ export function useDataSourceSheet(view: DataSourceView, onSaved: () => void, ed
   const [isSaving, setIsSaving] = useState(false);
   const [saveFailure, setSaveFailure] = useState<{ rows: SheetRow[]; message: string } | null>(null);
   const check = useSheetCheck(view, rows, tCommon("networkError"));
+  /** The CRM List's OREAS standards: the Remarks fill's values, and the Standard list's dropdown. */
+  const [standards, setStandards] = useState<OreasStandard[]>([]);
+  const hasRemarks = keys.includes("oreasRemarks");
+
+  // Read once, for the lists with an OREAS Remarks (not Duplicate). Without
+  // it the sheet still works; Remarks is simply typed, as it always was.
+  useEffect(() => {
+    if (!hasRemarks) return;
+    const controller = new AbortController();
+    (async () => {
+      try {
+        const outcome = await apiFetch<OreasStandard[]>("/api/crm-list/standard", { signal: controller.signal });
+        if (outcome.ok) setStandards(outcome.data);
+      } catch {
+        // Aborted: the sheet went away first.
+      }
+    })();
+    return () => controller.abort();
+  }, [hasRemarks]);
 
   // The list's latest samples, oldest of them first, so the newest sits right above the empty rows.
   useEffect(() => {
@@ -152,22 +179,37 @@ export function useDataSourceSheet(view: DataSourceView, onSaved: () => void, ed
   /**
    * Writes boxes, growing the sheet as far as asked. A locked sample's boxes
    * are never written, and neither is a QC list's type: it is the list's own.
+   *
+   * A row whose Ni, Co, Fe2O3, Al2O3 and Cr2O3 have just become an OREAS
+   * standard's (CRM List) gets the standard's name in an empty Remarks box,
+   * there for the person to see -- and to change -- before it is saved. The
+   * server holds the same rule (oreas-match.ts) for an import.
    */
   const write = useCallback(
     (cells: CellWrite[], grow = 0) => {
       setRows((previous) => {
         const length = Math.min(maxRows, Math.max(previous.length, grow));
         const next = length > previous.length ? [...previous, ...blankRows(length - previous.length)] : [...previous];
+        const assayed = new Set<number>();
         for (const { row, key, value } of cells) {
           if (row >= next.length || next[row].locked) continue;
           if (key === "sampleType" && fixedType) continue;
           const text = key === "sampleType" ? typeText(value) : value;
           next[row] = { ...next[row], cells: { ...next[row].cells, [key]: text } };
+          if ((MATCH_ELEMENTS as readonly string[]).includes(key)) assayed.add(row);
+        }
+        if (hasRemarks && standards.length > 0) {
+          for (const row of assayed) {
+            const rowCells = next[row].cells;
+            if (!isBlankRemark(rowCells.oreasRemarks)) continue;
+            const name = matchOreas(rowCells, standards);
+            if (name) next[row] = { ...next[row], cells: { ...rowCells, oreasRemarks: name } };
+          }
         }
         return next;
       });
     },
-    [maxRows, typeText, fixedType]
+    [maxRows, typeText, fixedType, hasRemarks, standards]
   );
 
   const setCell = useCallback((row: number, key: string, value: string) => write([{ row, key, value }]), [write]);
@@ -219,6 +261,8 @@ export function useDataSourceSheet(view: DataSourceView, onSaved: () => void, ed
   return {
     keys,
     rows,
+    /** The Remarks dropdown's choices (the Standard list's sheet). */
+    oreasNames: useMemo(() => oreasNames(standards), [standards]),
     loading,
     existing,
     focusRow,

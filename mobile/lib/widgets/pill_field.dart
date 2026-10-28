@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 
+import '../screens/splash_screen.dart';
 import '../theme/app_motion.dart';
 import '../theme/app_theme.dart';
 
@@ -80,11 +81,32 @@ class _PillFieldState extends State<PillField> {
   FocusNode? _ownFocus;
   FocusNode get _focus => widget.focusNode ?? (_ownFocus ??= FocusNode());
   bool _focused = false;
+  bool _autofocused = false;
 
   @override
   void initState() {
     super.initState();
     _focus.addListener(_onFocus);
+  }
+
+  /// Autofocus, held until the splash has gone.
+  ///
+  /// The sign-in and change-password screens are built underneath the splash
+  /// from the first frame, and a field focused there opened the keyboard over
+  /// the trolley before anyone could see what it was for. Depending on
+  /// [SplashStatus] brings this back round the moment the splash leaves; with
+  /// no splash above, it focuses at once, as plain `autofocus` did. And
+  /// `FocusScope.autofocus` — what `autofocus` itself uses — leaves alone a
+  /// scope where something already has focus, so a field tapped first keeps it.
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (widget.autofocus && !_autofocused && SplashStatus.isDone(context)) {
+      _autofocused = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) FocusScope.of(context).autofocus(_focus);
+      });
+    }
   }
 
   @override
@@ -152,7 +174,7 @@ class _PillFieldState extends State<PillField> {
               child: CupertinoTextField.borderless(
                 controller: widget.controller,
                 focusNode: _focus,
-                autofocus: widget.autofocus,
+                // Done in didChangeDependencies, after the splash.
                 autocorrect: widget.autocorrect,
                 autofillHints: widget.autofillHints,
                 enabled: widget.enabled,

@@ -5,6 +5,8 @@ import { chunks } from "@/core/lib/batch";
 import { toDateColumn } from "@/modules/eksplorasi/lib/data-source";
 import { DATA_SOURCE_FIELDS, type DataSourceField } from "@/modules/eksplorasi/lib/data-source-columns";
 import type { DataSourceImportRow, ImportRow } from "@/modules/eksplorasi/lib/data-source-import";
+import { isBlankRemark, matchOreas, type OreasStandard } from "@/modules/eksplorasi/lib/oreas-match";
+import { oreasStandards } from "@/modules/eksplorasi/lib/crm-list-service";
 
 /**
  * Writing an imported sheet: tens of thousands of rows in a few dozen
@@ -19,7 +21,7 @@ import type { DataSourceImportRow, ImportRow } from "@/modules/eksplorasi/lib/da
 
 /** Rows per createMany. One INSERT each, well under MySQL's packet size. */
 const CREATE_CHUNK = 1_000;
-/** Rows per UPDATE ... JOIN: 29 placeholders each, far below the 65,535 cap. */
+/** Rows per UPDATE ... JOIN: 30 placeholders each, far below the 65,535 cap. */
 const UPDATE_CHUNK = 500;
 /** Sample IDs per lookup. */
 const LOOKUP_CHUNK = 1_000;
@@ -81,6 +83,16 @@ function valuesOf(data: DataSourceImportRow): Record<UpdatedField, string | Date
   ) as Record<UpdatedField, string | Date | null>;
 }
 
+/**
+ * The OREAS standard a row's values are (oreas-match.ts), when the file gave
+ * it no Remarks of its own; null otherwise. A duplicate's Remarks is about its
+ * original, never a standard, so it is not filled.
+ */
+function autoRemark(data: DataSourceImportRow, standards: readonly OreasStandard[]): string | null {
+  if (standards.length === 0 || data.sampleType === "DUPLICATE" || !isBlankRemark(data.oreasRemarks)) return null;
+  return matchOreas(data, standards);
+}
+
 export interface WriteResult {
   created: number;
   updated: number;
@@ -108,11 +120,14 @@ export async function writeImport(
   let done = 0;
   let created = 0;
   let updated = 0;
+  const standards = await oreasStandards();
 
   for (const chunk of chunks(plan.creates, CREATE_CHUNK)) {
     const result = await prisma.dataSource.createMany({
       data: chunk.map(({ data }) => ({
         ...(valuesOf(data) as Omit<Prisma.DataSourceCreateManyInput, "sampleId" | "sampleType" | "createdById">),
+        // A new row has no Remarks stored, so the file's or the match's is the one.
+        oreasRemarks: data.oreasRemarks || autoRemark(data, standards),
         sampleId: data.sampleId,
         sampleType: data.sampleType,
         createdById: userId,
@@ -132,12 +147,18 @@ export async function writeImport(
         return Prisma.sql`SELECT ${id} AS id, ${Prisma.join(
           UPDATED_FIELDS.map((field) => Prisma.sql`${v[field]} AS ${COLUMN[field]}`),
           ", "
-        )}`;
+        )}, ${autoRemark(data, standards)} AS auto_oreas_remarks`;
       }),
       " UNION ALL "
     );
+    // Remarks takes the file's, else keeps what is stored, and only then the
+    // OREAS match: a remark somebody wrote is never replaced by the fill.
     const assignments = Prisma.join(
-      UPDATED_FIELDS.map((field) => Prisma.sql`d.${COLUMN[field]} = COALESCE(v.${COLUMN[field]}, d.${COLUMN[field]})`),
+      UPDATED_FIELDS.map((field) =>
+        field === "oreasRemarks"
+          ? Prisma.sql`d.${COLUMN[field]} = COALESCE(v.${COLUMN[field]}, d.${COLUMN[field]}, v.auto_oreas_remarks)`
+          : Prisma.sql`d.${COLUMN[field]} = COALESCE(v.${COLUMN[field]}, d.${COLUMN[field]})`
+      ),
       ", "
     );
     // MySQL's affected count leaves out rows whose values did not change;

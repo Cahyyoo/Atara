@@ -3,6 +3,7 @@ import { prisma } from "@/core/lib/prisma";
 import { ApiError } from "@/core/lib/http/api-response";
 import { blankToNull } from "@/modules/eksplorasi/lib/data-source";
 import { CRM_COLUMNS, crmFields, isCrmKind, type CrmKind } from "@/modules/eksplorasi/lib/crm-list-columns";
+import type { OreasStandard } from "@/modules/eksplorasi/lib/oreas-match";
 import type { CrmRowDTO } from "@/modules/eksplorasi/types";
 
 /**
@@ -99,4 +100,15 @@ export async function updateCrm(
 export async function deleteCrm(kind: CrmKind, id: string) {
   await TABLES[kind].delete({ where: { id } });
   return { id };
+}
+
+/**
+ * Every CRM List standard with the five values a row is matched on, for the
+ * Remarks fill (oreas-match.ts). Read once per save: a few dozen rows.
+ */
+export async function oreasStandards(): Promise<OreasStandard[]> {
+  return prisma.crmStandard.findMany({
+    select: { standard: true, ni: true, co: true, fe2o3: true, al2o3: true, cr2o3: true },
+    take: MAX_ROWS,
+  });
 }

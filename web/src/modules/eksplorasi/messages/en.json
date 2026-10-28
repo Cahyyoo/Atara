@@ -192,7 +192,9 @@
       "leaveBody": "What has not been saved will be lost.",
       "leave": "Leave",
       "lockedHint": "{count, plural, one {The latest row is locked above — click the padlock to change it.} other {The latest # rows are locked above — click a padlock to change one.}}",
-      "formats": "A header row copied from Excel may be pasted too. Dates YYYY-MM-DD or DD/MM/YYYY. Element values are kept as written (such as <0.01). Emptying a box on an unlocked row clears it."
+      "formats": "A header row copied from Excel may be pasted too. Dates YYYY-MM-DD or DD/MM/YYYY. Element values are kept as written (such as <0.01). Emptying a box on an unlocked row clears it.",
+      "oreasSearch": "Search OREAS…",
+      "oreasNoResults": "No OREAS matches."
     }
   },
   "qcDashboard": {

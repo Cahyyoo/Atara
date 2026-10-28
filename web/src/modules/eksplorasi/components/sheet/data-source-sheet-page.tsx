@@ -172,6 +172,7 @@ export function DataSourceSheetPage({ view, editing }: { view: DataSourceView; e
             <SheetGrid
               fields={sheet.keys}
               fixedType={VIEWS[view].sampleType}
+              oreasChoices={view === "standard" ? sheet.oreasNames : null}
               rows={sheet.rows}
               verdictFor={sheet.verdictFor}
               pending={sheet.isChecking}

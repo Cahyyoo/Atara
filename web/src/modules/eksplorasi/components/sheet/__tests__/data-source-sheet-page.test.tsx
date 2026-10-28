@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 
 import { en } from "@/core/i18n/test-messages";
@@ -42,6 +42,12 @@ const ROW: DataSourceDTO = {
   updatedAt: "2026-10-01T00:00:00.000Z",
 };
 
+/** The CRM List's standards, as /api/crm-list/standard answers. */
+const OREAS = [
+  { id: "c1", standard: "Oreas184", testMethod: "Fusion XRF", ni: "1.02", co: "0.09", fe2o3: "39.30", al2o3: "4.62", cr2o3: "1.75" },
+  { id: "c2", standard: "Oreas189", testMethod: "Fusion XRF", ni: "1.48", co: "0.03", fe2o3: "15.04", al2o3: "2.09", cr2o3: "7.65" },
+];
+
 type Sent = { dryRun: boolean; view: string; rows: { line: number; id?: string; cells: Record<string, string> }[] };
 let sent: Sent[] = [];
 let listed: string[] = [];
@@ -53,6 +59,9 @@ beforeEach(() => {
   vi.stubGlobal(
     "fetch",
     vi.fn(async (url: string, init?: RequestInit) => {
+      if (url.startsWith("/api/crm-list/standard")) {
+        return { ok: true, status: 200, json: async () => ({ success: true, data: OREAS }) };
+      }
       if (url.startsWith("/api/data-sources?")) {
         listed.push(url);
         const data = { rows: [ROW], pagination: { page: 1, pageSize: 50, total: 1, totalPages: 1 } };
@@ -226,4 +235,32 @@ describe("a list's sheet", () => {
     fireEvent.click(await screen.findByRole("button", { name: en.dataSource.sheet.leave }));
     expect(push).toHaveBeenCalledWith("/eksplorasi/standard");
   });
+});
+
+describe("the OREAS Remarks", () => {
+  it("is filled with the standard whose five values were typed, while Remarks is empty", async () => {
+    await show();
+    const values = { Ni: "1.020", Co: "0.09", Fe2O3: "39.3", Al2O3: "4.62", Cr2O3: "1.75" };
+    // The CRM List arrives a moment after the sheet: asked for, then its answer read.
+    await waitFor(() => expect(fetch).toHaveBeenCalledWith("/api/crm-list/standard", expect.anything()), LONG);
+    await act(async () => {});
+    for (const [field, value] of Object.entries(values)) fireEvent.change(box(2, field), { target: { value } });
+    await waitFor(() => expect(box(2, "Remarks").value).toBe("Oreas184"), LONG);
+
+    // A remark somebody wrote stays: a value changed again does not replace it.
+    fireEvent.change(box(2, "Remarks"), { target: { value: "By hand" } });
+    fireEvent.change(box(2, "Ni"), { target: { value: "1.02" } });
+    expect(box(2, "Remarks").value).toBe("By hand");
+  }, 60_000);
+
+  it("is picked from the OREAS standards on the Standard list, and the list can be searched", async () => {
+    await show("standard");
+    const remarks = await screen.findByRole("combobox", { name: "Row 2 Remarks" }, LONG);
+    fireEvent.click(remarks);
+    const search = await screen.findByRole("combobox", { name: en.dataSource.sheet.oreasSearch }, LONG);
+    fireEvent.change(search, { target: { value: "189" } });
+    await waitFor(() => expect(screen.queryByRole("option", { name: "Oreas184" })).toBeNull(), LONG);
+    fireEvent.click(await screen.findByRole("option", { name: "Oreas189" }, LONG));
+    await waitFor(() => expect(remarks.textContent).toContain("Oreas189"), LONG);
+  }, 60_000);
 });

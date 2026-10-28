@@ -12,6 +12,8 @@ import {
 import { readDataSourceSheet, type DataSourceImportRow, type SheetLine } from "@/modules/eksplorasi/lib/data-source-import";
 import { findExistingSamples } from "@/modules/eksplorasi/lib/data-source-upsert";
 import { DATA_SOURCE_SELECT, toDataSourceDTO, toDateColumn } from "@/modules/eksplorasi/lib/data-source";
+import { isBlankRemark, matchOreas } from "@/modules/eksplorasi/lib/oreas-match";
+import { oreasStandards } from "@/modules/eksplorasi/lib/crm-list-service";
 import type { dataSourceSheetSchema } from "@/modules/eksplorasi/validation";
 import type { DataSourceDTO, SheetResult, SheetStatus, SheetVerdict } from "@/modules/eksplorasi/types";
 
@@ -82,12 +84,28 @@ export async function applyDataSourceSheet(body: SheetBody, userId: string): Pro
 
   // The type is always a column of the row, whether the list shows it or not.
   const written: readonly DataSourceField[] = fields.includes("sampleType") ? fields : [...fields, "sampleType"];
+
+  /**
+   * A row whose five values are an OREAS standard's gets that name as its
+   * Remarks -- only when it has none, sent or stored, so a remark somebody
+   * wrote is never replaced. The sheet fills the box as it is typed in; this
+   * holds the same rule for whatever reaches the server another way. Lists
+   * without the column (Duplicate) are left alone.
+   */
+  const standards = written.includes("oreasRemarks") ? await oreasStandards() : [];
+  const withOreas = (values: Values, storedRemark: string | null): Values => {
+    if (standards.length === 0 || !isBlankRemark(values.oreasRemarks) || !isBlankRemark(storedRemark)) return values;
+    const name = matchOreas(values, standards);
+    return name ? { ...values, oreasRemarks: name } : values;
+  };
+
   const creates: Values[] = [];
   const updates: { id: string; values: Values }[] = [];
   for (const row of rows) {
     const id = ids.get(row.line);
     const owner = existing.get(row.data.sampleId.toLowerCase());
-    const values = valuesOf(row.data, written);
+    const before = id === undefined ? undefined : stored.get(id);
+    const values = withOreas(valuesOf(row.data, written), before?.oreasRemarks ?? null);
 
     if (id === undefined) {
       if (owner) {
@@ -99,7 +117,6 @@ export async function applyDataSourceSheet(body: SheetBody, userId: string): Pro
       continue;
     }
 
-    const before = stored.get(id);
     if (!before) {
       fail(row.line, null, "This sample no longer exists.");
       continue;

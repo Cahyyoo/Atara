@@ -181,6 +181,50 @@ describe.skipIf(!reachable)("importing 34,000 rows of the data source", () => {
     expect(refused.status).toBe(422);
   });
 
+  /**
+   * The OREAS Remarks fill, as an import applies it: the file's own Remarks
+   * first, then what is stored, and only then the standard the values match.
+   */
+  it("fills Remarks with the OREAS standard a row's values are, never over one already there", async () => {
+    const oreas = `Oreas${tag}`;
+    // Values no seeded standard has, so only this one can match.
+    const assay = { ni: "9.1234", co: "8.4321", fe2o3: "77.77", al2o3: "6.66", cr2o3: "5.55" };
+    await prisma.crmStandard.create({ data: { standard: oreas, testMethod: "Fusion XRF", ...assay, createdById: session.userId } });
+    try {
+      await prisma.dataSource.createMany({
+        data: [
+          { sampleId: `${tag}-OR-KEEP`, sampleType: "STANDARD", oreasRemarks: "Stored", createdById: session.userId },
+          { sampleId: `${tag}-OR-FILL`, sampleType: "STANDARD", createdById: session.userId },
+        ],
+      });
+      const values = `${assay.ni},${assay.co},${assay.fe2o3},${assay.al2o3},${assay.cr2o3}`;
+      const csv = [
+        "Sample ID,Ni,Co,Fe2O3,Al2O3,Cr2O3,Remarks",
+        `${tag}-OR-NEW,${values},`,
+        `${tag}-OR-OWN,${values},From the file`,
+        `${tag}-OR-KEEP,${values},`,
+        `${tag}-OR-FILL,${values},`,
+        `${tag}-OR-NONE,1.0,${assay.co},${assay.fe2o3},${assay.al2o3},${assay.cr2o3},`,
+      ].join("\n");
+      const events = await applyLines(
+        await importRoute(upload("std.csv", csv, { apply: "1", view: "standard", updateExisting: "1" }))
+      );
+      expect(events.at(-1)).toMatchObject({ phase: "done", created: 3, updated: 2 });
+
+      const remark = async (suffix: string) =>
+        (await prisma.dataSource.findUniqueOrThrow({ where: { sampleId: `${tag}-${suffix}` } })).oreasRemarks;
+      expect(await remark("OR-NEW")).toBe(oreas);
+      expect(await remark("OR-OWN")).toBe("From the file");
+      expect(await remark("OR-KEEP")).toBe("Stored");
+      expect(await remark("OR-FILL")).toBe(oreas);
+      expect(await remark("OR-NONE")).toBeNull();
+    } finally {
+      // Gone before the next test, which counts each list's rows.
+      await prisma.dataSource.deleteMany({ where: { sampleId: { startsWith: `${tag}-OR-` } } });
+      await prisma.crmStandard.deleteMany({ where: { standard: oreas } });
+    }
+  });
+
   it("reads each list's export back into that list without a single error", async () => {
     for (const view of ["dataSource", "blank"] as const) {
       const response = await exportRoute(

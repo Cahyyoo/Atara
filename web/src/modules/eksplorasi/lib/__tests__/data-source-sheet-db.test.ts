@@ -211,3 +211,70 @@ describe.skipIf(!reachable)("a list's sheet", () => {
     expect(body.data.rows[0]).toMatchObject({ status: "invalid", field: "sampleType" });
   });
 });
+
+describe.skipIf(!reachable)("a row whose assay is an OREAS standard's", () => {
+  const tag = `ORM${Date.now().toString(36).toUpperCase()}`;
+  const oreas = `Oreas${tag}`;
+  /** Values no seeded standard has, so only this test's can match. */
+  const ASSAY = { ni: "9.1234", co: "8.4321", fe2o3: "77.77", al2o3: "6.66", cr2o3: "5.55" };
+
+  beforeAll(async () => {
+    const user = await prisma.user.create({
+      data: { name: "OREAS remarks test", email: `${tag.toLowerCase()}@test.invalid`, password: "x", role: "ADMIN", department: "EKSPLORASI" },
+    });
+    session.userId = user.id;
+    await prisma.crmStandard.create({ data: { standard: oreas, testMethod: "Fusion XRF", ...ASSAY, createdById: user.id } });
+  });
+
+  afterAll(async () => {
+    await prisma.dataSource.deleteMany({ where: { sampleId: { startsWith: tag } } });
+    await prisma.crmStandard.deleteMany({ where: { standard: oreas } });
+    if (session.userId) await prisma.user.delete({ where: { id: session.userId } });
+  });
+
+  const remarkOf = async (suffix: string) =>
+    (await prisma.dataSource.findUnique({ where: { sampleId: `${tag}-${suffix}` } }))?.oreasRemarks ?? null;
+
+  it("gets the standard's name as its Remarks when it has none", async () => {
+    const { body } = await send(
+      "dataSource",
+      [{ line: 1, cells: { sampleId: `${tag}-AUTO`, sampleType: "STANDARD", ...ASSAY, ni: "9.12340" } }],
+      false
+    );
+    expect(body.data).toMatchObject({ created: 1 });
+    expect(await remarkOf("AUTO")).toBe(oreas);
+  });
+
+  it("keeps a Remarks somebody wrote", async () => {
+    await send(
+      "standard",
+      [{ line: 1, cells: { sampleId: `${tag}-KEPT`, oreasRemarks: "Checked by hand", ...ASSAY } }],
+      false
+    );
+    expect(await remarkOf("KEPT")).toBe("Checked by hand");
+  });
+
+  it("fills a stored row that had none once its values are the standard's", async () => {
+    await send("dataSource", [{ line: 1, cells: { sampleId: `${tag}-LATER`, sampleType: "STANDARD", ni: "1" } }], false);
+    expect(await remarkOf("LATER")).toBeNull();
+    const id = (await prisma.dataSource.findUniqueOrThrow({ where: { sampleId: `${tag}-LATER` } })).id;
+    const { body } = await send(
+      "dataSource",
+      [{ line: 1, id, cells: { sampleId: `${tag}-LATER`, sampleType: "STANDARD", ...ASSAY } }],
+      false
+    );
+    expect(body.data).toMatchObject({ updated: 1 });
+    expect(await remarkOf("LATER")).toBe(oreas);
+  });
+
+  it("leaves a duplicate's Remarks alone", async () => {
+    await send(
+      "duplicate",
+      [{ line: 1, cells: { sampleId: `${tag}-DUP`, control: `${tag}-AUTO`, ...ASSAY } }],
+      false
+    );
+    const row = await prisma.dataSource.findUniqueOrThrow({ where: { sampleId: `${tag}-DUP` } });
+    expect(row.oreasRemarks).toBeNull();
+    expect(row.originalSampleIdRemarks).toBeNull();
+  });
+});

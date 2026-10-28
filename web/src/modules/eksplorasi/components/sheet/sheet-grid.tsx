@@ -9,6 +9,7 @@ import { columnWeight, isNumericColumn, percentages } from "@/modules/eksplorasi
 import { isActive, isChangedCell, type SheetRow } from "@/modules/eksplorasi/components/sheet/sheet-rows";
 import { SHEET_ROW_HEIGHT } from "@/modules/eksplorasi/components/sheet/use-data-source-sheet";
 import type { SampleType, SheetStatus, SheetVerdict } from "@/modules/eksplorasi/types";
+import { OreasCell } from "@/modules/eksplorasi/components/sheet/oreas-cell";
 import {
   IoAddCircle,
   IoCheckmarkCircle,
@@ -49,7 +50,7 @@ function VerdictMark({ verdict, pending }: { verdict: SheetVerdict | undefined; 
 }
 
 /** The attributes every box carries, whatever it is: how the grid finds it, and how it reads aloud. */
-interface BoxProps {
+export interface BoxProps {
   "aria-label": string;
   "data-cell-row": number;
   "data-cell-col": number;
@@ -122,6 +123,8 @@ interface RowProps {
   typeLabels: readonly string[];
   /** A QC list's own type, shown in every row's type box and never typed. */
   fixedTypeLabel: string | null;
+  /** The OREAS names Remarks is picked from (the Standard list); null where it is typed. */
+  oreasChoices: readonly string[] | null;
   verdict: SheetVerdict | undefined;
   pending: boolean;
   saving: boolean;
@@ -191,6 +194,17 @@ const SheetGridRow = memo(function SheetGridRow(props: RowProps) {
                 className={SELECT + changed}
                 onChange={change}
               />
+            ) : field === "oreasRemarks" && props.oreasChoices && !row.locked ? (
+              <div className="relative">
+                <OreasCell
+                  box={box}
+                  value={value}
+                  names={props.oreasChoices}
+                  disabled={saving}
+                  className={`${SELECT} truncate` + changed}
+                  onChange={change}
+                />
+              </div>
             ) : (
               <input
                 {...box}
@@ -219,6 +233,7 @@ const SheetGridRow = memo(function SheetGridRow(props: RowProps) {
 export function SheetGrid({
   fields,
   fixedType,
+  oreasChoices = null,
   rows,
   verdictFor,
   pending,
@@ -231,6 +246,8 @@ export function SheetGrid({
 }: {
   fields: readonly DataSourceField[];
   fixedType: SampleType | null;
+  /** The OREAS names Remarks is picked from, on the Standard list's sheet; null elsewhere. */
+  oreasChoices?: readonly string[] | null;
   rows: readonly SheetRow[];
   verdictFor: (row: SheetRow) => SheetVerdict | undefined;
   pending: boolean;
@@ -287,6 +304,7 @@ export function SheetGrid({
                 labels={labels}
                 typeLabels={typeLabels}
                 fixedTypeLabel={fixedTypeLabel}
+                oreasChoices={oreasChoices}
                 verdict={verdictFor(row)}
                 pending={pending}
                 saving={saving}
