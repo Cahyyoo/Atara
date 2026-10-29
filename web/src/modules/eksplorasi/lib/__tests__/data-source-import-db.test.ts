@@ -86,7 +86,7 @@ describe.skipIf(!reachable)("importing 34,000 rows of the data source", () => {
     const lines = [HEADER];
     for (let i = 1; i <= ROWS; i += 1) {
       lines.push(
-        `C${i % 3},DH-${i % 50},${sampleId(i)},${TYPES[i % 4]},${i % 100}.0,${(i % 100) + 1}.0,2026-01-0${(i % 9) + 1},2.${i % 10},1.${i % 90},4${i % 10}.5,<0.01,"Note, ${i}"`
+        `C${i % 3},DH-${i % 50},${sampleId(i)},${TYPES[i % 4]},${i % 100}.0,${(i % 100) + 1}.0,2026-01-0${(i % 9) + 1},2.${i % 10},1.${i % 90},4${i % 10}.5,0.009,"Note, ${i}"`
       );
     }
     // A date that is not one, a type that is not one, and a sample that appears twice.
@@ -124,7 +124,7 @@ describe.skipIf(!reachable)("importing 34,000 rows of the data source", () => {
       weight: "2.2",
       ni: "1.42",
       fe: "42.5",
-      sio2: "<0.01",
+      sio2: "0.009",
       // The data source's Remarks is the OREAS remarks column.
       oreasRemarks: "Note, 42",
       originalSampleIdRemarks: null,

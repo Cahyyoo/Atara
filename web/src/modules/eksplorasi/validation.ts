@@ -23,13 +23,30 @@ const optionalDate = z
 const optionalText = (max: number) => z.string().trim().max(max).nullable().optional();
 
 const textFields = Object.fromEntries(
-  [...TEXT_FIELDS, ...ELEMENT_FIELDS]
-    .filter((field) => field !== "sampleId")
-    .map((field) => [field, optionalText(MAX_LENGTH[field])])
-) as Record<Exclude<(typeof TEXT_FIELDS)[number] | (typeof ELEMENT_FIELDS)[number], "sampleId">, ReturnType<typeof optionalText>>;
+  TEXT_FIELDS.filter((field) => field !== "sampleId").map((field) => [field, optionalText(MAX_LENGTH[field])])
+) as Record<Exclude<(typeof TEXT_FIELDS)[number], "sampleId">, ReturnType<typeof optionalText>>;
+
+/** "<0.01", "< 0.01", "<=0.01", "≤0.01": a result written as below the detection limit. */
+const BELOW_DETECTION = /^\s*(?:<|≤)/;
+
+/**
+ * An element's result, kept as text as the lab writes it ("1,25" included),
+ * but never "<0.01": a result below the detection limit is entered as the
+ * number itself, so every value the dashboard reads is one it can plot.
+ * Rows written before this rule keep their value until they are changed.
+ */
+const elementValue = (max: number) =>
+  optionalText(max).refine((value) => !value || !BELOW_DETECTION.test(value), {
+    message: 'Write the value as a number (e.g. 0.01), not "<0.01".',
+  });
+
+const elementFields = Object.fromEntries(
+  ELEMENT_FIELDS.map((field) => [field, elementValue(MAX_LENGTH[field])])
+) as Record<(typeof ELEMENT_FIELDS)[number], ReturnType<typeof elementValue>>;
 
 const dataSourceFields = {
   ...textFields,
+  ...elementFields,
   sampleId: z.string().trim().min(1, "Sample ID is required.").max(MAX_LENGTH.sampleId),
   sampleType: z.enum(SAMPLE_TYPES, { error: "Sample type must be FIELD, STANDARD, BLANK or DUPLICATE." }),
   date: optionalDate,

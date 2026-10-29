@@ -148,8 +148,18 @@ describe("readDataSourceSheet", () => {
   });
 
   it("keeps a value as written, and a workbook number without its binary tail", () => {
-    const read = readDataSourceSheet(sheet(["Sample ID", "Sample Type", "Ni", "SiO2"], ["S-1", "FIELD", 0.1 + 0.2, "<0.01"]));
-    expect(read.ok && read.rows[0].data).toMatchObject({ ni: "0.3", sio2: "<0.01" });
+    const read = readDataSourceSheet(sheet(["Sample ID", "Sample Type", "Ni", "SiO2"], ["S-1", "FIELD", 0.1 + 0.2, "98,71"]));
+    expect(read.ok && read.rows[0].data).toMatchObject({ ni: "0.3", sio2: "98,71" });
+  });
+
+  it("refuses a result written as below the detection limit, at its cell", () => {
+    const read = readDataSourceSheet(
+      sheet(["Sample ID", "Sample Type", "Ni", "Cr2O3"], ["S-1", "BLANK", "0.005", "<0.01"], ["S-2", "BLANK", "0.004", "0.01"])
+    );
+    expect(read).toMatchObject({ ok: true, total: 2, invalid: 1 });
+    if (!read.ok) return;
+    expect(read.rows.map((row) => row.data.sampleId)).toEqual(["S-2"]);
+    expect(read.errors).toEqual([expect.objectContaining({ line: 2, sampleId: "S-1", field: "cr2o3" })]);
   });
 
   it("gives a QC list's rows its type, and refuses a row of another", () => {

@@ -111,10 +111,22 @@ describe("a row of the data source", () => {
   });
 
   it("keeps a value as the lab wrote it, within the column's length", () => {
-    const parsed = createDataSourceSchema.parse({ sampleId: "A", sampleType: "BLANK", ni: "<0.01" });
-    expect(parsed.ni).toBe("<0.01");
+    const parsed = createDataSourceSchema.parse({ sampleId: "A", sampleType: "BLANK", ni: "1,25", co: "0.000001223", mc: "" });
+    expect(parsed).toMatchObject({ ni: "1,25", co: "0.000001223", mc: "" });
     expect(createDataSourceSchema.safeParse({ sampleId: "A", sampleType: "BLANK", ni: "x".repeat(21) }).success).toBe(false);
     expect(createDataSourceSchema.safeParse({ sampleId: "A", sampleType: "BLANK", date: "01/10/2026" }).success).toBe(false);
+  });
+
+  it("refuses an element's result written as below the detection limit, naming its column", () => {
+    for (const ni of ["<0.01", " < 0.01", "<=0.05", "≤0.05"]) {
+      const parsed = createDataSourceSchema.safeParse({ sampleId: "A", sampleType: "BLANK", ni });
+      expect(parsed.success).toBe(false);
+      expect(parsed.error?.issues[0].path).toEqual(["ni"]);
+    }
+    expect(updateDataSourceSchema.safeParse({ cr2o3: "<0.01" }).success).toBe(false);
+    expect(updateDataSourceSchema.safeParse({ cr2o3: null }).success).toBe(true);
+    // Only the elements: other columns are text.
+    expect(createDataSourceSchema.safeParse({ sampleId: "A", sampleType: "BLANK", remarks: "<0.01 on Cr" }).success).toBe(true);
   });
 
   it("clears a column with null, and leaves it alone when it is not sent", () => {

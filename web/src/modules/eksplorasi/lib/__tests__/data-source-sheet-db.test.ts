@@ -95,10 +95,11 @@ describe.skipIf(!reachable)("a list's sheet", () => {
       "dataSource",
       [
         unchanged(),
-        { line: 2, cells: { sampleId: `${tag}-NEW`, sampleType: "std", date: "01/10/2026", ni: "<0.01" } },
+        { line: 2, cells: { sampleId: `${tag}-NEW`, sampleType: "std", date: "01/10/2026", ni: "0.009" } },
         { line: 3, cells: { sampleId: `${tag}-OLD`, sampleType: "FIELD" } },
         { line: 4, cells: { sampleId: `${tag}-BAD`, sampleType: "FIELD", date: "2026-13-01" } },
         { line: 5, cells: { sampleId: `${tag}-NOTYPE` } },
+        { line: 6, cells: { sampleId: `${tag}-LT`, sampleType: "BLANK", cr2o3: "<0.01" } },
       ],
       true
     );
@@ -109,11 +110,14 @@ describe.skipIf(!reachable)("a list's sheet", () => {
       [3, "invalid"],
       [4, "invalid"],
       [5, "invalid"],
+      [6, "invalid"],
     ]);
     // The unlocked row on line 1 already claims that ID on this sheet.
     expect(body.data.rows[2]).toMatchObject({ field: "sampleId", message: expect.stringContaining("line 1") });
     expect(body.data.rows[3]).toMatchObject({ field: "date" });
     expect(body.data.rows[4]).toMatchObject({ field: "sampleType" });
+    // A result below the detection limit is entered as the number itself.
+    expect(body.data.rows[5]).toMatchObject({ field: "cr2o3", message: expect.stringContaining("<0.01") });
     expect(await prisma.dataSource.count({ where: { sampleId: { startsWith: tag } } })).toBe(2);
   });
 
@@ -136,7 +140,7 @@ describe.skipIf(!reachable)("a list's sheet", () => {
       "dataSource",
       [
         { ...unchanged(), cells: { sampleId: `${tag}-OLD`, sampleType: "Duplicate", campaign: "", ni: "1.55" } },
-        { line: 2, cells: { sampleId: `${tag}-NEW`, sampleType: "std", date: "01/10/2026", ni: "<0.01" } },
+        { line: 2, cells: { sampleId: `${tag}-NEW`, sampleType: "std", date: "01/10/2026", ni: "0.009" } },
       ],
       false
     );
@@ -146,7 +150,7 @@ describe.skipIf(!reachable)("a list's sheet", () => {
     expect(old).toMatchObject({ campaign: null, sampleType: "DUPLICATE", ni: "1.55", updatedById: session.userId });
 
     const added = await prisma.dataSource.findUniqueOrThrow({ where: { sampleId: `${tag}-NEW` } });
-    expect(added).toMatchObject({ sampleType: "STANDARD", ni: "<0.01", createdById: session.userId });
+    expect(added).toMatchObject({ sampleType: "STANDARD", ni: "0.009", createdById: session.userId });
     expect(added.date?.toISOString().slice(0, 10)).toBe("2026-10-01");
   });
 
