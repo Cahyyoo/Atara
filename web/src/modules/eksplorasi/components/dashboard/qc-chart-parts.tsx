@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { ChartDataset, ChartOptions } from "chart.js";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/core/components/ui/card";
 import { CHART_ANIMATION_MS, GRID_DASH, type ChartChrome } from "@/core/lib/ui/chart-theme";
@@ -47,11 +47,23 @@ export function axis(chrome: ChartChrome, title: string) {
   };
 }
 
+/**
+ * The points rise from the axis as a chart appears -- and only rise: their
+ * place across, colour and size are drawn at once rather than worked out
+ * again every frame for thousands of points. With LazyPlot building a chart
+ * only as it nears the screen, a few animate at a time, not thirty.
+ */
 export function baseOptions(chrome: ChartChrome, reducedMotion: boolean): ChartOptions<"scatter"> {
   return {
     responsive: true,
     maintainAspectRatio: false,
     animation: reducedMotion ? false : { duration: CHART_ANIMATION_MS, easing: "easeOutQuart" },
+    animations: reducedMotion
+      ? {}
+      : {
+          numbers: { type: "number", properties: ["y"] },
+          colors: false,
+        },
     plugins: {
       legend: { display: false },
       tooltip: {
@@ -104,6 +116,47 @@ export function ChartLegend({ items }: { items: LegendItem[] }) {
   );
 }
 
+/** How far below the screen a chart is drawn ahead, so it is ready by the time it is scrolled to. */
+const LAZY_MARGIN = "300px 0px";
+
+/**
+ * A chart's box, which builds the chart only as it nears the screen, then
+ * keeps it. The dashboard can hold some thirty charts; built at once they
+ * froze the page as it opened, though only the first few could be seen.
+ * (The Lab dashboard puts its five in at once -- few enough not to matter.)
+ * The box holds its height the whole time, so nothing jumps; without an
+ * IntersectionObserver (an old browser, a test) the chart goes in at once.
+ */
+export function LazyPlot({ children }: { children: ReactNode }) {
+  const box = useRef<HTMLDivElement>(null);
+  const [near, setNear] = useState(() => typeof IntersectionObserver === "undefined");
+
+  useEffect(() => {
+    if (near || !box.current) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setNear(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: LAZY_MARGIN }
+    );
+    observer.observe(box.current);
+    return () => observer.disconnect();
+  }, [near]);
+
+  return (
+    <div ref={box} className="h-80">
+      {near ? (
+        children
+      ) : (
+        <div aria-hidden className="h-full rounded-lg bg-muted/40" />
+      )}
+    </div>
+  );
+}
+
 /** A chart's card: its name, what it shows, its legend, and the chart or why there is none. */
 export function ChartCard({
   title,
@@ -133,7 +186,7 @@ export function ChartCard({
             {emptyMessage}
           </p>
         ) : (
-          <div className="h-80">{children}</div>
+          <LazyPlot>{children}</LazyPlot>
         )}
         {notes.length > 0 ? (
           <ul className="flex flex-col gap-0.5 text-xs text-muted-foreground">
