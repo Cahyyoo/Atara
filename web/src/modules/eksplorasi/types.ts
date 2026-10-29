@@ -1,6 +1,6 @@
 /** What the Eksplorasi module's routes send to the browser. */
 import type { ElementField, SampleType } from "@/modules/eksplorasi/lib/data-source-columns";
-import type { ControlElement } from "@/modules/eksplorasi/lib/qc-control";
+import type { ControlElement, StandardFigures } from "@/modules/eksplorasi/lib/qc-control";
 import type { BlankElement } from "@/modules/eksplorasi/lib/qc-blank";
 
 export type { DataSourceField, DataSourceView, ElementField, SampleType } from "@/modules/eksplorasi/lib/data-source-columns";
@@ -83,13 +83,30 @@ export interface ControlPoint {
   y: number;
 }
 
+/** One row of the standard table: a CRM standard's assays of one element, about its certified value. */
+export interface StandardSummaryRow extends StandardFigures {
+  /** The CRM List's name for it. */
+  standard: string;
+  /** The CRM List's certified value and SD; null when it holds none that is a number. */
+  certified: number | null;
+  sd: number | null;
+  /** The Remarks written for this standard and element, shared by every campaign. */
+  remarks: string | null;
+}
+
 /** The control charts of one OREAS standard: one per element it is certified for. */
 export interface QcControl {
   /** Every standard the CRM List has for the test method, for the "Oreas Criteria" choice. */
   standards: string[];
   /** The one shown; null when the CRM List has none yet. */
   standard: string | null;
+  /** The campaigns that have standards, for the "Campaign Criteria" choice. */
+  campaigns: string[];
+  /** The one shown, for the charts and the table; null for every campaign. */
+  campaign: string | null;
   testMethod: string;
+  /** The standard table: per element, a row for each standard the CRM List certifies. */
+  summary: { element: ControlElement; rows: StandardSummaryRow[] }[];
   elements: {
     element: ControlElement;
     /** Null when the CRM List has no usable value or SD for this element. */
@@ -116,6 +133,13 @@ export interface DuplicatePair {
 
 /** The duplicate charts: one per element, each duplicate against its original. */
 export interface QcDuplicate {
+  /** The campaigns that have duplicates, for the "Campaign Criteria" choice. */
+  campaigns: string[];
+  /** The months (YYYY-MM, latest first) of the duplicates' dates, for the "Month Criteria" choice. */
+  months: string[];
+  /** The ones shown; null for all. */
+  campaign: string | null;
+  month: string | null;
   elements: {
     element: ControlElement;
     pairs: DuplicatePair[];

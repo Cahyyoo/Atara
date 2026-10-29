@@ -5,12 +5,12 @@
         "title": "Dashboard Eksplorasi",
         "intro": "Grafik kontrol standar OREAS terhadap CRM List, blank terhadap Preferred Value-nya, dan duplikat terhadap sampel aslinya.",
         "steps": {
-          "1": "Pilih standar lewat Oreas Criteria. Setiap titik adalah satu analisis standar itu pada urutan barisnya di Data Source.",
+          "1": "Pilih campaign lewat Campaign Criteria (atau semua campaign) dan standar lewat Oreas Criteria. Tabel standar memuat, untuk setiap unsur yang dicentang, nilai tersertifikasi dan SD tiap standar OREAS, jumlah analisis, mean, min, max, serta porsi di dalam 1, 2, dan 3 SD; Outside 2 SD di atas 5% ditandai merah. Tulis catatan lewat ikon pensil di kolom Remarks. Setiap titik grafik adalah satu analisis standar terpilih pada urutan barisnya di Data Source.",
           "2": "Garis hijau, kuning, dan merah adalah ±1σ, ±2σ, dan ±3σ dari nilai tersertifikasi (Fusion XRF) di CRM List. Titik di luar ±3σ digambar merah dan dihitung di bawah grafik.",
           "3": "Tombol Unsur memilih grafik unsur mana yang tampil (Ni, Co, Fe2O3, Al2O3, Cr2O3, MgO, SiO2). Pilihan disimpan di browser ini.",
           "4": "Nilai yang bukan angka (misalnya <0.01) tidak digambar; jumlahnya disebutkan di bawah grafik.",
           "5": "Blank: pilih campaign lewat Campaign Criteria, atau semua campaign. Tabel memuat jumlah blank, rata-rata, min, max, Preferred Value dari CRM List, dan jumlah blank yang melebihinya (anomali) untuk Ni, Co, Fe2O3, dan Cr2O3. Grafik menaruh setiap blank pada Sample Index-nya terhadap Preferred Value (garis merah); nilai di atasnya digambar merah. Nilai yang ditulis \"<0.01\" dihitung 0.01, sama seperti workbook QC, dan digambar abu-abu.",
-          "6": "Duplicate: tiga grafik untuk setiap unsur. Pertama, setiap duplikat (Y) terhadap sampel aslinya (X), yaitu sampel FIELD yang Sample ID-nya dipilih di Remarks menu Duplicate. Titik di luar garis ±10% digambar merah dan dihitung. Garis utuh adalah tren linear; persamaan dan R²-nya tertulis di bawah judul (perlu minimal dua pasangan). Kedua, RPD Graph: selisih persen relatif (RPD) setiap pasangan sesuai urutan duplikat diambil; RPD 20% atau lebih ditandai merah. Ketiga, RPD Distribution: RPD diurutkan dari terkecil sampai terbesar terhadap porsi pasangan, dengan garis 10% dari CRM List."
+          "6": "Duplicate: pilih campaign lewat Campaign Criteria dan bulan tanggal duplikat lewat Month Criteria (atau semuanya). Tabel memuat, untuk setiap unsur yang dicentang, jumlah pasangan (N-samples), pasangan yang punya RPD (titik di RPD Graph) beserta rata-rata RPD-nya, serta mean, min, dan max nilai asli dan duplikat. Ada tiga grafik untuk setiap unsur. Pertama, setiap duplikat (Y) terhadap sampel aslinya (X), yaitu sampel FIELD yang Sample ID-nya dipilih di Remarks menu Duplicate. Titik di luar garis ±10% digambar merah dan dihitung. Garis utuh adalah tren linear; persamaan dan R²-nya tertulis di bawah judul (perlu minimal dua pasangan). Kedua, RPD Graph: RPD setiap pasangan sesuai urutan duplikat diambil; RPD 20% atau lebih ditandai merah. Ketiga, RPD Distribution: RPD diurutkan dari terkecil sampai terbesar terhadap porsi pasangan, dengan garis 10% dari CRM List."
         },
         "tip": "Isi kolom Control pada baris STANDARD dengan nama OREAS-nya (mis. OREAS-184) agar analisisnya masuk ke grafik."
       },
@@ -211,6 +211,12 @@
     "subtitle": "Grafik kontrol standar OREAS (±1σ, ±2σ, ±3σ), blank terhadap Preferred Value-nya, dan duplikat terhadap sampel aslinya (±10%).",
     "loading": "Memuat grafik…",
     "truncated": "Data terlalu banyak; hanya 5.000 titik terlama yang digambar.",
+    "criteria": {
+      "campaign": "Campaign Criteria",
+      "allCampaigns": "Semua campaign",
+      "month": "Month Criteria",
+      "allMonths": "Semua bulan"
+    },
     "control": {
       "title": "Grafik Kontrol Standard (OREAS)",
       "description": "Setiap analisis standard menurut Sample index (urutan baris di Data Source), terhadap nilai bersertifikat ±1σ, ±2σ, ±3σ dari CRM List ({method}).",
@@ -234,13 +240,34 @@
       "outside": "{count, plural, other {# titik di luar ±3σ.}}",
       "elements": "Unsur",
       "elementsCount": "Unsur ({shown}/{total})",
-      "showAll": "Tampilkan semua"
+      "showAll": "Tampilkan semua",
+      "table": {
+        "title": "Standard {element}",
+        "standard": "Standard",
+        "certified": "Nilai Standard {element}",
+        "n": "N Sample",
+        "sd": "Standard Deviation (COA)",
+        "mean": "Mean",
+        "min": "Min",
+        "max": "Max",
+        "within1": "Within 1 SD",
+        "within2": "Within 2 SD",
+        "within3": "Within 3 SD",
+        "outside2": "Outside 2 SD",
+        "remarks": "Remarks",
+        "editRemarks": "Ubah Remarks {standard} {element}"
+      },
+      "remarkDialog": {
+        "title": "Remarks · {standard} {element}",
+        "description": "Catatan untuk standar dan unsur ini, sama untuk semua campaign. Kosongkan untuk menghapusnya.",
+        "label": "Remarks",
+        "save": "Simpan",
+        "saving": "Menyimpan…"
+      }
     },
     "blank": {
       "title": "Blank",
       "description": "Nilai setiap sampel blank pada Sample Index-nya, terhadap Preferred Value di tabel Blank CRM List.",
-      "criteria": "Campaign Criteria",
-      "allCampaigns": "Semua campaign",
       "table": {
         "element": "Unsur",
         "n": "N Sample",
@@ -304,7 +331,19 @@
       "rpdCumulative": "Frekuensi kumulatif {share}%",
       "axisIndex": "Sample Index",
       "axisRpd": "Relative Percent Difference (%)",
-      "axisCumulative": "Frekuensi kumulatif (%)"
+      "axisCumulative": "Frekuensi kumulatif (%)",
+      "table": {
+        "element": "Unsur",
+        "nSamples": "N-samples",
+        "rpdSamples": "RPD Samples",
+        "averageRpd": "Average % RPD",
+        "meanOriginal": "Mean Ori",
+        "minOriginal": "Min Ori",
+        "maxOriginal": "Max Ori",
+        "meanDuplicate": "Mean Dup",
+        "minDuplicate": "Min Dup",
+        "maxDuplicate": "Max Dup"
+      }
     }
   },
   "crmList": {

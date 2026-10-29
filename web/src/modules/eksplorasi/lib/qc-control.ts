@@ -103,3 +103,49 @@ export function valueRange(points: readonly ControlPoint[], limits: ControlLimit
   const pad = (high - low || Math.abs(high) || 1) * 0.08;
   return { min: low - pad, max: high + pad };
 }
+
+/** The standard table's figures for one standard and element; null where there is nothing to work them out from. */
+export interface StandardFigures {
+  n: number;
+  mean: number | null;
+  min: number | null;
+  max: number | null;
+  /** Shares (0–1) of the assays within ±1σ, ±2σ, ±3σ of the certified value, and past ±2σ. */
+  within1: number | null;
+  within2: number | null;
+  within3: number | null;
+  outside2: number | null;
+}
+
+/** A standard is expected to keep 95% of its assays within ±2σ; past 5% outside, its row is marked. */
+export const OUTSIDE_2SD_LIMIT = 0.05;
+
+/**
+ * One row of the standard table: how a standard's assays of one element sit
+ * about its certified value. A value that is not a number ("<0.01") is left
+ * out, as on the chart; an assay exactly 2σ off is still within 2σ. The
+ * shares need the CRM List's value and SD, and at least one assay.
+ */
+export function standardFigures(values: readonly (string | null)[], limits: ControlLimits | null): StandardFigures {
+  const numbers = values.flatMap((value) => {
+    const number = chartValue(value);
+    return number === null ? [] : [number];
+  });
+  const n = numbers.length;
+  if (n === 0) {
+    return { n, mean: null, min: null, max: null, within1: null, within2: null, within3: null, outside2: null };
+  }
+  const within = (k: number) =>
+    limits ? numbers.filter((number) => Math.abs(zScore(number, limits)) <= k + 1e-9).length / n : null;
+  const within2 = within(2);
+  return {
+    n,
+    mean: numbers.reduce((sum, number) => sum + number, 0) / n,
+    min: Math.min(...numbers),
+    max: Math.max(...numbers),
+    within1: within(1),
+    within2,
+    within3: within(3),
+    outside2: within2 === null ? null : 1 - within2,
+  };
+}

@@ -105,6 +105,7 @@ model User {
   crmBlanksUpdated     CrmBlank[]            @relation("CrmBlankUpdatedBy")
   crmDuplicatesCreated CrmDuplicate[]        @relation("CrmDuplicateCreatedBy")
   crmDuplicatesUpdated CrmDuplicate[]        @relation("CrmDuplicateUpdatedBy")
+  qcStandardRemarks    QcStandardRemark[]    @relation("QcStandardRemarkUpdatedBy")
 
   @@index([department, role])
   @@map("core_users")

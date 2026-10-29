@@ -28,6 +28,9 @@ function data(overrides: Partial<Record<string, Partial<QcControl["elements"][nu
   return {
     standards: ["Oreas189"],
     standard: "Oreas189",
+    campaigns: [],
+    campaign: null,
+    summary: [],
     testMethod: "Fusion XRF",
     truncated: false,
     elements: CONTROL_ELEMENTS.map((element) => ({

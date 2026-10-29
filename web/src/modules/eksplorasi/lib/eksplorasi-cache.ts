@@ -25,9 +25,10 @@ export const EKSPLORASI_CACHE_TTL_MS = 30_000;
 export const crmListCache = new TtlCache<CrmRowDTO[]>(EKSPLORASI_CACHE_TTL_MS, 3);
 export const oreasStandardsCache = new TtlCache<OreasStandard[]>(EKSPLORASI_CACHE_TTL_MS, 1);
 export const campaignsCache = new TtlCache<string[]>(EKSPLORASI_CACHE_TTL_MS, 1);
-/** Keyed by the standard asked for (crmKey), "" for the one the dashboard opens on. */
+/** Keyed by "standard|campaign" (the standard by crmKey), "" for the standard the dashboard opens on or every campaign. */
 export const controlCache = new TtlCache<QcControl>(EKSPLORASI_CACHE_TTL_MS, 64);
-export const duplicatesCache = new TtlCache<QcDuplicate>(EKSPLORASI_CACHE_TTL_MS, 1);
+/** Keyed by "campaign|month", "" for every campaign or month. */
+export const duplicatesCache = new TtlCache<QcDuplicate>(EKSPLORASI_CACHE_TTL_MS, 64);
 /** Keyed by the campaign asked for, "" for every campaign. */
 export const blankCache = new TtlCache<QcBlank>(EKSPLORASI_CACHE_TTL_MS, 64);
 
@@ -45,6 +46,11 @@ export function invalidateCrmCaches(): void {
   oreasStandardsCache.invalidate();
   controlCache.invalidate();
   blankCache.invalidate();
+}
+
+/** After the Remarks of the standard table are written: they come with the control charts. */
+export function invalidateStandardRemarkCaches(): void {
+  controlCache.invalidate();
 }
 
 /** Test seam: a test that writes straight through Prisma starts from nothing held. */

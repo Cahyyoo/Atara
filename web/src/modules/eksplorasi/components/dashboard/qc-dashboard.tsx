@@ -29,7 +29,7 @@ export function QcDashboard({
       </div>
       <QcControlSection initial={initialControl} elements={elements} />
       <QcBlankSection initial={initialBlank} elements={elements} />
-      <QcDuplicateSection data={duplicates} elements={elements} />
+      <QcDuplicateSection initial={duplicates} elements={elements} />
     </div>
   );
 }

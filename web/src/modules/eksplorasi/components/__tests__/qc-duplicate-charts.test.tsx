@@ -30,6 +30,10 @@ const PAIRS: DuplicatePair[] = [
 
 function data(pairs: Partial<Record<ControlElement, DuplicatePair[]>> = {}, skipped = 0): QcDuplicate {
   return {
+    campaigns: [],
+    months: [],
+    campaign: null,
+    month: null,
     elements: CONTROL_ELEMENTS.map((element) => ({ element, pairs: pairs[element] ?? [], skipped })),
     unmatched: 0,
     truncated: false,

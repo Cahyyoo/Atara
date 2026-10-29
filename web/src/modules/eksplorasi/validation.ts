@@ -11,6 +11,7 @@ import {
   type DataSourceField,
 } from "@/modules/eksplorasi/lib/data-source-columns";
 import { CRM_COLUMNS, CRM_KINDS, type CrmKind } from "@/modules/eksplorasi/lib/crm-list-columns";
+import { CONTROL_ELEMENTS } from "@/modules/eksplorasi/lib/qc-control";
 
 const optionalDate = z
   .string()
@@ -87,14 +88,34 @@ export const sampleIdSearchQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(SAMPLE_ID_SEARCH_LIMIT).default(SAMPLE_ID_SEARCH_LIMIT),
 });
 
-/** The dashboard's control charts: which OREAS standard, by its CRM List name. */
+/** A campaign as a dashboard filter: absent for every campaign. As long as the column holds. */
+const campaignFilter = z.string().trim().min(1).max(100).optional();
+
+/** The dashboard's control charts and standard table: which OREAS standard, by its CRM List name, and which campaign. */
 export const qcControlQuerySchema = z.object({
   standard: z.string().trim().min(1).max(50).optional(),
+  campaign: campaignFilter,
+});
+
+/** The Remarks on one standard and element in the standard table; empty removes it. */
+export const qcStandardRemarkSchema = z.object({
+  standard: z.string().trim().min(1).max(50),
+  element: z.enum(CONTROL_ELEMENTS),
+  remarks: z.string().trim().max(500),
+});
+
+/** The dashboard's duplicate charts and table: which campaign, and which month of the duplicates' date. */
+export const qcDuplicateQuerySchema = z.object({
+  campaign: campaignFilter,
+  month: z
+    .string()
+    .regex(/^\d{4}-(0[1-9]|1[0-2])$/)
+    .optional(),
 });
 
 /** The dashboard's blank charts: which campaign, or every one when absent. As long as the column holds. */
 export const qcBlankQuerySchema = z.object({
-  campaign: z.string().trim().min(1).max(100).optional(),
+  campaign: campaignFilter,
 });
 
 /** The CRM List's three tables, by the name the API path carries. */

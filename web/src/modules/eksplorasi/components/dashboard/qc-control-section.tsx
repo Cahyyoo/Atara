@@ -1,16 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
-import { Label } from "@/core/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/components/ui/select";
 import { InlineNotice } from "@/core/components/ui/inline-notice";
 import { Skeleton } from "@/core/components/ui/skeleton";
-import { apiFetch } from "@/core/lib/http/api-client";
 import type { ControlElement } from "@/modules/eksplorasi/lib/qc-control";
 import type { QcControl } from "@/modules/eksplorasi/types";
-import { IoReloadOutline } from "react-icons/io5";
+import {
+  ALL,
+  CriteriaLoading,
+  CriteriaSelect,
+  criteriaQuery,
+  useCriteriaData,
+} from "@/modules/eksplorasi/components/dashboard/qc-criteria";
+import { QcStandardTable } from "@/modules/eksplorasi/components/dashboard/qc-standard-table";
 
 /** The chart library is the heaviest thing the page loads, so it comes in its own chunk. */
 const QcControlCharts = dynamic(
@@ -29,46 +33,24 @@ export function ControlChartsSkeleton() {
 }
 
 /**
- * The dashboard's control charts: one OREAS standard, chosen by its CRM List
- * name ("Oreas Criteria"), for the dashboard's chosen `elements`. The first
- * standard comes with the page; another choice asks for the next. Every
- * element comes in each answer, so ticking one shows it at once.
+ * The dashboard's standards: for one campaign or all ("Campaign Criteria"),
+ * the standard table of every OREAS standard, then the control charts of
+ * one, chosen by its CRM List name ("Oreas Criteria") -- both for the
+ * dashboard's chosen `elements`. The first standard and every campaign come
+ * with the page; another choice asks for that one. Every element comes in
+ * each answer, so ticking one shows it at once.
  */
 export function QcControlSection({ initial, elements }: { initial: QcControl; elements: readonly ControlElement[] }) {
   const t = useTranslations("qcDashboard");
-  const tCommon = useTranslations("common");
   const [standard, setStandard] = useState(initial.standard ?? "");
-  // The last answer, kept with the question it answers: the charts show it
-  // once it matches what is asked, and the previous ones until then.
-  const [answer, setAnswer] = useState<{ query: string; data?: QcControl; error?: string } | null>(null);
-  const [shown, setShown] = useState<QcControl>(initial);
+  const [campaign, setCampaign] = useState(initial.campaign ?? ALL);
 
-  const isInitial = standard === (initial.standard ?? "");
-  const query = standard ? new URLSearchParams({ standard }).toString() : "";
-
-  useEffect(() => {
-    if (isInitial) return;
-    let live = true;
-    void apiFetch<QcControl>(`/api/data-sources/qc/control?${query}`, { networkError: tCommon("networkError") }).then(
-      (outcome) => {
-        if (!live) return;
-        if (outcome.ok) {
-          setShown(outcome.data);
-          setAnswer({ query, data: outcome.data });
-        } else {
-          setAnswer({ query, error: outcome.error });
-        }
-      }
-    );
-    return () => {
-      live = false;
-    };
-  }, [query, isInitial, tCommon]);
-
-  const data = isInitial ? initial : shown;
-  const loading = !isInitial && answer?.query !== query;
-  const error = !isInitial && answer?.query === query ? (answer.error ?? null) : null;
-  const choices = Object.fromEntries(data.standards.map((name) => [name, name]));
+  const { data, loading, error } = useCriteriaData(
+    "/api/data-sources/qc/control",
+    criteriaQuery({ standard, campaign }),
+    initial,
+    criteriaQuery({ standard: initial.standard ?? "", campaign: initial.campaign ?? ALL })
+  );
 
   return (
     <section aria-labelledby="qc-control-heading" className="flex flex-col gap-4">
@@ -80,28 +62,25 @@ export function QcControlSection({ initial, elements }: { initial: QcControl; el
           <p className="text-sm text-muted-foreground">{t("control.description", { method: data.testMethod })}</p>
         </div>
         {data.standards.length > 0 ? (
-          <div className="flex items-end gap-3">
-            {loading ? (
-              <span className="flex items-center gap-1.5 pb-2 text-sm text-muted-foreground" role="status">
-                <IoReloadOutline className="size-4 animate-spin" />
-                {t("loading")}
-              </span>
-            ) : null}
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="qc-control-standard">{t("control.criteria")}</Label>
-              <Select value={standard} items={choices} onValueChange={(value) => setStandard(String(value ?? ""))}>
-                <SelectTrigger id="qc-control-standard" className="w-44">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {data.standards.map((name) => (
-                    <SelectItem key={name} value={name}>
-                      {name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="flex flex-wrap items-end gap-3">
+            {loading ? <CriteriaLoading /> : null}
+            <CriteriaSelect
+              id="qc-control-campaign"
+              label={t("criteria.campaign")}
+              value={campaign}
+              onChange={setCampaign}
+              options={[
+                { value: ALL, label: t("criteria.allCampaigns") },
+                ...initial.campaigns.map((name) => ({ value: name, label: name })),
+              ]}
+            />
+            <CriteriaSelect
+              id="qc-control-standard"
+              label={t("control.criteria")}
+              value={standard}
+              onChange={setStandard}
+              options={data.standards.map((name) => ({ value: name, label: name }))}
+            />
           </div>
         ) : null}
       </div>
@@ -114,6 +93,7 @@ export function QcControlSection({ initial, elements }: { initial: QcControl; el
         </p>
       ) : (
         <>
+          <QcStandardTable summary={data.summary.filter(({ element }) => elements.includes(element))} />
           <QcControlCharts data={data} elements={elements} />
           {data.truncated ? <p className="text-xs text-muted-foreground">{t("truncated")}</p> : null}
         </>

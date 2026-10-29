@@ -5,12 +5,12 @@
         "title": "Exploration Dashboard",
         "intro": "Control charts of the OREAS standards against the CRM List, the blanks against their Preferred Value, and the duplicates against their originals.",
         "steps": {
-          "1": "Pick a standard under Oreas Criteria. Each point is one assay of that standard, at its row in the Data Source.",
+          "1": "Pick a campaign under Campaign Criteria (or every campaign) and a standard under Oreas Criteria. The standard table gives, for each element ticked, every OREAS standard's certified value and SD, its number of assays, mean, min and max, and the share within 1, 2 and 3 SD; Outside 2 SD past 5% is red. Write a note on a row with the pencil under Remarks. Each point of a chart is one assay of the chosen standard at its row in the Data Source.",
           "2": "The green, yellow and red lines are ±1σ, ±2σ and ±3σ of the certified value (Fusion XRF) in the CRM List. Points outside ±3σ are drawn red and counted under the chart.",
           "3": "The Elements button chooses which elements' charts show (Ni, Co, Fe2O3, Al2O3, Cr2O3, MgO, SiO2). The choice is kept in this browser.",
           "4": "Values that are not numbers (such as <0.01) are not drawn; how many is said under the chart.",
           "5": "Blank: pick a campaign under Campaign Criteria, or every campaign. The table gives, for Ni, Co, Fe2O3 and Cr2O3, the number of blanks, their mean, min and max, the CRM List's Preferred Value, and how many read past it (anomalies). Each chart puts every blank at its Sample Index against the Preferred Value (red line); readings past it are red. A reading written \"<0.01\" is taken as 0.01, as the QC workbook does, and drawn in grey.",
-          "6": "Duplicate: for each element, three charts. First, each duplicate (Y) against its original (X), the FIELD sample whose Sample ID is picked in the Duplicate list's Remarks: points outside the ±10% lines are drawn red and counted, and the solid line is the linear trend, its equation and R² written under the title (it needs at least two pairs). Then the RPD graph: each pair's relative percent difference in the order the duplicates were taken, 20% or more in red. Last, the RPD distribution: the RPDs from smallest to largest against the share of pairs, with the CRM List's 10% line."
+          "6": "Duplicate: pick a campaign under Campaign Criteria and a month of the duplicates' date under Month Criteria (or all). The table gives, for each element ticked, the pairs (N-samples), the pairs with an RPD (the points of the RPD graph) and their mean RPD, and the originals' and duplicates' mean, min and max. For each element there are three charts. First, each duplicate (Y) against its original (X), the FIELD sample whose Sample ID is picked in the Duplicate list's Remarks: points outside the ±10% lines are drawn red and counted, and the solid line is the linear trend, its equation and R² written under the title (it needs at least two pairs). Then the RPD graph: each pair's relative percent difference in the order the duplicates were taken, 20% or more in red. Last, the RPD distribution: the RPDs from smallest to largest against the share of pairs, with the CRM List's 10% line."
         },
         "tip": "Fill the Control column of a STANDARD row with its OREAS name (e.g. OREAS-184) so its assays reach the charts."
       },
@@ -211,6 +211,12 @@
     "subtitle": "Control charts of the OREAS standards (±1σ, ±2σ, ±3σ), the blanks against their Preferred Value, and the duplicates against their originals (±10%).",
     "loading": "Loading charts…",
     "truncated": "Too many assays; only the oldest 5,000 points are drawn.",
+    "criteria": {
+      "campaign": "Campaign Criteria",
+      "allCampaigns": "All campaigns",
+      "month": "Month Criteria",
+      "allMonths": "All months"
+    },
     "control": {
       "title": "Standard control charts (OREAS)",
       "description": "Each standard assay by sample index (its row in the Data Source), against the certified value ±1σ, ±2σ, ±3σ from the CRM List ({method}).",
@@ -234,13 +240,34 @@
       "outside": "{count, plural, one {# point outside ±3σ.} other {# points outside ±3σ.}}",
       "elements": "Elements",
       "elementsCount": "Elements ({shown}/{total})",
-      "showAll": "Show all"
+      "showAll": "Show all",
+      "table": {
+        "title": "Standard {element}",
+        "standard": "Standard",
+        "certified": "Standard {element} Value",
+        "n": "N Sample",
+        "sd": "Standard Deviation (COA)",
+        "mean": "Mean",
+        "min": "Min",
+        "max": "Max",
+        "within1": "Within 1 SD",
+        "within2": "Within 2 SD",
+        "within3": "Within 3 SD",
+        "outside2": "Outside 2 SD",
+        "remarks": "Remarks",
+        "editRemarks": "Edit the Remarks on {standard} {element}"
+      },
+      "remarkDialog": {
+        "title": "Remarks · {standard} {element}",
+        "description": "A note on this standard and element, the same for every campaign. Leave it empty to remove it.",
+        "label": "Remarks",
+        "save": "Save",
+        "saving": "Saving…"
+      }
     },
     "blank": {
       "title": "Blank",
       "description": "Each blank sample's reading at its Sample Index, against the Preferred Value of the CRM List's Blank table.",
-      "criteria": "Campaign Criteria",
-      "allCampaigns": "All campaigns",
       "table": {
         "element": "Element",
         "n": "N Sample",
@@ -304,7 +331,19 @@
       "rpdCumulative": "Cumulative frequency {share}%",
       "axisIndex": "Sample Index",
       "axisRpd": "Relative Percent Difference (%)",
-      "axisCumulative": "Cumulative frequency (%)"
+      "axisCumulative": "Cumulative frequency (%)",
+      "table": {
+        "element": "Element",
+        "nSamples": "N-samples",
+        "rpdSamples": "RPD Samples",
+        "averageRpd": "Average % RPD",
+        "meanOriginal": "Mean Ori",
+        "minOriginal": "Min Ori",
+        "maxOriginal": "Max Ori",
+        "meanDuplicate": "Mean Dup",
+        "minDuplicate": "Min Dup",
+        "maxDuplicate": "Max Dup"
+      }
     }
   },
   "crmList": {

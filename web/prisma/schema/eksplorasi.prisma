@@ -142,3 +142,22 @@ model CrmDuplicate {
 
   @@map("eksplorasi_crm_list_duplicate")
 }
+
+/// The dashboard's Remarks on how one OREAS standard fares for one element,
+/// written by hand and shared by every campaign. The standard is held as
+/// its crmKey, so "OREAS-184" and "Oreas184" share one note.
+model QcStandardRemark {
+  id          String @id @default(cuid())
+  standardKey String @map("standard_key") @db.VarChar(50)
+  /// ni, co, fe2o3, al2o3, cr2o3, mgo or sio2.
+  element     String @db.VarChar(10)
+  remarks     String @db.VarChar(500)
+
+  updatedById String?  @map("updated_by")
+  updatedBy   User?    @relation("QcStandardRemarkUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([standardKey, element])
+  @@map("eksplorasi_qc_standard_remark")
+}

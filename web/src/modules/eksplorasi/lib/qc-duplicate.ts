@@ -131,3 +131,47 @@ export function rpdDistribution(points: readonly RpdPoint[]): (RpdPoint & { cumu
   const n = points.length;
   return [...points].sort((a, b) => a.rpd - b.rpd || a.index - b.index).map((point, rank) => ({ ...point, cumulative: (rank + 1) / n }));
 }
+
+/** A month ("2026-10") as the dates it holds: from its first day, up to but not including the next month's. */
+export function monthRange(month: string): { from: string; to: string } {
+  const [year, number] = month.split("-").map(Number);
+  const next = number === 12 ? `${year + 1}-01` : `${year}-${String(number + 1).padStart(2, "0")}`;
+  return { from: `${month}-01`, to: `${next}-01` };
+}
+
+const figures = (values: readonly number[]) =>
+  values.length === 0
+    ? { mean: null, min: null, max: null }
+    : {
+        mean: values.reduce((sum, value) => sum + value, 0) / values.length,
+        min: Math.min(...values),
+        max: Math.max(...values),
+      };
+
+/** One row of the duplicate table. */
+export interface DuplicateSummary {
+  /** Every duplicate paired with its original, whether or not this element is a number on both. */
+  nSamples: number;
+  /** The pairs on the RPD graph: both readings numbers, with an RPD. */
+  rpdSamples: number;
+  /** Their mean RPD, as a share (0.0438 is 4.38%); null with none. */
+  averageRpd: number | null;
+  original: { mean: number | null; min: number | null; max: number | null };
+  duplicate: { mean: number | null; min: number | null; max: number | null };
+}
+
+/**
+ * The duplicate table's row for one element, as the lab's QC workbook has it:
+ * how many pairs there are, how many have an RPD and its mean, and the
+ * originals' and duplicates' mean and range over the pairs drawn.
+ */
+export function duplicateSummary(pairs: readonly DuplicatePair[], skipped: number): DuplicateSummary {
+  const rpds = rpdSeries(pairs);
+  return {
+    nSamples: pairs.length + skipped,
+    rpdSamples: rpds.length,
+    averageRpd: rpds.length === 0 ? null : rpds.reduce((sum, point) => sum + point.rpd, 0) / rpds.length,
+    original: figures(pairs.map((pair) => pair.x)),
+    duplicate: figures(pairs.map((pair) => pair.y)),
+  };
+}

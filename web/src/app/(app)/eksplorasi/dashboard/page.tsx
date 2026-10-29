@@ -16,7 +16,7 @@ export default async function ExplorationDashboardPage() {
   const [initialControl, initialBlank, duplicates, t] = await Promise.all([
     loadStandardControl({}),
     loadBlankCharts({}),
-    loadDuplicateCharts(),
+    loadDuplicateCharts({}),
     getTranslations("qcDashboard"),
   ]);
 

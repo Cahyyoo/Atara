@@ -58,7 +58,7 @@ describe.skipIf(!reachable)("the duplicate charts", () => {
   });
 
   it("pairs each duplicate with the FIELD sample its Remarks names", async () => {
-    const data = await loadDuplicateCharts();
+    const data = await loadDuplicateCharts({});
     const ni = data.elements.find((entry) => entry.element === "ni")!;
     expect(ni.pairs.filter((pair) => pair.sampleId.startsWith(tag))).toEqual([
       { sampleId: `${tag}-D1`, originalId: `${tag}-F1`, x: 1, y: 1.05 },
@@ -70,6 +70,6 @@ describe.skipIf(!reachable)("the duplicate charts", () => {
 
   it("counts the duplicates whose Remarks names no FIELD sample", async () => {
     // D2 names a standard and D3 is free text; other rows in the database may add to the count.
-    expect((await loadDuplicateCharts()).unmatched).toBeGreaterThanOrEqual(2);
+    expect((await loadDuplicateCharts({})).unmatched).toBeGreaterThanOrEqual(2);
   });
 });
