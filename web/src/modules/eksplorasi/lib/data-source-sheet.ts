@@ -14,6 +14,7 @@ import { findExistingSamples } from "@/modules/eksplorasi/lib/data-source-upsert
 import { DATA_SOURCE_SELECT, toDataSourceDTO, toDateColumn } from "@/modules/eksplorasi/lib/data-source";
 import { isBlankRemark, matchOreas } from "@/modules/eksplorasi/lib/oreas-match";
 import { oreasStandards } from "@/modules/eksplorasi/lib/crm-list-service";
+import { invalidateDataSourceCaches } from "@/modules/eksplorasi/lib/eksplorasi-cache";
 import type { dataSourceSheetSchema } from "@/modules/eksplorasi/validation";
 import type { DataSourceDTO, SheetResult, SheetStatus, SheetVerdict } from "@/modules/eksplorasi/types";
 
@@ -151,5 +152,6 @@ export async function applyDataSourceSheet(body: SheetBody, userId: string): Pro
       await tx.dataSource.update({ where: { id }, data: { ...columnsOf(values), updatedById: userId } as Prisma.DataSourceUpdateInput });
     }
   });
+  invalidateDataSourceCaches();
   return { rows: result, summary, created: creates.length, updated: updates.length };
 }

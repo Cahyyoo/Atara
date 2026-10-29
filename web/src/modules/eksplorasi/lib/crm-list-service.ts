@@ -4,6 +4,7 @@ import { ApiError } from "@/core/lib/http/api-response";
 import { blankToNull } from "@/modules/eksplorasi/lib/data-source";
 import { CRM_COLUMNS, crmFields, isCrmKind, type CrmKind } from "@/modules/eksplorasi/lib/crm-list-columns";
 import type { OreasStandard } from "@/modules/eksplorasi/lib/oreas-match";
+import { crmListCache, invalidateCrmCaches, oreasStandardsCache } from "@/modules/eksplorasi/lib/eksplorasi-cache";
 import type { CrmRowDTO } from "@/modules/eksplorasi/types";
 
 /**
@@ -14,6 +15,9 @@ import type { CrmRowDTO } from "@/modules/eksplorasi/types";
  * A name already taken -- the same standard and test method twice, or a
  * second "Preferred Value" -- is a 409, and a row that is gone a 404, both
  * from handleApiError (P2002, P2025).
+ *
+ * Reads are held for a moment (eksplorasi-cache.ts); every write empties
+ * them, and the control charts drawn from them, once it has landed.
  */
 
 /** standard, blank or duplicate, from the API path; any other name is a table that does not exist. */
@@ -75,13 +79,16 @@ function columns(kind: CrmKind, body: Record<string, string | null | undefined>)
   );
 }
 
-export async function listCrm(kind: CrmKind): Promise<CrmRowDTO[]> {
-  const rows = await TABLES[kind].findMany({ orderBy: ORDER[kind], take: MAX_ROWS });
-  return rows.map((row) => toDTO(kind, row));
+export function listCrm(kind: CrmKind): Promise<CrmRowDTO[]> {
+  return crmListCache.get(kind, async () => {
+    const rows = await TABLES[kind].findMany({ orderBy: ORDER[kind], take: MAX_ROWS });
+    return rows.map((row) => toDTO(kind, row));
+  });
 }
 
 export async function createCrm(kind: CrmKind, body: Record<string, string | null | undefined>, userId: string) {
   const row = await TABLES[kind].create({ data: { ...columns(kind, body), createdById: userId } });
+  invalidateCrmCaches();
   return toDTO(kind, row);
 }
 
@@ -93,22 +100,26 @@ export async function updateCrm(
   userId: string
 ) {
   const row = await TABLES[kind].update({ where: { id }, data: { ...columns(kind, body), updatedById: userId } });
+  invalidateCrmCaches();
   return toDTO(kind, row);
 }
 
 /** Removed outright: nothing refers to a CRM row. */
 export async function deleteCrm(kind: CrmKind, id: string) {
   await TABLES[kind].delete({ where: { id } });
+  invalidateCrmCaches();
   return { id };
 }
 
 /**
  * Every CRM List standard with the five values a row is matched on, for the
- * Remarks fill (oreas-match.ts). Read once per save: a few dozen rows.
+ * Remarks fill (oreas-match.ts). Read on every save: a few dozen rows, held.
  */
-export async function oreasStandards(): Promise<OreasStandard[]> {
-  return prisma.crmStandard.findMany({
-    select: { standard: true, ni: true, co: true, fe2o3: true, al2o3: true, cr2o3: true },
-    take: MAX_ROWS,
-  });
+export function oreasStandards(): Promise<OreasStandard[]> {
+  return oreasStandardsCache.get("standards", () =>
+    prisma.crmStandard.findMany({
+      select: { standard: true, ni: true, co: true, fe2o3: true, al2o3: true, cr2o3: true },
+      take: MAX_ROWS,
+    })
+  );
 }

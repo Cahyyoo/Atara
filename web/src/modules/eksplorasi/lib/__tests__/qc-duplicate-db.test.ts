@@ -1,5 +1,6 @@
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/core/lib/prisma";
+import { resetEksplorasiCaches } from "@/modules/eksplorasi/lib/eksplorasi-cache";
 import { loadDuplicateCharts } from "@/modules/eksplorasi/lib/qc-duplicate-service";
 
 /**
@@ -17,6 +18,9 @@ const reachable = await prisma.user
 if (!reachable) {
   console.warn("[qc-duplicate-db] skipped: no database reachable");
 }
+
+// Rows are written straight through Prisma here, past the services that empty the caches.
+beforeEach(() => resetEksplorasiCaches());
 
 describe.skipIf(!reachable)("the duplicate charts", () => {
   const tag = `QCD${Date.now().toString(36).toUpperCase()}`;

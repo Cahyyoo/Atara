@@ -3,6 +3,7 @@ import { prisma } from "@/core/lib/prisma";
 import { CONTROL_ELEMENTS } from "@/modules/eksplorasi/lib/qc-control";
 import { duplicatePairs, type DuplicateRow } from "@/modules/eksplorasi/lib/qc-duplicate";
 import type { QcDuplicate } from "@/modules/eksplorasi/types";
+import { duplicatesCache } from "@/modules/eksplorasi/lib/eksplorasi-cache";
 
 /**
  * The dashboard's duplicate charts: every DUPLICATE row of the data source
@@ -15,7 +16,12 @@ import type { QcDuplicate } from "@/modules/eksplorasi/types";
 /** As the control charts: past this a scatter is a smear. */
 const MAX_PAIRS = 5_000;
 
-export async function loadDuplicateCharts(): Promise<QcDuplicate> {
+/** Held a moment (eksplorasi-cache.ts); any write to the data source empties it. */
+export function loadDuplicateCharts(): Promise<QcDuplicate> {
+  return duplicatesCache.get("duplicates", computeDuplicateCharts);
+}
+
+async function computeDuplicateCharts(): Promise<QcDuplicate> {
   const [rows, [{ n: unmatched }]] = await Promise.all([
     // The original found by its unique Sample ID; the earliest duplicates first.
     prisma.$queryRaw<DuplicateRow[]>`

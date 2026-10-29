@@ -1,7 +1,8 @@
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import ExcelJS from "exceljs";
 import { prisma } from "@/core/lib/prisma";
+import { resetEksplorasiCaches } from "@/modules/eksplorasi/lib/eksplorasi-cache";
 
 /**
  * The data-source import at the size it was built for -- 34,000 rows --
@@ -55,6 +56,9 @@ async function applyLines(response: Response): Promise<Record<string, unknown>[]
     .filter(Boolean)
     .map((line) => JSON.parse(line));
 }
+
+// Rows are written straight through Prisma here, past the services that empty the caches.
+beforeEach(() => resetEksplorasiCaches());
 
 describe.skipIf(!reachable)("importing 34,000 rows of the data source", () => {
   const tag = `IMP${Date.now().toString(36).toUpperCase()}`;

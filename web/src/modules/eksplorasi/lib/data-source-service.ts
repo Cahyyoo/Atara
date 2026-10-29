@@ -11,6 +11,7 @@ import {
   toDataSourceDTO,
   toDateColumn,
 } from "@/modules/eksplorasi/lib/data-source";
+import { campaignsCache, invalidateDataSourceCaches } from "@/modules/eksplorasi/lib/eksplorasi-cache";
 import type {
   createDataSourceSchema,
   listDataSourceQuerySchema,
@@ -53,16 +54,18 @@ export async function listDataSource(query: z.output<typeof listDataSourceQueryS
   return { rows: rows.map(toDataSourceDTO), pagination: paginationOf(total, query) };
 }
 
-/** The campaigns there are, for the lists' filter. A few dozen at most. */
-export async function listCampaigns(): Promise<string[]> {
-  const rows = await prisma.dataSource.findMany({
-    where: { campaign: { not: null } },
-    distinct: ["campaign"],
-    select: { campaign: true },
-    orderBy: { campaign: "asc" },
-    take: 500,
+/** The campaigns there are, for the lists' filter. A few dozen at most, held (eksplorasi-cache.ts). */
+export function listCampaigns(): Promise<string[]> {
+  return campaignsCache.get("campaigns", async () => {
+    const rows = await prisma.dataSource.findMany({
+      where: { campaign: { not: null } },
+      distinct: ["campaign"],
+      select: { campaign: true },
+      orderBy: { campaign: "asc" },
+      take: 500,
+    });
+    return rows.flatMap((row) => (row.campaign ? [row.campaign] : []));
   });
-  return rows.flatMap((row) => (row.campaign ? [row.campaign] : []));
 }
 
 /**
@@ -86,6 +89,7 @@ export async function createDataSource(body: NewRow, userId: string) {
     data: { ...(columns(body) as Omit<Prisma.DataSourceUncheckedCreateInput, "createdById">), createdById: userId },
     select: DATA_SOURCE_SELECT,
   });
+  invalidateDataSourceCaches();
   return toDataSourceDTO(row);
 }
 
@@ -102,11 +106,13 @@ export async function updateDataSource(id: string, body: RowChange, userId: stri
     data: { ...(columns(body) as Prisma.DataSourceUncheckedUpdateInput), updatedById: userId },
     select: DATA_SOURCE_SELECT,
   });
+  invalidateDataSourceCaches();
   return toDataSourceDTO(row);
 }
 
 /** Removed outright: nothing hangs off a row. */
 export async function deleteDataSource(id: string) {
   await prisma.dataSource.delete({ where: { id } });
+  invalidateDataSourceCaches();
   return { id };
 }

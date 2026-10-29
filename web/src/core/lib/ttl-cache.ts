@@ -18,10 +18,18 @@
  * Failures are not cached: a computation that threw leaves nothing behind, so
  * the next caller tries again rather than being handed the error for the rest
  * of the TTL.
+ *
+ * Neither is a computation overtaken by `invalidate`: a read that started
+ * before a write and finished after it still answers the callers already
+ * waiting on it, but is not kept -- otherwise it would serve the data from
+ * before the write for a whole TTL.
  */
 export class TtlCache<T> {
   private readonly entries = new Map<string, { value: T; expiresAt: number }>();
   private readonly inFlight = new Map<string, Promise<T>>();
+  /** Bumped by `invalidate`, per key and for everything: a computation started under an older one is not kept. */
+  private generation = 0;
+  private readonly keyGenerations = new Map<string, number>();
 
   constructor(
     private readonly ttlMs: number,
@@ -47,8 +55,10 @@ export class TtlCache<T> {
     // this cache is for (a 50-second activity summary, a dashboard past 30 s)
     // -- were never cached at all, and every caller recomputed them.
     const startedAt = Date.now();
+    const generation = this.generationOf(key);
     const started = compute().then(
       (value) => {
+        if (this.generationOf(key) !== generation) return value;
         this.entries.delete(key);
         this.entries.set(key, { value, expiresAt: now + (Date.now() - startedAt) + this.ttlMs });
         this.prune();
@@ -68,13 +78,25 @@ export class TtlCache<T> {
     return tracked;
   }
 
-  /** Forget one key, or everything. The next `get` computes again. */
+  /**
+   * Forget one key, or everything. The next `get` computes again, even while
+   * a computation from before is still running -- that one's answer is not kept.
+   */
   invalidate(key?: string): void {
     if (key === undefined) {
+      this.generation += 1;
+      this.keyGenerations.clear();
       this.entries.clear();
+      this.inFlight.clear();
       return;
     }
+    this.keyGenerations.set(key, (this.keyGenerations.get(key) ?? 0) + 1);
     this.entries.delete(key);
+    this.inFlight.delete(key);
+  }
+
+  private generationOf(key: string): string {
+    return `${this.generation}:${this.keyGenerations.get(key) ?? 0}`;
   }
 
   get size(): number {

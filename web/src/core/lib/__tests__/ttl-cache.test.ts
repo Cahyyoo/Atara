@@ -39,6 +39,25 @@ describe("TtlCache", () => {
     expect(compute).toHaveBeenCalledTimes(1);
   });
 
+  it("does not keep a computation overtaken by invalidate, and computes afresh for the next caller", async () => {
+    for (const invalidate of [(cache: TtlCache<string>) => cache.invalidate("k"), (cache: TtlCache<string>) => cache.invalidate()]) {
+      const cache = new TtlCache<string>(60_000);
+      let finish: (value: string) => void = () => {};
+      const before = cache.get("k", () => new Promise<string>((resolve) => (finish = resolve)), 0);
+      // A write lands while the read from before it is still running.
+      invalidate(cache);
+      const fresh = vi.fn(async () => "after");
+      const after = cache.get("k", fresh, 1);
+      finish("before");
+      // The callers already waiting still get their answer...
+      expect(await before).toBe("before");
+      expect(await after).toBe("after");
+      expect(fresh).toHaveBeenCalledTimes(1);
+      // ...but what is kept is the one from after the write.
+      expect(await cache.get("k", async () => "again", 2)).toBe("after");
+    }
+  });
+
   it("does not keep a failure", async () => {
     const cache = new TtlCache<number>(1_000);
     await expect(cache.get("k", async () => Promise.reject(new Error("db")), 0)).rejects.toThrow("db");

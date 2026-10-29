@@ -7,6 +7,7 @@ import { DATA_SOURCE_FIELDS, type DataSourceField } from "@/modules/eksplorasi/l
 import type { DataSourceImportRow, ImportRow } from "@/modules/eksplorasi/lib/data-source-import";
 import { isBlankRemark, matchOreas, type OreasStandard } from "@/modules/eksplorasi/lib/oreas-match";
 import { oreasStandards } from "@/modules/eksplorasi/lib/crm-list-service";
+import { invalidateDataSourceCaches } from "@/modules/eksplorasi/lib/eksplorasi-cache";
 
 /**
  * Writing an imported sheet: tens of thousands of rows in a few dozen
@@ -122,56 +123,61 @@ export async function writeImport(
   let updated = 0;
   const standards = await oreasStandards();
 
-  for (const chunk of chunks(plan.creates, CREATE_CHUNK)) {
-    const result = await prisma.dataSource.createMany({
-      data: chunk.map(({ data }) => ({
-        ...(valuesOf(data) as Omit<Prisma.DataSourceCreateManyInput, "sampleId" | "sampleType" | "createdById">),
-        // A new row has no Remarks stored, so the file's or the match's is the one.
-        oreasRemarks: data.oreasRemarks || autoRemark(data, standards),
-        sampleId: data.sampleId,
-        sampleType: data.sampleType,
-        createdById: userId,
-      })),
-      skipDuplicates: true,
-    });
-    created += result.count;
-    done += chunk.length;
-    onProgress(done, total);
-  }
+  // A failed chunk may follow ones already written: what is held is emptied either way.
+  try {
+    for (const chunk of chunks(plan.creates, CREATE_CHUNK)) {
+      const result = await prisma.dataSource.createMany({
+        data: chunk.map(({ data }) => ({
+          ...(valuesOf(data) as Omit<Prisma.DataSourceCreateManyInput, "sampleId" | "sampleType" | "createdById">),
+          // A new row has no Remarks stored, so the file's or the match's is the one.
+          oreasRemarks: data.oreasRemarks || autoRemark(data, standards),
+          sampleId: data.sampleId,
+          sampleType: data.sampleType,
+          createdById: userId,
+        })),
+        skipDuplicates: true,
+      });
+      created += result.count;
+      done += chunk.length;
+      onProgress(done, total);
+    }
 
-  const now = new Date();
-  for (const chunk of chunks(plan.updates, UPDATE_CHUNK)) {
-    const values = Prisma.join(
-      chunk.map(({ id, data }) => {
-        const v = valuesOf(data);
-        return Prisma.sql`SELECT ${id} AS id, ${Prisma.join(
-          UPDATED_FIELDS.map((field) => Prisma.sql`${v[field]} AS ${COLUMN[field]}`),
-          ", "
-        )}, ${autoRemark(data, standards)} AS auto_oreas_remarks`;
-      }),
-      " UNION ALL "
-    );
-    // Remarks takes the file's, else keeps what is stored, and only then the
-    // OREAS match: a remark somebody wrote is never replaced by the fill.
-    const assignments = Prisma.join(
-      UPDATED_FIELDS.map((field) =>
-        field === "oreasRemarks"
-          ? Prisma.sql`d.${COLUMN[field]} = COALESCE(v.${COLUMN[field]}, d.${COLUMN[field]}, v.auto_oreas_remarks)`
-          : Prisma.sql`d.${COLUMN[field]} = COALESCE(v.${COLUMN[field]}, d.${COLUMN[field]})`
-      ),
-      ", "
-    );
-    // MySQL's affected count leaves out rows whose values did not change;
-    // the rows the sheet asked for are what is reported instead.
-    await prisma.$executeRaw`
-      UPDATE eksplorasi_data_source AS d
-      JOIN (${values}) AS v ON v.id = d.id
-      SET ${assignments},
-          d.updated_by = ${userId},
-          d.updated_at = ${now}`;
-    updated += chunk.length;
-    done += chunk.length;
-    onProgress(done, total);
+    const now = new Date();
+    for (const chunk of chunks(plan.updates, UPDATE_CHUNK)) {
+      const values = Prisma.join(
+        chunk.map(({ id, data }) => {
+          const v = valuesOf(data);
+          return Prisma.sql`SELECT ${id} AS id, ${Prisma.join(
+            UPDATED_FIELDS.map((field) => Prisma.sql`${v[field]} AS ${COLUMN[field]}`),
+            ", "
+          )}, ${autoRemark(data, standards)} AS auto_oreas_remarks`;
+        }),
+        " UNION ALL "
+      );
+      // Remarks takes the file's, else keeps what is stored, and only then the
+      // OREAS match: a remark somebody wrote is never replaced by the fill.
+      const assignments = Prisma.join(
+        UPDATED_FIELDS.map((field) =>
+          field === "oreasRemarks"
+            ? Prisma.sql`d.${COLUMN[field]} = COALESCE(v.${COLUMN[field]}, d.${COLUMN[field]}, v.auto_oreas_remarks)`
+            : Prisma.sql`d.${COLUMN[field]} = COALESCE(v.${COLUMN[field]}, d.${COLUMN[field]})`
+        ),
+        ", "
+      );
+      // MySQL's affected count leaves out rows whose values did not change;
+      // the rows the sheet asked for are what is reported instead.
+      await prisma.$executeRaw`
+        UPDATE eksplorasi_data_source AS d
+        JOIN (${values}) AS v ON v.id = d.id
+        SET ${assignments},
+            d.updated_by = ${userId},
+            d.updated_at = ${now}`;
+      updated += chunk.length;
+      done += chunk.length;
+      onProgress(done, total);
+    }
+  } finally {
+    invalidateDataSourceCaches();
   }
 
   return { created, updated };

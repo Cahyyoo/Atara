@@ -1,6 +1,7 @@
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { prisma } from "@/core/lib/prisma";
+import { resetEksplorasiCaches } from "@/modules/eksplorasi/lib/eksplorasi-cache";
 
 /**
  * A list's sheet against the real database: new rows and unlocked ones
@@ -46,6 +47,9 @@ async function send(view: string, rows: Row[], dryRun: boolean) {
   );
   return { status: response.status, body: await response.json() };
 }
+
+// Rows are written straight through Prisma here, past the services that empty the caches.
+beforeEach(() => resetEksplorasiCaches());
 
 describe.skipIf(!reachable)("a list's sheet", () => {
   const tag = `SHT${Date.now().toString(36).toUpperCase()}`;
@@ -276,5 +280,50 @@ describe.skipIf(!reachable)("a row whose assay is an OREAS standard's", () => {
     const row = await prisma.dataSource.findUniqueOrThrow({ where: { sampleId: `${tag}-DUP` } });
     expect(row.oreasRemarks).toBeNull();
     expect(row.originalSampleIdRemarks).toBeNull();
+  });
+});
+
+describe.skipIf(!reachable)("what the module holds between requests", () => {
+  const tag = `HLD${Date.now().toString(36).toUpperCase()}`;
+  let userId = "";
+
+  beforeAll(async () => {
+    userId = (
+      await prisma.user.create({
+        data: { name: "Cache test", email: `${tag.toLowerCase()}@test.invalid`, password: "x", role: "ADMIN", department: "EKSPLORASI" },
+      })
+    ).id;
+    session.userId = userId;
+  });
+
+  afterAll(async () => {
+    await prisma.dataSource.deleteMany({ where: { sampleId: { startsWith: tag } } });
+    await prisma.crmStandard.deleteMany({ where: { standard: { startsWith: tag } } });
+    if (userId) await prisma.user.delete({ where: { id: userId } });
+  });
+
+  it("keeps the campaigns until the data source is written through the app, then reads them afresh", async () => {
+    const { listCampaigns } = await import("@/modules/eksplorasi/lib/data-source-service");
+    expect(await listCampaigns()).not.toContain(`${tag}-A`);
+    // Written past the app: what is held does not know yet.
+    await prisma.dataSource.create({ data: { sampleId: `${tag}-A`, sampleType: "FIELD", campaign: `${tag}-A`, createdById: userId } });
+    expect(await listCampaigns()).not.toContain(`${tag}-A`);
+
+    // A dry run writes nothing, and empties nothing.
+    await send("dataSource", [{ line: 1, cells: { sampleId: `${tag}-B`, sampleType: "FIELD", campaign: `${tag}-B` } }], true);
+    expect(await listCampaigns()).not.toContain(`${tag}-A`);
+
+    // A save through the sheet does both.
+    const saved = await send("dataSource", [{ line: 1, cells: { sampleId: `${tag}-B`, sampleType: "FIELD", campaign: `${tag}-B` } }], false);
+    expect(saved.body.data.created).toBe(1);
+    expect(await listCampaigns()).toEqual(expect.arrayContaining([`${tag}-A`, `${tag}-B`]));
+  });
+
+  it("keeps the OREAS values until the CRM List is written through the app", async () => {
+    const { createCrm, oreasStandards } = await import("@/modules/eksplorasi/lib/crm-list-service");
+    const names = async () => (await oreasStandards()).map((row) => row.standard);
+    expect(await names()).not.toContain(`${tag}-ORE`);
+    await createCrm("standard", { standard: `${tag}-ORE`, testMethod: "Fusion XRF", ni: "1.00" }, userId);
+    expect(await names()).toContain(`${tag}-ORE`);
   });
 });

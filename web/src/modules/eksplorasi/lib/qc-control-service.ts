@@ -12,6 +12,7 @@ import {
   type ControlElement,
 } from "@/modules/eksplorasi/lib/qc-control";
 import type { qcControlQuerySchema } from "@/modules/eksplorasi/validation";
+import { controlCache } from "@/modules/eksplorasi/lib/eksplorasi-cache";
 import type { QcControl } from "@/modules/eksplorasi/types";
 
 /**
@@ -65,7 +66,16 @@ function assaysOf(key: string) {
     LIMIT ${MAX_POINTS + 1}`;
 }
 
-export async function loadStandardControl(query: Query): Promise<QcControl> {
+/**
+ * One standard's control charts, held a moment per standard asked for
+ * (eksplorasi-cache.ts): any write to the data source or the CRM List
+ * empties them. However the name is written, it is the same standard.
+ */
+export function loadStandardControl(query: Query): Promise<QcControl> {
+  return controlCache.get(crmKey(query.standard ?? ""), () => computeStandardControl(query));
+}
+
+async function computeStandardControl(query: Query): Promise<QcControl> {
   const standards = await certifiedStandards();
   const names = standards.map((row) => row.standard);
 

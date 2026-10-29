@@ -1,6 +1,7 @@
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { prisma } from "@/core/lib/prisma";
+import { resetEksplorasiCaches } from "@/modules/eksplorasi/lib/eksplorasi-cache";
 import { loadStandardControl } from "@/modules/eksplorasi/lib/qc-control-service";
 
 /**
@@ -24,6 +25,9 @@ const reachable = await prisma.user
 if (!reachable) {
   console.warn("[qc-control-db] skipped: no database reachable");
 }
+
+// Rows are written straight through Prisma here, past the services that empty the caches.
+beforeEach(() => resetEksplorasiCaches());
 
 describe.skipIf(!reachable)("a standard's control charts", () => {
   const tag = `QCC${Date.now().toString(36).toUpperCase()}`;
