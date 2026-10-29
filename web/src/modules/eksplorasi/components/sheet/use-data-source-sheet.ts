@@ -11,6 +11,7 @@ import type { ApiResult, PaginationDTO } from "@/core/types";
 import { fieldForHeader, viewFields, VIEWS, type DataSourceField } from "@/modules/eksplorasi/lib/data-source-columns";
 import { SHEET_MAX_ROWS } from "@/modules/eksplorasi/validation";
 import { readSampleTypeCell } from "@/modules/eksplorasi/lib/data-source-import";
+import { readDateCell } from "@/modules/eksplorasi/lib/sheet-cell";
 import {
   isBlankRemark,
   matchOreas,
@@ -32,6 +33,16 @@ import {
 } from "@/modules/eksplorasi/components/sheet/sheet-rows";
 import { sendSheet, useSheetCheck } from "@/modules/eksplorasi/components/sheet/use-sheet-check";
 import type { DataSourceDTO, DataSourceView } from "@/modules/eksplorasi/types";
+
+/**
+ * A date as the Date box holds it (YYYY-MM-DD), however it was pasted:
+ * "01/10/2026" from an Indonesian sheet becomes 2026-10-01. Anything that is
+ * not a date is kept as it came, for the box to show and the check to flag.
+ */
+function dateText(value: string): string {
+  const read = readDateCell(value);
+  return read === null || read === "invalid" ? value : read;
+}
 
 export const SHEET_ROW_HEIGHT = 36;
 
@@ -197,7 +208,7 @@ export function useDataSourceSheet(view: DataSourceView, onSaved: () => void, ed
         for (const { row, key, value } of cells) {
           if (row >= next.length || next[row].locked) continue;
           if (key === "sampleType" && fixedType) continue;
-          const text = key === "sampleType" ? typeText(value) : value;
+          const text = key === "sampleType" ? typeText(value) : key === "date" ? dateText(value) : value;
           next[row] = { ...next[row], cells: { ...next[row].cells, [key]: text } };
           if ((MATCH_ELEMENTS as readonly string[]).includes(key)) assayed.add(row);
         }

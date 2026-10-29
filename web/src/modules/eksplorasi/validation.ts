@@ -1,6 +1,7 @@
 /** Input schemas of the Eksplorasi module: the data source and the CRM List. */
 import { z } from "zod";
 import { paginationQuery } from "@/core/lib/http/pagination";
+import { parseNumber } from "@/core/lib/number-parse";
 import {
   DATA_SOURCE_FIELDS,
   DATA_SOURCE_VIEWS,
@@ -44,9 +45,22 @@ const elementFields = Object.fromEntries(
   ELEMENT_FIELDS.map((field) => [field, elementValue(MAX_LENGTH[field])])
 ) as Record<(typeof ELEMENT_FIELDS)[number], ReturnType<typeof elementValue>>;
 
+/**
+ * The Remarks of the data source, Standard and Blank lists: the OREAS
+ * standard's name, or a note -- never a number alone. A number there is
+ * almost always another column's value, landed one box over when a block
+ * was pasted without its header into a list whose columns run in another
+ * order (the To of a field sample, say). The Duplicate list's Remarks is a
+ * Sample ID, which may well be all digits, and is left alone.
+ */
+const oreasRemarks = optionalText(MAX_LENGTH.oreasRemarks).refine((value) => !value || parseNumber(value) === null, {
+  message: "Remarks is not a number. Check that the pasted columns did not shift.",
+});
+
 const dataSourceFields = {
   ...textFields,
   ...elementFields,
+  oreasRemarks,
   sampleId: z.string().trim().min(1, "Sample ID is required.").max(MAX_LENGTH.sampleId),
   sampleType: z.enum(SAMPLE_TYPES, { error: "Sample type must be FIELD, STANDARD, BLANK or DUPLICATE." }),
   date: optionalDate,

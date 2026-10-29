@@ -171,6 +171,27 @@ describe("a list's sheet", () => {
     expect(box(1, "Sample ID").value).toBe("S-001");
   });
 
+  it("picks Date from a calendar, takes a pasted day-first date into it, and shows a pasted non-date as text", async () => {
+    await show();
+    const date = (row: number) => screen.getByLabelText(`Row ${row} Date`) as HTMLInputElement;
+    // The loaded sample's date, in a calendar box it cannot change while locked.
+    expect([date(1).type, date(1).value, date(1).readOnly]).toEqual(["date", "2026-10-01", true]);
+
+    fireEvent.paste(box(2, "Sample ID"), {
+      clipboardData: { getData: () => "Sample ID\tDate\nS-100\t01/10/2026\nS-101\t10" },
+    });
+    expect([date(2).type, date(2).value]).toEqual(["date", "2026-10-01"]);
+    // Up and down step the calendar box's own day, month and year; they do not leave the box.
+    act(() => date(2).focus());
+    fireEvent.keyDown(date(2), { key: "ArrowDown" });
+    expect(document.activeElement).toBe(date(2));
+    // "10" is no date -- a To, one box over -- so it stays in sight for the check to mark.
+    expect([date(3).type, date(3).value]).toEqual(["text", "10"]);
+
+    fireEvent.change(date(3), { target: { value: "" } });
+    expect(date(3).type).toBe("date");
+  });
+
   it("unlocks a row to change it, and saves it with the new rows", async () => {
     await show();
     fireEvent.click(screen.getByRole("button", { name: en.dataSource.sheet.unlock }));

@@ -52,9 +52,12 @@ function cellOf(target: EventTarget | null): Point | null {
   return { row: Number(box.dataset.cellRow), col: Number(box.dataset.cellCol) };
 }
 
+/** A date or date-time box: its arrows step through its own day, month and year. */
+const isDateBox = (input: HTMLInputElement) => input.type === "datetime-local" || input.type === "date";
+
 /** Whether the caret is where an arrow should leave the box rather than move inside it. */
 function atEdge(input: HTMLInputElement, direction: "left" | "right"): boolean {
-  if (input.type === "datetime-local") return false;
+  if (isDateBox(input)) return false;
   const start = input.selectionStart ?? 0;
   const end = input.selectionEnd ?? 0;
   // All of it selected is how a box looks when it was moved into, not typed in.
@@ -208,8 +211,8 @@ export function useGridSelection({ rowCount, colCount, clear, paste, copyText, r
     let move: Point | null = null;
     if (event.key === "Enter") move = { row: event.shiftKey ? -1 : 1, col: 0 };
     else if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-      // A date-time box uses the arrows for its own fields.
-      if (input.type !== "datetime-local") move = step[event.key];
+      // A date or date-time box uses the arrows for its own fields.
+      if (!isDateBox(input)) move = step[event.key];
     } else if (event.key === "ArrowLeft" && atEdge(input, "left")) move = step.ArrowLeft;
     else if (event.key === "ArrowRight" && atEdge(input, "right")) move = step.ArrowRight;
     if (!move) return;

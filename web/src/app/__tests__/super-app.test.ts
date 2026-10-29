@@ -129,6 +129,19 @@ describe("a row of the data source", () => {
     expect(createDataSourceSchema.safeParse({ sampleId: "A", sampleType: "BLANK", remarks: "<0.01 on Cr" }).success).toBe(true);
   });
 
+  it("refuses a Remarks that is only a number -- another column's value, pasted one box over", () => {
+    for (const oreasRemarks of ["10", "0.5", "1,25"]) {
+      const parsed = createDataSourceSchema.safeParse({ sampleId: "A", sampleType: "BLANK", oreasRemarks });
+      expect(parsed.success).toBe(false);
+      expect(parsed.error?.issues[0].path).toEqual(["oreasRemarks"]);
+    }
+    for (const oreasRemarks of ["OREAS-184", "Inserted after DMY-B-00410", "", null]) {
+      expect(createDataSourceSchema.safeParse({ sampleId: "A", sampleType: "BLANK", oreasRemarks }).success).toBe(true);
+    }
+    // The Duplicate list's Remarks is a Sample ID, which may be all digits.
+    expect(createDataSourceSchema.safeParse({ sampleId: "A", sampleType: "DUPLICATE", originalSampleIdRemarks: "12345" }).success).toBe(true);
+  });
+
   it("clears a column with null, and leaves it alone when it is not sent", () => {
     expect(updateDataSourceSchema.parse({ campaign: null })).toEqual({ campaign: null });
     expect(updateDataSourceSchema.parse({})).toEqual({});

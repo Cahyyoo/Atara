@@ -12,6 +12,7 @@ import type { SampleType, SheetStatus, SheetVerdict } from "@/modules/eksplorasi
 import { OreasCell } from "@/modules/eksplorasi/components/sheet/oreas-cell";
 import { SampleIdCell } from "@/modules/eksplorasi/components/sheet/sample-id-cell";
 import { TypeCell } from "@/modules/eksplorasi/components/sheet/type-cell";
+import { DateCell } from "@/modules/eksplorasi/components/sheet/date-cell";
 import {
   IoAddCircle,
   IoCheckmarkCircle,
@@ -23,8 +24,8 @@ import {
 
 /** The row-number column's width (list-columns.ts weights): the number, the lock and the verdict mark. */
 const NUMBER_COLUMN_WEIGHT = 52;
-/** Where the sheet needs more than the list: it writes dates whole (YYYY-MM-DD), the list short. */
-const SHEET_WEIGHT: Partial<Record<DataSourceField, number>> = { date: 70, controlDate: 66 };
+/** Where the sheet needs more than the list: it writes dates whole, the list short -- and Date has its calendar icon. */
+const SHEET_WEIGHT: Partial<Record<DataSourceField, number>> = { date: 96, controlDate: 66 };
 
 /** Plain strings, put together once: a sheet draws thousands of boxes at a time. */
 const BOX =
@@ -164,16 +165,17 @@ const SheetGridRow = memo(function SheetGridRow(props: RowProps) {
                   onChange={change}
                 />
               </div>
+            ) : field === "date" ? (
+              <DateCell box={box} value={value} readOnly={row.locked || saving} className={BOX + changed} onChange={change} />
             ) : (
               <input
                 {...box}
                 autoComplete="off"
                 inputMode={numeric ? "decimal" : undefined}
-                placeholder={field === "date" ? "YYYY-MM-DD" : undefined}
                 readOnly={row.locked || saving}
                 value={value}
                 onChange={(event) => change(event.target.value)}
-                className={(numeric ? `${BOX} text-right tabular-nums tracking-tight` : field === "date" ? `${BOX} tabular-nums tracking-tight` : BOX) + changed}
+                className={(numeric ? `${BOX} text-right tabular-nums tracking-tight` : BOX) + changed}
               />
             )}
           </td>
