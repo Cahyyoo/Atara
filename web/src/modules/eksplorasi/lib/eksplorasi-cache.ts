@@ -1,7 +1,7 @@
 import "server-only";
 import { TtlCache } from "@/core/lib/ttl-cache";
 import type { OreasStandard } from "@/modules/eksplorasi/lib/oreas-match";
-import type { CrmRowDTO, QcControl, QcDuplicate } from "@/modules/eksplorasi/types";
+import type { CrmRowDTO, QcBlank, QcControl, QcDuplicate } from "@/modules/eksplorasi/types";
 
 /**
  * What the Eksplorasi module reads again and again, held for half a minute:
@@ -28,19 +28,23 @@ export const campaignsCache = new TtlCache<string[]>(EKSPLORASI_CACHE_TTL_MS, 1)
 /** Keyed by the standard asked for (crmKey), "" for the one the dashboard opens on. */
 export const controlCache = new TtlCache<QcControl>(EKSPLORASI_CACHE_TTL_MS, 64);
 export const duplicatesCache = new TtlCache<QcDuplicate>(EKSPLORASI_CACHE_TTL_MS, 1);
+/** Keyed by the campaign asked for, "" for every campaign. */
+export const blankCache = new TtlCache<QcBlank>(EKSPLORASI_CACHE_TTL_MS, 64);
 
-/** After any write to the data source: its campaigns and both dashboard charts. */
+/** After any write to the data source: its campaigns and every dashboard chart. */
 export function invalidateDataSourceCaches(): void {
   campaignsCache.invalidate();
   controlCache.invalidate();
+  blankCache.invalidate();
   duplicatesCache.invalidate();
 }
 
-/** After any write to the CRM List: its tables, the OREAS values, and the control charts' lines. */
+/** After any write to the CRM List: its tables, the OREAS values, and the control and blank charts' lines. */
 export function invalidateCrmCaches(): void {
   crmListCache.invalidate();
   oreasStandardsCache.invalidate();
   controlCache.invalidate();
+  blankCache.invalidate();
 }
 
 /** Test seam: a test that writes straight through Prisma starts from nothing held. */

@@ -3,13 +3,14 @@
     "sections": {
       "qcDashboard": {
         "title": "Exploration Dashboard",
-        "intro": "Control charts of the OREAS standards against the CRM List, and the duplicates against their originals.",
+        "intro": "Control charts of the OREAS standards against the CRM List, the blanks against their Preferred Value, and the duplicates against their originals.",
         "steps": {
           "1": "Pick a standard under Oreas Criteria. Each point is one assay of that standard, at its row in the Data Source.",
           "2": "The green, yellow and red lines are ±1σ, ±2σ and ±3σ of the certified value (Fusion XRF) in the CRM List. Points outside ±3σ are drawn red and counted under the chart.",
           "3": "The Elements button chooses which elements' charts show (Ni, Co, Fe2O3, Al2O3, Cr2O3, MgO, SiO2). The choice is kept in this browser.",
           "4": "Values that are not numbers (such as <0.01) are not drawn; how many is said under the chart.",
-          "5": "Duplicate: for each element, three charts. First, each duplicate (Y) against its original (X), the FIELD sample whose Sample ID is picked in the Duplicate list's Remarks: points outside the ±10% lines are drawn red and counted, and the solid line is the linear trend, its equation and R² written under the title (it needs at least two pairs). Then the RPD graph: each pair's relative percent difference in the order the duplicates were taken, 20% or more in red. Last, the RPD distribution: the RPDs from smallest to largest against the share of pairs, with the CRM List's 10% line."
+          "5": "Blank: pick a campaign under Campaign Criteria, or every campaign. The table gives, for Ni, Co, Fe2O3 and Cr2O3, the number of blanks, their mean, min and max, the CRM List's Preferred Value, and how many read past it (anomalies). Each chart puts every blank at its Sample Index against the Preferred Value (red line); readings past it are red. A reading written \"<0.01\" is taken as 0.01, as the QC workbook does, and drawn in grey.",
+          "6": "Duplicate: for each element, three charts. First, each duplicate (Y) against its original (X), the FIELD sample whose Sample ID is picked in the Duplicate list's Remarks: points outside the ±10% lines are drawn red and counted, and the solid line is the linear trend, its equation and R² written under the title (it needs at least two pairs). Then the RPD graph: each pair's relative percent difference in the order the duplicates were taken, 20% or more in red. Last, the RPD distribution: the RPDs from smallest to largest against the share of pairs, with the CRM List's 10% line."
         },
         "tip": "Fill the Control column of a STANDARD row with its OREAS name (e.g. OREAS-184) so its assays reach the charts."
       },
@@ -207,7 +208,7 @@
   },
   "qcDashboard": {
     "title": "Dashboard",
-    "subtitle": "Control charts of the OREAS standards (±1σ, ±2σ, ±3σ) and the duplicates against their originals (±10%).",
+    "subtitle": "Control charts of the OREAS standards (±1σ, ±2σ, ±3σ), the blanks against their Preferred Value, and the duplicates against their originals (±10%).",
     "loading": "Loading charts…",
     "truncated": "Too many assays; only the oldest 5,000 points are drawn.",
     "control": {
@@ -234,6 +235,39 @@
       "elements": "Elements",
       "elementsCount": "Elements ({shown}/{total})",
       "showAll": "Show all"
+    },
+    "blank": {
+      "title": "Blank",
+      "description": "Each blank sample's reading at its Sample Index, against the Preferred Value of the CRM List's Blank table.",
+      "criteria": "Campaign Criteria",
+      "allCampaigns": "All campaigns",
+      "table": {
+        "element": "Element",
+        "n": "N Sample",
+        "mean": "Mean",
+        "limit": "Preferred Value (Below)",
+        "anomalies": "N Anomaly",
+        "anomalyShare": "Anomaly %",
+        "min": "Min",
+        "max": "Max"
+      },
+      "chartTitle": "{element} Blank Sample Value",
+      "count": "{count, plural, one {# blank} other {# blanks}}",
+      "axisX": "Sample Index",
+      "axisY": "{element} (%)",
+      "readings": "Blank",
+      "belowLegend": "<DL, taken at the limit",
+      "anomalyLegend": "Past the Preferred Value",
+      "limit": "Preferred Value {value}",
+      "point": "Index {index}: {value}",
+      "pointBelow": "Index {index}: <{value} (taken as {value})",
+      "anomalies": "{count, plural, one {# blank past the Preferred Value.} other {# blanks past the Preferred Value.}}",
+      "below": "{count, plural, one {# reading below the detection limit is taken at the limit.} other {# readings below the detection limit are taken at the limit.}}",
+      "skipped": "{count, plural, one {# blank is not drawn: its value is not a number.} other {# blanks are not drawn: their value is not a number.}}",
+      "noLimit": "The CRM List's Blank table has no Preferred Value for {element}, so there is no line to judge against.",
+      "empty": "No blank with a {element} value yet.",
+      "noElements": "Tick Ni, Co, Fe2O3 or Cr2O3 under Elements to see the blank charts.",
+      "truncated": "Too many blanks; only the earliest 5,000 are drawn and counted."
     },
     "duplicate": {
       "title": "Duplicate",

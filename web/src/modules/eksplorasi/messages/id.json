@@ -3,13 +3,14 @@
     "sections": {
       "qcDashboard": {
         "title": "Dashboard Eksplorasi",
-        "intro": "Grafik kontrol standar OREAS terhadap CRM List, dan duplikat terhadap sampel aslinya.",
+        "intro": "Grafik kontrol standar OREAS terhadap CRM List, blank terhadap Preferred Value-nya, dan duplikat terhadap sampel aslinya.",
         "steps": {
           "1": "Pilih standar lewat Oreas Criteria. Setiap titik adalah satu analisis standar itu pada urutan barisnya di Data Source.",
           "2": "Garis hijau, kuning, dan merah adalah ±1σ, ±2σ, dan ±3σ dari nilai tersertifikasi (Fusion XRF) di CRM List. Titik di luar ±3σ digambar merah dan dihitung di bawah grafik.",
           "3": "Tombol Unsur memilih grafik unsur mana yang tampil (Ni, Co, Fe2O3, Al2O3, Cr2O3, MgO, SiO2). Pilihan disimpan di browser ini.",
           "4": "Nilai yang bukan angka (misalnya <0.01) tidak digambar; jumlahnya disebutkan di bawah grafik.",
-          "5": "Duplicate: tiga grafik untuk setiap unsur. Pertama, setiap duplikat (Y) terhadap sampel aslinya (X), yaitu sampel FIELD yang Sample ID-nya dipilih di Remarks menu Duplicate. Titik di luar garis ±10% digambar merah dan dihitung. Garis utuh adalah tren linear; persamaan dan R²-nya tertulis di bawah judul (perlu minimal dua pasangan). Kedua, RPD Graph: selisih persen relatif (RPD) setiap pasangan sesuai urutan duplikat diambil; RPD 20% atau lebih ditandai merah. Ketiga, RPD Distribution: RPD diurutkan dari terkecil sampai terbesar terhadap porsi pasangan, dengan garis 10% dari CRM List."
+          "5": "Blank: pilih campaign lewat Campaign Criteria, atau semua campaign. Tabel memuat jumlah blank, rata-rata, min, max, Preferred Value dari CRM List, dan jumlah blank yang melebihinya (anomali) untuk Ni, Co, Fe2O3, dan Cr2O3. Grafik menaruh setiap blank pada Sample Index-nya terhadap Preferred Value (garis merah); nilai di atasnya digambar merah. Nilai yang ditulis \"<0.01\" dihitung 0.01, sama seperti workbook QC, dan digambar abu-abu.",
+          "6": "Duplicate: tiga grafik untuk setiap unsur. Pertama, setiap duplikat (Y) terhadap sampel aslinya (X), yaitu sampel FIELD yang Sample ID-nya dipilih di Remarks menu Duplicate. Titik di luar garis ±10% digambar merah dan dihitung. Garis utuh adalah tren linear; persamaan dan R²-nya tertulis di bawah judul (perlu minimal dua pasangan). Kedua, RPD Graph: selisih persen relatif (RPD) setiap pasangan sesuai urutan duplikat diambil; RPD 20% atau lebih ditandai merah. Ketiga, RPD Distribution: RPD diurutkan dari terkecil sampai terbesar terhadap porsi pasangan, dengan garis 10% dari CRM List."
         },
         "tip": "Isi kolom Control pada baris STANDARD dengan nama OREAS-nya (mis. OREAS-184) agar analisisnya masuk ke grafik."
       },
@@ -207,7 +208,7 @@
   },
   "qcDashboard": {
     "title": "Dashboard",
-    "subtitle": "Grafik kontrol standar OREAS (±1σ, ±2σ, ±3σ) dan duplikat terhadap sampel aslinya (±10%).",
+    "subtitle": "Grafik kontrol standar OREAS (±1σ, ±2σ, ±3σ), blank terhadap Preferred Value-nya, dan duplikat terhadap sampel aslinya (±10%).",
     "loading": "Memuat grafik…",
     "truncated": "Data terlalu banyak; hanya 5.000 titik terlama yang digambar.",
     "control": {
@@ -234,6 +235,39 @@
       "elements": "Unsur",
       "elementsCount": "Unsur ({shown}/{total})",
       "showAll": "Tampilkan semua"
+    },
+    "blank": {
+      "title": "Blank",
+      "description": "Nilai setiap sampel blank pada Sample Index-nya, terhadap Preferred Value di tabel Blank CRM List.",
+      "criteria": "Campaign Criteria",
+      "allCampaigns": "Semua campaign",
+      "table": {
+        "element": "Unsur",
+        "n": "N Sample",
+        "mean": "Mean",
+        "limit": "Preferred Value (Below)",
+        "anomalies": "N Anomali",
+        "anomalyShare": "% Anomali",
+        "min": "Min",
+        "max": "Max"
+      },
+      "chartTitle": "{element} Blank Sample Value",
+      "count": "{count, plural, other {# blank}}",
+      "axisX": "Sample Index",
+      "axisY": "{element} (%)",
+      "readings": "Blank",
+      "belowLegend": "<DL, dihitung = batas",
+      "anomalyLegend": "Di atas Preferred Value",
+      "limit": "Preferred Value {value}",
+      "point": "Index {index}: {value}",
+      "pointBelow": "Index {index}: <{value} (dihitung {value})",
+      "anomalies": "{count, plural, other {# blank di atas Preferred Value.}}",
+      "below": "{count, plural, other {# nilai di bawah batas deteksi dihitung sama dengan batasnya.}}",
+      "skipped": "{count, plural, other {# blank tidak digambar karena nilainya bukan angka.}}",
+      "noLimit": "Tabel Blank di CRM List belum punya Preferred Value untuk {element}, jadi tidak ada garis pembanding.",
+      "empty": "Belum ada blank dengan nilai {element}.",
+      "noElements": "Centang Ni, Co, Fe2O3, atau Cr2O3 di Unsur untuk melihat grafik blank.",
+      "truncated": "Blank terlalu banyak; hanya 5.000 blank terawal yang digambar dan dihitung."
     },
     "duplicate": {
       "title": "Duplicate",

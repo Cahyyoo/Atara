@@ -92,6 +92,11 @@ export const qcControlQuerySchema = z.object({
   standard: z.string().trim().min(1).max(50).optional(),
 });
 
+/** The dashboard's blank charts: which campaign, or every one when absent. As long as the column holds. */
+export const qcBlankQuerySchema = z.object({
+  campaign: z.string().trim().min(1).max(100).optional(),
+});
+
 /** The CRM List's three tables, by the name the API path carries. */
 export const crmKindSchema = z.enum(CRM_KINDS);
 

@@ -1,6 +1,7 @@
 /** What the Eksplorasi module's routes send to the browser. */
 import type { ElementField, SampleType } from "@/modules/eksplorasi/lib/data-source-columns";
 import type { ControlElement } from "@/modules/eksplorasi/lib/qc-control";
+import type { BlankElement } from "@/modules/eksplorasi/lib/qc-blank";
 
 export type { DataSourceField, DataSourceView, ElementField, SampleType } from "@/modules/eksplorasi/lib/data-source-columns";
 
@@ -124,5 +125,33 @@ export interface QcDuplicate {
   /** Duplicates whose Remarks names no FIELD sample: blank, free text, or a Sample ID not in the data source. */
   unmatched: number;
   /** More pairs than the charts draw; the earliest are shown. */
+  truncated: boolean;
+}
+
+/** One blank's reading of an element, at its Sample Index. */
+export interface BlankPoint {
+  sampleId: string;
+  /** The blank's place among the blanks shown, counting from 1. */
+  x: number;
+  y: number;
+  /** Written as "<0.01" and taken at the detection limit. */
+  belowDetection: boolean;
+}
+
+/** The blank charts and table: every BLANK of one campaign (or all), against the CRM List's Preferred Value. */
+export interface QcBlank {
+  /** The campaigns that have blanks, for the "Campaign Criteria" choice. */
+  campaigns: string[];
+  /** The one shown; null for every campaign. */
+  campaign: string | null;
+  elements: {
+    element: BlankElement;
+    /** The CRM List's Preferred Value; null when it holds none that is a number. */
+    limit: number | null;
+    points: BlankPoint[];
+    /** Blanks whose reading of this element is not a number. */
+    skipped: number;
+  }[];
+  /** More blanks than the charts draw; the earliest are shown. */
   truncated: boolean;
 }
