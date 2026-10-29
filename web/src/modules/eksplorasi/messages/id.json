@@ -9,7 +9,7 @@
           "2": "Garis hijau, kuning, dan merah adalah ±1σ, ±2σ, dan ±3σ dari nilai tersertifikasi (Fusion XRF) di CRM List. Titik di luar ±3σ digambar merah dan dihitung di bawah grafik.",
           "3": "Tombol Unsur memilih grafik unsur mana yang tampil (Ni, Co, Fe2O3, Al2O3, Cr2O3, MgO, SiO2). Pilihan disimpan di browser ini.",
           "4": "Nilai yang bukan angka (misalnya <0.01) tidak digambar; jumlahnya disebutkan di bawah grafik.",
-          "5": "Duplicate: setiap duplikat (Y) terhadap sampel aslinya (X), yaitu sampel FIELD yang Sample ID-nya dipilih di Remarks menu Duplicate. Titik di luar garis ±10% digambar merah dan dihitung; garis titik-titik adalah tren linear beserta R²-nya."
+          "5": "Duplicate: tiga grafik untuk setiap unsur. Pertama, setiap duplikat (Y) terhadap sampel aslinya (X), yaitu sampel FIELD yang Sample ID-nya dipilih di Remarks menu Duplicate. Titik di luar garis ±10% digambar merah dan dihitung. Garis utuh adalah tren linear; persamaan dan R²-nya tertulis di bawah judul (perlu minimal dua pasangan). Kedua, RPD Graph: selisih persen relatif (RPD) setiap pasangan sesuai urutan duplikat diambil; RPD 20% atau lebih ditandai merah. Ketiga, RPD Distribution: RPD diurutkan dari terkecil sampai terbesar terhadap porsi pasangan, dengan garis 10% dari CRM List."
         },
         "tip": "Isi kolom Control pada baris STANDARD dengan nama OREAS-nya (mis. OREAS-184) agar analisisnya masuk ke grafik."
       },
@@ -237,7 +237,7 @@
     },
     "duplicate": {
       "title": "Duplicate",
-      "description": "Setiap duplikat (Y) terhadap sampel FIELD yang tertulis di Remarks-nya (X), dengan batas ±10% dan garis tren.",
+      "description": "Untuk setiap unsur: setiap duplikat (Y) terhadap sampel FIELD yang tertulis di Remarks-nya (X), dengan batas ±10% dan garis tren, lalu RPD Graph dan RPD Distribution-nya.",
       "pairs": "{count, plural, other {# pasangan}}",
       "axisX": "{element} asli (%)",
       "axisY": "{element} duplikat (%)",
@@ -251,7 +251,26 @@
       "outside": "{count, plural, other {# pasangan di luar ±10%.}}",
       "skipped": "{count, plural, other {# pasangan tidak digambar: ada nilai yang bukan angka.}}",
       "unmatched": "{count, plural, other {# duplikat belum punya sampel asli: Remarks-nya bukan Sample ID sampel FIELD.}}",
-      "truncated": "Duplikat terlalu banyak; hanya 5.000 pasangan terawal yang digambar."
+      "truncated": "Duplikat terlalu banyak; hanya 5.000 pasangan terawal yang digambar.",
+      "fit": "{pairs} · y = {slope}x {intercept} · R² = {r2}",
+      "outsideLegend": "Di luar ±10%",
+      "noFit": "Garis tren dan R² perlu minimal dua pasangan dengan nilai asli yang berbeda.",
+      "rpdEmpty": "Belum ada pasangan {element} untuk dihitung RPD-nya.",
+      "rpdGraphTitle": "RPD Graph {element}",
+      "rpdGraphDescription": "{count, plural, other {# pasangan}} menurut Sample Index, duplikat terawal lebih dulu.",
+      "rpdSeries": "RPD {element}",
+      "rpdFlagged": "RPD ≥ 20%",
+      "rpdFlag": "20%",
+      "rpdFlaggedCount": "{count, plural, other {# pasangan dengan RPD ≥ 20%.}}",
+      "rpdSkipped": "{count, plural, other {# pasangan tanpa RPD: rata-rata nilainya nol.}}",
+      "rpdDistributionTitle": "RPD Distribution {element}",
+      "rpdWithin": "{within}% pasangan dengan RPD ≤ 10% · {over}% di atasnya",
+      "rpdLimit": "RPD 10% (CRM List)",
+      "rpdPoint": "Asli {originalId} · RPD {rpd}%",
+      "rpdCumulative": "Frekuensi kumulatif {share}%",
+      "axisIndex": "Sample Index",
+      "axisRpd": "Relative Percent Difference (%)",
+      "axisCumulative": "Frekuensi kumulatif (%)"
     }
   },
   "crmList": {

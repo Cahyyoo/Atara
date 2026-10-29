@@ -4,7 +4,12 @@ import {
   isOutsideTolerance,
   linearFit,
   pairRange,
+  isRpdFlagged,
+  isRpdWithin,
   relativeDifference,
+  rpd,
+  rpdDistribution,
+  rpdSeries,
   type DuplicateRow,
 } from "@/modules/eksplorasi/lib/qc-duplicate";
 
@@ -70,5 +75,50 @@ describe("the axes", () => {
     expect(range.min).toBe(0);
     expect(range.max).toBeGreaterThan(2.5);
     expect(pairRange([])).toBeNull();
+  });
+});
+
+describe("a pair's RPD", () => {
+  it("is the difference over the two readings' mean, taking neither as the truth", () => {
+    expect(rpd({ x: 1, y: 1.1 })).toBeCloseTo(0.1 / 1.05);
+    expect(rpd({ x: 1.1, y: 1 })).toBeCloseTo(0.1 / 1.05);
+    expect(rpd({ x: 1, y: 0 })).toBe(2);
+    expect(rpd({ x: 0, y: 0 })).toBe(0);
+    expect(rpd({ x: 1, y: -1 })).toBeNull();
+  });
+
+  it("is marked at 20% or more, and within the CRM List's 10% up to 10% itself", () => {
+    expect(isRpdFlagged({ rpd: 0.2 })).toBe(true);
+    expect(isRpdFlagged({ rpd: 0.19 })).toBe(false);
+    expect(isRpdWithin({ rpd: 0.1 })).toBe(true);
+    expect(isRpdWithin({ rpd: 0.11 })).toBe(false);
+  });
+});
+
+describe("the RPD graph", () => {
+  it("keeps each pair at its place in the pairs' order, leaving out a pair with no RPD", () => {
+    const series = rpdSeries([
+      { sampleId: "D1", originalId: "F1", x: 1, y: 1 },
+      { sampleId: "D2", originalId: "F2", x: 1, y: -1 },
+      { sampleId: "D3", originalId: "F3", x: 1, y: 3 },
+    ]);
+    expect(series).toEqual([
+      { index: 1, sampleId: "D1", originalId: "F1", rpd: 0 },
+      { index: 3, sampleId: "D3", originalId: "F3", rpd: 1 },
+    ]);
+  });
+});
+
+describe("the RPD distribution", () => {
+  it("sorts the RPDs, each at the share of pairs with an RPD no larger", () => {
+    const point = (index: number, value: number) => ({ index, sampleId: `D${index}`, originalId: `F${index}`, rpd: value });
+    const distribution = rpdDistribution([point(1, 0.3), point(2, 0.05), point(3, 0.1), point(4, 0.02)]);
+    expect(distribution.map((entry) => [entry.rpd, entry.cumulative])).toEqual([
+      [0.02, 0.25],
+      [0.05, 0.5],
+      [0.1, 0.75],
+      [0.3, 1],
+    ]);
+    expect(rpdDistribution([])).toEqual([]);
   });
 });

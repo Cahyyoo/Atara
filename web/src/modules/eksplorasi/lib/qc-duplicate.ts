@@ -76,3 +76,58 @@ export function pairRange(pairs: readonly Pick<DuplicatePair, "x" | "y">[]): { m
   const pad = (high - low || Math.abs(high) || 1) * 0.05;
   return { min: low >= 0 ? 0 : low - pad, max: high + pad };
 }
+
+/**
+ * The RPD charts' two lines, as the lab's QC workbook draws them: a pair at
+ * 20% RPD or more is marked on the RPD graph, and the distribution is read
+ * against 10% -- the CRM List's preferred value for a duplicate (RPD <=10%).
+ */
+export const RPD_FLAG = 0.2;
+export const RPD_LIMIT = 0.1;
+
+/**
+ * Relative percent difference: how far apart the two readings are, as a share
+ * of their mean -- |duplicate − original| / ((duplicate + original) / 2).
+ * Unlike the ±10% band it takes neither reading as the truth, and it is never
+ * past 2 (200%) for readings of one sign. Two zeros agree; null when the
+ * mean is zero and the readings are not.
+ */
+export function rpd({ x, y }: Pick<DuplicatePair, "x" | "y">): number | null {
+  const mean = Math.abs(x + y) / 2;
+  if (mean === 0) return x === y ? 0 : null;
+  return Math.abs(y - x) / mean;
+}
+
+/** A pair's RPD at its place in the pairs' order (1-based), as the RPD graph plots it. */
+export interface RpdPoint {
+  index: number;
+  sampleId: string;
+  originalId: string;
+  rpd: number;
+}
+
+/** The pairs' RPDs in their order -- the earliest duplicate first -- leaving out a pair with none. */
+export function rpdSeries(pairs: readonly DuplicatePair[]): RpdPoint[] {
+  const points: RpdPoint[] = [];
+  pairs.forEach((pair, position) => {
+    const value = rpd(pair);
+    if (value !== null) points.push({ index: position + 1, sampleId: pair.sampleId, originalId: pair.originalId, rpd: value });
+  });
+  return points;
+}
+
+/** At or past the RPD graph's mark; exactly 20% is marked (float noise forgiven). */
+export const isRpdFlagged = (point: Pick<RpdPoint, "rpd">) => point.rpd >= RPD_FLAG - 1e-9;
+
+/** Within the CRM List's 10%; exactly 10% is still within. */
+export const isRpdWithin = (point: Pick<RpdPoint, "rpd">) => point.rpd <= RPD_LIMIT + 1e-9;
+
+/**
+ * The RPD distribution: the RPDs from smallest to largest, each at the share
+ * of pairs (0–1) with an RPD no larger -- where the curve crosses 10% reads
+ * how many pairs are within it.
+ */
+export function rpdDistribution(points: readonly RpdPoint[]): (RpdPoint & { cumulative: number })[] {
+  const n = points.length;
+  return [...points].sort((a, b) => a.rpd - b.rpd || a.index - b.index).map((point, rank) => ({ ...point, cumulative: (rank + 1) / n }));
+}

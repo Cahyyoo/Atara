@@ -62,9 +62,31 @@ describe("the duplicate charts", () => {
     expect(screen.getByRole("img", { name: `${duplicate.readings} · Ni` })).toBeTruthy();
   });
 
-  it("says why a card has no chart", () => {
+  it("writes the trend line's equation and R² under the title, and says when there is none yet", () => {
+    show(data({ ni: PAIRS, co: PAIRS.slice(0, 1) }), ["ni", "co"]);
+    expect(screen.getByText(/^3 pairs · y = [\d.]+x [+−] [\d.]+ · R² = 0\.\d+$/)).toBeTruthy();
+    expect(screen.getByText("1 pair")).toBeTruthy();
+    expect(screen.getAllByText(duplicate.noFit)).toHaveLength(1);
+  });
+
+  it("follows each element's scatter with its RPD graph and RPD distribution", () => {
+    show(data({ ni: PAIRS }), ["ni"]);
+    expect(screen.getByRole("img", { name: "RPD Graph Ni" })).toBeTruthy();
+    expect(screen.getByRole("img", { name: "RPD Distribution Ni" })).toBeTruthy();
+    // D1 and D2 are 2% apart, D3 18%: none at 20%, two of three within 10%.
+    expect(screen.getByText("66.7% of pairs at RPD ≤ 10% · 33.3% above")).toBeTruthy();
+    expect(screen.queryByText(/at RPD ≥ 20%\.$/)).toBeNull();
+  });
+
+  it("counts the pairs at RPD 20% or more", () => {
+    show(data({ ni: [...PAIRS, { sampleId: "D4", originalId: "F4", x: 1, y: 1.5 }] }), ["ni"]);
+    expect(screen.getByText("1 pair at RPD ≥ 20%.")).toBeTruthy();
+  });
+
+  it("says why a card has no chart, the whole story once", () => {
     show(data(), ["co"]);
     expect(screen.getByText(/No duplicate with a Co value is paired with its original yet/)).toBeTruthy();
+    expect(screen.getAllByText("No Co pairs to work out an RPD for yet.")).toHaveLength(2);
     expect(screen.queryByRole("img")).toBeNull();
   });
 });

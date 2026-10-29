@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import type { ChartOptions } from "chart.js";
+import type { ChartDataset, ChartOptions } from "chart.js";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/core/components/ui/card";
 import { CHART_ANIMATION_MS, GRID_DASH, type ChartChrome } from "@/core/lib/ui/chart-theme";
 
@@ -17,6 +17,22 @@ import { CHART_ANIMATION_MS, GRID_DASH, type ChartChrome } from "@/core/lib/ui/c
  * card, so every line also has its own pattern and is named in the legend.
  */
 export const STATUS = { good: "#0ca30c", warning: "#fab219", critical: "#d03b3b" } as const;
+
+/** The 10% a duplicate is held to, on every chart that draws it: one colour, one pattern. */
+export const TOLERANCE_LINE = { color: STATUS.warning, dash: [6, 4] };
+
+/** Two ends of a straight reference line. */
+export type LinePoint = { x: number; y: number };
+
+/** A reference line's dataset: drawn, with no points of its own to hover. */
+export function referenceLine<T>(
+  label: string,
+  data: LinePoint[],
+  color: string,
+  dash: readonly number[]
+): ChartDataset<"scatter", (T | LinePoint)[]> {
+  return { label, data, showLine: true, borderColor: color, borderWidth: 2, borderDash: [...dash], pointRadius: 0, pointHoverRadius: 0 };
+}
 
 /** A point's look: small, filled, a ring of the card's colour so overlapping points stay apart. */
 export const POINT = { pointRadius: 3.5, pointHoverRadius: 5.5, pointBorderWidth: 1 };

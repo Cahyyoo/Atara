@@ -9,7 +9,7 @@
           "2": "The green, yellow and red lines are ±1σ, ±2σ and ±3σ of the certified value (Fusion XRF) in the CRM List. Points outside ±3σ are drawn red and counted under the chart.",
           "3": "The Elements button chooses which elements' charts show (Ni, Co, Fe2O3, Al2O3, Cr2O3, MgO, SiO2). The choice is kept in this browser.",
           "4": "Values that are not numbers (such as <0.01) are not drawn; how many is said under the chart.",
-          "5": "Duplicate: each duplicate (Y) against its original (X), the FIELD sample whose Sample ID is picked in the Duplicate list's Remarks. Points outside the ±10% lines are drawn red and counted; the dotted line is the linear trend with its R²."
+          "5": "Duplicate: for each element, three charts. First, each duplicate (Y) against its original (X), the FIELD sample whose Sample ID is picked in the Duplicate list's Remarks: points outside the ±10% lines are drawn red and counted, and the solid line is the linear trend, its equation and R² written under the title (it needs at least two pairs). Then the RPD graph: each pair's relative percent difference in the order the duplicates were taken, 20% or more in red. Last, the RPD distribution: the RPDs from smallest to largest against the share of pairs, with the CRM List's 10% line."
         },
         "tip": "Fill the Control column of a STANDARD row with its OREAS name (e.g. OREAS-184) so its assays reach the charts."
       },
@@ -237,7 +237,7 @@
     },
     "duplicate": {
       "title": "Duplicate",
-      "description": "Each duplicate (Y) against the FIELD sample named in its Remarks (X), with the ±10% band and the trend line.",
+      "description": "For each element: each duplicate (Y) against the FIELD sample named in its Remarks (X) with the ±10% band and the trend line, then its RPD graph and RPD distribution.",
       "pairs": "{count, plural, one {# pair} other {# pairs}}",
       "axisX": "{element} original (%)",
       "axisY": "{element} duplicate (%)",
@@ -251,7 +251,26 @@
       "outside": "{count, plural, one {# pair outside ±10%.} other {# pairs outside ±10%.}}",
       "skipped": "{count, plural, one {# pair is not drawn: a value is not a number.} other {# pairs are not drawn: a value is not a number.}}",
       "unmatched": "{count, plural, one {# duplicate has no original yet: its Remarks is not the Sample ID of a FIELD sample.} other {# duplicates have no original yet: their Remarks is not the Sample ID of a FIELD sample.}}",
-      "truncated": "Too many duplicates; only the earliest 5,000 pairs are drawn."
+      "truncated": "Too many duplicates; only the earliest 5,000 pairs are drawn.",
+      "fit": "{pairs} · y = {slope}x {intercept} · R² = {r2}",
+      "outsideLegend": "Outside ±10%",
+      "noFit": "The trend line and R² need at least two pairs with different original values.",
+      "rpdEmpty": "No {element} pairs to work out an RPD for yet.",
+      "rpdGraphTitle": "RPD Graph {element}",
+      "rpdGraphDescription": "{count, plural, one {# pair} other {# pairs}} by Sample Index, the earliest duplicate first.",
+      "rpdSeries": "RPD {element}",
+      "rpdFlagged": "RPD ≥ 20%",
+      "rpdFlag": "20%",
+      "rpdFlaggedCount": "{count, plural, one {# pair at RPD ≥ 20%.} other {# pairs at RPD ≥ 20%.}}",
+      "rpdSkipped": "{count, plural, one {# pair has no RPD: its readings average zero.} other {# pairs have no RPD: their readings average zero.}}",
+      "rpdDistributionTitle": "RPD Distribution {element}",
+      "rpdWithin": "{within}% of pairs at RPD ≤ 10% · {over}% above",
+      "rpdLimit": "RPD 10% (CRM List)",
+      "rpdPoint": "Original {originalId} · RPD {rpd}%",
+      "rpdCumulative": "Cumulative frequency {share}%",
+      "axisIndex": "Sample Index",
+      "axisRpd": "Relative Percent Difference (%)",
+      "axisCumulative": "Cumulative frequency (%)"
     }
   },
   "crmList": {

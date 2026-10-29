@@ -14,7 +14,7 @@ import {
   type TooltipItem,
 } from "chart.js";
 import { Scatter } from "react-chartjs-2";
-import { readChartChrome, type ChartChrome } from "@/core/lib/ui/chart-theme";
+import { SERIES, readChartChrome, type ChartChrome } from "@/core/lib/ui/chart-theme";
 import { useTheme } from "@/core/components/layout/theme-provider";
 import { useReducedMotion } from "@/core/lib/ui/use-reduced-motion";
 import { ELEMENT_LABELS } from "@/modules/eksplorasi/lib/data-source-columns";
@@ -25,43 +25,34 @@ import {
   linearFit,
   pairRange,
   relativeDifference,
+  rpdSeries,
+  isRpdFlagged,
+  isRpdWithin,
 } from "@/modules/eksplorasi/lib/qc-duplicate";
 import {
   ChartCard,
   ChartLegend,
   POINT,
   STATUS,
+  TOLERANCE_LINE,
   axis,
   baseOptions,
+  referenceLine,
+  type LinePoint,
 } from "@/modules/eksplorasi/components/dashboard/qc-chart-parts";
+import { RpdDistributionChart, RpdGraphChart } from "@/modules/eksplorasi/components/dashboard/qc-rpd-charts";
 import type { DuplicatePair, QcDuplicate } from "@/modules/eksplorasi/types";
 
 ChartJS.register(LinearScale, PointElement, LineElement, Tooltip, Legend);
 
-/** The ±10% lines: one tolerance, so one colour and one pattern for both. */
-const BAND = { color: STATUS.warning, dash: [6, 4] };
-/** The trend line: a reference, not a threshold, so the neutral ink, dotted. */
-const TREND_DASH = [2, 3];
-
-type Line = { x: number; y: number };
+/** The trend line: the fit through the readings, in the series colour, solid -- set apart from the dashed band. */
+const TREND_COLOR = SERIES.primary;
 
 /** A straight line y = slope·x + intercept, across the axis range. */
-const across = (slope: number, intercept: number, min: number, max: number): Line[] => [
+const across = (slope: number, intercept: number, min: number, max: number): LinePoint[] => [
   { x: min, y: slope * min + intercept },
   { x: max, y: slope * max + intercept },
 ];
-
-/** A reference line's dataset: no points, no tooltip. */
-const referenceLine = (label: string, data: Line[], color: string, dash: number[]): ChartDataset<"scatter", (DuplicatePair | Line)[]> => ({
-  label,
-  data,
-  showLine: true,
-  borderColor: color,
-  borderWidth: 2,
-  borderDash: dash,
-  pointRadius: 0,
-  pointHoverRadius: 0,
-});
 
 function DuplicateChart({
   element,
@@ -84,7 +75,7 @@ function DuplicateChart({
     const fit = linearFit(pairs);
     const n = (value: number) => format.number(value, { maximumFractionDigits: 4 });
 
-    const readings: ChartDataset<"scatter", (DuplicatePair | Line)[]> = {
+    const readings: ChartDataset<"scatter", (DuplicatePair | LinePoint)[]> = {
       label: t("readings"),
       data: pairs,
       // One colour per point, in the pairs' order.
@@ -93,9 +84,9 @@ function DuplicateChart({
       ...POINT,
     };
     const lines = [
-      referenceLine(t("plus10"), across(1 + DUPLICATE_TOLERANCE, 0, range.min, range.max), BAND.color, BAND.dash),
-      referenceLine(t("minus10"), across(1 - DUPLICATE_TOLERANCE, 0, range.min, range.max), BAND.color, BAND.dash),
-      ...(fit ? [referenceLine(t("trend", { r2: n(fit.r2) }), across(fit.slope, fit.intercept, range.min, range.max), chrome.neutral, TREND_DASH)] : []),
+      referenceLine<DuplicatePair>(t("plus10"), across(1 + DUPLICATE_TOLERANCE, 0, range.min, range.max), TOLERANCE_LINE.color, TOLERANCE_LINE.dash),
+      referenceLine<DuplicatePair>(t("minus10"), across(1 - DUPLICATE_TOLERANCE, 0, range.min, range.max), TOLERANCE_LINE.color, TOLERANCE_LINE.dash),
+      ...(fit ? [referenceLine<DuplicatePair>(t("trend", { r2: n(fit.r2) }), across(fit.slope, fit.intercept, range.min, range.max), TREND_COLOR, [])] : []),
     ];
 
     const options: ChartOptions<"scatter"> = {
@@ -133,14 +124,13 @@ function DuplicateChart({
 }
 
 /**
- * The duplicate charts: a card per element shown (`elements`), each
- * duplicate (Y) against its original (X), the ±10% lines about the
- * diagonal, and the straight line through the pairs with its R². A pair past
- * ±10% is drawn in the critical colour and counted under the chart.
+ * The duplicate charts: for each element shown (`elements`), three cards in
+ * a column -- the duplicate (Y) against its original (X) with the ±10% lines
+ * and the trend line with its equation and R², each pair's RPD in the order
+ * the duplicates were taken, and the RPD distribution. Two elements side by
+ * side line their cards up row by row, as the lab's QC workbook does.
  */
 export function QcDuplicateCharts({ data, elements }: { data: QcDuplicate; elements: readonly ControlElement[] }) {
-  const t = useTranslations("qcDashboard.duplicate");
-  const format = useFormatter();
   const theme = useTheme();
   const chrome = useMemo(() => readChartChrome(theme), [theme]);
   const reducedMotion = useReducedMotion();
@@ -149,47 +139,111 @@ export function QcDuplicateCharts({ data, elements }: { data: QcDuplicate; eleme
     <div className="grid gap-6 xl:grid-cols-2">
       {data.elements
         .filter(({ element }) => elements.includes(element))
-        .map(({ element: field, pairs, skipped }) => {
-          const element = ELEMENT_LABELS[field];
-          const fit = linearFit(pairs);
-          const outside = pairs.filter(isOutsideTolerance).length;
-          const notes = [
-            ...(skipped > 0 ? [t("skipped", { count: skipped })] : []),
-            ...(outside > 0 ? [t("outside", { count: outside })] : []),
-          ];
-          const empty = pairs.length === 0;
-          return (
-            <ChartCard
-              key={field}
-              title={element}
-              description={t("pairs", { count: pairs.length })}
-              legend={
-                empty ? null : (
-                  <ChartLegend
-                    items={[
-                      { label: t("readings"), color: chrome.popoverText },
-                      { label: t("band"), color: BAND.color, line: true, dash: "dashed" },
-                      ...(fit
-                        ? [
-                            {
-                              label: t("trend", { r2: format.number(fit.r2, { maximumFractionDigits: 4 }) }),
-                              color: chrome.neutral,
-                              line: true,
-                              dash: "dotted" as const,
-                            },
-                          ]
-                        : []),
-                    ]}
-                  />
-                )
-              }
-              notes={notes}
-              emptyMessage={empty ? t("empty", { element }) : null}
-            >
-              {empty ? null : <DuplicateChart element={element} pairs={pairs} chrome={chrome} reducedMotion={reducedMotion} />}
-            </ChartCard>
-          );
-        })}
+        .map((entry) => (
+          <ElementCards key={entry.element} {...entry} chrome={chrome} reducedMotion={reducedMotion} />
+        ))}
+    </div>
+  );
+}
+
+function ElementCards({
+  element: field,
+  pairs,
+  skipped,
+  chrome,
+  reducedMotion,
+}: QcDuplicate["elements"][number] & { chrome: ChartChrome; reducedMotion: boolean }) {
+  const t = useTranslations("qcDashboard.duplicate");
+  const format = useFormatter();
+  const element = ELEMENT_LABELS[field];
+  const ink = chrome.popoverText;
+  const n = (value: number) => format.number(value, { maximumFractionDigits: 4 });
+  const share = (count: number, of: number) => format.number(of === 0 ? 0 : (count / of) * 100, { maximumFractionDigits: 1 });
+
+  const fit = useMemo(() => linearFit(pairs), [pairs]);
+  const rpds = useMemo(() => rpdSeries(pairs), [pairs]);
+  const outside = pairs.filter(isOutsideTolerance).length;
+  const flagged = rpds.filter(isRpdFlagged).length;
+  const within = rpds.filter(isRpdWithin).length;
+  const empty = pairs.length === 0;
+  // The whole story once, on the first card; the RPD cards only say they have nothing.
+  const emptyMessage = empty ? t("empty", { element }) : null;
+  const rpdEmptyMessage = empty ? t("rpdEmpty", { element }) : null;
+  const rpdLegend = { label: t("rpdSeries", { element }), color: ink };
+
+  return (
+    // Its own column on a phone; at two columns, three rows of the grid shared with the element beside it.
+    <div className="grid gap-6 xl:row-span-3 xl:grid-rows-subgrid">
+      <ChartCard
+        title={element}
+        description={
+          fit
+            ? t("fit", {
+                pairs: t("pairs", { count: pairs.length }),
+                slope: n(fit.slope),
+                intercept: `${fit.intercept < 0 ? "−" : "+"} ${n(Math.abs(fit.intercept))}`,
+                r2: n(fit.r2),
+              })
+            : t("pairs", { count: pairs.length })
+        }
+        legend={
+          empty ? null : (
+            <ChartLegend
+              items={[
+                { label: t("readings"), color: ink },
+                { label: t("outsideLegend"), color: STATUS.critical },
+                { label: t("band"), color: TOLERANCE_LINE.color, line: true, dash: "dashed" },
+                ...(fit ? [{ label: t("trend", { r2: n(fit.r2) }), color: TREND_COLOR, line: true }] : []),
+              ]}
+            />
+          )
+        }
+        notes={[
+          ...(skipped > 0 ? [t("skipped", { count: skipped })] : []),
+          ...(outside > 0 ? [t("outside", { count: outside })] : []),
+          ...(!empty && !fit ? [t("noFit")] : []),
+        ]}
+        emptyMessage={emptyMessage}
+      >
+        <DuplicateChart element={element} pairs={pairs} chrome={chrome} reducedMotion={reducedMotion} />
+      </ChartCard>
+
+      <ChartCard
+        title={t("rpdGraphTitle", { element })}
+        description={t("rpdGraphDescription", { count: rpds.length })}
+        legend={
+          empty ? null : (
+            <ChartLegend
+              items={[
+                rpdLegend,
+                { label: t("rpdFlagged"), color: STATUS.critical },
+                { label: t("rpdFlag"), color: STATUS.critical, line: true, dash: "dotted" },
+              ]}
+            />
+          )
+        }
+        notes={[
+          ...(flagged > 0 ? [t("rpdFlaggedCount", { count: flagged })] : []),
+          ...(rpds.length < pairs.length ? [t("rpdSkipped", { count: pairs.length - rpds.length })] : []),
+        ]}
+        emptyMessage={rpdEmptyMessage}
+      >
+        <RpdGraphChart element={element} points={rpds} chrome={chrome} reducedMotion={reducedMotion} />
+      </ChartCard>
+
+      <ChartCard
+        title={t("rpdDistributionTitle", { element })}
+        description={t("rpdWithin", { within: share(within, rpds.length), over: share(rpds.length - within, rpds.length) })}
+        legend={
+          empty ? null : (
+            <ChartLegend items={[rpdLegend, { label: t("rpdLimit"), color: TOLERANCE_LINE.color, line: true, dash: "dashed" }]} />
+          )
+        }
+        notes={[]}
+        emptyMessage={rpdEmptyMessage}
+      >
+        <RpdDistributionChart element={element} points={rpds} chrome={chrome} reducedMotion={reducedMotion} />
+      </ChartCard>
     </div>
   );
 }
