@@ -4,12 +4,19 @@ import { QcDashboard } from "@/modules/eksplorasi/components/dashboard/qc-dashbo
 import { loadStandardControl } from "@/modules/eksplorasi/lib/qc-control-service";
 import { loadBlankCharts } from "@/modules/eksplorasi/lib/qc-blank-service";
 import { loadDuplicateCharts } from "@/modules/eksplorasi/lib/qc-duplicate-service";
+import { dashboardTabOf } from "@/modules/eksplorasi/lib/dashboard-tabs";
 
 export const dynamic = "force-dynamic";
 
 /** The eksplorasi dashboard: the control charts of one OREAS standard, the blank charts, and the duplicate charts. */
-export default async function ExplorationDashboardPage() {
+export default async function ExplorationDashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   await requireCapabilityPage("manageExplorationData");
+  // The tab the address names (?tab=blank), so a shared or reloaded link opens where it was.
+  const initialTab = dashboardTabOf((await searchParams).tab);
   // The first standard with assays, every campaign's blanks, and every
   // duplicate pair are what the page opens on, so they come with the page
   // rather than being fetched again from the browser after hydration.
@@ -26,7 +33,12 @@ export default async function ExplorationDashboardPage() {
         <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
         <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
       </div>
-      <QcDashboard initialControl={initialControl} initialBlank={initialBlank} duplicates={duplicates} />
+      <QcDashboard
+        initialTab={initialTab}
+        initialControl={initialControl}
+        initialBlank={initialBlank}
+        duplicates={duplicates}
+      />
     </div>
   );
 }
