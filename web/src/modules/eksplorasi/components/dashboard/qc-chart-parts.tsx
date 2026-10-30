@@ -119,13 +119,51 @@ export function ChartLegend({ items }: { items: LegendItem[] }) {
 /** How far below the screen a chart is drawn ahead, so it is ready by the time it is scrolled to. */
 const LAZY_MARGIN = "300px 0px";
 
+/** Between one chart being built and the next: room for the browser to paint and to take a click. */
+const BUILD_GAP_MS = 60;
+
 /**
- * A chart's box, which builds the chart only as it nears the screen, then
- * keeps it. The dashboard can hold some thirty charts; built at once they
- * froze the page as it opened, though only the first few could be seen.
- * (The Lab dashboard puts its five in at once -- few enough not to matter.)
- * The box holds its height the whole time, so nothing jumps; without an
- * IntersectionObserver (an old browser, a test) the chart goes in at once.
+ * Charts waiting to be built, in the order they came into sight. A tab opens
+ * on six or nine charts at once; built in the same frame, they were one long
+ * task that froze the page, then as many animations redrawing their canvases
+ * together. Built one a frame, a little apart, each costs its own frame and
+ * starts its own animation -- the charts come in one after another, still
+ * animated, and the page stays free in between.
+ */
+const buildQueue: (() => void)[] = [];
+let building = false;
+
+function buildNext() {
+  const build = buildQueue.shift();
+  if (!build) {
+    building = false;
+    return;
+  }
+  build();
+  setTimeout(() => requestAnimationFrame(buildNext), BUILD_GAP_MS);
+}
+
+/** Puts a chart in line to be built; the answer takes it out again, for a box gone before its turn. */
+function queueBuild(build: () => void): () => void {
+  buildQueue.push(build);
+  if (!building) {
+    building = true;
+    requestAnimationFrame(buildNext);
+  }
+  return () => {
+    const index = buildQueue.indexOf(build);
+    if (index !== -1) buildQueue.splice(index, 1);
+  };
+}
+
+/**
+ * A chart's box, which builds the chart only as it nears the screen -- in
+ * turn with the others (queueBuild) -- then keeps it. The dashboard can hold
+ * some thirty charts; built at once they froze the page as it opened,
+ * though only the first few could be seen. (The Lab dashboard puts its five
+ * in at once -- few enough not to matter.) The box holds its height the
+ * whole time, so nothing jumps; without an IntersectionObserver (an old
+ * browser, a test) the chart goes in at once.
  */
 export function LazyPlot({ children }: { children: ReactNode }) {
   const box = useRef<HTMLDivElement>(null);
@@ -133,17 +171,21 @@ export function LazyPlot({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (near || !box.current) return;
+    let leaveQueue = () => {};
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting)) {
-          setNear(true);
           observer.disconnect();
+          leaveQueue = queueBuild(() => setNear(true));
         }
       },
       { rootMargin: LAZY_MARGIN }
     );
     observer.observe(box.current);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      leaveQueue();
+    };
   }, [near]);
 
   return (

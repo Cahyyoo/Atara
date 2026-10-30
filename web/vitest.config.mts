@@ -35,6 +35,13 @@ export default defineConfig({
      * load while passing in isolation, which is the worst kind of red.
      */
     testTimeout: 20000,
+    /**
+     * The database tests write their rows in beforeAll and remove them in
+     * afterAll. Under the same load those hooks ran past the default 10s:
+     * the file failed with every test in it green, and a cleanup cut short
+     * left test users and rows behind in the development database.
+     */
+    hookTimeout: 30000,
     setupFiles: ["./vitest.setup.ts"],
   },
 });
