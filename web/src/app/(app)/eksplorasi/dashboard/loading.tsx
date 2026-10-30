@@ -2,7 +2,7 @@ import { PageHeadingSkeleton } from "@/core/components/layout/page-skeleton";
 import { Skeleton } from "@/core/components/ui/skeleton";
 import { ControlChartsSkeleton } from "@/modules/eksplorasi/components/dashboard/qc-control-section";
 
-/** The heading, the tabs beside the Elements button, the section's heading and summary cards, then its charts. */
+/** The heading, the tabs beside the Elements button, the section's heading, then its charts. */
 export default function ExplorationDashboardLoading() {
   return (
     <div className="flex flex-col gap-6">
@@ -12,11 +12,6 @@ export default function ExplorationDashboardLoading() {
         <Skeleton className="h-9 w-36 rounded-xl" />
       </div>
       <Skeleton className="h-12 w-full max-w-2xl rounded-xl" />
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-        {Array.from({ length: 4 }, (_, index) => (
-          <Skeleton key={index} className="h-28 rounded-xl" />
-        ))}
-      </div>
       <ControlChartsSkeleton />
     </div>
   );

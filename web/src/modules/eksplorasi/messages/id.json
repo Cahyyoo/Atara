@@ -3,7 +3,7 @@
     "sections": {
       "qcDashboard": {
         "title": "Dashboard Eksplorasi",
-        "intro": "Satu tab untuk setiap pemeriksaan QC -- Standard (OREAS), Blank, dan Duplicate -- masing-masing dengan filter, kartu ringkasan, tabel, dan grafiknya sendiri. Tab menampilkan angka merah bila ada yang perlu dicek; tombol Unsur di samping tab memilih unsur yang tampil di semua tab.",
+        "intro": "Satu tab untuk setiap pemeriksaan QC -- Standard (OREAS), Blank, dan Duplicate -- masing-masing dengan filter, tabel, dan grafiknya sendiri. Tab menampilkan angka merah bila ada yang perlu dicek; tombol Unsur di samping tab memilih unsur yang tampil di semua tab.",
         "steps": {
           "1": "Pilih campaign lewat Campaign Criteria (atau semua campaign) dan standar lewat Oreas Criteria. Tabel standar memuat, untuk setiap unsur yang dicentang, nilai tersertifikasi dan SD tiap standar OREAS, jumlah analisis, mean, min, max, serta porsi di dalam 1, 2, dan 3 SD; Outside 2 SD di atas 5% ditandai merah. Tulis catatan lewat ikon pensil di kolom Remarks. Setiap titik grafik adalah satu analisis standar terpilih pada urutan barisnya di Data Source.",
           "2": "Garis hijau, kuning, dan merah adalah ±1σ, ±2σ, dan ±3σ dari nilai tersertifikasi (Fusion XRF) di CRM List. Titik di luar ±3σ digambar merah dan dihitung di bawah grafik.",
@@ -217,37 +217,6 @@
       "blank": "Blank",
       "duplicate": "Duplicate",
       "attention": "{count, plural, other {# perlu dicek}}"
-    },
-    "kpi": {
-      "label": "Ringkasan {section}",
-      "check": "Perlu dicek",
-      "none": "Tidak ada",
-      "standard": {
-        "assays": "Analisis standar",
-        "within2": "Dalam ±2 SD",
-        "within2Good": "Minimal 95%, sesuai harapan",
-        "within2Low": "Di bawah 95% yang diharapkan",
-        "outside3": "Analisis di luar ±3 SD",
-        "flagged": "Standar > 5% di luar 2 SD",
-        "flaggedHint": "Baris standar × unsur perlu dicek"
-      },
-      "blank": {
-        "blanks": "Sampel blank",
-        "anomalies": "Anomali",
-        "anomalyShare": "% Anomali",
-        "elements": "Unsur beranomali"
-      },
-      "duplicate": {
-        "pairs": "Pasangan duplikat",
-        "withinRpd": "Pasangan RPD ≤ 10%",
-        "withinGood": "Minimal 90%, sesuai CRM List",
-        "withinLow": "Di bawah 90% menurut CRM List",
-        "averageRpd": "Rata-rata RPD",
-        "lowestR2": "R² terendah",
-        "r2Good": "{element}; minimal 0,9",
-        "r2Low": "{element}; di bawah 0,9 menurut CRM List",
-        "noFit": "Perlu dua pasangan per unsur"
-      }
     },
     "criteria": {
       "campaign": "Campaign Criteria",

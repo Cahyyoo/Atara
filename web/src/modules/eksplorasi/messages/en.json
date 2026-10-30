@@ -3,7 +3,7 @@
     "sections": {
       "qcDashboard": {
         "title": "Exploration Dashboard",
-        "intro": "One tab for each QC check -- Standard (OREAS), Blank and Duplicate -- each with its own filters, summary cards, table and charts. A tab shows a red count when something in it wants a look; the Elements button beside the tabs picks the elements every tab shows.",
+        "intro": "One tab for each QC check -- Standard (OREAS), Blank and Duplicate -- each with its own filters, table and charts. A tab shows a red count when something in it wants a look; the Elements button beside the tabs picks the elements every tab shows.",
         "steps": {
           "1": "Pick a campaign under Campaign Criteria (or every campaign) and a standard under Oreas Criteria. The standard table gives, for each element ticked, every OREAS standard's certified value and SD, its number of assays, mean, min and max, and the share within 1, 2 and 3 SD; Outside 2 SD past 5% is red. Write a note on a row with the pencil under Remarks. Each point of a chart is one assay of the chosen standard at its row in the Data Source.",
           "2": "The green, yellow and red lines are ±1σ, ±2σ and ±3σ of the certified value (Fusion XRF) in the CRM List. Points outside ±3σ are drawn red and counted under the chart.",
@@ -217,37 +217,6 @@
       "blank": "Blank",
       "duplicate": "Duplicate",
       "attention": "{count, plural, one {# needs a look} other {# need a look}}"
-    },
-    "kpi": {
-      "label": "{section} summary",
-      "check": "Needs a look",
-      "none": "None",
-      "standard": {
-        "assays": "Standard assays",
-        "within2": "Within ±2 SD",
-        "within2Good": "At least 95%, as expected",
-        "within2Low": "Below the expected 95%",
-        "outside3": "Assays past ±3 SD",
-        "flagged": "Standards > 5% past 2 SD",
-        "flaggedHint": "Standard × element rows to check"
-      },
-      "blank": {
-        "blanks": "Blank samples",
-        "anomalies": "Anomalies",
-        "anomalyShare": "Anomaly %",
-        "elements": "Elements with anomalies"
-      },
-      "duplicate": {
-        "pairs": "Duplicate pairs",
-        "withinRpd": "Pairs at RPD ≤ 10%",
-        "withinGood": "At least 90%, as the CRM List wants",
-        "withinLow": "Below the CRM List's 90%",
-        "averageRpd": "Average RPD",
-        "lowestR2": "Lowest R²",
-        "r2Good": "{element}; at least 0.9",
-        "r2Low": "{element}; below the CRM List's 0.9",
-        "noFit": "Needs two pairs per element"
-      }
     },
     "criteria": {
       "campaign": "Campaign Criteria",

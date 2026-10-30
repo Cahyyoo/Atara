@@ -125,11 +125,10 @@ describe("the dashboard's tabs", () => {
 });
 
 describe("the standard section", () => {
-  it("sums its standards up in cards above the table", () => {
+  it("opens straight on its table, with no summary cards above it", () => {
     show();
-    const cards = screen.getByRole("group", { name: "Standard (OREAS) summary" });
-    expect(within(cards).getByText(en.qcDashboard.kpi.standard.within2Low)).toBeTruthy();
-    expect(within(cards).getByText(en.qcDashboard.kpi.standard.flaggedHint)).toBeTruthy();
+    expect(screen.queryByRole("group", { name: /summary$/ })).toBeNull();
+    expect(screen.getByRole("table")).toBeTruthy();
   });
 
   it("shows one element's table at a time, picked from the card's tabs", () => {

@@ -4,7 +4,7 @@ import { useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/core/lib/utils";
 import { DASHBOARD_TABS, type DashboardTab } from "@/modules/eksplorasi/lib/dashboard-tabs";
-import { blankOverview, duplicateOverview, standardOverview } from "@/modules/eksplorasi/lib/qc-overview";
+import { blankAttention, duplicateAttention, standardAttention } from "@/modules/eksplorasi/lib/qc-overview";
 import type { QcBlank, QcControl, QcDuplicate } from "@/modules/eksplorasi/types";
 import { ControlElementPicker, useControlElements } from "@/modules/eksplorasi/components/dashboard/control-element-picker";
 import { QcControlSection, useControlCriteria } from "@/modules/eksplorasi/components/dashboard/qc-control-section";
@@ -14,8 +14,8 @@ import { IoAlertCircle } from "react-icons/io5";
 
 /**
  * The eksplorasi dashboard: a tab for each QC check -- the OREAS standards,
- * the blanks, the duplicates -- each with its own choices, summary cards,
- * table and charts, all for the elements ticked under Elements beside the
+ * the blanks, the duplicates -- each with its own choices, table and
+ * charts, all for the elements ticked under Elements beside the
  * tabs (remembered in this browser).
  *
  * Every section's choices and data are kept here, and every panel stays
@@ -44,11 +44,11 @@ export function QcDashboard({
   const blank = useBlankCriteria(initialBlank);
   const duplicate = useDuplicateCriteria(duplicates);
 
-  const overviews = useMemo(
+  const attention = useMemo<Record<DashboardTab, number>>(
     () => ({
-      standard: standardOverview(control.data.summary.filter(({ element }) => elements.includes(element))),
-      blank: blankOverview(blank.data.elements.filter(({ element }) => elements.includes(element))),
-      duplicate: duplicateOverview(duplicate.data.elements.filter(({ element }) => elements.includes(element))),
+      standard: standardAttention(control.data.summary.filter(({ element }) => elements.includes(element))),
+      blank: blankAttention(blank.data.elements.filter(({ element }) => elements.includes(element))),
+      duplicate: duplicateAttention(duplicate.data.elements.filter(({ element }) => elements.includes(element))),
     }),
     [control.data, blank.data, duplicate.data, elements]
   );
@@ -79,7 +79,7 @@ export function QcDashboard({
         <div role="tablist" aria-label={t("label")} onKeyDown={onKeyDown} className="flex gap-0.5 rounded-xl bg-muted p-1">
           {DASHBOARD_TABS.map((name) => {
             const selected = tab === name;
-            const attention = overviews[name].attention;
+            const count = attention[name];
             return (
               <button
                 key={name}
@@ -99,14 +99,14 @@ export function QcDashboard({
                 )}
               >
                 {t(name)}
-                {attention > 0 ? (
+                {count > 0 ? (
                   <span
                     className="flex items-center gap-0.5 rounded-full bg-destructive/10 px-1.5 text-xs font-medium text-destructive tabular-nums"
-                    title={t("attention", { count: attention })}
+                    title={t("attention", { count })}
                   >
                     <IoAlertCircle aria-hidden className="size-3.5" />
-                    {attention}
-                    <span className="sr-only">{t("attention", { count: attention })}</span>
+                    {count}
+                    <span className="sr-only">{t("attention", { count })}</span>
                   </span>
                 ) : null}
               </button>
@@ -117,13 +117,13 @@ export function QcDashboard({
       </div>
 
       <div role="tabpanel" id="qc-panel-standard" aria-labelledby="qc-tab-standard" hidden={tab !== "standard"}>
-        <QcControlSection criteria={control} overview={overviews.standard} elements={elements} />
+        <QcControlSection criteria={control} elements={elements} />
       </div>
       <div role="tabpanel" id="qc-panel-blank" aria-labelledby="qc-tab-blank" hidden={tab !== "blank"}>
-        <QcBlankSection criteria={blank} overview={overviews.blank} elements={elements} />
+        <QcBlankSection criteria={blank} elements={elements} />
       </div>
       <div role="tabpanel" id="qc-panel-duplicate" aria-labelledby="qc-tab-duplicate" hidden={tab !== "duplicate"}>
-        <QcDuplicateSection criteria={duplicate} overview={overviews.duplicate} elements={elements} />
+        <QcDuplicateSection criteria={duplicate} elements={elements} />
       </div>
     </div>
   );
