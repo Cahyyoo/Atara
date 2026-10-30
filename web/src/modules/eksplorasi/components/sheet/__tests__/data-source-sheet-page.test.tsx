@@ -192,6 +192,14 @@ describe("a list's sheet", () => {
     expect(date(3).type).toBe("date");
   });
 
+  it("picks the Duplicate list's Control Date from a calendar too", async () => {
+    await show("duplicate");
+    const controlDate = screen.getByLabelText("Row 2 Control Date") as HTMLInputElement;
+    expect(controlDate.type).toBe("date");
+    fireEvent.paste(box(2, "Sample ID"), { clipboardData: { getData: () => "Sample ID\tControl Date\nD-100\t15/09/2026" } });
+    expect((screen.getByLabelText("Row 2 Control Date") as HTMLInputElement).value).toBe("2026-09-15");
+  });
+
   it("unlocks a row to change it, and saves it with the new rows", async () => {
     await show();
     fireEvent.click(screen.getByRole("button", { name: en.dataSource.sheet.unlock }));

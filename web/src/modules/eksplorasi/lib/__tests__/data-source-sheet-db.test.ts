@@ -182,25 +182,42 @@ describe.skipIf(!reachable)("a list's sheet", () => {
         data: { sampleId: `${tag}-DUP`, sampleType: "DUPLICATE", oreasRemarks: "OREAS note", createdById: session.userId! },
       })
     ).id;
+    // The original a duplicate's Remarks names: a FIELD sample.
+    await prisma.dataSource.create({ data: { sampleId: `${tag}-ORIG`, sampleType: "FIELD", createdById: session.userId! } });
 
-    // The Duplicate list's Remarks is the original sample's remarks.
+    // The Duplicate list's Remarks names the original sample -- case aside, as the dashboard pairs them.
     const duplicate = await send(
       "duplicate",
       [
-        { line: 1, id: dup, cells: { sampleId: `${tag}-DUP`, originalSampleIdRemarks: "Repeats DH-3 12 m" } },
-        { line: 2, cells: { sampleId: `${tag}-DUP2`, originalSampleIdRemarks: "New pair" } },
+        { line: 1, id: dup, cells: { sampleId: `${tag}-DUP`, originalSampleIdRemarks: `${tag}-ORIG` } },
+        { line: 2, cells: { sampleId: `${tag}-DUP2`, originalSampleIdRemarks: `${tag}-orig`.toLowerCase() } },
       ],
       false
     );
     expect(duplicate.body.data).toMatchObject({ created: 1, updated: 1 });
     expect(await prisma.dataSource.findUniqueOrThrow({ where: { id: dup } })).toMatchObject({
-      originalSampleIdRemarks: "Repeats DH-3 12 m",
+      originalSampleIdRemarks: `${tag}-ORIG`,
       oreasRemarks: "OREAS note",
     });
     expect(await prisma.dataSource.findUniqueOrThrow({ where: { sampleId: `${tag}-DUP2` } })).toMatchObject({
-      originalSampleIdRemarks: "New pair",
+      originalSampleIdRemarks: `${tag}-orig`.toLowerCase(),
       oreasRemarks: null,
     });
+
+    // Anything else there -- a note, another list's sample -- is refused at its box, and nothing is written.
+    const refused = await send(
+      "duplicate",
+      [
+        { line: 1, cells: { sampleId: `${tag}-DUP3`, originalSampleIdRemarks: "Repeats DH-3 12 m" } },
+        { line: 2, cells: { sampleId: `${tag}-DUP4`, originalSampleIdRemarks: `${tag}-STD` } },
+      ],
+      false
+    );
+    expect(refused.body.data).toMatchObject({ created: 0, summary: { invalid: 2 } });
+    expect(refused.body.data.rows).toEqual([
+      expect.objectContaining({ line: 1, status: "invalid", field: "originalSampleIdRemarks" }),
+      expect.objectContaining({ line: 2, status: "invalid", field: "originalSampleIdRemarks" }),
+    ]);
 
     // The Standard list's is the OREAS remarks; the duplicate's own stays untouched.
     await send(

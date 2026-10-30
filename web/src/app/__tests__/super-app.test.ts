@@ -142,6 +142,26 @@ describe("a row of the data source", () => {
     expect(createDataSourceSchema.safeParse({ sampleId: "A", sampleType: "DUPLICATE", originalSampleIdRemarks: "12345" }).success).toBe(true);
   });
 
+  it("takes From, To and Weight only as numbers, naming the column that is not", () => {
+    expect(createDataSourceSchema.safeParse({ sampleId: "A", sampleType: "FIELD", from: "0", to: "1,5", weight: "2.25" }).success).toBe(true);
+    expect(createDataSourceSchema.safeParse({ sampleId: "A", sampleType: "FIELD", from: "", weight: null }).success).toBe(true);
+    for (const [field, value] of [
+      ["weight", "2026-10-30"],
+      ["from", "abc"],
+      ["to", "10 m"],
+    ] as const) {
+      const parsed = createDataSourceSchema.safeParse({ sampleId: "A", sampleType: "FIELD", [field]: value });
+      expect(parsed.success).toBe(false);
+      expect(parsed.error?.issues[0].path).toEqual([field]);
+    }
+  });
+
+  it("takes a Control Date as a day, YYYY-MM-DD, as Date is", () => {
+    expect(createDataSourceSchema.safeParse({ sampleId: "A", sampleType: "DUPLICATE", controlDate: "2026-10-01" }).success).toBe(true);
+    expect(createDataSourceSchema.safeParse({ sampleId: "A", sampleType: "DUPLICATE", controlDate: "01/10/2026" }).success).toBe(false);
+    expect(updateDataSourceSchema.safeParse({ controlDate: null }).success).toBe(true);
+  });
+
   it("clears a column with null, and leaves it alone when it is not sent", () => {
     expect(updateDataSourceSchema.parse({ campaign: null })).toEqual({ campaign: null });
     expect(updateDataSourceSchema.parse({})).toEqual({});

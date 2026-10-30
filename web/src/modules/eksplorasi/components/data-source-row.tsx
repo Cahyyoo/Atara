@@ -55,6 +55,10 @@ export function DataSourceRow({
     if (column === "rowNo") return String(number);
     if (column === "fromTo") return row.from || row.to ? `${row.from ?? empty}–${row.to ?? empty}` : null;
     if (column === "date") return row.date ? format.dateTime(new Date(`${row.date}T00:00:00`), { dateStyle: "short" }) : null;
+    // Picked from a calendar now, so written as Date is; a value from before then shows as it was written.
+    if (column === "controlDate" && row.controlDate && /^\d{4}-\d{2}-\d{2}$/.test(row.controlDate)) {
+      return format.dateTime(new Date(`${row.controlDate}T00:00:00`), { dateStyle: "short" });
+    }
     if (column === "actions" || column === "sampleType") return null;
     return row[column];
   }

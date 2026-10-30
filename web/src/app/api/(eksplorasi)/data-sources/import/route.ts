@@ -6,6 +6,7 @@ import { dataSourceImportGate } from "@/modules/eksplorasi/lib/gates";
 import { fileKindOf, readUploadedSheet } from "@/modules/eksplorasi/lib/data-source-file";
 import { MAX_IMPORT_ROWS, readDataSourceSheet } from "@/modules/eksplorasi/lib/data-source-import";
 import { findExistingSamples, planImport, writeImport } from "@/modules/eksplorasi/lib/data-source-upsert";
+import { unknownOriginals } from "@/modules/eksplorasi/lib/duplicate-originals";
 import { viewOf, VIEWS } from "@/modules/eksplorasi/lib/data-source-columns";
 
 /**
@@ -61,18 +62,25 @@ export const POST = route({ capability: "manageExplorationData" }, async ({ requ
       throw new ApiError(message, status, `file-${code}`);
     }
 
-    const existing = await findExistingSamples(sheet.rows.map((row) => row.data.sampleId));
-    const plan = planImport(sheet.rows, existing, form.get("updateExisting") === "1");
+    // A duplicate's Remarks must name a FIELD sample; a row that does not is left out with the others.
+    const unknown = await unknownOriginals(sheet.rows);
+    const refused = new Set(unknown.map((error) => error.line));
+    const rows = sheet.rows.filter((row) => !refused.has(row.line));
+    const errors = [...sheet.errors, ...unknown].sort((a, b) => a.line - b.line);
+    const invalid = sheet.invalid + refused.size;
+
+    const existing = await findExistingSamples(rows.map((row) => row.data.sampleId));
+    const plan = planImport(rows, existing, form.get("updateExisting") === "1");
 
     if (!apply) {
       return jsonSuccess({
         total: sheet.total,
-        valid: sheet.rows.length,
+        valid: rows.length,
         create: plan.creates.length,
         existing: plan.updates.length + plan.skips.length,
-        invalid: sheet.invalid,
-        errors: sheet.errors.slice(0, MAX_REPORTED_ERRORS),
-        errorsTotal: sheet.errors.length,
+        invalid,
+        errors: errors.slice(0, MAX_REPORTED_ERRORS),
+        errorsTotal: errors.length,
         ignoredHeaders: sheet.ignoredHeaders,
       });
     }
@@ -89,7 +97,7 @@ export const POST = route({ capability: "manageExplorationData" }, async ({ requ
           updated: result.updated,
           // Samples added by somebody else between the preview and this write.
           skipped: plan.skips.length + (plan.creates.length - result.created),
-          invalid: sheet.invalid,
+          invalid,
         });
       },
       {

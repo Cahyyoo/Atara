@@ -11,6 +11,7 @@ import {
 } from "@/modules/eksplorasi/lib/data-source-columns";
 import { readDataSourceSheet, type DataSourceImportRow, type SheetLine } from "@/modules/eksplorasi/lib/data-source-import";
 import { findExistingSamples } from "@/modules/eksplorasi/lib/data-source-upsert";
+import { unknownOriginals } from "@/modules/eksplorasi/lib/duplicate-originals";
 import { DATA_SOURCE_SELECT, toDataSourceDTO, toDateColumn } from "@/modules/eksplorasi/lib/data-source";
 import { isBlankRemark, matchOreas } from "@/modules/eksplorasi/lib/oreas-match";
 import { oreasStandards } from "@/modules/eksplorasi/lib/crm-list-service";
@@ -74,6 +75,7 @@ export async function applyDataSourceSheet(body: SheetBody, userId: string): Pro
   const read = readDataSourceSheet([header, ...lines], fixedType);
   const rows = read.ok ? read.rows : [];
   if (read.ok) for (const error of read.errors) fail(error.line, error.field, error.message);
+  for (const error of await unknownOriginals(rows)) fail(error.line, error.field, error.message);
 
   const existing = await findExistingSamples(rows.map((row) => row.data.sampleId));
   const unlocked = rows.flatMap((row) => ids.get(row.line) ?? []);
@@ -103,6 +105,8 @@ export async function applyDataSourceSheet(body: SheetBody, userId: string): Pro
   const creates: Values[] = [];
   const updates: { id: string; values: Values }[] = [];
   for (const row of rows) {
+    // Already judged wrong (a Remarks naming no FIELD sample): nothing to add or change.
+    if (verdicts.get(row.line)?.status === "invalid") continue;
     const id = ids.get(row.line);
     const owner = existing.get(row.data.sampleId.toLowerCase());
     const before = id === undefined ? undefined : stored.get(id);

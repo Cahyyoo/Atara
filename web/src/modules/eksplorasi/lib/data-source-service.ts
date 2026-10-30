@@ -12,6 +12,7 @@ import {
   toDateColumn,
 } from "@/modules/eksplorasi/lib/data-source";
 import { campaignsCache, invalidateDataSourceCaches } from "@/modules/eksplorasi/lib/eksplorasi-cache";
+import { assertKnownOriginal } from "@/modules/eksplorasi/lib/duplicate-originals";
 import type {
   createDataSourceSchema,
   listDataSourceQuerySchema,
@@ -83,8 +84,9 @@ export async function searchFieldSampleIds({ search, limit }: z.output<typeof sa
   return rows.map((row) => row.sampleId);
 }
 
-/** A new row. A sample ID already in use is a 409 (handleApiError, P2002). */
+/** A new row. A sample ID already in use is a 409 (handleApiError, P2002); a Remarks naming no FIELD sample a 422. */
 export async function createDataSource(body: NewRow, userId: string) {
+  await assertKnownOriginal(body);
   const row = await prisma.dataSource.create({
     data: { ...(columns(body) as Omit<Prisma.DataSourceUncheckedCreateInput, "createdById">), createdById: userId },
     select: DATA_SOURCE_SELECT,
@@ -99,8 +101,9 @@ export async function getDataSource(id: string) {
   return toDataSourceDTO(row);
 }
 
-/** Changes only the fields sent. A missing row is a 404, a taken sample ID a 409. */
+/** Changes only the fields sent. A missing row is a 404, a taken sample ID a 409, a Remarks naming no FIELD sample a 422. */
 export async function updateDataSource(id: string, body: RowChange, userId: string) {
+  await assertKnownOriginal(body);
   const row = await prisma.dataSource.update({
     where: { id },
     data: { ...(columns(body) as Prisma.DataSourceUncheckedUpdateInput), updatedById: userId },

@@ -6,6 +6,7 @@ import {
   DATA_SOURCE_FIELDS,
   DATA_SOURCE_VIEWS,
   ELEMENT_FIELDS,
+  HEADERS,
   MAX_LENGTH,
   SAMPLE_TYPES,
   TEXT_FIELDS,
@@ -57,13 +58,28 @@ const oreasRemarks = optionalText(MAX_LENGTH.oreasRemarks).refine((value) => !va
   message: "Remarks is not a number. Check that the pasted columns did not shift.",
 });
 
+/**
+ * From, To and Weight: numbers, written as the lab writes them ("2,5"
+ * included). A date or a word there is another column's value, pasted one
+ * box over -- the Date of a field sample landing in a Blank's Weight.
+ */
+const numberText = (field: "from" | "to" | "weight") =>
+  optionalText(MAX_LENGTH[field]).refine((value) => !value || parseNumber(value) !== null, {
+    message: `${HEADERS[field]} must be a number.`,
+  });
+
 const dataSourceFields = {
   ...textFields,
   ...elementFields,
   oreasRemarks,
+  from: numberText("from"),
+  to: numberText("to"),
+  weight: numberText("weight"),
   sampleId: z.string().trim().min(1, "Sample ID is required.").max(MAX_LENGTH.sampleId),
   sampleType: z.enum(SAMPLE_TYPES, { error: "Sample type must be FIELD, STANDARD, BLANK or DUPLICATE." }),
   date: optionalDate,
+  // Kept as text in its column, but a day all the same: picked from a calendar, read as Date is.
+  controlDate: optionalDate,
 };
 
 /** A new row, and one row of an imported sheet: a sample ID and a type, the rest optional. */

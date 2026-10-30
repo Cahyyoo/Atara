@@ -34,6 +34,9 @@ import {
 import { sendSheet, useSheetCheck } from "@/modules/eksplorasi/components/sheet/use-sheet-check";
 import type { DataSourceDTO, DataSourceView } from "@/modules/eksplorasi/types";
 
+/** The columns picked from a calendar: Date, and the Duplicate list's Control Date. */
+const DATE_KEYS: ReadonlySet<string> = new Set<DataSourceField>(["date", "controlDate"]);
+
 /**
  * A date as the Date box holds it (YYYY-MM-DD), however it was pasted:
  * "01/10/2026" from an Indonesian sheet becomes 2026-10-01. Anything that is
@@ -208,7 +211,7 @@ export function useDataSourceSheet(view: DataSourceView, onSaved: () => void, ed
         for (const { row, key, value } of cells) {
           if (row >= next.length || next[row].locked) continue;
           if (key === "sampleType" && fixedType) continue;
-          const text = key === "sampleType" ? typeText(value) : key === "date" ? dateText(value) : value;
+          const text = key === "sampleType" ? typeText(value) : DATE_KEYS.has(key) ? dateText(value) : value;
           next[row] = { ...next[row], cells: { ...next[row].cells, [key]: text } };
           if ((MATCH_ELEMENTS as readonly string[]).includes(key)) assayed.add(row);
         }

@@ -177,10 +177,10 @@ export function readDataSourceSheet(lines: Iterable<SheetLine>, fixedType: Sampl
     columns.forEach((field, index) => {
       if (field === null) return;
       const cell = cells[index];
-      if (field === "date") {
+      if (field === "date" || field === "controlDate") {
         const value = readDateCell(cell);
         if (value === "invalid") fail(field, `"${textOf(cell)}" is not a date (use YYYY-MM-DD or DD/MM/YYYY).`);
-        else raw.date = value;
+        else raw[field] = value;
       } else if (field === "sampleType") {
         const value = readSampleTypeCell(cell);
         if (value === "invalid") fail(field, `"${textOf(cell)}" is not a sample type (${TYPE_HINT}).`);
