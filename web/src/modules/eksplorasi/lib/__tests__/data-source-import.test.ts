@@ -152,12 +152,12 @@ describe("readDataSourceSheet", () => {
     expect(read.ok && read.rows[0].data).toMatchObject({ ni: "0.3", sio2: "98,71" });
   });
 
-  it("reads a Control Date as Date is read, and refuses one that is not a day", () => {
+  it("keeps a Control Date as the text it was written", () => {
     const read = readDataSourceSheet(
-      sheet(["Sample ID", "Sample Type", "Control Date"], ["D-1", "DUPLICATE", "01/10/2026"], ["D-2", "DUPLICATE", "x"])
+      sheet(["Sample ID", "Sample Type", "Control Date"], ["D-1", "DUPLICATE", "01/10/2026"], ["D-2", "DUPLICATE", "minggu 2"])
     );
-    expect(read.ok && read.rows.map((row) => row.data.controlDate)).toEqual(["2026-10-01"]);
-    expect(read.ok && read.errors).toEqual([expect.objectContaining({ line: 3, field: "controlDate" })]);
+    expect(read.ok && read.rows.map((row) => row.data.controlDate)).toEqual(["01/10/2026", "minggu 2"]);
+    expect(read.ok && read.errors).toEqual([]);
   });
 
   it("refuses a result written as below the detection limit, at its cell", () => {

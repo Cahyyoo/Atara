@@ -192,12 +192,13 @@ describe("a list's sheet", () => {
     expect(date(3).type).toBe("date");
   });
 
-  it("picks the Duplicate list's Control Date from a calendar too", async () => {
+  it("keeps the Duplicate list's Control Date a text box, written as typed", async () => {
     await show("duplicate");
-    const controlDate = screen.getByLabelText("Row 2 Control Date") as HTMLInputElement;
-    expect(controlDate.type).toBe("date");
+    expect(box(2, "Control Date").type).toBe("text");
     fireEvent.paste(box(2, "Sample ID"), { clipboardData: { getData: () => "Sample ID\tControl Date\nD-100\t15/09/2026" } });
-    expect((screen.getByLabelText("Row 2 Control Date") as HTMLInputElement).value).toBe("2026-09-15");
+    expect(box(2, "Control Date").value).toBe("15/09/2026");
+    // Date, beside it, is still picked from a calendar.
+    expect((screen.getByLabelText("Row 2 Date") as HTMLInputElement).type).toBe("date");
   });
 
   it("unlocks a row to change it, and saves it with the new rows", async () => {

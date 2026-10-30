@@ -156,9 +156,10 @@ describe("a row of the data source", () => {
     }
   });
 
-  it("takes a Control Date as a day, YYYY-MM-DD, as Date is", () => {
-    expect(createDataSourceSchema.safeParse({ sampleId: "A", sampleType: "DUPLICATE", controlDate: "2026-10-01" }).success).toBe(true);
-    expect(createDataSourceSchema.safeParse({ sampleId: "A", sampleType: "DUPLICATE", controlDate: "01/10/2026" }).success).toBe(false);
+  it("keeps a Control Date as the text it was written, within the column's length", () => {
+    const parsed = createDataSourceSchema.parse({ sampleId: "A", sampleType: "DUPLICATE", controlDate: "01/10/2026" });
+    expect(parsed.controlDate).toBe("01/10/2026");
+    expect(createDataSourceSchema.safeParse({ sampleId: "A", sampleType: "DUPLICATE", controlDate: "x".repeat(51) }).success).toBe(false);
     expect(updateDataSourceSchema.safeParse({ controlDate: null }).success).toBe(true);
   });
 

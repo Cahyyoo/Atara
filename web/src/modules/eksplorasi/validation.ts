@@ -78,8 +78,6 @@ const dataSourceFields = {
   sampleId: z.string().trim().min(1, "Sample ID is required.").max(MAX_LENGTH.sampleId),
   sampleType: z.enum(SAMPLE_TYPES, { error: "Sample type must be FIELD, STANDARD, BLANK or DUPLICATE." }),
   date: optionalDate,
-  // Kept as text in its column, but a day all the same: picked from a calendar, read as Date is.
-  controlDate: optionalDate,
 };
 
 /** A new row, and one row of an imported sheet: a sample ID and a type, the rest optional. */
