@@ -139,7 +139,7 @@ describe.skipIf(!reachable)("a list's sheet", () => {
     const { body } = await send(
       "dataSource",
       [
-        { ...unchanged(), cells: { sampleId: `${tag}-OLD`, sampleType: "Duplicate", campaign: "", ni: "1.55" } },
+        { ...unchanged(), cells: { sampleId: `${tag}-OLD`, sampleType: "Blank", campaign: "", ni: "1.55" } },
         { line: 2, cells: { sampleId: `${tag}-NEW`, sampleType: "std", date: "01/10/2026", ni: "0.009" } },
       ],
       false
@@ -147,7 +147,7 @@ describe.skipIf(!reachable)("a list's sheet", () => {
     expect(body.data).toMatchObject({ created: 1, updated: 1, summary: { create: 1, update: 1, invalid: 0 } });
 
     const old = await prisma.dataSource.findUniqueOrThrow({ where: { id: stored } });
-    expect(old).toMatchObject({ campaign: null, sampleType: "DUPLICATE", ni: "1.55", updatedById: session.userId });
+    expect(old).toMatchObject({ campaign: null, sampleType: "BLANK", ni: "1.55", updatedById: session.userId });
 
     const added = await prisma.dataSource.findUniqueOrThrow({ where: { sampleId: `${tag}-NEW` } });
     expect(added).toMatchObject({ sampleType: "STANDARD", ni: "0.009", createdById: session.userId });
@@ -229,6 +229,33 @@ describe.skipIf(!reachable)("a list's sheet", () => {
       oreasRemarks: "CRM ok",
       originalSampleIdRemarks: null,
     });
+  });
+
+  it("adds no duplicate on the data source's sheet, but keeps a stored one's type", async () => {
+    const stored = (
+      await prisma.dataSource.create({
+        data: { sampleId: `${tag}-DSDUP`, sampleType: "DUPLICATE", campaign: "C1", createdById: session.userId! },
+      })
+    ).id;
+    const { body } = await send(
+      "dataSource",
+      [
+        { line: 1, cells: { sampleId: `${tag}-NEWDUP`, sampleType: "Duplicate" } },
+        { line: 2, id: stored, cells: { sampleId: `${tag}-DSDUP`, sampleType: "Duplicate", campaign: "C2" } },
+      ],
+      false
+    );
+    expect(body.data.rows[0]).toMatchObject({ status: "invalid", field: "sampleType" });
+    expect(body.data).toMatchObject({ created: 0, updated: 0, summary: { invalid: 1, update: 1 } });
+
+    // Nor is another sample turned into a duplicate here.
+    const turned = await send("dataSource", [{ ...unchanged(), cells: { ...unchanged().cells, sampleType: "Duplicate" } }], true);
+    expect(turned.body.data.rows[0]).toMatchObject({ status: "invalid", field: "sampleType" });
+
+    // Once the new duplicate is taken off, the stored one's change goes through, its type kept.
+    const kept = await send("dataSource", [{ line: 1, id: stored, cells: { sampleId: `${tag}-DSDUP`, sampleType: "Duplicate", campaign: "C2" } }], false);
+    expect(kept.body.data).toMatchObject({ updated: 1 });
+    expect(await prisma.dataSource.findUniqueOrThrow({ where: { id: stored } })).toMatchObject({ sampleType: "DUPLICATE", campaign: "C2" });
   });
 
   it("refuses a row of another type on a QC list", async () => {

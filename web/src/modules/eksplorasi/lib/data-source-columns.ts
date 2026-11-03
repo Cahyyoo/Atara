@@ -209,6 +209,17 @@ export function viewFields(view: DataSourceView): DataSourceField[] {
   return [...VIEWS[view].leading, ...ELEMENT_FIELDS];
 }
 
+/**
+ * The types a list's sheet adds rows of. A QC list adds its own type. The
+ * data source adds any but a duplicate: a duplicate needs its original
+ * picked, which only the Duplicate list's sheet has a column for. (A file
+ * imported into the data source may still bring duplicates, Remarks and all.)
+ */
+export function typesAddedIn(view: DataSourceView): readonly SampleType[] {
+  const own = VIEWS[view].sampleType;
+  return own ? [own] : SAMPLE_TYPES.filter((type) => type !== "DUPLICATE");
+}
+
 /** The list a sample type belongs on: its own QC list, or the data source for a field sample. */
 export function viewOfType(sampleType: SampleType): DataSourceView {
   const found = DATA_SOURCE_VIEWS.find((view) => VIEWS[view].sampleType === sampleType);

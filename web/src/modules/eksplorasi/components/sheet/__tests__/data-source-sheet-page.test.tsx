@@ -133,9 +133,10 @@ describe("a list's sheet", () => {
     const type = () => screen.getByRole("combobox", { name: "Row 2 Sample Type" });
     fireEvent.click(type());
     const options = await screen.findAllByRole("option", {}, LONG);
+    // No Duplicate: a duplicate is added on the Duplicate list, where its original is picked.
     expect(options.map((option) => option.textContent)).toEqual([
       "—",
-      ...(["FIELD", "STANDARD", "BLANK", "DUPLICATE"] as const).map((key) => types[key]),
+      ...(["FIELD", "STANDARD", "BLANK"] as const).map((key) => types[key]),
     ]);
 
     const search = await screen.findByRole("combobox", { name: en.dataSource.sheet.typeSearch }, LONG);
@@ -199,6 +200,59 @@ describe("a list's sheet", () => {
     expect(box(2, "Control Date").value).toBe("15/09/2026");
     // Date, beside it, is still picked from a calendar.
     expect((screen.getByLabelText("Row 2 Date") as HTMLInputElement).type).toBe("date");
+  });
+
+  // Each drag redraws a sheet of some 1,500 boxes in jsdom: slow beside twenty other workers. (The
+  // repeating of a block is fillWrites', in sheet-rows.test.ts.)
+  describe("the fill handle", { timeout: 40_000 }, () => {
+    const handle = () => document.querySelector("[data-fill-handle]") as HTMLElement;
+    /** Takes the handle from the selection's corner down to `row`, and lets go -- or presses Esc first. */
+    function drag(row: number, field: string, { cancel = false } = {}) {
+      fireEvent.mouseDown(handle(), { button: 0 });
+      fireEvent.mouseOver(box(row, field));
+      expect(document.querySelectorAll("[data-fill-preview]").length).toBeGreaterThan(0);
+      if (cancel) fireEvent.keyDown(box(row, field), { key: "Escape" });
+      fireEvent.mouseUp(window);
+    }
+
+    it("copies a box down the rows it is dragged over, as written", async () => {
+      await show();
+      fireEvent.change(box(2, "Campaign"), { target: { value: "C-9" } });
+      act(() => box(2, "Campaign").focus());
+      drag(5, "Campaign");
+      expect([3, 4, 5].map((row) => box(row, "Campaign").value)).toEqual(["C-9", "C-9", "C-9"]);
+      expect(box(6, "Campaign").value).toBe("");
+    });
+
+    it("lets go without a copy on Esc", async () => {
+      await show();
+      fireEvent.change(box(2, "Campaign"), { target: { value: "C-9" } });
+      act(() => box(2, "Campaign").focus());
+      drag(4, "Campaign", { cancel: true });
+      expect(box(3, "Campaign").value).toBe("");
+    });
+
+    it("passes over a locked sample in its way", async () => {
+      latest = [ROW, { ...ROW, id: "r2", sampleId: "S-002", campaign: "C2" }];
+      await show();
+      fireEvent.click(screen.getAllByRole("button", { name: en.dataSource.sheet.unlock })[0]);
+      const locked = box(2, "Campaign").value;
+      fireEvent.change(box(1, "Campaign"), { target: { value: "C-9" } });
+      act(() => box(1, "Campaign").focus());
+      drag(3, "Campaign");
+      // Row 2 is the other sample, still locked and as it was; row 3 is the first new row.
+      expect(box(2, "Campaign").readOnly).toBe(true);
+      expect([box(2, "Campaign").value, box(3, "Campaign").value]).toEqual([locked, "C-9"]);
+    });
+
+    it("copies a selection's first row down the rest of it on Ctrl+D", async () => {
+      await show();
+      fireEvent.change(box(2, "Weight"), { target: { value: "2.5" } });
+      act(() => box(2, "Weight").focus());
+      fireEvent.mouseDown(box(4, "Weight"), { button: 0, shiftKey: true });
+      fireEvent.keyDown(box(2, "Weight"), { key: "d", ctrlKey: true });
+      expect([3, 4].map((row) => box(row, "Weight").value)).toEqual(["2.5", "2.5"]);
+    });
   });
 
   it("unlocks a row to change it, and saves it with the new rows", async () => {

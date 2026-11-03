@@ -10,6 +10,7 @@ import {
   type MouseEvent,
 } from "react";
 import { isBlock } from "@/core/lib/sheets/clipboard-block";
+import { useFillHandle } from "@/core/hooks/use-fill-handle";
 
 /** A rectangle of cells, by row and by column position on screen. */
 export interface GridRange {
@@ -35,6 +36,12 @@ interface Options {
   copyText: (range: GridRange) => string;
   /** For a grid that renders only the rows in view: scroll a row in first. */
   reveal?: (row: number) => void;
+  /**
+   * Copies the boxes of `source` down into `target`, the source repeated as
+   * often as it fits. Given, the grid has Excel's fill handle -- the small
+   * square at the selection's corner, dragged down -- and Ctrl+D.
+   */
+  fill?: (source: GridRange, target: GridRange) => void;
 }
 
 const span = (a: Point, b: Point): GridRange => ({
@@ -75,12 +82,15 @@ function atEdge(input: HTMLInputElement, direction: "left" | "right"): boolean {
  * the clipboard as Excel's own tab-separated text, Ctrl+X does that and empties
  * it, Delete empties it, and Ctrl+V lays a copied block down from its corner --
  * or fills all of it with one copied value. Arrows and Enter move box to box.
+ * A grid given `fill` has Excel's fill handle too: the small square at the
+ * selection's corner, dragged down, copies the boxes into the rows it
+ * passes (Esc lets go of it), and Ctrl+D copies a selection's first row down.
  *
  * Everything listens on the grid itself (event delegation), so a box carries
  * no handlers of its own beyond typing: only data-cell-row/-col, and
  * data-selected when it is inside the rectangle.
  */
-export function useGridSelection({ rowCount, colCount, clear, paste, copyText, reveal }: Options) {
+export function useGridSelection({ rowCount, colCount, clear, paste, copyText, reveal, fill }: Options) {
   const containerRef = useRef<HTMLDivElement>(null);
   // The selection lives in refs as well as in state: state is what renders,
   // the refs are what a handler reads. Two events can arrive before React has
@@ -114,6 +124,8 @@ export function useGridSelection({ rowCount, colCount, clear, paste, copyText, r
     window.addEventListener("mouseup", stop);
     return () => window.removeEventListener("mouseup", stop);
   }, []);
+
+  const fillHandle = useFillHandle(fill, rowCount, select);
 
   const focusCell = useCallback(
     (point: Point) => {
@@ -150,6 +162,7 @@ export function useGridSelection({ rowCount, colCount, clear, paste, copyText, r
   }
 
   function onMouseDown(event: MouseEvent) {
+    if (fillHandle.start(event, currentRange())) return;
     const cell = cellOf(event.target);
     if (!cell || event.button !== 0) return;
     if (event.shiftKey && anchorRef.current) {
@@ -162,6 +175,7 @@ export function useGridSelection({ rowCount, colCount, clear, paste, copyText, r
   }
 
   function onMouseOver(event: MouseEvent) {
+    if (fillHandle.move(event)) return;
     if (!dragging.current || !anchorRef.current) return;
     const cell = cellOf(event.target);
     const head = headRef.current;
@@ -172,11 +186,21 @@ export function useGridSelection({ rowCount, colCount, clear, paste, copyText, r
   }
 
   function onKeyDown(event: KeyboardEvent) {
+    if (fillHandle.escape(event)) return;
     const cell = cellOf(event.target);
     if (!cell) return;
     const input = event.target as HTMLInputElement;
     const mod = event.ctrlKey || event.metaKey;
     const now = currentRange();
+
+    // Ctrl+D, as Excel: a selection's first row copied down the rest of it,
+    // or -- a single box -- the box above copied into it.
+    if (fill && mod && event.key.toLowerCase() === "d" && now) {
+      event.preventDefault();
+      if (now.bottom > now.top) fill({ ...now, bottom: now.top }, { ...now, top: now.top + 1 });
+      else if (now.top > 0) fill({ ...now, top: now.top - 1, bottom: now.top - 1 }, now);
+      return;
+    }
 
     // Typing over a selection types into the box that has focus, as Excel does.
     if (isMultiRange(now) && !mod && event.key.length === 1) {
@@ -264,11 +288,20 @@ export function useGridSelection({ rowCount, colCount, clear, paste, copyText, r
     [isMulti, top, bottom, left, right]
   );
 
+  /** The column of the fill handle in a row -- the selection's last row, last column -- else null. */
+  const showHandle = Boolean(fill) && range !== null && !isDragging && !fillHandle.active;
+  const fillHandleFor = useCallback(
+    (row: number): number | null => (showHandle && row === bottom ? right : null),
+    [showHandle, bottom, right]
+  );
+
   return {
     containerRef,
     range,
     isMulti,
     selectionFor,
+    fillHandleFor,
+    fillPreviewFor: fillHandle.previewFor,
     containerProps: {
       ref: containerRef,
       onFocusCapture,
@@ -279,6 +312,7 @@ export function useGridSelection({ rowCount, colCount, clear, paste, copyText, r
       onCut,
       onPaste,
       "data-dragging": isDragging ? "" : undefined,
+      "data-filling": fillHandle.active ? "" : undefined,
     },
   };
 }

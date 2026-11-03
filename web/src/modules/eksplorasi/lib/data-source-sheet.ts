@@ -5,6 +5,7 @@ import { prisma } from "@/core/lib/prisma";
 import {
   DATA_SOURCE_FIELDS,
   HEADERS,
+  typesAddedIn,
   VIEWS,
   viewFields,
   type DataSourceField,
@@ -102,6 +103,7 @@ export async function applyDataSourceSheet(body: SheetBody, userId: string): Pro
     return name ? { ...values, oreasRemarks: name } : values;
   };
 
+  const added = typesAddedIn(body.view);
   const creates: Values[] = [];
   const updates: { id: string; values: Values }[] = [];
   for (const row of rows) {
@@ -111,6 +113,13 @@ export async function applyDataSourceSheet(body: SheetBody, userId: string): Pro
     const owner = existing.get(row.data.sampleId.toLowerCase());
     const before = id === undefined ? undefined : stored.get(id);
     const values = withOreas(valuesOf(row.data, written), before?.oreasRemarks ?? null);
+
+    // The data source's sheet adds no duplicate, nor turns a sample into one -- its original is
+    // picked on the Duplicate list. A duplicate already stored keeps its type when changed here.
+    if (!added.includes(row.data.sampleType) && before?.sampleType !== row.data.sampleType) {
+      fail(row.line, "sampleType", "A duplicate is added from the Duplicate list, where its original is picked.");
+      continue;
+    }
 
     if (id === undefined) {
       if (owner) {

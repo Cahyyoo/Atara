@@ -23,6 +23,8 @@ import {
   blankRows,
   asLoaded,
   cellsOf,
+  emptyWrites,
+  fillWrites,
   hasAssay,
   isDirtyRow,
   lockCounts,
@@ -244,13 +246,7 @@ export function useDataSourceSheet(view: DataSourceView, onSaved: () => void, ed
   const clipboard = useGridSelection({
     rowCount: rows.length,
     colCount: keys.length,
-    clear: (range: GridRange) => {
-      const cells: CellWrite[] = [];
-      for (let row = range.top; row <= range.bottom; row++) {
-        for (let col = range.left; col <= range.right; col++) cells.push({ row, key: keys[col], value: "" });
-      }
-      write(cells);
-    },
+    clear: (range: GridRange) => write(emptyWrites(keys, range)),
     paste: (block: string, range: GridRange) => {
       const result = spreadBlock(block, {
         columns: keys,
@@ -262,6 +258,8 @@ export function useDataSourceSheet(view: DataSourceView, onSaved: () => void, ed
       write(result.writes, result.rowsNeeded + 5);
     },
     copyText: (range: GridRange) => rangeToTsv(range, keys, (row, key) => rows[row]?.cells[key as DataSourceField] ?? ""),
+    // The fill handle and Ctrl+D, through write(): a locked sample and a QC list's own type are passed over.
+    fill: (source: GridRange, target: GridRange) => write(fillWrites(rows, keys, source, target)),
   });
 
   /** Empties the new rows and puts every sample back as loaded, locked unless it has no assay yet: the sheet as it opened. */

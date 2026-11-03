@@ -77,16 +77,38 @@ interface RowProps {
   pending: boolean;
   saving: boolean;
   selection: string | null;
+  /** The column whose box carries the fill handle in this row, or null. */
+  fillHandle: number | null;
+  /** "left:right" when the fill handle is being dragged over this row, else null. */
+  fillPreview: string | null;
   rowLabel: string;
   lockLabel: string;
   onCellChange: (row: number, key: string, value: string) => void;
   onToggleLock: (row: number) => void;
 }
 
+/** The fill handle: Excel's small square at the selection's corner, dragged down to copy. */
+const FILL_HANDLE =
+  "absolute -right-1 -bottom-1 z-10 size-2 cursor-crosshair rounded-[2px] bg-primary ring-2 ring-background hover:scale-125 transition-transform";
+
 /** One row, memoised: typing re-renders the row being typed in, not the rest. */
 const SheetGridRow = memo(function SheetGridRow(props: RowProps) {
-  const { index, row, fields, labels, typeLabels, fixedTypeLabel, verdict, pending, saving, selection, rowLabel, lockLabel } =
-    props;
+  const {
+    index,
+    row,
+    fields,
+    labels,
+    typeLabels,
+    fixedTypeLabel,
+    verdict,
+    pending,
+    saving,
+    selection,
+    fillHandle,
+    fillPreview,
+    rowLabel,
+    lockLabel,
+  } = props;
   const existing = row.id !== undefined;
   const faultField = verdict?.status === "invalid" ? verdict.field : undefined;
 
@@ -129,8 +151,16 @@ const SheetGridRow = memo(function SheetGridRow(props: RowProps) {
         const value = row.cells[field] ?? "";
         const change = (next: string) => props.onCellChange(index, field, next);
         const numeric = isNumericColumn(field);
+        const previewed = inSelection(fillPreview, col);
         return (
-          <td key={field} className="group p-px">
+          <td
+            key={field}
+            data-fill-preview={previewed ? "" : undefined}
+            className={cn(
+              "group relative p-px",
+              previewed && "bg-primary/5 outline-1 -outline-offset-1 outline-primary outline-dashed"
+            )}
+          >
             {field === "sampleType" && fixedTypeLabel !== null ? (
               <input {...box} readOnly tabIndex={-1} value={fixedTypeLabel} className={`${BOX} truncate`} />
             ) : field === "sampleType" && !row.locked ? (
@@ -178,6 +208,7 @@ const SheetGridRow = memo(function SheetGridRow(props: RowProps) {
                 className={(numeric ? `${BOX} text-right tabular-nums tracking-tight` : BOX) + changed}
               />
             )}
+            {fillHandle === col && !saving ? <span data-fill-handle aria-hidden className={FILL_HANDLE} /> : null}
           </td>
         );
       })}
@@ -201,6 +232,9 @@ export function SheetGrid({
   pending,
   saving,
   selectionFor,
+  fillHandleFor,
+  fillPreviewFor,
+  typeChoices = SAMPLE_TYPES,
   headerTop,
   containerProps,
   onCellChange,
@@ -208,6 +242,10 @@ export function SheetGrid({
 }: {
   fields: readonly DataSourceField[];
   fixedType: SampleType | null;
+  /** The types a row's type box offers, where the list has no type of its own (typesAddedIn). */
+  typeChoices?: readonly SampleType[];
+  fillHandleFor: (row: number) => number | null;
+  fillPreviewFor: (row: number) => string | null;
   /** The OREAS names Remarks is picked from, on every list with an OREAS Remarks; null elsewhere (Duplicate). */
   oreasChoices?: readonly string[] | null;
   /** The Duplicate list: its Remarks is a FIELD sample's Sample ID, picked from a search. */
@@ -232,7 +270,7 @@ export function SheetGrid({
       ) as Record<DataSourceField, string>,
     [fields, t]
   );
-  const typeLabels = useMemo(() => SAMPLE_TYPES.map((type) => t(`sampleType.${type}`)), [t]);
+  const typeLabels = useMemo(() => typeChoices.map((type) => t(`sampleType.${type}`)), [typeChoices, t]);
   const fixedTypeLabel = fixedType ? t(`sampleType.${fixedType}`) : null;
   const widths = useMemo(() => percentages([NUMBER_COLUMN_WEIGHT, ...fields.map((field) => SHEET_WEIGHT[field] ?? columnWeight(field))]), [fields]);
 
@@ -241,7 +279,7 @@ export function SheetGrid({
     // scroll box, so the sticky headings stick to the window. A phone is the
     // exception -- two dozen columns cannot fit one -- and scrolls sideways.
     <div className="rounded-xl border bg-background max-lg:overflow-x-auto lg:overflow-clip">
-      <div {...containerProps} className="data-[dragging]:select-none">
+      <div {...containerProps} className="data-[dragging]:select-none data-[filling]:cursor-crosshair data-[filling]:select-none">
         <table className="w-full table-fixed border-collapse text-xs max-lg:min-w-[64rem]">
           <colgroup>
             {widths.map((width, index) => (
@@ -274,6 +312,8 @@ export function SheetGrid({
                 pending={pending}
                 saving={saving}
                 selection={selectionFor(index)}
+                fillHandle={fillHandleFor(index)}
+                fillPreview={fillPreviewFor(index)}
                 rowLabel={t("sheet.row", { row: index + 1 })}
                 lockLabel={row.locked ? t("sheet.unlock") : t("sheet.lock")}
                 onCellChange={onCellChange}

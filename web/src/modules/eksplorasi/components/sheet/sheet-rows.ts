@@ -1,5 +1,7 @@
 import { DATA_SOURCE_FIELDS, ELEMENT_FIELDS, type DataSourceField } from "@/modules/eksplorasi/lib/data-source-columns";
 import type { DataSourceDTO, SampleType } from "@/modules/eksplorasi/types";
+import type { GridRange } from "@/core/hooks/use-grid-selection";
+import type { CellWrite } from "@/core/lib/sheets/clipboard-block";
 
 /**
  * A sheet's rows, as text: what is in each box. Pure, so what is sent, what
@@ -88,4 +90,36 @@ export function requestRows(rows: readonly SheetRow[]) {
   return rows.flatMap((row, index) =>
     isActive(row) ? [{ line: index + 1, ...(row.id ? { id: row.id } : {}), cells: row.cells }] : []
   );
+}
+
+/**
+ * The boxes the fill handle (or Ctrl+D) writes: each target row takes the
+ * source row at the same place in its turn, so a block of two rows dragged
+ * over five goes A, B, A, B, A -- copied as written, as Excel copies. Which
+ * boxes may be written (not a locked sample's) is the writer's to decide.
+ */
+export function fillWrites(
+  rows: readonly SheetRow[],
+  keys: readonly string[],
+  source: GridRange,
+  target: GridRange
+): CellWrite[] {
+  const height = source.bottom - source.top + 1;
+  const writes: CellWrite[] = [];
+  for (let row = target.top; row <= target.bottom; row++) {
+    const from = rows[source.top + ((row - target.top) % height)];
+    for (let col = target.left; col <= target.right; col++) {
+      writes.push({ row, key: keys[col], value: from?.cells[keys[col] as DataSourceField] ?? "" });
+    }
+  }
+  return writes;
+}
+
+/** The boxes Delete and Cut empty: every one in the range. */
+export function emptyWrites(keys: readonly string[], range: GridRange): CellWrite[] {
+  const writes: CellWrite[] = [];
+  for (let row = range.top; row <= range.bottom; row++) {
+    for (let col = range.left; col <= range.right; col++) writes.push({ row, key: keys[col], value: "" });
+  }
+  return writes;
 }

@@ -8,7 +8,7 @@ import { InlineNotice } from "@/core/components/ui/inline-notice";
 import { PageHeader } from "@/core/components/layout/page-header";
 import { ConfirmDialog } from "@/core/components/feedback/confirm-dialog";
 import { cn } from "@/core/lib/utils";
-import { VIEWS } from "@/modules/eksplorasi/lib/data-source-columns";
+import { typesAddedIn, VIEWS } from "@/modules/eksplorasi/lib/data-source-columns";
 import { SheetGrid } from "@/modules/eksplorasi/components/sheet/sheet-grid";
 import { useDataSourceSheet } from "@/modules/eksplorasi/components/sheet/use-data-source-sheet";
 import type { DataSourceDTO, DataSourceView, SheetStatus } from "@/modules/eksplorasi/types";
@@ -189,6 +189,9 @@ export function DataSourceSheetPage({ view, editing }: { view: DataSourceView; e
               pending={sheet.isChecking}
               saving={sheet.isSaving}
               selectionFor={sheet.clipboard.selectionFor}
+              fillHandleFor={sheet.clipboard.fillHandleFor}
+              fillPreviewFor={sheet.clipboard.fillPreviewFor}
+              typeChoices={typesAddedIn(view)}
               headerTop={headingsTop}
               containerProps={sheet.clipboard.containerProps}
               onCellChange={sheet.setCell}

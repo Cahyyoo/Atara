@@ -18,7 +18,7 @@
         "title": "Data Source",
         "intro": "Every assayed sample and its QC samples. The Standard, Blank and Duplicate menus show one type each.",
         "steps": {
-          "1": "Add opens an Excel-like sheet page: type or paste a block from Excel into the empty rows. The latest 50 rows sit above, locked unless they have no assay results yet; click the padlock to change a locked one in place, then Save them all at once.",
+          "1": "Add opens an Excel-like sheet page: type or paste a block from Excel into the empty rows. The latest 50 rows sit above, locked unless they have no assay results yet; click the padlock to change a locked one in place, then Save them all at once. Drag the small square at a box's corner down to copy it to the rows below (Ctrl+D does the same). On the Data Source sheet a duplicate is not added: add it from the Duplicate list, where its original is picked.",
           "2": "Search by Sample ID, Hole ID, Control or Campaign, and filter by campaign (and by sample type on the Data Source).",
           "3": "Click a row to open its details in a panel on the right: the sample's identity, all sixteen assay results and its history, with Edit and Delete buttons. The pencil and bin icons in the row do the same directly.",
           "4": "Import uploads thousands of rows at once from Excel/CSV (preview first, failed rows can be downloaded); Export downloads the list on screen with that menu's columns, ready to import back.",
@@ -194,7 +194,7 @@
       "leaveBody": "What has not been saved will be lost.",
       "leave": "Leave",
       "lockedHint": "{count, plural, one {The latest row is locked above — click the padlock to change it.} other {The latest # rows are locked above — click a padlock to change one.}}",
-      "formats": "A header row copied from Excel may be pasted too. Dates YYYY-MM-DD or DD/MM/YYYY. Element values are kept as written (such as <0.01). Emptying a box on an unlocked row clears it.",
+      "formats": "A header row from Excel may be pasted along. Pick Date from the calendar, or paste it as YYYY-MM-DD or DD/MM/YYYY. Write element values as numbers (0.01, not <0.01). Drag the small square at a box's corner down to copy it, or press Ctrl+D. A box emptied on an unlocked row clears its value.",
       "oreasSearch": "Search OREAS…",
       "oreasNoResults": "No OREAS matches.",
       "sampleIdSearch": "Search Sample ID…",
