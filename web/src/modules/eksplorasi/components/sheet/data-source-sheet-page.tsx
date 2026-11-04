@@ -191,6 +191,7 @@ export function DataSourceSheetPage({ view, editing }: { view: DataSourceView; e
               selectionFor={sheet.clipboard.selectionFor}
               fillHandleFor={sheet.clipboard.fillHandleFor}
               fillPreviewFor={sheet.clipboard.fillPreviewFor}
+              range={sheet.clipboard.range}
               typeChoices={typesAddedIn(view)}
               headerTop={headingsTop}
               containerProps={sheet.clipboard.containerProps}

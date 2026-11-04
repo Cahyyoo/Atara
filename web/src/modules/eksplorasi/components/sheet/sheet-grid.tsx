@@ -3,7 +3,7 @@
 import { memo, useMemo, type HTMLAttributes, type Ref } from "react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/core/lib/utils";
-import { inSelection } from "@/core/hooks/use-grid-selection";
+import { inSelection, type GridRange } from "@/core/hooks/use-grid-selection";
 import { ELEMENT_LABELS, isElementField, SAMPLE_TYPES, type DataSourceField } from "@/modules/eksplorasi/lib/data-source-columns";
 import { columnWeight, isNumericColumn, percentages } from "@/modules/eksplorasi/components/list-columns";
 import { isActive, isChangedCell, type SheetRow } from "@/modules/eksplorasi/components/sheet/sheet-rows";
@@ -13,6 +13,7 @@ import { OreasCell } from "@/modules/eksplorasi/components/sheet/oreas-cell";
 import { SampleIdCell } from "@/modules/eksplorasi/components/sheet/sample-id-cell";
 import { TypeCell } from "@/modules/eksplorasi/components/sheet/type-cell";
 import { DateCell } from "@/modules/eksplorasi/components/sheet/date-cell";
+import { frameOf, SelectionMarks } from "@/modules/eksplorasi/components/sheet/selection-marks";
 import {
   IoAddCircle,
   IoCheckmarkCircle,
@@ -81,15 +82,13 @@ interface RowProps {
   fillHandle: number | null;
   /** "left:right" when the fill handle is being dragged over this row, else null. */
   fillPreview: string | null;
+  /** "left:right:top:bottom" (top/bottom 1 or 0) when this row is in the selection, for its frame; else null. */
+  frame: string | null;
   rowLabel: string;
   lockLabel: string;
   onCellChange: (row: number, key: string, value: string) => void;
   onToggleLock: (row: number) => void;
 }
-
-/** The fill handle: Excel's small square at the selection's corner, dragged down to copy. */
-const FILL_HANDLE =
-  "absolute -right-1 -bottom-1 z-10 size-2 cursor-crosshair rounded-[2px] bg-primary ring-2 ring-background hover:scale-125 transition-transform";
 
 /** One row, memoised: typing re-renders the row being typed in, not the rest. */
 const SheetGridRow = memo(function SheetGridRow(props: RowProps) {
@@ -106,6 +105,7 @@ const SheetGridRow = memo(function SheetGridRow(props: RowProps) {
     selection,
     fillHandle,
     fillPreview,
+    frame,
     rowLabel,
     lockLabel,
   } = props;
@@ -208,7 +208,7 @@ const SheetGridRow = memo(function SheetGridRow(props: RowProps) {
                 className={(numeric ? `${BOX} text-right tabular-nums tracking-tight` : BOX) + changed}
               />
             )}
-            {fillHandle === col && !saving ? <span data-fill-handle aria-hidden className={FILL_HANDLE} /> : null}
+            <SelectionMarks frame={frame} col={col} handle={fillHandle === col && !saving} />
           </td>
         );
       })}
@@ -234,6 +234,7 @@ export function SheetGrid({
   selectionFor,
   fillHandleFor,
   fillPreviewFor,
+  range,
   typeChoices = SAMPLE_TYPES,
   headerTop,
   containerProps,
@@ -246,6 +247,8 @@ export function SheetGrid({
   typeChoices?: readonly SampleType[];
   fillHandleFor: (row: number) => number | null;
   fillPreviewFor: (row: number) => string | null;
+  /** The selection, framed as Excel frames it; null with none. */
+  range: GridRange | null;
   /** The OREAS names Remarks is picked from, on every list with an OREAS Remarks; null elsewhere (Duplicate). */
   oreasChoices?: readonly string[] | null;
   /** The Duplicate list: its Remarks is a FIELD sample's Sample ID, picked from a search. */
@@ -314,6 +317,7 @@ export function SheetGrid({
                 selection={selectionFor(index)}
                 fillHandle={fillHandleFor(index)}
                 fillPreview={fillPreviewFor(index)}
+                frame={frameOf(range, index)}
                 rowLabel={t("sheet.row", { row: index + 1 })}
                 lockLabel={row.locked ? t("sheet.unlock") : t("sheet.lock")}
                 onCellChange={onCellChange}

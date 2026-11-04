@@ -215,6 +215,29 @@ describe("a list's sheet", () => {
       fireEvent.mouseUp(window);
     }
 
+    it("frames the selection as Excel does, the handle at the frame's corner", async () => {
+      await show();
+      const frames = () => [...document.querySelectorAll("[data-selection-frame]")];
+      const cellOf = (row: number, field: string) => box(row, field).closest("td")!;
+
+      act(() => box(2, "Campaign").focus());
+      expect(frames()).toHaveLength(1);
+      expect(frames()[0].className).toMatch(/border-t-2.*border-b-2.*border-l-2.*border-r-2/);
+      expect(cellOf(2, "Campaign").querySelector("[data-fill-handle]")).toBeTruthy();
+
+      // Two rows: the top edge on the first, the bottom edge and the handle on the last.
+      fireEvent.mouseDown(box(3, "Campaign"), { button: 0, shiftKey: true });
+      const [first, last] = [cellOf(2, "Campaign"), cellOf(3, "Campaign")].map(
+        (cell) => cell.querySelector("[data-selection-frame]")!.className
+      );
+      expect(first).toContain("border-t-2");
+      expect(first).not.toContain("border-b-2");
+      expect(last).toContain("border-b-2");
+      expect(last).not.toContain("border-t-2");
+      expect(document.querySelectorAll("[data-fill-handle]")).toHaveLength(1);
+      expect(cellOf(3, "Campaign").querySelector("[data-fill-handle]")).toBeTruthy();
+    });
+
     it("copies a box down the rows it is dragged over, as written", async () => {
       await show();
       fireEvent.change(box(2, "Campaign"), { target: { value: "C-9" } });
