@@ -29,7 +29,7 @@ const SHEET_WEIGHT: Partial<Record<DataSourceField, number>> = { date: 96, contr
 
 /** Plain strings, put together once: a sheet draws thousands of boxes at a time. */
 const BOX =
-  "h-8 w-full min-w-0 scroll-mt-[var(--sheet-scroll-top,0px)] rounded-md border border-transparent bg-transparent px-0.5 text-[11px] outline-none transition-colors placeholder:text-transparent focus:placeholder:text-muted-foreground/50 focus-visible:bg-background focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-[selected]:bg-primary/15 data-[selected]:ring-1 data-[selected]:ring-primary/50 read-only:text-muted-foreground";
+  "h-8 w-full min-w-0 scroll-mt-[var(--sheet-scroll-top,0px)] rounded-[4px] border border-transparent bg-transparent px-0.5 text-[11px] outline-none transition-colors placeholder:text-transparent focus:placeholder:text-muted-foreground/50 focus-visible:bg-background focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-[selected]:bg-primary/15 data-[selected]:ring-1 data-[selected]:ring-primary/50 read-only:text-muted-foreground";
 const CHANGED = " bg-amber-100/70 dark:bg-amber-500/15";
 /** A box picked from a list (type, Remarks): drawn as the other boxes are, with room for its chevron. */
 const PICKER = `${BOX} cursor-pointer pr-5 truncate`;
