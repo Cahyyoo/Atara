@@ -2011,6 +2011,90 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Muat ulang'**
   String get refresh;
+
+  /// No description provided for @updateAvailableTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembaruan tersedia'**
+  String get updateAvailableTitle;
+
+  /// No description provided for @updateAvailableBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Versi {version} ({size} MB) siap diunduh.'**
+  String updateAvailableBody(Object size, Object version);
+
+  /// No description provided for @updateNow.
+  ///
+  /// In id, this message translates to:
+  /// **'Perbarui'**
+  String get updateNow;
+
+  /// No description provided for @updateLater.
+  ///
+  /// In id, this message translates to:
+  /// **'Nanti'**
+  String get updateLater;
+
+  /// No description provided for @updateDownloadingTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Mengunduh pembaruan'**
+  String get updateDownloadingTitle;
+
+  /// No description provided for @updateProgress.
+  ///
+  /// In id, this message translates to:
+  /// **'{done} / {total} MB'**
+  String updateProgress(Object done, Object total);
+
+  /// No description provided for @updateReadyTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Siap dipasang'**
+  String get updateReadyTitle;
+
+  /// No description provided for @updateReadyBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Android akan meminta Anda mengonfirmasi pemasangan.'**
+  String get updateReadyBody;
+
+  /// No description provided for @updateInstall.
+  ///
+  /// In id, this message translates to:
+  /// **'Pasang'**
+  String get updateInstall;
+
+  /// No description provided for @updateFailedTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembaruan gagal'**
+  String get updateFailedTitle;
+
+  /// No description provided for @updateDownloadFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Unduhan gagal. Periksa koneksi internet, lalu coba lagi.'**
+  String get updateDownloadFailed;
+
+  /// No description provided for @updateCorrupted.
+  ///
+  /// In id, this message translates to:
+  /// **'File unduhan rusak. Silakan unduh lagi.'**
+  String get updateCorrupted;
+
+  /// No description provided for @updateInstallFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Pemasang aplikasi Android tidak bisa dibuka.'**
+  String get updateInstallFailed;
+
+  /// No description provided for @updateClose.
+  ///
+  /// In id, this message translates to:
+  /// **'Tutup'**
+  String get updateClose;
 }
 
 class _AppLocalizationsDelegate

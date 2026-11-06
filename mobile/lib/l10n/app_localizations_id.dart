@@ -1097,4 +1097,53 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get refresh => 'Muat ulang';
+
+  @override
+  String get updateAvailableTitle => 'Pembaruan tersedia';
+
+  @override
+  String updateAvailableBody(Object size, Object version) {
+    return 'Versi $version ($size MB) siap diunduh.';
+  }
+
+  @override
+  String get updateNow => 'Perbarui';
+
+  @override
+  String get updateLater => 'Nanti';
+
+  @override
+  String get updateDownloadingTitle => 'Mengunduh pembaruan';
+
+  @override
+  String updateProgress(Object done, Object total) {
+    return '$done / $total MB';
+  }
+
+  @override
+  String get updateReadyTitle => 'Siap dipasang';
+
+  @override
+  String get updateReadyBody =>
+      'Android akan meminta Anda mengonfirmasi pemasangan.';
+
+  @override
+  String get updateInstall => 'Pasang';
+
+  @override
+  String get updateFailedTitle => 'Pembaruan gagal';
+
+  @override
+  String get updateDownloadFailed =>
+      'Unduhan gagal. Periksa koneksi internet, lalu coba lagi.';
+
+  @override
+  String get updateCorrupted => 'File unduhan rusak. Silakan unduh lagi.';
+
+  @override
+  String get updateInstallFailed =>
+      'Pemasang aplikasi Android tidak bisa dibuka.';
+
+  @override
+  String get updateClose => 'Tutup';
 }

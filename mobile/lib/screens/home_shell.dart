@@ -4,10 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/pending_scans_provider.dart';
 import '../providers/stages_provider.dart';
+import '../services/update_service.dart';
 import '../theme/app_motion.dart';
 import '../theme/app_theme.dart';
 import '../widgets/motion/gate_transition.dart';
 import '../widgets/motion/reveal.dart';
+import '../widgets/update_dialogs.dart';
 import 'home_screen.dart';
 import 'queue_screen.dart';
 import 'scan_history_screen.dart';
@@ -58,6 +60,26 @@ class _HomeShellState extends ConsumerState<HomeShell>
     // fetch it while the preparator is still looking at Home rather than making
     // the first scan of the day wait for it.
     ref.read(stagesProvider);
+    _enter.addStatusListener((status) {
+      if (status == AnimationStatus.completed) _offerUpdate();
+    });
+  }
+
+  /// Asked once per launch, not once per Home: signing out and back in is not
+  /// a reason to ask again.
+  static bool _updateChecked = false;
+
+  /// After the entrance, so it never lands on the splash or on moving content.
+  /// Skipped if the check took long enough for the preparator to have moved on
+  /// to a scan; the next launch asks instead.
+  Future<void> _offerUpdate() async {
+    if (_updateChecked) return;
+    _updateChecked = true;
+    final updates = UpdateService();
+    final update = await updates.check();
+    if (update == null || !mounted) return;
+    if (!(ModalRoute.of(context)?.isCurrent ?? true)) return;
+    await offerUpdate(context, update, updates);
   }
 
   @override

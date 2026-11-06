@@ -140,8 +140,65 @@ Sisi server perlu dua variabel lingkungan atau alurnya gagal dengan 500:
 
 ```bash
 flutter build apk --debug      # APK debug untuk pengujian cepat
-flutter build apk --release    # APK release (perlu signing config sendiri untuk produksi)
+flutter build apk --release    # APK release (memakai android/key.properties bila ada)
 ```
+
+## Rilis & pembaruan otomatis
+
+Saat dibuka, aplikasi (hanya build release di Android) mengecek
+`atara-update.json` di rilis terbaru GitHub. Bila ada versi baru, muncul dialog
+**Perbarui / Nanti**, lalu modal unduhan, lalu pemasang Android. Android selalu
+meminta konfirmasi pemasangan; ini tidak bisa dilewati tanpa Play Store atau MDM.
+Pengecekan hanya saat aplikasi baru dibuka, dan kegagalan apa pun didiamkan supaya
+tidak mengganggu kerja di lab.
+
+Repo ini publik, jadi APK di halaman Releases bisa diunduh siapa saja. Jangan pernah
+menaruh rahasia di kode aplikasi. Workflow ini mengambil alih rilis "latest" repo:
+komponen lain (`web`, `face`) jangan menerbitkan rilis non-prerelease di repo ini.
+
+### Sekali di awal: membuat key rilis
+
+```powershell
+# keytool ada di "C:\Program Files\Android\Android Studio\jbr\bin" bila belum ada di PATH.
+# Simpan di luar repo. Kata sandinya akan ditanyakan; pakai yang kuat.
+keytool -genkeypair -v -keystore atara-release.jks -storetype PKCS12 -keyalg RSA -keysize 4096 -validity 10000 -alias atara
+
+# Hasil base64-nya untuk secret ANDROID_KEYSTORE_BASE64
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("atara-release.jks")) | Set-Clipboard
+```
+
+Tambahkan di **GitHub → Settings → Secrets and variables → Actions**:
+
+| Secret | Isi |
+|---|---|
+| `ANDROID_KEYSTORE_BASE64` | hasil base64 di atas |
+| `ANDROID_KEYSTORE_PASSWORD` | kata sandi keystore |
+| `ANDROID_KEY_ALIAS` | `atara` |
+
+**Backup `atara-release.jks` dan kata sandinya di tempat aman.** Kalau hilang, tidak
+ada perangkat yang bisa menerima update lagi; semuanya harus uninstall dan install ulang.
+
+### Menerbitkan versi baru
+
+```bash
+git tag -a mobile-v1.1.0 -m "Catatan yang tampil di dialog pembaruan"
+git push origin mobile-v1.1.0
+```
+
+GitHub Actions menjalankan analyze dan tes, membangun APK arm64, menandatanganinya,
+lalu menerbitkan `atara-lab.apk` dan `atara-update.json`. `pubspec.yaml` tidak perlu
+diubah: versi diambil dari tag, nomor build naik otomatis. APK hanya untuk arm64,
+jadi perangkat 32-bit tidak bisa memasangnya.
+
+### Sekali di awal: perangkat yang sudah terpasang
+
+Build lama memakai debug key, dan Android hanya menerima update dengan key yang sama.
+Di tiap perangkat: kirim dulu semua antrean scan offline, uninstall aplikasi lama,
+pasang APK dari halaman Releases, lalu login ulang. Uninstall menghapus login dan
+antrean yang belum terkirim. Setelah ini, update berjalan lewat aplikasi.
+
+Perangkat yang dipakai `flutter run` (debug/profile) memakai key berbeda dari rilis,
+jadi perlu uninstall setiap berpindah antara keduanya.
 
 ## Struktur Kode
 

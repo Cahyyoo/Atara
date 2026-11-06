@@ -532,5 +532,19 @@
   "waitingInStage": "menunggu",
   "pendingCardsTitle": "Belum terkirim",
   "myWorkGridTitle": "Pekerjaan saya",
-  "refresh": "Muat ulang"
+  "refresh": "Muat ulang",
+  "updateAvailableTitle": "Pembaruan tersedia",
+  "updateAvailableBody": "Versi {version} ({size} MB) siap diunduh.",
+  "updateNow": "Perbarui",
+  "updateLater": "Nanti",
+  "updateDownloadingTitle": "Mengunduh pembaruan",
+  "updateProgress": "{done} / {total} MB",
+  "updateReadyTitle": "Siap dipasang",
+  "updateReadyBody": "Android akan meminta Anda mengonfirmasi pemasangan.",
+  "updateInstall": "Pasang",
+  "updateFailedTitle": "Pembaruan gagal",
+  "updateDownloadFailed": "Unduhan gagal. Periksa koneksi internet, lalu coba lagi.",
+  "updateCorrupted": "File unduhan rusak. Silakan unduh lagi.",
+  "updateInstallFailed": "Pemasang aplikasi Android tidak bisa dibuka.",
+  "updateClose": "Tutup"
 }

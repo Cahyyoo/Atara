@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Only the folder updates are downloaded into, nothing else this app holds. -->
+<paths>
+    <cache-path name="updates" path="updates/" />
+</paths>

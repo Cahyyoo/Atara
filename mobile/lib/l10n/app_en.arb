@@ -440,5 +440,19 @@
   "waitingInStage": "waiting",
   "pendingCardsTitle": "Not sent yet",
   "myWorkGridTitle": "My work",
-  "refresh": "Refresh"
+  "refresh": "Refresh",
+  "updateAvailableTitle": "Update available",
+  "updateAvailableBody": "Version {version} ({size} MB) is ready to download.",
+  "updateNow": "Update",
+  "updateLater": "Later",
+  "updateDownloadingTitle": "Downloading update",
+  "updateProgress": "{done} / {total} MB",
+  "updateReadyTitle": "Ready to install",
+  "updateReadyBody": "Android will ask you to confirm the installation.",
+  "updateInstall": "Install",
+  "updateFailedTitle": "Update failed",
+  "updateDownloadFailed": "The download failed. Check the internet connection and try again.",
+  "updateCorrupted": "The downloaded file is damaged. Please download it again.",
+  "updateInstallFailed": "Android's app installer could not be opened.",
+  "updateClose": "Close"
 }

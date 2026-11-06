@@ -1,7 +1,16 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+}
+
+// The release key, when this machine has it. CI writes this file from its
+// secrets and refuses to build without them; see .github/workflows/mobile-release.yml.
+val keyProperties = Properties().apply {
+    val file = rootProject.file("key.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
 }
 
 android {
@@ -25,11 +34,32 @@ android {
         versionName = flutter.versionName
     }
 
+    // Compressed in the APK: this is what a device downloads on every update.
+    // They take a little more room once installed.
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
+    signingConfigs {
+        if (keyProperties.isNotEmpty()) {
+            create("release") {
+                storeFile = rootProject.file(keyProperties.getProperty("storeFile"))
+                storePassword = keyProperties.getProperty("storePassword")
+                keyAlias = keyProperties.getProperty("keyAlias")
+                keyPassword = keyProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // The debug key only where the release key is absent, so a local
+            // `flutter run --release` still works. Android installs an update
+            // only over the same key, so published builds must use the real one.
+            signingConfig = signingConfigs.findByName("release")
+                ?: signingConfigs.getByName("debug")
 
             // Dart is compiled ahead of time and is untouched by this; what it
             // strips is the Java and Kotlin side, which here means the Flutter
@@ -55,6 +85,21 @@ kotlin {
     }
 }
 
+// Release is arm64 only. --target-platform filters only Flutter's own library;
+// the plugins would still bring theirs for every CPU, and a device they name but
+// Flutter does not cover could install the app, then crash on open. By build type,
+// so a debug build still runs on an x86_64 emulator.
+androidComponents {
+    onVariants(selector().withBuildType("release")) { variant ->
+        variant.packaging.jniLibs.excludes.addAll("lib/armeabi-v7a/**", "lib/x86_64/**")
+    }
+}
+
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // FileProvider, for handing a downloaded update to the system installer.
+    implementation("androidx.core:core-ktx:1.13.1")
 }

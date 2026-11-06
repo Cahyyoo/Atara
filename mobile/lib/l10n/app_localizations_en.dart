@@ -1095,4 +1095,54 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get refresh => 'Refresh';
+
+  @override
+  String get updateAvailableTitle => 'Update available';
+
+  @override
+  String updateAvailableBody(Object size, Object version) {
+    return 'Version $version ($size MB) is ready to download.';
+  }
+
+  @override
+  String get updateNow => 'Update';
+
+  @override
+  String get updateLater => 'Later';
+
+  @override
+  String get updateDownloadingTitle => 'Downloading update';
+
+  @override
+  String updateProgress(Object done, Object total) {
+    return '$done / $total MB';
+  }
+
+  @override
+  String get updateReadyTitle => 'Ready to install';
+
+  @override
+  String get updateReadyBody =>
+      'Android will ask you to confirm the installation.';
+
+  @override
+  String get updateInstall => 'Install';
+
+  @override
+  String get updateFailedTitle => 'Update failed';
+
+  @override
+  String get updateDownloadFailed =>
+      'The download failed. Check the internet connection and try again.';
+
+  @override
+  String get updateCorrupted =>
+      'The downloaded file is damaged. Please download it again.';
+
+  @override
+  String get updateInstallFailed =>
+      'Android\'s app installer could not be opened.';
+
+  @override
+  String get updateClose => 'Close';
 }
