@@ -1096,13 +1096,6 @@
     "mobileShowSampleIdent": "Show the Sample ID in the mobile app",
     "mobileShowSampleIdentOn": "The mobile app shows each sample's Sample ID.",
     "mobileShowSampleIdentOff": "The mobile app shows only the barcode and whether a Sample ID exists. The Sample ID is still shown while a preparator fills it in or edits it, and always on the website.",
-    "saved": "Settings saved",
-    "mobileServerUrl": "Server address for the mobile app",
-    "mobileServerUrlHint": "Every mobile app switches to this address when it opens. Leave empty to use the app's built-in address. When moving servers, keep the old server running until every phone has connected.",
-    "mobileServerUrlSave": "Save",
-    "mobileServerUrlChecking": "Checking…",
-    "mobileServerUrlInvalid": "Invalid address. Use the form http://host:port/api.",
-    "mobileServerUrlUnreachable": "This server could not reach that address. Make sure the server there is running.",
-    "mobileServerUrlOtherServer": "That address does not answer as this Atara server. Check the address and that it uses the same database."
+    "saved": "Settings saved"
   }
 }

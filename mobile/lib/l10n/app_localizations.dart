@@ -923,7 +923,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorUnreadableAnswer.
   ///
   /// In id, this message translates to:
-  /// **'Server menjawab dalam bentuk yang tidak dikenali. Hubungi admin lab.'**
+  /// **'Server menjawab dalam bentuk yang tidak dikenali. Hubungi admin.'**
   String get errorUnreadableAnswer;
 
   /// No description provided for @signInPreparatorsOnly.
@@ -2045,7 +2045,7 @@ abstract class AppLocalizations {
   /// No description provided for @serverUnreachableAskAdmin.
   ///
   /// In id, this message translates to:
-  /// **'Alamat server diatur oleh admin lab di website. Hubungi admin lab bila masalah berlanjut.'**
+  /// **'Alamat server diatur oleh admin di website. Hubungi admin bila masalah berlanjut.'**
   String get serverUnreachableAskAdmin;
 }
 

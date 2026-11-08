@@ -1,4 +1,17 @@
-// System module: default passwords per role, announcements.
+// System module: default passwords per role, announcements, system settings.
+
+/// The super admin's settings, one row per key; a key with no row is its
+/// default in code. Today: the server address the mobile apps follow, and this
+/// installation's id (see modules/system/lib/mobile-server.ts).
+model SystemSetting {
+  key         String   @id
+  value       Json
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  /// Who last changed it. Kept as a plain id: the row outlives an account.
+  updatedById String?  @map("updated_by")
+
+  @@map("system_settings")
+}
 
 /// The password every new account of a role starts on, and the one an
 /// administrator resets a forgotten password to. Only its hash is kept: once

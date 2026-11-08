@@ -207,7 +207,7 @@
       }
     }
   },
-  "errorUnreadableAnswer": "The server answered in a form the app does not recognise. Contact the lab admin.",
+  "errorUnreadableAnswer": "The server answered in a form the app does not recognise. Contact the administrator.",
   "signInPreparatorsOnly": "This app is for Preparators. Please use the website.",
   "errorForbidden": "Your account's role does not allow this. This app is for Preparators.",
   "mfaTitle": "Verify It's You",
@@ -446,5 +446,5 @@
   "updateCorrupted": "The downloaded file is damaged. Please download it again.",
   "updateInstallFailed": "Android's app installer could not be opened.",
   "updateClose": "Close",
-  "serverUnreachableAskAdmin": "The server address is set by the lab admin on the website. Contact the lab admin if this keeps happening."
+  "serverUnreachableAskAdmin": "The server address is set by the administrator on the website. Contact the administrator if this keeps happening."
 }

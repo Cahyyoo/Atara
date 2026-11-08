@@ -85,7 +85,7 @@ describe("every module is registered, and registered completely", () => {
 const PUBLIC_MODULE_ROUTES: Record<string, string> = {
   // A phone asks before anyone signs in, and must find its server again while
   // the address it holds is the old one. Returns that address and a random id.
-  "app/api/(lab)/mobile-config/route.ts": "mobile server address",
+  "app/api/(system)/mobile-config/route.ts": "mobile server address",
 };
 
 describe("the API, one route group per module", () => {

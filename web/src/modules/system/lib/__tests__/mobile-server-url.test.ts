@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { checkMobileServerUrl, normaliseMobileServerUrl } from "@/modules/lab/lib/settings/mobile-server-url";
+import { checkMobileServerUrl, normaliseMobileServerUrl } from "@/modules/system/lib/mobile-server-url";
 
 describe("normaliseMobileServerUrl", () => {
   it("keeps a plain LAN address", () => {

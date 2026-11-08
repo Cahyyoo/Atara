@@ -92,11 +92,11 @@ Future<void> submit(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
-/// Shown when the server was never reached. The address is the lab admin's to
+/// Shown when the server was never reached. The address is the super admin's to
 /// fix on the website, so this says who to tell rather than offering a setting.
-final askLabAdmin = find.text(
-  'Alamat server diatur oleh admin lab di website. '
-  'Hubungi admin lab bila masalah berlanjut.',
+final askAdmin = find.text(
+  'Alamat server diatur oleh admin di website. '
+  'Hubungi admin bila masalah berlanjut.',
 );
 
 void main() {
@@ -104,7 +104,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  testWidgets('offers no server settings: the lab admin sets the address', (
+  testWidgets('offers no server settings: the super admin sets the address', (
     tester,
   ) async {
     await pumpLogin(tester);
@@ -160,7 +160,7 @@ void main() {
     await submit(tester);
 
     expect(find.textContaining('Salah'), findsOneWidget);
-    expect(askLabAdmin, findsNothing);
+    expect(askAdmin, findsNothing);
   });
 
   testWidgets('says who to tell when the server was never reached', (
@@ -172,7 +172,7 @@ void main() {
     );
     await submit(tester);
 
-    expect(askLabAdmin, findsOneWidget);
+    expect(askAdmin, findsOneWidget);
   });
 
   testWidgets('turns away an account that is not a preparator', (
@@ -185,7 +185,7 @@ void main() {
       find.text('Aplikasi ini khusus Preparator. Silakan gunakan situs web.'),
       findsOneWidget,
     );
-    expect(askLabAdmin, findsNothing);
+    expect(askAdmin, findsNothing);
   });
 
   testWidgets('says the same after a second factor, back on this screen', (

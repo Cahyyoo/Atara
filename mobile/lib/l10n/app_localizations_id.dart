@@ -480,7 +480,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get errorUnreadableAnswer =>
-      'Server menjawab dalam bentuk yang tidak dikenali. Hubungi admin lab.';
+      'Server menjawab dalam bentuk yang tidak dikenali. Hubungi admin.';
 
   @override
   String get signInPreparatorsOnly =>
@@ -1120,5 +1120,5 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get serverUnreachableAskAdmin =>
-      'Alamat server diatur oleh admin lab di website. Hubungi admin lab bila masalah berlanjut.';
+      'Alamat server diatur oleh admin di website. Hubungi admin bila masalah berlanjut.';
 }

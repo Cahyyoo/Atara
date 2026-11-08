@@ -8,7 +8,7 @@ Backend REST API dan web untuk **Atara Super App**. Atara adalah satu aplikasi d
 | ----- | ---- | ----------- | --- |
 | **Lab · Monitoring Sampel** | `/lab/*` | Departemen **LAB** | Seluruh fitur tracking sampel: barcode, database sampel, hasil uji, kesimpulan, dashboard, Mode TV, master data, aktivitas. |
 | **Eksplorasi** | `/eksplorasi/*` | Departemen **EKSPLORASI** | Data source hasil analisis dan sampel QC-nya (Standard/CRM, Blank, Duplicate): dashboard scatterplot QC, CRUD lewat lembar seperti Excel, serta import/export Excel & CSV (import ±34.000 baris dalam hitungan detik). |
-| **Pengaturan** | `/users`, `/admin/*` | **Super Admin**, **Admin Lab** (hanya Pengguna) | Akun admin setiap departemen (super admin) atau staf lab (admin lab), pengumuman, audit login, backup. |
+| **Pengaturan** | `/users`, `/admin/*` | **Super Admin**, **Admin Lab** (hanya Pengguna) | Akun admin setiap departemen (super admin) atau staf lab (admin lab), pengumuman, alamat server aplikasi mobile, audit login, backup. |
 
 Tampilannya dibagi dua, seperti Odoo:
 
@@ -385,9 +385,9 @@ Tes end-to-end wajah (`src/core/lib/__tests__/face-e2e.test.ts`) dilewati kecual
 
 ## Catatan Konfigurasi Perangkat Mobile
 
-Aplikasi Flutter di folder `../mobile` mengakses API ini di `http://<alamat-server>:3000/api`. Alamat itu **diatur oleh admin lab di website**, di **Pengaturan Lab → Alamat server untuk aplikasi mobile**, dan diikuti semua aplikasi mobile. Aplikasi tidak lagi punya kolom alamat sendiri.
+Aplikasi Flutter di folder `../mobile` mengakses API ini di `http://<alamat-server>:3000/api`. Alamat itu **diatur oleh Super Admin di website**, di halaman **Admin → Alamat server aplikasi mobile**, dan diikuti semua aplikasi mobile. Aplikasi tidak lagi punya kolom alamat sendiri.
 
-- Aplikasi bertanya ke `GET /api/mobile-config` (tanpa login) setiap kali dibuka, kembali ke depan, atau tersambung lagi ke jaringan. Endpoint itu memberi alamat yang ditetapkan admin dan ID instalasi.
+- Aplikasi bertanya ke `GET /api/mobile-config` (tanpa login) setiap kali dibuka, kembali ke depan, atau tersambung lagi ke jaringan. Endpoint itu memberi alamat yang ditetapkan Super Admin dan ID instalasi.
 - Sebelum menyimpan, website menguji alamatnya: alamat itu harus menjawab `/mobile-config` dengan ID instalasi yang sama, artinya server yang sama dengan database yang sama. Salah ketik atau server yang belum menyala ditolak.
 - Aplikasi baru pindah setelah alamat baru terjangkau dari HP itu dan menjawab dengan ID yang sama. Kalau tidak, aplikasi tetap memakai alamat lama.
 - Mengosongkan kolom berarti semua aplikasi kembali ke alamat bawaannya: nilai GitHub variable `MOBILE_DEFAULT_SERVER_URL` saat rilis, atau bila kosong, nilai di `mobile/lib/services/settings_service.dart`.
@@ -396,7 +396,7 @@ Aplikasi Flutter di folder `../mobile` mengakses API ini di `http://<alamat-serv
 **Memindahkan server ke alamat baru:**
 
 1. Jalankan server baru di alamat baru dengan database yang sama (dipindah atau disalin dari yang lama).
-2. Di website server **lama**, isi alamat baru di Pengaturan Lab lalu simpan. Website memastikan alamat baru menjawab sebagai server yang sama.
+2. Di website server **lama**, masuk sebagai Super Admin, isi alamat baru di halaman Admin lalu simpan. Website memastikan alamat baru menjawab sebagai server yang sama.
 3. Biarkan server lama menyala sampai semua HP sempat dibuka dan pindah, misalnya satu shift penuh.
 4. Agar HP yang lama tidak dipakai juga bisa pulih, set `MOBILE_DEFAULT_SERVER_URL` ke alamat baru lalu terbitkan rilis aplikasi.
 

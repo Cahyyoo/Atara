@@ -1096,13 +1096,6 @@
     "mobileShowSampleIdent": "Tampilkan Sample ID di aplikasi mobile",
     "mobileShowSampleIdentOn": "Aplikasi mobile menampilkan Sample ID setiap sampel.",
     "mobileShowSampleIdentOff": "Aplikasi mobile hanya menampilkan kode barcode dan apakah Sample ID sudah ada. Sample ID tetap terlihat saat preparator mengisi atau mengubahnya, dan selalu terlihat di website.",
-    "saved": "Pengaturan tersimpan",
-    "mobileServerUrl": "Alamat server untuk aplikasi mobile",
-    "mobileServerUrlHint": "Semua aplikasi mobile otomatis memakai alamat ini saat dibuka. Kosongkan untuk memakai alamat bawaan aplikasi. Saat pindah server, biarkan server lama tetap menyala sampai semua HP sempat terhubung.",
-    "mobileServerUrlSave": "Simpan",
-    "mobileServerUrlChecking": "Memeriksa…",
-    "mobileServerUrlInvalid": "Alamat tidak valid. Gunakan bentuk http://host:port/api.",
-    "mobileServerUrlUnreachable": "Server ini tidak bisa menjangkau alamat tersebut. Pastikan server di alamat itu sudah menyala.",
-    "mobileServerUrlOtherServer": "Alamat itu tidak menjawab sebagai server Atara ini. Pastikan alamatnya benar dan memakai database yang sama."
+    "saved": "Pengaturan tersimpan"
   }
 }

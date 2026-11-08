@@ -170,6 +170,18 @@
     "endNow": "Akhiri sekarang",
     "delete": "Hapus"
   },
+  "mobileServer": {
+    "title": "Alamat server aplikasi mobile",
+    "description": "Alamat yang otomatis dipakai semua aplikasi mobile Lab saat dibuka. Website menguji alamatnya sebelum menyimpan.",
+    "label": "Alamat server",
+    "hint": "Bentuknya http://host:port/api (sertakan base path bila ada). Kosongkan untuk memakai alamat bawaan aplikasi. Saat pindah server, biarkan server lama tetap menyala sampai semua HP sempat terhubung.",
+    "save": "Simpan",
+    "checking": "Memeriksa…",
+    "saved": "Alamat server tersimpan",
+    "invalid": "Alamat tidak valid. Gunakan bentuk http://host:port/api.",
+    "unreachable": "Server ini tidak bisa menjangkau alamat tersebut. Pastikan server di alamat itu sudah menyala.",
+    "otherServer": "Alamat itu tidak menjawab sebagai server Atara ini. Pastikan alamatnya benar dan memakai database yang sama."
+  },
   "backup": {
     "title": "Backup",
     "description": "Semua data dalam satu file Excel: setiap sampel beserta hasilnya (termasuk yang dihapus, ditandai), riwayat tahap, perubahan hasil, master data, tahap, dan pengguna.",

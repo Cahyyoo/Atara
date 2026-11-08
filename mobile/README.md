@@ -202,7 +202,7 @@ jadi perlu uninstall setiap berpindah antara keduanya.
 
 ## Alamat server
 
-Tidak diatur di aplikasi. Admin lab menetapkannya di website (Pengaturan Lab), dan
+Tidak diatur di aplikasi. Super Admin menetapkannya di website (halaman Admin), dan
 `ServerConfigSync` (`lib/services/server_config_sync.dart`) mengikutinya setiap kali
 aplikasi dibuka, kembali ke depan, atau tersambung lagi. Aplikasi hanya pindah ke
 alamat yang terjangkau dan menjawab sebagai instalasi yang sama. Kalau alamat yang

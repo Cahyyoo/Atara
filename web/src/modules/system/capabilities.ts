@@ -17,4 +17,6 @@ export const SYSTEM_CAPABILITIES = {
   viewSignInAudit: ["SUPER_ADMIN"],
   /** The whole database as one workbook, for safekeeping. */
   exportBackup: ["SUPER_ADMIN"],
+  /** The server address every mobile app follows. */
+  manageMobileServer: ["SUPER_ADMIN"],
 } as const satisfies Record<string, readonly Persona[]>;

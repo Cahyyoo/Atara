@@ -300,7 +300,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   ),
                 ),
                 // Only when the server was never reached: the address
-                // tried, and that the lab admin is the one to tell.
+                // tried, and that the admin is the one to tell.
                 if (_serverUnreachable)
                   ServerAddressNotice(color: palette.danger.foreground),
               ],

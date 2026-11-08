@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// Device-local settings: where the server lives and which language to use.
 ///
-/// The server address is no longer typed in on the phone. The lab admin sets
+/// The server address is no longer typed in on the phone. The super admin sets
 /// it on the website and ServerConfigSync stores it here; with nothing stored,
 /// the built-in address applies.
 class SettingsService {

@@ -34,7 +34,7 @@ class ServerConfig {
   }
 }
 
-/// Follows the server address the lab admin sets on the website.
+/// Follows the server address the super admin sets on the website.
 ///
 /// A phone moves only to an address it has reached itself and that answers as
 /// the same installation, so neither a typo nor a server that is not up yet can

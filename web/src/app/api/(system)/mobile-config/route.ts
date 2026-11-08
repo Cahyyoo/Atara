@@ -1,6 +1,5 @@
 import { handleApiError, jsonSuccess } from "@/core/lib/http/api-response";
-import { getLabSettings } from "@/modules/lab/lib/settings/lab-settings";
-import { getServerId } from "@/modules/lab/lib/settings/mobile-server";
+import { getMobileServerUrl, getServerId } from "@/modules/system/lib/mobile-server";
 
 /**
  * The address the mobile apps should use, and who is answering.
@@ -15,8 +14,8 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const [settings, serverId] = await Promise.all([getLabSettings(), getServerId()]);
-    return jsonSuccess({ serverUrl: settings.mobileServerUrl, serverId });
+    const [serverUrl, serverId] = await Promise.all([getMobileServerUrl(), getServerId()]);
+    return jsonSuccess({ serverUrl, serverId });
   } catch (error) {
     return handleApiError(error);
   }

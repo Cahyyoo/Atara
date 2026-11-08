@@ -15,7 +15,7 @@ import 'onboarding_screen.dart';
 
 /// Appearance, language, the guide, and the way out of the account.
 ///
-/// No server address: the lab admin sets that on the website and every app
+/// No server address: the super admin sets that on the website and every app
 /// follows it (see ServerConfigSync), so there is nothing here to get wrong.
 ///
 /// [isTab] tells the screen whether it is the tab or a pushed page — outside

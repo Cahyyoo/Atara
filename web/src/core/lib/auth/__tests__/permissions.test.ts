@@ -27,7 +27,7 @@ import {
  * once here -- and cannot happen by accident.
  */
 const AGREED: Record<Persona, Capability[]> = {
-  SUPER_ADMIN: ["manageUsers", "manageAnnouncements", "viewSignInAudit", "exportBackup"],
+  SUPER_ADMIN: ["manageUsers", "manageAnnouncements", "viewSignInAudit", "exportBackup", "manageMobileServer"],
   LAB_ADMIN: [
     "viewDashboard",
     "manageDashboard",

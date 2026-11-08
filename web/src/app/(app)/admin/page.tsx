@@ -1,15 +1,17 @@
 import { getTranslations } from "next-intl/server";
 import { AnnouncementsManager } from "@/modules/system/components/admin/announcements-manager";
 import { BackupPanel } from "@/modules/system/components/admin/backup-panel";
+import { MobileServerPanel } from "@/modules/system/components/admin/mobile-server-panel";
+import { getMobileServerUrl } from "@/modules/system/lib/mobile-server";
 import { requireCapabilityPage } from "@/core/lib/http/page-auth";
 import { can } from "@/core/lib/auth/permissions";
 
 export const dynamic = "force-dynamic";
 
 /**
- * The super admin's system tools: announcements above every page, and the
- * backup. The department admins' accounts are on the Users page, the sign-in
- * trail under Sign-in Audit.
+ * The super admin's system tools: announcements above every page, the server
+ * address the mobile apps follow, and the backup. The department admins'
+ * accounts are on the Users page, the sign-in trail under Sign-in Audit.
  */
 export default async function AdminPage() {
   const session = await requireCapabilityPage("manageAnnouncements");
@@ -22,6 +24,7 @@ export default async function AdminPage() {
         <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
       </div>
       <AnnouncementsManager />
+      {can(session, "manageMobileServer") ? <MobileServerPanel initial={await getMobileServerUrl()} /> : null}
       {can(session, "exportBackup") ? <BackupPanel /> : null}
     </div>
   );

@@ -97,7 +97,7 @@ class AtaraApp extends ConsumerWidget {
 
 /// Drains the offline scan queue whenever the app returns to the foreground or
 /// the device regains a connection — after first following the server address
-/// the lab admin set on the website, so the queue goes where the lab now is.
+/// the super admin set on the website, so the queue goes where the lab now is.
 class ScanSyncScope extends ConsumerStatefulWidget {
   const ScanSyncScope({required this.child, super.key});
 

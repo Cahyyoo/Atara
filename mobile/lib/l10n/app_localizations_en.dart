@@ -480,7 +480,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorUnreadableAnswer =>
-      'The server answered in a form the app does not recognise. Contact the lab admin.';
+      'The server answered in a form the app does not recognise. Contact the administrator.';
 
   @override
   String get signInPreparatorsOnly =>
@@ -1119,5 +1119,5 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get serverUnreachableAskAdmin =>
-      'The server address is set by the lab admin on the website. Contact the lab admin if this keeps happening.';
+      'The server address is set by the administrator on the website. Contact the administrator if this keeps happening.';
 }
