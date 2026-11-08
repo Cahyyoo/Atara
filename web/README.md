@@ -356,6 +356,7 @@ npm start                 # jalankan hasil build
 npm run lint              # ESLint (termasuk batas modul & ukuran file)
 npm run module:new -- <key>  # kerangka modul baru (lihat docs/MODULES.md)
 npm test                  # vitest (sekali jalan); npm run test:watch untuk mode watch
+npm run test:e2e          # playwright (E2E di browser); npm run test:e2e:ui untuk mode UI
 npm run db:migrate        # jalankan migrasi Prisma
 npm run db:seed           # isi akun & tahapan awal
 npm run db:seed-master    # isi master data Sample ID
@@ -364,6 +365,8 @@ npm run db:seed-eksplorasi-dummy  # isi data source eksplorasi dummy (FIELD + QC
 npm run db:reset-samples  # hapus SEMUA sampel, log, dan hasil uji (akun & tahapan tetap)
 npm run db:studio         # buka Prisma Studio (GUI database)
 ```
+
+Tes E2E Playwright ada di `e2e/`. Sekali saja, pasang browsernya dengan `npx playwright install chromium`. Tes ini memakai database dev yang sudah di-seed (`npm run db:seed`) dan menyalakan `npm run dev` sendiri bila server belum berjalan. Tes login sebagai `admin@atara.local` dan `database@atara.local`, sehingga sesi web akun itu di browser Anda ikut berakhir. Laporan: `npx playwright show-report`.
 
 Tes end-to-end wajah (`src/core/lib/__tests__/face-e2e.test.ts`) dilewati kecuali server web dan layanan wajah sama-sama berjalan; lihat [`../face/README.md`](../face/README.md#tes-end-to-end).
 

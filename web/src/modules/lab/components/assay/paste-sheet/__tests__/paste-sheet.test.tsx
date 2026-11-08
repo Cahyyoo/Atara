@@ -86,7 +86,11 @@ const box = (row: number, column: string) =>
 const paste = (text: string) => fireEvent.paste(box(1, "Sample ID"), { clipboardData: { getData: () => text } });
 const LONG = { timeout: 8000 };
 
-describe("the paste sheet", () => {
+// Each test mounts the whole sheet, and the file takes about fifty seconds on
+// its own. Under a full run its slowest tests passed the default 20s and
+// failed with nothing wrong, so they get room here, as the eksplorasi sheet's
+// fill-handle tests do.
+describe("the paste sheet", { timeout: 60_000 }, () => {
   it("takes results by pasting only: the Sample ID is the one box that is typed", async () => {
     await show();
     expect(box(1, "Sample ID").readOnly).toBe(false);
