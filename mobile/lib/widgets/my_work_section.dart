@@ -15,6 +15,7 @@ import 'home/stage_chips.dart';
 import 'ios/inset_section.dart';
 import 'motion/pressable.dart';
 import 'motion/reveal.dart';
+import 'stage_mark.dart';
 import '../services/stage_label.dart';
 
 /// How many entries Home shows before handing the rest to [MyWorkScreen].
@@ -336,14 +337,9 @@ class _WorkRowState extends State<WorkRow> {
       transparent: true,
       child: Row(
         children: [
-          Icon(
-            entry.isCorrection
-                ? CupertinoIcons.arrow_uturn_left_circle
-                : CupertinoIcons.checkmark_circle,
-            size: 20,
-            color: entry.isCorrection
-                ? palette.warning.foreground
-                : palette.success.foreground,
+          StageMark(
+            stageKey: entry.stageKey,
+            mark: entry.isCorrection ? ScanMark.correction : ScanMark.done,
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(

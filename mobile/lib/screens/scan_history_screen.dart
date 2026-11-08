@@ -9,6 +9,7 @@ import '../services/api_error_text.dart';
 import '../services/api_exception.dart';
 import '../services/time_text.dart';
 import '../theme/app_theme.dart';
+import '../widgets/brand/illustration.dart';
 import '../widgets/ios/app_page.dart';
 import '../widgets/ios/inset_section.dart';
 import '../widgets/ios/ios_button.dart';
@@ -180,7 +181,8 @@ class ScanHistoryScreen extends ConsumerWidget {
                   ),
                 )
               : StatusView(
-                  icon: CupertinoIcons.clock,
+                  icon: CupertinoIcons.clock_solid,
+                  art: Art.stageAll,
                   tone: palette.neutral,
                   title: l10n.scanHistoryEmptyTitle,
                   message: l10n.scanHistoryEmptyBody,
@@ -203,7 +205,7 @@ class ScanHistoryScreen extends ConsumerWidget {
             ),
             child: ToneBanner(
               dense: true,
-              icon: CupertinoIcons.cloud_download,
+              icon: CupertinoIcons.cloud_download_fill,
               tone: palette.warning,
               title: l10n.scanHistoryCachedNotice,
             ),

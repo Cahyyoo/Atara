@@ -7,6 +7,7 @@ import 'package:atara/models/work_summary.dart';
 import 'package:atara/theme/app_theme.dart';
 import 'package:atara/widgets/app_primitives.dart';
 import 'package:atara/widgets/my_work_section.dart';
+import 'package:atara/widgets/stage_mark.dart';
 
 /// What a press costs.
 ///
@@ -64,17 +65,29 @@ Future<void> pumpRow(
 /// one, and the Cupertino page transition wraps the route in a DecoratedBox
 /// carrying a _CupertinoEdgeShadowDecoration — which is not a BoxDecoration and
 /// blew up the cast. So: inside WorkRow, and only the box that carries a
-/// BoxDecoration.
-BoxDecoration tintOf(WidgetTester tester) => tester
-    .widgetList<DecoratedBox>(
-      find.descendant(
-        of: find.byType(WorkRow),
-        matching: find.byType(DecoratedBox),
-      ),
-    )
-    .map((box) => box.decoration)
-    .whereType<BoxDecoration>()
-    .single;
+/// BoxDecoration. A third came with the stage picture, whose tile and badge
+/// are boxes too, so the StageMark's own are left out.
+BoxDecoration tintOf(WidgetTester tester) {
+  final mark = tester
+      .widgetList<DecoratedBox>(
+        find.descendant(
+          of: find.byType(StageMark),
+          matching: find.byType(DecoratedBox),
+        ),
+      )
+      .toSet();
+  return tester
+      .widgetList<DecoratedBox>(
+        find.descendant(
+          of: find.byType(WorkRow),
+          matching: find.byType(DecoratedBox),
+        ),
+      )
+      .where((box) => !mark.contains(box))
+      .map((box) => box.decoration)
+      .whereType<BoxDecoration>()
+      .single;
+}
 
 void main() {
   testWidgets('a press does not rebuild the row', (tester) async {

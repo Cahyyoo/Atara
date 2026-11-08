@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/pending_scans_provider.dart';
 import '../theme/app_theme.dart';
+import '../widgets/brand/illustration.dart';
 import '../widgets/ios/app_page.dart';
 import '../widgets/ios/inset_section.dart';
 import '../widgets/pending_scan_section.dart';
@@ -44,7 +45,8 @@ class QueueScreen extends ConsumerWidget {
           SliverFillRemaining(
             hasScrollBody: false,
             child: StatusView(
-              icon: CupertinoIcons.checkmark_circle,
+              icon: CupertinoIcons.checkmark_circle_fill,
+              art: Art.emptyDone,
               tone: context.palette.success,
               title: l10n.queueEmptyTitle,
               message: l10n.queueEmptyMessage,

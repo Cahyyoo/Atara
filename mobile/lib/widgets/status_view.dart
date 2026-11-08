@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
+import 'brand/illustration.dart';
 import 'motion/reveal.dart';
 
 /// A whole-screen outcome: not found, could not load, saved.
@@ -25,10 +26,16 @@ class StatusView extends StatelessWidget {
     this.action,
     this.secondaryAction,
     this.liveRegion = false,
+    this.art,
   });
 
   final IconData icon;
   final ToneColors tone;
+
+  /// A picture in place of the icon disc, for the calm outcomes (an empty list)
+  /// on the screens drawn in the Home illustrations' style. Failures keep the
+  /// icon: a tinted disc says "something is wrong" faster than a picture.
+  final Art? art;
   final String title;
   final String? message;
 
@@ -50,15 +57,17 @@ class StatusView extends StatelessWidget {
           child: EnterReveal(
             scale: 0.85,
             offset: Offset.zero,
-            child: Container(
-              width: 96,
-              height: 96,
-              decoration: BoxDecoration(
-                color: tone.background,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: tone.foreground, size: 44),
-            ),
+            child: art != null
+                ? Illustration(art!, height: 112)
+                : Container(
+                    width: 96,
+                    height: 96,
+                    decoration: BoxDecoration(
+                      color: tone.background,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(icon, color: tone.foreground, size: 44),
+                  ),
           ),
         ),
         const SizedBox(height: AppSpacing.xl),

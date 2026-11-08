@@ -12,6 +12,7 @@ import 'brand/illustration.dart';
 import 'ios/inset_section.dart';
 import 'motion/pressable.dart';
 import 'motion/reveal.dart';
+import 'stage_mark.dart';
 import '../services/stage_label.dart';
 
 /// How many of each group Home shows before handing the rest to [QueueScreen].
@@ -358,38 +359,52 @@ class ScanRow extends StatelessWidget {
 
     return InsetCustomRow(
       transparent: transparent,
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SampleCodeText(scan.sampleCode),
-          const SizedBox(height: 2),
-          Text(
-            stageLabel(l10n, scan.stageKey, scan.stageName),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppText.footnote.copyWith(color: palette.secondaryLabel),
+          StageMark(
+            stageKey: scan.stageKey,
+            mark: scan.hasFailed ? ScanMark.failed : ScanMark.waiting,
           ),
-          if (scan.failureReason != null)
-            Padding(
-              padding: const EdgeInsets.only(top: AppSpacing.xs),
-              child: Text(
-                scan.failureReason!,
-                // The server words these, and some run to a full sentence.
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-                style: AppText.footnote.copyWith(
-                  color: palette.danger.foreground,
-                ),
-              ),
-            ),
-          // Beneath the code rather than beside it. Retry and Discard are rigid
-          // — they never shrink — so on a narrow screen they won the space
-          // fight and squeezed the one string that has to stay readable. Being
-          // further apart also makes Discard harder to hit by accident.
-          if (actions != null)
-            Align(alignment: AlignmentDirectional.centerEnd, child: actions!),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(child: _details(l10n, palette)),
         ],
       ),
+    );
+  }
+
+  Widget _details(AppLocalizations l10n, AppColors palette) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SampleCodeText(scan.sampleCode),
+        const SizedBox(height: 2),
+        Text(
+          stageLabel(l10n, scan.stageKey, scan.stageName),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: AppText.footnote.copyWith(color: palette.secondaryLabel),
+        ),
+        if (scan.failureReason != null)
+          Padding(
+            padding: const EdgeInsets.only(top: AppSpacing.xs),
+            child: Text(
+              scan.failureReason!,
+              // The server words these, and some run to a full sentence.
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: AppText.footnote.copyWith(
+                color: palette.danger.foreground,
+              ),
+            ),
+          ),
+        // Beneath the code rather than beside it. Retry and Discard are rigid
+        // — they never shrink — so on a narrow screen they won the space
+        // fight and squeezed the one string that has to stay readable. Being
+        // further apart also makes Discard harder to hit by accident.
+        if (actions != null)
+          Align(alignment: AlignmentDirectional.centerEnd, child: actions!),
+      ],
     );
   }
 }
