@@ -21,13 +21,17 @@ export function MobileServerPanel({ initial }: { initial: string }) {
   const [saved, setSaved] = useState(initial);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Only after this server failed to reach the address: the admin may know
+  // better, and each phone still checks it before it moves.
+  const [canForce, setCanForce] = useState(false);
 
-  async function save() {
+  async function save(force = false) {
     setSaving(true);
     setError(null);
+    setCanForce(false);
     const outcome = await apiFetch<{ mobileServerUrl: string }>(
       "/api/admin/mobile-server",
-      jsonBody("PATCH", { mobileServerUrl: value })
+      jsonBody("PATCH", { mobileServerUrl: value, force })
     );
     setSaving(false);
     if (outcome.ok) {
@@ -44,6 +48,7 @@ export function MobileServerPanel({ initial }: { initial: string }) {
       409: t("otherServer"),
     };
     setError(byStatus[outcome.status] ?? outcome.error);
+    setCanForce(outcome.status === 502);
   }
 
   return (
@@ -67,19 +72,25 @@ export function MobileServerPanel({ initial }: { initial: string }) {
             onChange={(event) => {
               setValue(event.target.value);
               setError(null);
+              setCanForce(false);
             }}
             onKeyDown={(event) => {
               if (event.key === "Enter" && value.trim() !== saved) void save();
             }}
             className="font-mono"
           />
-          <Button type="button" disabled={saving || value.trim() === saved} onClick={save}>
+          <Button type="button" disabled={saving || value.trim() === saved} onClick={() => save()}>
             {saving ? t("checking") : t("save")}
           </Button>
         </div>
         <p className={error ? "text-sm text-destructive" : "text-sm text-muted-foreground"} role={error ? "alert" : undefined}>
           {error ?? t("hint")}
         </p>
+        {canForce ? (
+          <Button type="button" variant="outline" className="self-start" disabled={saving} onClick={() => save(true)}>
+            {t("forceSave")}
+          </Button>
+        ) : null}
       </CardContent>
     </Card>
   );

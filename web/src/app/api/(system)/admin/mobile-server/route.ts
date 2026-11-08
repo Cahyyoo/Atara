@@ -4,7 +4,13 @@ import { route } from "@/core/lib/http/api-route";
 import { readJsonBody } from "@/core/lib/http/api-request";
 import { getMobileServerUrl, setMobileServerUrl } from "@/modules/system/lib/mobile-server";
 
-const updateSchema = z.object({ mobileServerUrl: z.string().max(500) }).strict();
+const updateSchema = z
+  .object({
+    mobileServerUrl: z.string().max(500),
+    /** Save even though this server could not reach the address. */
+    force: z.boolean().optional(),
+  })
+  .strict();
 
 /** The server address the mobile apps follow, as it stands. */
 export const GET = route({ capability: "manageMobileServer" }, async () => {
@@ -13,6 +19,6 @@ export const GET = route({ capability: "manageMobileServer" }, async () => {
 
 /** Changes it; nothing is saved unless the address answers as this server. */
 export const PATCH = route({ capability: "manageMobileServer" }, async ({ request, session }) => {
-  const { mobileServerUrl } = updateSchema.parse(await readJsonBody(request));
-  return jsonSuccess({ mobileServerUrl: await setMobileServerUrl(mobileServerUrl, session.userId) });
+  const { mobileServerUrl, force } = updateSchema.parse(await readJsonBody(request));
+  return jsonSuccess({ mobileServerUrl: await setMobileServerUrl(mobileServerUrl, session.userId, { force }) });
 });

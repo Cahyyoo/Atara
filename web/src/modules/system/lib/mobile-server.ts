@@ -49,8 +49,18 @@ export function getMobileServerUrl(): Promise<string> {
 /**
  * Stores the address once it has been shown to answer as this server, and
  * returns it as stored. Throws an ApiError the admin panel words for the reader.
+ *
+ * `force` saves an address this server could not reach at all. The server's
+ * view of the network is not the phones': it may be unable to call its own
+ * domain (hairpin NAT, an IPv6 record it has no route to) while every phone
+ * can. Each phone still checks the address itself before it moves. It never
+ * saves an address where a different server answered.
  */
-export async function setMobileServerUrl(input: string, userId: string): Promise<string> {
+export async function setMobileServerUrl(
+  input: string,
+  userId: string,
+  { force = false }: { force?: boolean } = {}
+): Promise<string> {
   const url = normaliseMobileServerUrl(input);
   if (url === null) {
     throw new ApiError("That is not an address the app can use. Use http://host:port/api.", 422, "MOBILE_SERVER_URL_INVALID");
@@ -58,7 +68,7 @@ export async function setMobileServerUrl(input: string, userId: string): Promise
   // Clearing it, or saving what is already there, cannot strand anyone.
   if (url !== "" && url !== (await getMobileServerUrl())) {
     const check = await checkMobileServerUrl(url, await getServerId());
-    if (check === "unreachable") {
+    if (check === "unreachable" && !force) {
       throw new ApiError("This server could not reach that address.", 502, "MOBILE_SERVER_UNREACHABLE");
     }
     if (check === "otherServer") {

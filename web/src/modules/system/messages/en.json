@@ -179,7 +179,8 @@
     "checking": "Checking…",
     "saved": "Server address saved",
     "invalid": "Invalid address. Use the form http://host:port/api.",
-    "unreachable": "This server could not reach that address. Make sure the server there is running.",
+    "unreachable": "This server could not reach that address. That can happen when a server cannot call its own domain. If the address is right and opens in a browser, save it anyway: every phone still tests the address itself before it switches.",
+    "forceSave": "Save anyway",
     "otherServer": "That address does not answer as this Atara server. Check the address and that it uses the same database."
   },
   "backup": {

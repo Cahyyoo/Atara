@@ -179,7 +179,8 @@
     "checking": "Memeriksa…",
     "saved": "Alamat server tersimpan",
     "invalid": "Alamat tidak valid. Gunakan bentuk http://host:port/api.",
-    "unreachable": "Server ini tidak bisa menjangkau alamat tersebut. Pastikan server di alamat itu sudah menyala.",
+    "unreachable": "Server ini tidak bisa menjangkau alamat tersebut. Itu bisa terjadi bila server tidak bisa memanggil domainnya sendiri. Kalau alamat sudah benar dan bisa dibuka dari browser, simpan saja: setiap HP tetap menguji alamatnya sendiri sebelum pindah.",
+    "forceSave": "Tetap simpan",
     "otherServer": "Alamat itu tidak menjawab sebagai server Atara ini. Pastikan alamatnya benar dan memakai database yang sama."
   },
   "backup": {
