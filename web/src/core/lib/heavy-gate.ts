@@ -40,8 +40,13 @@ export class HeavyGate {
   /**
    * Runs `work` in a slot. A streamed response keeps the slot until its body
    * has been sent (or the client has gone), since that is when the work ends.
+   *
+   * Pass the request's `signal`: when a client disconnects, Next stops reading
+   * the body without cancelling it, so neither the end nor `cancel` below is
+   * ever reached. Under load that leaked both slots of the Sample Database
+   * export and refused every export until the process restarted.
    */
-  async run(work: () => Promise<Response>): Promise<Response> {
+  async run(work: () => Promise<Response>, signal?: AbortSignal): Promise<Response> {
     const release = this.acquire();
     let response: Response;
     try {
@@ -54,8 +59,14 @@ export class HeavyGate {
       release();
       return response;
     }
-    // Released when the body ends, fails, or the client goes away (cancel).
+    // Released when the body ends, fails, or the client goes away (cancel or abort).
     const reader = response.body.getReader();
+    const abandon = () => {
+      release();
+      void reader.cancel(signal?.reason).catch(() => undefined);
+    };
+    if (signal?.aborted) abandon();
+    else signal?.addEventListener("abort", abandon, { once: true });
     const guarded = new ReadableStream<Uint8Array>({
       async pull(controller) {
         try {

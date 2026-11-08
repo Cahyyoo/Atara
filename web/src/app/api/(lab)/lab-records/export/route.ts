@@ -330,5 +330,5 @@ async function exportLabRecords(request: NextRequest) {
 
 export const GET = route({ capability: "exportDatabase" }, async ({ request }) => {
   // At most two at a time: see heavy-gate.ts.
-  return await labRecordExportGate.run(() => exportLabRecords(request));
+  return await labRecordExportGate.run(() => exportLabRecords(request), request.signal);
 });

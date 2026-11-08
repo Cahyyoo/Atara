@@ -49,6 +49,30 @@ describe("HeavyGate", () => {
     expect(gate.inUse).toBe(0);
   });
 
+  it("frees the slot when the request is aborted though the body is never read nor cancelled", async () => {
+    // What Next does when a client disconnects mid-download.
+    const gate = new HeavyGate("export", 1);
+    const abort = new AbortController();
+    const { response } = streamingResponse();
+    await gate.run(async () => response, abort.signal);
+    expect(gate.inUse).toBe(1);
+
+    abort.abort();
+    expect(gate.inUse).toBe(0);
+    await expect(gate.run(async () => new Response(null))).resolves.toBeInstanceOf(Response);
+  });
+
+  it("frees the slot at once when the client left before the work finished", async () => {
+    const gate = new HeavyGate("export", 1);
+    const abort = new AbortController();
+    const { response } = streamingResponse();
+    await gate.run(async () => {
+      abort.abort();
+      return response;
+    }, abort.signal);
+    expect(gate.inUse).toBe(0);
+  });
+
   it("frees the slot when the work itself fails", async () => {
     const gate = new HeavyGate("export", 1);
     await expect(gate.run(async () => Promise.reject(new Error("boom")))).rejects.toThrow("boom");

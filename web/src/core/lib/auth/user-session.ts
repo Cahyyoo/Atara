@@ -1,5 +1,6 @@
 import "server-only";
 
+import { randomUUID } from "node:crypto";
 import { Prisma, type SessionEndReason } from "@prisma/client";
 import { prisma } from "@/core/lib/prisma";
 import { clientAddressFromHeaders } from "@/core/lib/http/rate-limit";
@@ -28,11 +29,18 @@ export async function startSession(userId: string, headers: Headers) {
   const info = deviceInfoFrom(headers, client);
   const address = clientAddressFromHeaders(headers);
 
-  const open = () =>
-    prisma.$transaction(
-      async (tx) => {
-        const session = await tx.userSession.create({
+  // A batch, not an interactive transaction: the id is chosen here so both
+  // statements go to the database at once. An interactive one waited on this
+  // process between them, and at a shift change -- 300 bcrypt checks queued on
+  // the one thread -- that wait outran its 5 s limit (P2028): most of a crew
+  // got "server busy" instead of a session.
+  const open = async () => {
+    const id = randomUUID();
+    const [session, replaced] = await prisma.$transaction(
+      [
+        prisma.userSession.create({
           data: {
+            id,
             userId,
             client,
             device: summarizeDevice(info),
@@ -40,13 +48,12 @@ export async function startSession(userId: string, headers: Headers) {
             address,
           },
           select: { id: true },
-        });
-        const replaced = await tx.userSession.updateMany({
-          where: { userId, client, endedAt: null, id: { not: session.id } },
-          data: { endedAt: new Date(), endedReason: "REPLACED", replacedById: session.id },
-        });
-        return { session, replaced: replaced.count };
-      },
+        }),
+        prisma.userSession.updateMany({
+          where: { userId, client, endedAt: null, id: { not: id } },
+          data: { endedAt: new Date(), endedReason: "REPLACED", replacedById: id },
+        }),
+      ],
       // Read committed, so the update takes no gap locks. Under MySQL's
       // default (repeatable read) the range it scans on (user, client,
       // ended_at) was gap-locked, and sign-ins of *different* accounts whose
@@ -56,6 +63,8 @@ export async function startSession(userId: string, headers: Headers) {
       // slot never ends up with two live sessions.
       { isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted }
     );
+    return { session, replaced: replaced.count };
+  };
 
   // The same account signing in twice at once can still deadlock on the two
   // new rows; the database picks one as the victim, and it is simply run again.

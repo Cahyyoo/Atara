@@ -33,10 +33,12 @@ export const GET = route({ capability: "exportBackup" }, async ({ request, sessi
   const stamp = (formatWitaDateTime(at) ?? "").replace(/[-:]/g, "").replace(" ", "-").slice(0, 13);
 
   // One at a time: it reads every table, for minutes. See heavy-gate.ts.
-  return await backupGate.run(async () =>
-    workbookStreamResponse({
-      baseFilename: `atara-backup-${stamp}`,
-      sheets: backupSheets(counts, user?.name ?? session.email, at),
-    })
+  return await backupGate.run(
+    async () =>
+      workbookStreamResponse({
+        baseFilename: `atara-backup-${stamp}`,
+        sheets: backupSheets(counts, user?.name ?? session.email, at),
+      }),
+    request.signal
   );
 });
