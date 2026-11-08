@@ -7,6 +7,7 @@ import '../services/time_text.dart';
 import '../theme/app_theme.dart';
 import 'ios/app_page.dart';
 import 'ios/inset_section.dart';
+import 'stage_mark.dart';
 import '../services/stage_label.dart';
 
 /// The last few stages a sample has been through, under its summary.
@@ -116,42 +117,38 @@ class HistoryRow extends StatelessWidget {
 
     return InsetCustomRow(
       transparent: transparent,
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(
-                entry.isCorrection
-                    ? CupertinoIcons.arrow_uturn_left_circle
-                    : CupertinoIcons.checkmark_circle,
-                size: 18,
-                color: entry.isCorrection
-                    ? palette.warning.foreground
-                    : palette.success.foreground,
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: Text(
-                  stageLabel(l10n, entry.stageKey, entry.stageName),
-                  style: AppText.body.copyWith(
-                    color: palette.label,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              Text(
-                shiftTimeText(entry.scannedAt),
-                style: AppText.footnote.copyWith(color: palette.secondaryLabel),
-              ),
-            ],
+          StageMark(
+            stageKey: entry.stageKey,
+            mark: entry.isCorrection ? ScanMark.correction : ScanMark.done,
           ),
-          const SizedBox(height: 2),
-          Padding(
-            padding: const EdgeInsets.only(left: 26),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        stageLabel(l10n, entry.stageKey, entry.stageName),
+                        style: AppText.body.copyWith(
+                          color: palette.label,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      shiftTimeText(entry.scannedAt),
+                      style: AppText.footnote.copyWith(
+                        color: palette.secondaryLabel,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 2),
                 Text(
                   entry.preparatorName,
                   style: AppText.footnote.copyWith(color: palette.secondaryLabel),
