@@ -16,10 +16,16 @@ export interface LabSettings {
    * it. On by default, as it always was.
    */
   mobileShowSampleIdent: boolean;
+  /**
+   * The server address every mobile app follows, as http(s)://host:port/api.
+   * Empty means each app keeps its built-in address. See mobile-server.ts.
+   */
+  mobileServerUrl: string;
 }
 
 export const DEFAULT_LAB_SETTINGS: LabSettings = {
   mobileShowSampleIdent: true,
+  mobileServerUrl: "",
 };
 
 /**
@@ -34,6 +40,9 @@ async function readSettings(): Promise<LabSettings> {
   for (const row of rows) {
     if (row.key === "mobileShowSampleIdent" && typeof row.value === "boolean") {
       settings.mobileShowSampleIdent = row.value;
+    }
+    if (row.key === "mobileServerUrl" && typeof row.value === "string") {
+      settings.mobileServerUrl = row.value;
     }
   }
   return settings;

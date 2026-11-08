@@ -200,6 +200,25 @@ antrean yang belum terkirim. Setelah ini, update berjalan lewat aplikasi.
 Perangkat yang dipakai `flutter run` (debug/profile) memakai key berbeda dari rilis,
 jadi perlu uninstall setiap berpindah antara keduanya.
 
+## Alamat server
+
+Tidak diatur di aplikasi. Admin lab menetapkannya di website (Pengaturan Lab), dan
+`ServerConfigSync` (`lib/services/server_config_sync.dart`) mengikutinya setiap kali
+aplikasi dibuka, kembali ke depan, atau tersambung lagi. Aplikasi hanya pindah ke
+alamat yang terjangkau dan menjawab sebagai instalasi yang sama. Kalau alamat yang
+tersimpan tidak menjawab, aplikasi mencoba alamat bawaannya.
+
+Alamat bawaan diambil dari GitHub variable `MOBILE_DEFAULT_SERVER_URL` saat rilis
+(`--dart-define=ATARA_DEFAULT_SERVER=...`). Bila kosong, yang dipakai adalah nilai di
+`lib/services/settings_service.dart`. Untuk build lokal ke alamat lain:
+
+```bash
+flutter run --dart-define=ATARA_DEFAULT_SERVER=http://192.168.1.10:3000/api
+```
+
+Detail prosedur pindah server ada di `../web/README.md`, bagian "Catatan Konfigurasi
+Perangkat Mobile".
+
 ## Struktur Kode
 
 ```

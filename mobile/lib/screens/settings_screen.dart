@@ -6,22 +6,20 @@ import '../l10n/app_localizations.dart';
 import '../providers/session_provider.dart';
 import '../providers/settings_provider.dart';
 import '../providers/theme_provider.dart';
-import '../services/settings_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/ios/app_page.dart';
-import '../widgets/ios/app_toast.dart';
 import '../widgets/ios/inset_section.dart';
-import '../widgets/loading_swap.dart';
-import '../widgets/skeletons.dart';
 import '../widgets/version_footer.dart';
 import 'change_password_screen.dart';
 import 'onboarding_screen.dart';
 
-/// Server address, language, and the way out of the account.
+/// Appearance, language, the guide, and the way out of the account.
 ///
-/// [isTab] tells the screen whether it is the third tab or a page pushed from
-/// the sign-in screen — signed out there is no account to leave, and no tab bar
-/// to sit above.
+/// No server address: the lab admin sets that on the website and every app
+/// follows it (see ServerConfigSync), so there is nothing here to get wrong.
+///
+/// [isTab] tells the screen whether it is the tab or a pushed page — outside
+/// the tab there is no account to leave, and no tab bar to sit above.
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key, this.isTab = false});
 
@@ -32,65 +30,6 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  final _serverController = TextEditingController();
-  bool _isLoading = true;
-  String? _serverError;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    // The spinner must come down whatever happens. This is the one screen that
-    // fixes a wrong server address, so freezing it strands the preparator on the
-    // very problem it exists to solve — and an empty field still means "use the
-    // default", which is a usable starting point.
-    String? url;
-    try {
-      url = await SettingsService.getServerUrl();
-    } catch (_) {
-      url = null;
-    }
-
-    if (!mounted) return;
-    setState(() {
-      if (url != null) _serverController.text = url;
-      _isLoading = false;
-    });
-  }
-
-  @override
-  void dispose() {
-    _serverController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _save() async {
-    final l10n = AppLocalizations.of(context)!;
-
-    // Checked before it is stored: a typo saved here fails later as a generic
-    // "could not reach the server", which points at the network rather than at
-    // the setting that actually broke it.
-    if (!SettingsService.isValidServerUrl(_serverController.text)) {
-      setState(() => _serverError = l10n.serverAddressInvalid);
-      return;
-    }
-
-    setState(() => _serverError = null);
-    await SettingsService.setServerUrl(_serverController.text);
-    if (!mounted) return;
-    AppToast.show(context, l10n.settingsSaved, icon: CupertinoIcons.checkmark_circle);
-  }
-
-  Future<void> _resetServer() async {
-    await SettingsService.setServerUrl('');
-    if (!mounted) return;
-    setState(() => _serverError = null);
-    await _load();
-  }
-
   void _openGuide() {
     Navigator.of(context).push(
       CupertinoPageRoute(builder: (context) => const OnboardingScreen()),
@@ -136,32 +75,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final palette = context.palette;
     final locale = ref.watch(localeProvider);
     final effective = locale ?? Localizations.localeOf(context).languageCode;
     final themeMode = ref.watch(themeModeProvider);
 
-    // The title and the bar stay put now. The old branch replaced the whole
-    // scaffold, so the large title disappeared and then popped back in for a
-    // wait that is one preferences read long.
-    //
-    // LoadingSwap holds the placeholder back for 150ms, which this read
-    // almost always beats -- so in practice nothing appears at all, which is
-    // the correct amount of ceremony for a wait nobody can perceive.
     return AppPage.list(
       title: l10n.settingsTitle,
       automaticallyImplyLeading: !widget.isTab,
       children: [
-        LoadingSwap(
-          isLoading: _isLoading,
-          placeholder: SettingsSkeleton(showAccount: widget.isTab),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: _sections(l10n, palette, effective, themeMode),
-          ),
-        ),
-        // Outside the swap: which build this is stays readable even while the
-        // settings themselves are still being read.
+        ..._sections(l10n, effective, themeMode),
         const VersionFooter(),
       ],
     );
@@ -169,51 +91,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   List<Widget> _sections(
     AppLocalizations l10n,
-    AppColors palette,
     String? effective,
     ThemeMode themeMode,
   ) {
     return [
-        InsetSection(
-          header: l10n.serverAddress,
-          footer: _serverError ?? l10n.serverAddressHelp,
-          children: [
-            InsetCustomRow(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.lg,
-                vertical: AppSpacing.xs,
-              ),
-              child: CupertinoTextField.borderless(
-                controller: _serverController,
-                keyboardType: TextInputType.url,
-                autocorrect: false,
-                placeholder: l10n.serverAddressHint,
-                placeholderStyle:
-                    AppText.body.copyWith(color: palette.tertiaryLabel),
-                style: AppText.body.copyWith(
-                  color: _serverError == null
-                      ? palette.label
-                      : palette.danger.foreground,
-                  fontFamily: AppText.monoFamily,
-                ),
-                padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-                onChanged: (_) {
-                  if (_serverError != null) setState(() => _serverError = null);
-                },
-              ),
-            ),
-            InsetRow(
-              title: l10n.save,
-              titleStyle: AppText.body.copyWith(color: palette.accent),
-              onTap: _save,
-            ),
-            InsetRow(
-              title: l10n.resetDefault,
-              titleStyle: AppText.body.copyWith(color: palette.accent),
-              onTap: _resetServer,
-            ),
-          ],
-        ),
         InsetSection(
           header: l10n.appearance,
           children: [

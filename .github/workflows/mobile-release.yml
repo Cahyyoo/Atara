@@ -68,11 +68,18 @@ jobs:
 
       # The build number only ever rises, so pubspec.yaml needs no bump. The
       # offset keeps it above the 1 that builds from before this workflow carry.
+      #
+      # MOBILE_DEFAULT_SERVER_URL (a repository variable, optional) is the address
+      # the app falls back to when the one the lab admin set stops answering.
+      # Empty keeps the address written in settings_service.dart.
       - name: Build
+        env:
+          DEFAULT_SERVER: ${{ vars.MOBILE_DEFAULT_SERVER_URL }}
         run: |
           flutter build apk --release --target-platform android-arm64 \
             --build-name "${GITHUB_REF_NAME#mobile-v}" \
-            --build-number "$((100 + GITHUB_RUN_NUMBER))"
+            --build-number "$((100 + GITHUB_RUN_NUMBER))" \
+            --dart-define=ATARA_DEFAULT_SERVER="$DEFAULT_SERVER"
           cp build/app/outputs/flutter-apk/app-release.apk atara-lab.apk
 
       # The checkout turns an annotated tag into a plain one, and loses its

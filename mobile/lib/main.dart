@@ -17,6 +17,7 @@ import 'screens/home_shell.dart';
 import 'screens/login_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/splash_screen.dart';
+import 'services/server_config_sync.dart';
 import 'services/session_heartbeat.dart';
 import 'services/time_text.dart';
 import 'theme/app_theme.dart';
@@ -95,7 +96,8 @@ class AtaraApp extends ConsumerWidget {
 }
 
 /// Drains the offline scan queue whenever the app returns to the foreground or
-/// the device regains a connection.
+/// the device regains a connection — after first following the server address
+/// the lab admin set on the website, so the queue goes where the lab now is.
 class ScanSyncScope extends ConsumerStatefulWidget {
   const ScanSyncScope({required this.child, super.key});
 
@@ -108,6 +110,7 @@ class ScanSyncScope extends ConsumerStatefulWidget {
 class _ScanSyncScopeState extends ConsumerState<ScanSyncScope>
     with WidgetsBindingObserver {
   StreamSubscription<List<ConnectivityResult>>? _connectivity;
+  final ServerConfigSync _serverConfig = ServerConfigSync();
 
   @override
   void initState() {
@@ -139,7 +142,12 @@ class _ScanSyncScopeState extends ConsumerState<ScanSyncScope>
     if (state == AppLifecycleState.resumed) _sync();
   }
 
-  void _sync() {
+  void _sync() => unawaited(_syncAll());
+
+  Future<void> _syncAll() async {
+    // Signed in or not: the sign-in itself needs the right address.
+    await _serverConfig.run();
+    if (!mounted) return;
     // Nothing can be sent until someone is signed in.
     //
     // `valueOrNull` because `value` rethrows on an error state, and this runs

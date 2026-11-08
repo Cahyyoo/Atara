@@ -232,16 +232,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsTitle => 'Settings';
 
   @override
-  String get serverAddress => 'Server address';
-
-  @override
-  String get serverAddressHint => 'http://192.168.1.10:3000/api';
-
-  @override
-  String get serverAddressHelp =>
-      'Change this when the app is used at another site or network.';
-
-  @override
   String get appearance => 'Appearance';
 
   @override
@@ -255,12 +245,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get language => 'Language';
-
-  @override
-  String get settingsSaved => 'Settings saved.';
-
-  @override
-  String get resetDefault => 'Reset to default';
 
   @override
   String get connectionTimeout =>
@@ -325,10 +309,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get errorUnreachable =>
       'Could not reach the server. Please check your network connection.';
-
-  @override
-  String get serverAddressInvalid =>
-      'Not a valid address. Use the form http://host:port/api.';
 
   @override
   String triedServerAddress(Object address) {
@@ -416,9 +396,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passwordHint => 'Your password';
 
   @override
-  String get checkServerAddress => 'Check the server address';
-
-  @override
   String get sameLabelIgnored =>
       'Same label ignored. Point at a different one.';
 
@@ -503,7 +480,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorUnreadableAnswer =>
-      'The server answered in a form the app does not recognise. Check the server address or contact an administrator.';
+      'The server answered in a form the app does not recognise. Contact the lab admin.';
 
   @override
   String get signInPreparatorsOnly =>
@@ -1040,12 +1017,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get understood => 'Got it';
 
   @override
-  String get loginOr => 'or';
-
-  @override
-  String get serverSettings => 'Server settings';
-
-  @override
   String get noAccount => 'No account yet?';
 
   @override
@@ -1145,4 +1116,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get updateClose => 'Close';
+
+  @override
+  String get serverUnreachableAskAdmin =>
+      'The server address is set by the lab admin on the website. Contact the lab admin if this keeps happening.';
 }

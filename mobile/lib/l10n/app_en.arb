@@ -114,16 +114,11 @@
   },
   "failedDescription": "Refused by the server. Check the reason, then retry or discard.",
   "settingsTitle": "Settings",
-  "serverAddress": "Server address",
-  "serverAddressHint": "http://192.168.1.10:3000/api",
-  "serverAddressHelp": "Change this when the app is used at another site or network.",
   "appearance": "Appearance",
   "appearanceSystem": "Follow System",
   "appearanceLight": "Light",
   "appearanceDark": "Dark",
   "language": "Language",
-  "settingsSaved": "Settings saved.",
-  "resetDefault": "Reset to default",
   "connectionTimeout": "Connection timed out. Check your network and try again.",
   "connectionFailed": "Could not reach the server. Please check your network connection.",
   "unknownError": "An unknown error occurred. Please try again.",
@@ -152,7 +147,6 @@
   "stageListFailed": "Failed to load the stage list. Please check your network connection.",
   "errorTimeout": "The connection timed out. Check your network and try again.",
   "errorUnreachable": "Could not reach the server. Please check your network connection.",
-  "serverAddressInvalid": "Not a valid address. Use the form http://host:port/api.",
   "triedServerAddress": "Tried: {address}",
   "manualEntry": "Enter code manually",
   "manualEntryTitle": "Enter Sample Code",
@@ -178,7 +172,6 @@
   "myWorkEmpty": "No scans yet on this shift.",
   "emailHint": "name@atara.local",
   "passwordHint": "Your password",
-  "checkServerAddress": "Check the server address",
   "sameLabelIgnored": "Same label ignored. Point at a different one.",
   "scanThisAgain": "Scan it again",
   "stageReceived": "RECEIVED",
@@ -214,7 +207,7 @@
       }
     }
   },
-  "errorUnreadableAnswer": "The server answered in a form the app does not recognise. Check the server address or contact an administrator.",
+  "errorUnreadableAnswer": "The server answered in a form the app does not recognise. Contact the lab admin.",
   "signInPreparatorsOnly": "This app is for Preparators. Please use the website.",
   "errorForbidden": "Your account's role does not allow this. This app is for Preparators.",
   "mfaTitle": "Verify It's You",
@@ -422,8 +415,6 @@
   "forgotPasswordTitle": "Forgot password",
   "forgotPasswordBody": "Passwords are reset by the lab admin. Ask them, then sign in with the temporary password they give you.",
   "understood": "Got it",
-  "loginOr": "or",
-  "serverSettings": "Server settings",
   "noAccount": "No account yet?",
   "askAdmin": "Ask the admin",
   "bannerTitle": "Ready to scan samples?",
@@ -454,5 +445,6 @@
   "updateDownloadFailed": "The download failed. Check the internet connection and try again.",
   "updateCorrupted": "The downloaded file is damaged. Please download it again.",
   "updateInstallFailed": "Android's app installer could not be opened.",
-  "updateClose": "Close"
+  "updateClose": "Close",
+  "serverUnreachableAskAdmin": "The server address is set by the lab admin on the website. Contact the lab admin if this keeps happening."
 }

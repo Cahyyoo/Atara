@@ -230,16 +230,6 @@ class AppLocalizationsId extends AppLocalizations {
   String get settingsTitle => 'Pengaturan';
 
   @override
-  String get serverAddress => 'Alamat Server';
-
-  @override
-  String get serverAddressHint => 'http://192.168.1.10:3000/api';
-
-  @override
-  String get serverAddressHelp =>
-      'Ubah bila aplikasi dipakai di lokasi atau jaringan lain.';
-
-  @override
   String get appearance => 'Tampilan';
 
   @override
@@ -253,12 +243,6 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get language => 'Bahasa';
-
-  @override
-  String get settingsSaved => 'Pengaturan tersimpan.';
-
-  @override
-  String get resetDefault => 'Kembalikan ke bawaan';
 
   @override
   String get connectionTimeout =>
@@ -324,10 +308,6 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get errorUnreachable =>
       'Server tidak dapat dihubungi. Periksa koneksi jaringan Anda.';
-
-  @override
-  String get serverAddressInvalid =>
-      'Alamat tidak valid. Gunakan bentuk http://host:port/api.';
 
   @override
   String triedServerAddress(Object address) {
@@ -415,9 +395,6 @@ class AppLocalizationsId extends AppLocalizations {
   String get passwordHint => 'Kata sandi Anda';
 
   @override
-  String get checkServerAddress => 'Periksa alamat server';
-
-  @override
   String get sameLabelIgnored =>
       'Label yang sama diabaikan. Arahkan ke label lain.';
 
@@ -503,7 +480,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get errorUnreadableAnswer =>
-      'Server menjawab dalam bentuk yang tidak dikenali. Periksa alamat server atau hubungi administrator.';
+      'Server menjawab dalam bentuk yang tidak dikenali. Hubungi admin lab.';
 
   @override
   String get signInPreparatorsOnly =>
@@ -1042,12 +1019,6 @@ class AppLocalizationsId extends AppLocalizations {
   String get understood => 'Mengerti';
 
   @override
-  String get loginOr => 'atau';
-
-  @override
-  String get serverSettings => 'Pengaturan server';
-
-  @override
   String get noAccount => 'Belum punya akun?';
 
   @override
@@ -1146,4 +1117,8 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get updateClose => 'Tutup';
+
+  @override
+  String get serverUnreachableAskAdmin =>
+      'Alamat server diatur oleh admin lab di website. Hubungi admin lab bila masalah berlanjut.';
 }

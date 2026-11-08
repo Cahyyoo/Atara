@@ -156,22 +156,6 @@ void main() {
     });
   });
 
-  group('SettingsService.isValidServerUrl', () {
-    test('accepts the addresses a preparator would actually type', () {
-      expect(SettingsService.isValidServerUrl('http://10.10.50.14:3001/api'), isTrue);
-      expect(SettingsService.isValidServerUrl('https://lab.example.com/api'), isTrue);
-      // Empty means "use the default", which is a valid choice.
-      expect(SettingsService.isValidServerUrl('   '), isTrue);
-    });
-
-    test('rejects what would only fail later as a network error', () {
-      expect(SettingsService.isValidServerUrl('hello'), isFalse);
-      expect(SettingsService.isValidServerUrl('10.10.50.14:3001'), isFalse);
-      expect(SettingsService.isValidServerUrl('ftp://10.10.50.14/api'), isFalse);
-      expect(SettingsService.isValidServerUrl('http://'), isFalse);
-    });
-  });
-
   group('ApiException', () {
     test('separates "never reached the server" from "the server refused"', () {
       const offline = ApiException('no network', kind: ApiErrorKind.unreachable);

@@ -78,6 +78,16 @@ describe("every module is registered, and registered completely", () => {
   }
 });
 
+/**
+ * Module routes that answer without a session, each named with its reason.
+ * Keep this list short: every entry is a door anyone on the network can open.
+ */
+const PUBLIC_MODULE_ROUTES: Record<string, string> = {
+  // A phone asks before anyone signs in, and must find its server again while
+  // the address it holds is the old one. Returns that address and a random id.
+  "app/api/(lab)/mobile-config/route.ts": "mobile server address",
+};
+
 describe("the API, one route group per module", () => {
   const groups = readdirSync(join(SRC, "app", "api")).filter((name) => /^\(\w+\)$/.test(name));
 
@@ -93,7 +103,7 @@ describe("the API, one route group per module", () => {
         const name = relative(SRC, path).split(sep).join("/");
         const asked = capabilitiesIn(source);
         // A route with no capability must at least require a session.
-        if (asked.length === 0) {
+        if (asked.length === 0 && !(name in PUBLIC_MODULE_ROUTES)) {
           expect(source, name).toMatch(/requireSession\(|route\(\{/);
           continue;
         }

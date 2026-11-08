@@ -7,6 +7,7 @@ import { toast } from "@/core/components/ui/toast";
 import { apiFetch, jsonBody } from "@/core/lib/http/api-client";
 import { cn } from "@/core/lib/utils";
 import type { LabSettings } from "@/modules/lab/lib/settings/lab-settings";
+import { MobileServerField } from "@/modules/lab/components/settings/mobile-server-field";
 
 /**
  * The lab admin's switches. Each one saves the moment it is flipped, and goes
@@ -38,7 +39,7 @@ export function LabSettingsForm({ initial }: { initial: LabSettings }) {
         <CardTitle>{t("mobileTitle")}</CardTitle>
         <CardDescription>{t("mobileSubtitle")}</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex flex-col gap-6">
         <SettingSwitch
           label={t("mobileShowSampleIdent")}
           hint={settings.mobileShowSampleIdent ? t("mobileShowSampleIdentOn") : t("mobileShowSampleIdentOff")}
@@ -46,6 +47,7 @@ export function LabSettingsForm({ initial }: { initial: LabSettings }) {
           disabled={saving}
           onChange={(checked) => update({ mobileShowSampleIdent: checked })}
         />
+        <MobileServerField initial={settings.mobileServerUrl} onSaved={setSettings} />
       </CardContent>
     </Card>
   );

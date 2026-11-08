@@ -34,7 +34,6 @@ import '../widgets/stage_picker.dart';
 import '../widgets/status_view.dart';
 import '../widgets/skeletons.dart';
 import 'sample_identity_screen.dart';
-import 'settings_screen.dart';
 
 /// A sample, in one page: what the barcode says, its Sample ID and history,
 /// and the stage to move it to next.
@@ -428,12 +427,6 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
     if (saved == true && mounted) await _refreshInPlace();
   }
 
-  void _openSettings() {
-    Navigator.of(
-      context,
-    ).push(CupertinoPageRoute(builder: (context) => const SettingsScreen()));
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -509,7 +502,6 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
           : ServerAddressNotice(
               color: context.palette.danger.foreground,
               address: _serverUrl,
-              onOpenSettings: _openSettings,
             ),
       action: AppButton(
         label: l10n.tryAgain,
@@ -710,7 +702,6 @@ class _UpdateStatusScreenState extends ConsumerState<UpdateStatusScreen> {
             ServerAddressNotice(
               color: palette.warning.onBackground,
               address: _serverUrl,
-              onOpenSettings: _openSettings,
             ),
           ],
         ],

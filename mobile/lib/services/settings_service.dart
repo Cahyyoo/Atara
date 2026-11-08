@@ -6,9 +6,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// Device-local settings: where the server lives and which language to use.
 ///
-/// The server address used to be compiled in, so moving the app to another site
-/// meant a rebuild. It is stored here instead, seeded with the previous value so
-/// existing installs keep working untouched.
+/// The server address is no longer typed in on the phone. The lab admin sets
+/// it on the website and ServerConfigSync stores it here; with nothing stored,
+/// the built-in address applies.
 class SettingsService {
   static const _serverKey = 'atara_server_url';
   static const _localeKey = 'atara_locale';
@@ -34,7 +34,14 @@ class SettingsService {
 
   static const supportedLocales = ['id', 'en'];
 
+  /// Set by the release build from the GitHub variable MOBILE_DEFAULT_SERVER_URL.
+  ///
+  /// The way back for a phone that can reach no server at all: change the
+  /// variable, publish a release, and the update brings the new address.
+  static const _builtInServerUrl = String.fromEnvironment('ATARA_DEFAULT_SERVER');
+
   static String get defaultServerUrl {
+    if (_builtInServerUrl.isNotEmpty) return _builtInServerUrl;
     // kIsWeb first: dart:io's Platform is unsupported in a browser and throws,
     // which a development run in Chrome would otherwise trip over before
     // making a single request.
@@ -49,22 +56,8 @@ class SettingsService {
     return stored;
   }
 
-  /// Whether a typed address is usable before it is saved.
-  ///
-  /// Without this, a typo is stored happily and every later request fails with a
-  /// generic "could not reach the server", which points at the network rather
-  /// than at the setting that actually caused it.
-  static bool isValidServerUrl(String value) {
-    final trimmed = value.trim();
-    if (trimmed.isEmpty) return true; // Empty means "use the default".
-
-    final uri = Uri.tryParse(trimmed);
-    if (uri == null) return false;
-    if (uri.scheme != 'http' && uri.scheme != 'https') return false;
-    if (uri.host.isEmpty) return false;
-    return true;
-  }
-
+  /// Empty means the built-in address, so a later release's new default
+  /// applies to a phone that was simply following it.
   static Future<void> setServerUrl(String value) async {
     final prefs = await SharedPreferences.getInstance();
     final trimmed = value.trim();

@@ -9,7 +9,6 @@ import 'package:atara/models/login_result.dart';
 import 'package:atara/providers/session_provider.dart';
 import 'package:atara/screens/login_screen.dart';
 import 'package:atara/screens/second_factor_screen.dart';
-import 'package:atara/screens/settings_screen.dart';
 import 'package:atara/services/api_exception.dart';
 import 'package:atara/services/time_text.dart';
 import 'package:atara/theme/app_theme.dart';
@@ -89,31 +88,29 @@ Future<void> submit(WidgetTester tester) async {
     'preparator@atara.local',
   );
   await tester.enterText(find.byType(CupertinoTextField).last, 'secret');
-  // The sign-in button leads; the settings shortcut sits under it.
   await tester.tap(find.byType(AppButton).first);
   await tester.pumpAndSettle();
 }
 
-/// Section headings are drawn in the case they were written in.
-final serverHeading = find.text('Alamat Server');
+/// Shown when the server was never reached. The address is the lab admin's to
+/// fix on the website, so this says who to tell rather than offering a setting.
+final askLabAdmin = find.text(
+  'Alamat server diatur oleh admin lab di website. '
+  'Hubungi admin lab bila masalah berlanjut.',
+);
 
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  testWidgets('offers settings without signing in first', (tester) async {
+  testWidgets('offers no server settings: the lab admin sets the address', (
+    tester,
+  ) async {
     await pumpLogin(tester);
 
-    final gear = find.text('Pengaturan server');
-    expect(gear, findsOneWidget);
-
-    await tester.tap(gear);
-    await tester.pumpAndSettle();
-
-    // The whole point: the server address is reachable from here.
-    expect(find.byType(SettingsScreen), findsOneWidget);
-    expect(serverHeading, findsOneWidget);
+    expect(find.text('Pengaturan server'), findsNothing);
+    expect(find.byType(AppButton), findsOneWidget);
   });
 
   testWidgets('hints both fields and starts in the email box', (tester) async {
@@ -163,10 +160,10 @@ void main() {
     await submit(tester);
 
     expect(find.textContaining('Salah'), findsOneWidget);
-    expect(find.text('Periksa alamat server'), findsNothing);
+    expect(askLabAdmin, findsNothing);
   });
 
-  testWidgets('points at the address when the server was never reached', (
+  testWidgets('says who to tell when the server was never reached', (
     tester,
   ) async {
     await pumpLogin(
@@ -175,21 +172,7 @@ void main() {
     );
     await submit(tester);
 
-    expect(find.text('Periksa alamat server'), findsOneWidget);
-  });
-
-  testWidgets('the offer leads to the server address', (tester) async {
-    await pumpLogin(
-      tester,
-      loginError: const ApiException('offline', kind: ApiErrorKind.unreachable),
-    );
-    await submit(tester);
-
-    await tester.tap(find.text('Periksa alamat server'));
-    await tester.pumpAndSettle();
-
-    expect(find.byType(SettingsScreen), findsOneWidget);
-    expect(serverHeading, findsOneWidget);
+    expect(askLabAdmin, findsOneWidget);
   });
 
   testWidgets('turns away an account that is not a preparator', (
@@ -202,7 +185,7 @@ void main() {
       find.text('Aplikasi ini khusus Preparator. Silakan gunakan situs web.'),
       findsOneWidget,
     );
-    expect(find.text('Periksa alamat server'), findsNothing);
+    expect(askLabAdmin, findsNothing);
   });
 
   testWidgets('says the same after a second factor, back on this screen', (

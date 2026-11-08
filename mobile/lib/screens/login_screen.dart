@@ -19,7 +19,6 @@ import '../widgets/motion/reveal.dart';
 import '../widgets/pill_field.dart';
 import '../widgets/server_address_notice.dart';
 import 'second_factor_screen.dart';
-import 'settings_screen.dart';
 import 'splash_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -186,12 +185,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     }
   }
 
-  void _openSettings() {
-    Navigator.of(
-      context,
-    ).push(CupertinoPageRoute(builder: (context) => const SettingsScreen()));
-  }
-
   void _explainForgotten() {
     final l10n = AppLocalizations.of(context)!;
     showCupertinoDialog<void>(
@@ -306,15 +299,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     color: palette.danger.foreground,
                   ),
                 ),
-                // Offered only when the server was never reached, which
-                // is what a wrong address looks like. The fix is then
-                // one tap from the problem rather than something the
-                // preparator has to guess at.
+                // Only when the server was never reached: the address
+                // tried, and that the lab admin is the one to tell.
                 if (_serverUnreachable)
-                  ServerAddressNotice(
-                    color: palette.danger.foreground,
-                    onOpenSettings: _openSettings,
-                  ),
+                  ServerAddressNotice(color: palette.danger.foreground),
               ],
             ),
           ),
@@ -323,20 +311,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         label: l10n.signIn,
         isBusy: _isSubmitting,
         onPressed: _handleLogin,
-      ),
-      const SizedBox(height: AppSpacing.lg),
-      _OrDivider(label: l10n.loginOr),
-      const SizedBox(height: AppSpacing.lg),
-      // The server address lives in Settings, and Settings used to
-      // open only from the home screen — which needs a session. A
-      // wrong address therefore locked the preparator out with no way
-      // back, reinstalling included. It takes the place the reference
-      // gives its social sign-in buttons.
-      AppButton(
-        label: l10n.serverSettings,
-        style: AppButtonStyle.tinted,
-        icon: CupertinoIcons.gear_alt,
-        onPressed: _openSettings,
       ),
       const SizedBox(height: AppSpacing.lg),
       Text.rich(
@@ -569,34 +543,6 @@ class _ExitFade extends StatelessWidget {
         if (leaving == 0) return child!;
         return Opacity(opacity: 1 - interval.transform(leaving), child: child);
       },
-    );
-  }
-}
-
-/// "—— or ——", between the sign-in button and the settings button.
-class _OrDivider extends StatelessWidget {
-  const _OrDivider({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = context.palette;
-    final line = Expanded(
-      child: SizedBox(height: 1, child: ColoredBox(color: palette.separator)),
-    );
-    return Row(
-      children: [
-        line,
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-          child: Text(
-            label,
-            style: AppText.caption.copyWith(color: palette.tertiaryLabel),
-          ),
-        ),
-        line,
-      ],
     );
   }
 }

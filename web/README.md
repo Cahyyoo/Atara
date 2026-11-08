@@ -385,7 +385,22 @@ Tes end-to-end wajah (`src/core/lib/__tests__/face-e2e.test.ts`) dilewati kecual
 
 ## Catatan Konfigurasi Perangkat Mobile
 
-Aplikasi Flutter di folder `../mobile` mengakses API ini di `http://<alamat-server>:3000/api`. Alamatnya diatur dari layar **Pengaturan** di aplikasi, tanpa perlu build ulang; nilai bawaannya ada di `mobile/lib/services/settings_service.dart`.
+Aplikasi Flutter di folder `../mobile` mengakses API ini di `http://<alamat-server>:3000/api`. Alamat itu **diatur oleh admin lab di website**, di **Pengaturan Lab → Alamat server untuk aplikasi mobile**, dan diikuti semua aplikasi mobile. Aplikasi tidak lagi punya kolom alamat sendiri.
+
+- Aplikasi bertanya ke `GET /api/mobile-config` (tanpa login) setiap kali dibuka, kembali ke depan, atau tersambung lagi ke jaringan. Endpoint itu memberi alamat yang ditetapkan admin dan ID instalasi.
+- Sebelum menyimpan, website menguji alamatnya: alamat itu harus menjawab `/mobile-config` dengan ID instalasi yang sama, artinya server yang sama dengan database yang sama. Salah ketik atau server yang belum menyala ditolak.
+- Aplikasi baru pindah setelah alamat baru terjangkau dari HP itu dan menjawab dengan ID yang sama. Kalau tidak, aplikasi tetap memakai alamat lama.
+- Mengosongkan kolom berarti semua aplikasi kembali ke alamat bawaannya: nilai GitHub variable `MOBILE_DEFAULT_SERVER_URL` saat rilis, atau bila kosong, nilai di `mobile/lib/services/settings_service.dart`.
+- Kalau HP tidak menjangkau server mana pun, alamat yang ia simpan maupun alamat bawaannya, satu-satunya jalan pulih adalah rilis aplikasi baru dengan `MOBILE_DEFAULT_SERVER_URL` yang benar. Rilis itu sampai ke HP lewat pembaruan otomatis dari GitHub.
+
+**Memindahkan server ke alamat baru:**
+
+1. Jalankan server baru di alamat baru dengan database yang sama (dipindah atau disalin dari yang lama).
+2. Di website server **lama**, isi alamat baru di Pengaturan Lab lalu simpan. Website memastikan alamat baru menjawab sebagai server yang sama.
+3. Biarkan server lama menyala sampai semua HP sempat dibuka dan pindah, misalnya satu shift penuh.
+4. Agar HP yang lama tidak dipakai juga bisa pulih, set `MOBILE_DEFAULT_SERVER_URL` ke alamat baru lalu terbitkan rilis aplikasi.
+
+Alamat untuk pengembangan:
 
 - Android emulator: `http://10.0.2.2:3000/api`.
 - Perangkat fisik: gunakan alamat IP LAN komputer yang menjalankan server ini (mis. `http://192.168.1.10:3000/api`), pastikan perangkat berada di jaringan Wi-Fi yang sama, dan izinkan port 3000 di Windows Firewall.

@@ -482,24 +482,6 @@ abstract class AppLocalizations {
   /// **'Pengaturan'**
   String get settingsTitle;
 
-  /// No description provided for @serverAddress.
-  ///
-  /// In id, this message translates to:
-  /// **'Alamat Server'**
-  String get serverAddress;
-
-  /// No description provided for @serverAddressHint.
-  ///
-  /// In id, this message translates to:
-  /// **'http://192.168.1.10:3000/api'**
-  String get serverAddressHint;
-
-  /// No description provided for @serverAddressHelp.
-  ///
-  /// In id, this message translates to:
-  /// **'Ubah bila aplikasi dipakai di lokasi atau jaringan lain.'**
-  String get serverAddressHelp;
-
   /// No description provided for @appearance.
   ///
   /// In id, this message translates to:
@@ -529,18 +511,6 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Bahasa'**
   String get language;
-
-  /// No description provided for @settingsSaved.
-  ///
-  /// In id, this message translates to:
-  /// **'Pengaturan tersimpan.'**
-  String get settingsSaved;
-
-  /// No description provided for @resetDefault.
-  ///
-  /// In id, this message translates to:
-  /// **'Kembalikan ke bawaan'**
-  String get resetDefault;
 
   /// No description provided for @connectionTimeout.
   ///
@@ -649,12 +619,6 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Server tidak dapat dihubungi. Periksa koneksi jaringan Anda.'**
   String get errorUnreachable;
-
-  /// No description provided for @serverAddressInvalid.
-  ///
-  /// In id, this message translates to:
-  /// **'Alamat tidak valid. Gunakan bentuk http://host:port/api.'**
-  String get serverAddressInvalid;
 
   /// No description provided for @triedServerAddress.
   ///
@@ -805,12 +769,6 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Kata sandi Anda'**
   String get passwordHint;
-
-  /// No description provided for @checkServerAddress.
-  ///
-  /// In id, this message translates to:
-  /// **'Periksa alamat server'**
-  String get checkServerAddress;
 
   /// No description provided for @sameLabelIgnored.
   ///
@@ -965,7 +923,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorUnreadableAnswer.
   ///
   /// In id, this message translates to:
-  /// **'Server menjawab dalam bentuk yang tidak dikenali. Periksa alamat server atau hubungi administrator.'**
+  /// **'Server menjawab dalam bentuk yang tidak dikenali. Hubungi admin lab.'**
   String get errorUnreadableAnswer;
 
   /// No description provided for @signInPreparatorsOnly.
@@ -1898,18 +1856,6 @@ abstract class AppLocalizations {
   /// **'Mengerti'**
   String get understood;
 
-  /// No description provided for @loginOr.
-  ///
-  /// In id, this message translates to:
-  /// **'atau'**
-  String get loginOr;
-
-  /// No description provided for @serverSettings.
-  ///
-  /// In id, this message translates to:
-  /// **'Pengaturan server'**
-  String get serverSettings;
-
   /// No description provided for @noAccount.
   ///
   /// In id, this message translates to:
@@ -2095,6 +2041,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Tutup'**
   String get updateClose;
+
+  /// No description provided for @serverUnreachableAskAdmin.
+  ///
+  /// In id, this message translates to:
+  /// **'Alamat server diatur oleh admin lab di website. Hubungi admin lab bila masalah berlanjut.'**
+  String get serverUnreachableAskAdmin;
 }
 
 class _AppLocalizationsDelegate

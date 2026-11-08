@@ -114,16 +114,11 @@
   },
   "failedDescription": "Ditolak server. Periksa alasannya, lalu coba lagi atau buang.",
   "settingsTitle": "Pengaturan",
-  "serverAddress": "Alamat Server",
-  "serverAddressHint": "http://192.168.1.10:3000/api",
-  "serverAddressHelp": "Ubah bila aplikasi dipakai di lokasi atau jaringan lain.",
   "appearance": "Tampilan",
   "appearanceSystem": "Ikuti Sistem",
   "appearanceLight": "Terang",
   "appearanceDark": "Gelap",
   "language": "Bahasa",
-  "settingsSaved": "Pengaturan tersimpan.",
-  "resetDefault": "Kembalikan ke bawaan",
   "connectionTimeout": "Koneksi habis waktu. Periksa jaringan lalu coba lagi.",
   "connectionFailed": "Tidak dapat menghubungi server. Periksa koneksi jaringan Anda.",
   "unknownError": "Terjadi kesalahan yang tidak diketahui. Silakan coba lagi.",
@@ -152,7 +147,6 @@
   "stageListFailed": "Gagal memuat daftar tahap. Periksa koneksi jaringan Anda.",
   "errorTimeout": "Sambungan habis waktu. Periksa jaringan lalu coba lagi.",
   "errorUnreachable": "Server tidak dapat dihubungi. Periksa koneksi jaringan Anda.",
-  "serverAddressInvalid": "Alamat tidak valid. Gunakan bentuk http://host:port/api.",
   "triedServerAddress": "Alamat yang dicoba: {address}",
   "@triedServerAddress": {
     "placeholders": {
@@ -190,7 +184,6 @@
   },
   "emailHint": "nama@atara.local",
   "passwordHint": "Kata sandi Anda",
-  "checkServerAddress": "Periksa alamat server",
   "sameLabelIgnored": "Label yang sama diabaikan. Arahkan ke label lain.",
   "scanThisAgain": "Pindai ulang",
   "stageReceived": "DITERIMA",
@@ -226,7 +219,7 @@
       }
     }
   },
-  "errorUnreadableAnswer": "Server menjawab dalam bentuk yang tidak dikenali. Periksa alamat server atau hubungi administrator.",
+  "errorUnreadableAnswer": "Server menjawab dalam bentuk yang tidak dikenali. Hubungi admin lab.",
   "signInPreparatorsOnly": "Aplikasi ini khusus Preparator. Silakan gunakan situs web.",
   "errorForbidden": "Peran akun Anda tidak mengizinkan ini. Aplikasi ini khusus Preparator.",
   "mfaTitle": "Verifikasi Identitas",
@@ -514,8 +507,6 @@
   "forgotPasswordTitle": "Lupa kata sandi",
   "forgotPasswordBody": "Kata sandi direset oleh admin lab. Hubungi admin, lalu masuk dengan kata sandi sementara yang diberikan.",
   "understood": "Mengerti",
-  "loginOr": "atau",
-  "serverSettings": "Pengaturan server",
   "noAccount": "Belum punya akun?",
   "askAdmin": "Hubungi admin",
   "bannerTitle": "Siap memindai sampel?",
@@ -546,5 +537,6 @@
   "updateDownloadFailed": "Unduhan gagal. Periksa koneksi internet, lalu coba lagi.",
   "updateCorrupted": "File unduhan rusak. Silakan unduh lagi.",
   "updateInstallFailed": "Pemasang aplikasi Android tidak bisa dibuka.",
-  "updateClose": "Tutup"
+  "updateClose": "Tutup",
+  "serverUnreachableAskAdmin": "Alamat server diatur oleh admin lab di website. Hubungi admin lab bila masalah berlanjut."
 }
