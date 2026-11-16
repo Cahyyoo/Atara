@@ -122,7 +122,8 @@ export function AppShell({
       <div className="flex min-w-0 flex-1 flex-col">
         <AnnouncementBanner announcements={announcements} />
 
-        <main className="flex-1 overflow-x-clip">
+        {/* A size container, so a page can reach the window's full width (cqw, without the scrollbar). */}
+        <main className="@container flex-1 overflow-x-clip">
           <div className="mx-auto max-w-7xl px-4 pb-8 pt-4 sm:px-6">
             <PageTransition>{children}</PageTransition>
             {/* Outside the transition, so it does not animate on every move. */}

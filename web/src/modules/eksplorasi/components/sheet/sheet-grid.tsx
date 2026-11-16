@@ -288,11 +288,15 @@ export function SheetGrid({
               <col key={index} style={{ width }} />
             ))}
           </colgroup>
-          <thead className="sticky z-20 bg-muted" style={{ top: headerTop }}>
+          <thead data-sheet-headings="" className="sticky z-20 bg-muted" style={{ top: headerTop }}>
             <tr className="h-[var(--sheet-head-h,48px)] border-b text-[length:var(--sheet-font,11px)] font-semibold text-foreground">
               <th className="px-1 text-left text-muted-foreground">{t("sheet.rowColumn")}</th>
               {fields.map((field) => (
-                <th key={field} className="border-l border-border/60 px-0.5 text-center leading-tight whitespace-normal">
+                // A word wider than its column breaks inside it rather than running into the next one.
+                <th
+                  key={field}
+                  className="overflow-hidden border-l border-border/60 px-0.5 text-center leading-tight whitespace-normal hyphens-auto [overflow-wrap:anywhere]"
+                >
                   {labels[field]}
                 </th>
               ))}

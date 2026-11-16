@@ -46,6 +46,23 @@ function useStickyOffsets() {
 }
 
 /**
+ * The column headings' height as drawn: taller than the text size's own once a
+ * heading wraps onto a second line. Null until the sheet is there.
+ */
+function useHeadingsHeight(loading: boolean) {
+  const [height, setHeight] = useState<number | null>(null);
+  useEffect(() => {
+    if (loading || typeof ResizeObserver === "undefined") return;
+    const head = document.querySelector<HTMLElement>("[data-sheet-headings]");
+    if (!head) return;
+    const observer = new ResizeObserver(() => setHeight(head.offsetHeight));
+    observer.observe(head);
+    return () => observer.disconnect();
+  }, [loading]);
+  return height;
+}
+
+/**
  * Adding and changing a list's samples as in a spreadsheet, on a page of its
  * own, with the list's own columns: type or paste a block from Excel (with its
  * header or without) into the empty rows, each row checked as it lands. The
@@ -70,6 +87,7 @@ export function DataSourceSheetPage({ view, editing }: { view: DataSourceView; e
   const sheet = useDataSourceSheet(view, () => router.push(listPath), editing);
   const { toolbarRef, toolbarTop, headingsTop } = useStickyOffsets();
   const textSize = useSheetTextSize();
+  const headingsHeight = useHeadingsHeight(sheet.loading) ?? textSize.headingsHeight;
 
   function leave() {
     router.push(listPath);
@@ -120,7 +138,8 @@ export function DataSourceSheetPage({ view, editing }: { view: DataSourceView; e
     ) : null;
 
   return (
-    <div className="flex flex-col gap-4">
+    // The whole width of the window, past the app's 1280px column: two dozen columns need it.
+    <div className="flex flex-col gap-4 mx-[calc(50%-50cqw+1rem)] sm:mx-[calc(50%-50cqw+1.5rem)]">
       <div>
         <button
           type="button"
@@ -208,7 +227,7 @@ export function DataSourceSheetPage({ view, editing }: { view: DataSourceView; e
           </div>
         ) : (
           // A box moved into is scrolled clear of the bars stuck above it.
-          <div style={{ ...textSize.style, "--sheet-scroll-top": `${headingsTop + textSize.headingsHeight + 8}px` } as CSSProperties}>
+          <div style={{ ...textSize.style, "--sheet-scroll-top": `${headingsTop + headingsHeight + 8}px` } as CSSProperties}>
             <SheetGrid
               fields={sheet.keys}
               fixedType={VIEWS[view].sampleType}
