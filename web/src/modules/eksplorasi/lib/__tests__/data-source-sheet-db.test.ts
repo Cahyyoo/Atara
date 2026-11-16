@@ -152,6 +152,8 @@ describe.skipIf(!reachable)("a list's sheet", () => {
     const added = await prisma.dataSource.findUniqueOrThrow({ where: { sampleId: `${tag}-NEW` } });
     expect(added).toMatchObject({ sampleType: "STANDARD", ni: "0.009", createdById: session.userId });
     expect(added.date?.toISOString().slice(0, 10)).toBe("2026-10-01");
+    // The new row's id, by its line: how the sheet's autosave knows it is stored.
+    expect(body.data.saved).toEqual([{ line: 2, id: added.id }]);
   });
 
   it("gives a QC list's new rows its type, and leaves the columns it does not show alone", async () => {

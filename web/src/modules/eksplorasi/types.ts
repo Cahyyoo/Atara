@@ -48,6 +48,8 @@ export interface SheetResult {
   /** Rows written: both zero on a dry run, or while any row is invalid. */
   created: number;
   updated: number;
+  /** Each new row's id once written, by its line: how the sheet's autosave knows the row is stored. */
+  saved?: { line: number; id: string }[];
 }
 
 export type { CrmKind } from "@/modules/eksplorasi/lib/crm-list-columns";

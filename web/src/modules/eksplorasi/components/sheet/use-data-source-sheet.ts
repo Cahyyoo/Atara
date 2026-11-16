@@ -34,6 +34,8 @@ import {
   type SheetRow,
 } from "@/modules/eksplorasi/components/sheet/sheet-rows";
 import { sendSheet, useSheetCheck } from "@/modules/eksplorasi/components/sheet/use-sheet-check";
+import { mergeDraft, readDraft, useDraftKeeping } from "@/modules/eksplorasi/components/sheet/sheet-draft";
+import { useSheetAutosave } from "@/modules/eksplorasi/components/sheet/use-sheet-autosave";
 import type { DataSourceDTO, DataSourceView } from "@/modules/eksplorasi/types";
 
 /**
@@ -45,8 +47,6 @@ function dateText(value: string): string {
   const read = readDateCell(value);
   return read === null || read === "invalid" ? value : read;
 }
-
-export const SHEET_ROW_HEIGHT = 36;
 
 /**
  * A list's sheet state: the list's latest samples on top -- locked, except
@@ -98,6 +98,9 @@ export function useDataSourceSheet(view: DataSourceView, onSaved: () => void, ed
       return { id: sample.id, locked: hasAssay(cells), original: cells, cells };
     };
     const opened = editing ? rowOf(editing) : null;
+    // The work left on this list's sheet last time, put back on it.
+    const draft = readDraft(view);
+    const restored = () => draft.length > 0 && toast(t("sheet.draftRestored", { count: draft.length }));
     (async () => {
       try {
         const response = await fetch(withBasePath(`/api/data-sources?view=${view}&page=1&pageSize=${SHEET_RECENT_ROWS}`), {
@@ -106,12 +109,14 @@ export function useDataSourceSheet(view: DataSourceView, onSaved: () => void, ed
         const body = (await response.json()) as ApiResult<{ rows: DataSourceDTO[]; pagination: PaginationDTO }>;
         if (!body.success) throw new Error(body.error);
         const latest = [...body.data.rows].reverse().map(rowOf);
-        setRows([...withEditing(latest, opened), ...blankRows(SHEET_BLANK_ROWS)]);
+        setRows(mergeDraft(withEditing(latest, opened), draft));
+        restored();
       } catch {
         if (controller.signal.aborted) return;
         setLoadError(tCommon("loadError"));
         // The sample being edited is in hand already: it can still be changed.
-        setRows([...withEditing([], opened), ...blankRows(SHEET_BLANK_ROWS)]);
+        setRows(mergeDraft(withEditing([], opened), draft));
+        restored();
       } finally {
         if (!controller.signal.aborted) setLoading(false);
       }
@@ -126,7 +131,8 @@ export function useDataSourceSheet(view: DataSourceView, onSaved: () => void, ed
   const maxRows = existing + SHEET_MAX_ROWS;
   const summary = check.progress.summary;
   const writes = summary ? summary.create + summary.update : 0;
-  const canSave = summary !== null && writes > 0 && summary.invalid === 0 && !check.isChecking && !isSaving;
+  const autosave = useSheetAutosave({ view, rows, setRows, check, blocked: loading || isSaving });
+  const canSave = summary !== null && writes > 0 && summary.invalid === 0 && !check.isChecking && !isSaving && !autosave.saving;
   const error = loadError ?? check.error ?? (saveFailure && saveFailure.rows === rows ? saveFailure.message : null);
 
   async function save() {
@@ -144,6 +150,7 @@ export function useDataSourceSheet(view: DataSourceView, onSaved: () => void, ed
         return;
       }
       toast(t("sheet.saved", { created: body.data.created, updated: body.data.updated }));
+      forgetDraft();
       onSaved();
     } catch {
       setSaveFailure({ rows: sent, message: tCommon("networkError") });
@@ -152,15 +159,10 @@ export function useDataSourceSheet(view: DataSourceView, onSaved: () => void, ed
     }
   }
 
-  // Reloading, closing the tab or typing another address asks first while
-  // there is work on the sheet: it lives nowhere else until it is saved.
   const isDirty = rows.some(isDirtyRow);
-  useEffect(() => {
-    if (!isDirty) return;
-    const warn = (event: BeforeUnloadEvent) => event.preventDefault();
-    window.addEventListener("beforeunload", warn);
-    return () => window.removeEventListener("beforeunload", warn);
-  }, [isDirty]);
+
+  // Kept in this browser as it is typed: leaving -- another list's tab, another menu, a reload -- loses nothing.
+  const forgetDraft = useDraftKeeping(view, rows, loading);
 
   // Ctrl+S (Cmd+S) saves the sheet rather than offering to download the page.
   const saveRef = useRef(save);
@@ -288,6 +290,7 @@ export function useDataSourceSheet(view: DataSourceView, onSaved: () => void, ed
     isSaving,
     error,
     isDirty,
+    autosave,
     canAddRows: rows.length < maxRows,
     setCell,
     toggleLock,

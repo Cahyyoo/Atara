@@ -7,7 +7,6 @@ import { inSelection } from "@/core/hooks/use-grid-selection";
 import { ELEMENT_LABELS, isElementField, SAMPLE_TYPES, type DataSourceField } from "@/modules/eksplorasi/lib/data-source-columns";
 import { columnWeight, isNumericColumn, percentages } from "@/modules/eksplorasi/components/list-columns";
 import { isActive, isChangedCell, type SheetRow } from "@/modules/eksplorasi/components/sheet/sheet-rows";
-import { SHEET_ROW_HEIGHT } from "@/modules/eksplorasi/components/sheet/use-data-source-sheet";
 import type { SampleType, SheetStatus, SheetVerdict } from "@/modules/eksplorasi/types";
 import { OreasCell } from "@/modules/eksplorasi/components/sheet/oreas-cell";
 import { SampleIdCell } from "@/modules/eksplorasi/components/sheet/sample-id-cell";
@@ -27,9 +26,12 @@ const NUMBER_COLUMN_WEIGHT = 52;
 /** Where the sheet needs more than the list: it writes dates whole, the list short -- and Date has its calendar icon. */
 const SHEET_WEIGHT: Partial<Record<DataSourceField, number>> = { date: 96, controlDate: 66 };
 
-/** Plain strings, put together once: a sheet draws thousands of boxes at a time. */
+/**
+ * Plain strings, put together once: a sheet draws thousands of boxes at a time.
+ * Sized by the text size picked above the sheet (sheet-preferences.ts), through CSS variables.
+ */
 const BOX =
-  "h-8 w-full min-w-0 scroll-mt-[var(--sheet-scroll-top,0px)] rounded-md border border-transparent bg-transparent px-0.5 text-[11px] outline-none transition-colors placeholder:text-transparent focus:placeholder:text-muted-foreground/50 focus-visible:bg-background focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-[selected]:bg-primary/15 data-[selected]:ring-1 data-[selected]:ring-primary/50 read-only:text-muted-foreground";
+  "h-[var(--sheet-box-h,32px)] w-full min-w-0 scroll-mt-[var(--sheet-scroll-top,0px)] rounded-md border border-transparent bg-transparent px-0.5 text-[length:var(--sheet-font,11px)] outline-none transition-colors placeholder:text-transparent focus:placeholder:text-muted-foreground/50 focus-visible:bg-background focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-[selected]:bg-primary/15 data-[selected]:ring-1 data-[selected]:ring-primary/50 read-only:text-muted-foreground";
 const CHANGED = " bg-amber-100/70 dark:bg-amber-500/15";
 /** A box picked from a list (type, Remarks): drawn as the other boxes are, with room for its chevron. */
 const PICKER = `${BOX} cursor-pointer pr-5 truncate`;
@@ -114,7 +116,7 @@ const SheetGridRow = memo(function SheetGridRow(props: RowProps) {
 
   return (
     <tr
-      style={{ height: SHEET_ROW_HEIGHT }}
+      style={{ height: "var(--sheet-row-h, 36px)" }}
       data-locked={row.locked ? "" : undefined}
       className={cn("border-b border-border/50", row.locked && "bg-muted/40")}
     >
@@ -287,7 +289,7 @@ export function SheetGrid({
             ))}
           </colgroup>
           <thead className="sticky z-20 bg-muted" style={{ top: headerTop }}>
-            <tr className="h-12 border-b text-[11px] font-semibold text-foreground">
+            <tr className="h-[var(--sheet-head-h,48px)] border-b text-[length:var(--sheet-font,11px)] font-semibold text-foreground">
               <th className="px-1 text-left text-muted-foreground">{t("sheet.rowColumn")}</th>
               {fields.map((field) => (
                 <th key={field} className="border-l border-border/60 px-0.5 text-center leading-tight whitespace-normal">

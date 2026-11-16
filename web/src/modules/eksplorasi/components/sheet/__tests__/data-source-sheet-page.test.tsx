@@ -4,6 +4,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testi
 import { NextIntlClientProvider } from "next-intl";
 
 import { en } from "@/core/i18n/test-messages";
+import { resetPersistedColumns } from "@/core/hooks/use-persisted-columns";
 import { DataSourceSheetPage } from "@/modules/eksplorasi/components/sheet/data-source-sheet-page";
 import { ELEMENT_FIELDS } from "@/modules/eksplorasi/lib/data-source-columns";
 import type { DataSourceDTO, DataSourceView, SheetVerdict } from "@/modules/eksplorasi/types";
@@ -64,6 +65,10 @@ beforeEach(() => {
   latest = [ROW];
   searched = [];
   push.mockReset();
+  window.localStorage.clear();
+  resetPersistedColumns();
+  // Autosave off, unless a test is about it: its saves would land among the ones a test sends.
+  window.localStorage.setItem("atara.eksplorasi.sheetAutosave.v1", JSON.stringify(["off"]));
   vi.stubGlobal(
     "fetch",
     vi.fn(async (url: string, init?: RequestInit) => {
@@ -83,10 +88,16 @@ beforeEach(() => {
       }
       const body = JSON.parse(String(init?.body)) as Sent;
       sent.push(body);
-      const rows: SheetVerdict[] = body.rows.map((row) => ({ line: row.line, status: row.id ? "update" : "create" }));
+      // "BAD" stands for any row the server would refuse.
+      const rows: SheetVerdict[] = body.rows.map((row) => ({
+        line: row.line,
+        status: row.cells.sampleId === "BAD" ? "invalid" : row.id ? "update" : "create",
+      }));
       const count = (status: string) => rows.filter((row) => row.status === status).length;
-      const summary = { create: count("create"), update: count("update"), unchanged: 0, invalid: 0 };
-      const data = { rows, summary, created: body.dryRun ? 0 : summary.create, updated: body.dryRun ? 0 : summary.update };
+      const summary = { create: count("create"), update: count("update"), unchanged: 0, invalid: count("invalid") };
+      const written = !body.dryRun && summary.invalid === 0;
+      const saved = written ? rows.filter((row) => row.status === "create").map((row) => ({ line: row.line, id: `new-${row.line}` })) : [];
+      const data = { rows, summary, created: written ? summary.create : 0, updated: written ? summary.update : 0, saved };
       return { ok: true, json: async () => ({ success: true, data }) };
     })
   );
@@ -325,21 +336,99 @@ describe("a list's sheet", () => {
     expect(screen.queryByText(hint)).toBeNull();
   });
 
-  it("asks before leaving work that is not saved, and stays until told to go", async () => {
+  it("leaves without asking, and puts the work back on the next visit", async () => {
     await show("standard");
     fireEvent.change(box(2, "Sample ID"), { target: { value: "S-400" } });
     fireEvent.click(screen.getByRole("button", { name: en.common.cancel }));
-    const dialog = await screen.findByRole("dialog", { name: en.dataSource.sheet.leaveTitle });
+    expect(push).toHaveBeenCalledWith("/eksplorasi/standard");
+    expect(screen.queryByRole("dialog")).toBeNull();
+
+    cleanup();
+    await show("standard");
+    expect(box(2, "Sample ID").value).toBe("S-400");
+    // Kept per list: another list's sheet opens empty.
+    cleanup();
+    await show("blank");
+    expect(box(2, "Sample ID").value).toBe("");
+  });
+
+  it("forgets the draft once the sheet is saved", async () => {
+    await show();
+    fireEvent.change(box(2, "Sample ID"), { target: { value: "S-600" } });
+    await save("Save 1 row");
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/eksplorasi/data-source"), LONG);
+    cleanup();
+    await show();
+    expect(box(2, "Sample ID").value).toBe("");
+  });
+
+  it("makes its text larger and smaller, and remembers the size", async () => {
+    await show();
+    const sized = () => box(1, "Sample ID").closest<HTMLElement>("[style*='--sheet-font']")!;
+    expect(sized().style.getPropertyValue("--sheet-font")).toBe("11px");
+    fireEvent.click(screen.getByRole("button", { name: en.dataSource.sheet.larger }));
+    fireEvent.click(screen.getByRole("button", { name: en.dataSource.sheet.larger }));
+    expect(sized().style.getPropertyValue("--sheet-font")).toBe("15px");
+    expect((screen.getByRole("button", { name: en.dataSource.sheet.larger }) as HTMLButtonElement).disabled).toBe(true);
+
+    cleanup();
+    resetPersistedColumns();
+    await show();
+    expect(sized().style.getPropertyValue("--sheet-font")).toBe("15px");
+    fireEvent.click(screen.getByRole("button", { name: en.dataSource.sheet.smaller }));
+    expect(sized().style.getPropertyValue("--sheet-font")).toBe("13px");
+  });
+
+  it("has the four lists' sheets as tabs under it, marking the ones with a draft", async () => {
+    await show("blank");
+    const tabs = within(screen.getByRole("navigation", { name: en.dataSource.sheet.sheetsLabel })).getAllByRole("link");
+    expect(tabs.map((tab) => tab.getAttribute("href"))).toEqual([
+      "/eksplorasi/data-source/new",
+      "/eksplorasi/standard/new",
+      "/eksplorasi/blank/new",
+      "/eksplorasi/duplicate/new",
+    ]);
+    expect(tabs[2].getAttribute("aria-current")).toBe("page");
+    expect(screen.queryByLabelText(en.dataSource.sheet.draftMark)).toBeNull();
+
+    fireEvent.change(box(2, "Sample ID"), { target: { value: "B-1" } });
+    const mark = await screen.findByLabelText(en.dataSource.sheet.draftMark, {}, LONG);
+    expect(mark.closest("a")).toBe(tabs[2]);
+  });
+});
+
+describe("autosave", () => {
+  const AUTOSAVE = { timeout: 8000 };
+  beforeEach(() => window.localStorage.removeItem("atara.eksplorasi.sheetAutosave.v1"));
+
+  it("saves the valid rows on its own a moment after the last edit, leaving a wrong one for later", async () => {
+    await show();
+    fireEvent.change(box(2, "Sample ID"), { target: { value: "S-700" } });
+    fireEvent.change(box(3, "Sample ID"), { target: { value: "BAD" } });
+
+    await waitFor(() => expect(sent.some((body) => !body.dryRun)).toBe(true), AUTOSAVE);
+    expect(sent.find((body) => !body.dryRun)!.rows).toEqual([{ line: 2, cells: { sampleId: "S-700" } }]);
+    // Row 2 is now a stored sample, still open; the wrong one is still a new row.
+    await waitFor(() => expect(screen.getAllByRole("button", { name: en.dataSource.sheet.lock })).toHaveLength(1), LONG);
+    expect(box(2, "Sample ID").readOnly).toBe(false);
+    expect(box(3, "Sample ID").value).toBe("BAD");
     expect(push).not.toHaveBeenCalled();
 
-    fireEvent.click(within(dialog).getByRole("button", { name: en.common.cancel }));
-    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
-    expect(box(2, "Sample ID").value).toBe("S-400");
+    // Changed again, it is sent as a change to that sample.
+    fireEvent.change(box(2, "Ni"), { target: { value: "1.2" } });
+    await waitFor(() => expect(sent.filter((body) => !body.dryRun)).toHaveLength(2), AUTOSAVE);
+    expect(sent.filter((body) => !body.dryRun)[1].rows).toEqual([
+      { line: 2, id: "new-2", cells: { sampleId: "S-700", ni: "1.2" } },
+    ]);
+  }, 30_000);
 
-    fireEvent.click(screen.getByRole("button", { name: en.dataSource.views.standard.title }));
-    fireEvent.click(await screen.findByRole("button", { name: en.dataSource.sheet.leave }));
-    expect(push).toHaveBeenCalledWith("/eksplorasi/standard");
-  });
+  it("saves nothing on its own when switched off", async () => {
+    await show();
+    fireEvent.click(screen.getByRole("checkbox", { name: en.dataSource.sheet.autosave }));
+    fireEvent.change(box(2, "Sample ID"), { target: { value: "S-800" } });
+    await new Promise((resolve) => setTimeout(resolve, 4500));
+    expect(sent.every((body) => body.dryRun)).toBe(true);
+  }, 30_000);
 });
 
 describe("the OREAS Remarks", () => {

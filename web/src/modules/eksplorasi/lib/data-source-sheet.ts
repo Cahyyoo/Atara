@@ -105,6 +105,8 @@ export async function applyDataSourceSheet(body: SheetBody, userId: string): Pro
 
   const added = typesAddedIn(body.view);
   const creates: Values[] = [];
+  /** Each new row's line, beside it in `creates`. */
+  const createLines: number[] = [];
   const updates: { id: string; values: Values }[] = [];
   for (const row of rows) {
     // Already judged wrong (a Remarks naming no FIELD sample): nothing to add or change.
@@ -126,6 +128,7 @@ export async function applyDataSourceSheet(body: SheetBody, userId: string): Pro
         fail(row.line, "sampleId", `Sample ID "${row.data.sampleId}" already exists.`);
       } else {
         creates.push(values);
+        createLines.push(row.line);
         verdicts.set(row.line, { line: row.line, status: "create" });
       }
       continue;
@@ -155,16 +158,33 @@ export async function applyDataSourceSheet(body: SheetBody, userId: string): Pro
 
   // One transaction: a sample ID taken between the check and this write fails
   // the whole save (409), rather than leaving half of the sheet behind.
-  await prisma.$transaction(async (tx) => {
+  const saved = await prisma.$transaction(async (tx) => {
+    let written: { id: string; sampleId: string }[] = [];
     if (creates.length > 0) {
       await tx.dataSource.createMany({
         data: creates.map((values) => ({ ...columnsOf(values), createdById: userId }) as Prisma.DataSourceCreateManyInput),
+      });
+      // MySQL's createMany returns no ids: the new rows are read back by their sample IDs.
+      written = await tx.dataSource.findMany({
+        where: { sampleId: { in: creates.map((values) => values.sampleId ?? "") } },
+        select: { id: true, sampleId: true },
       });
     }
     for (const { id, values } of updates) {
       await tx.dataSource.update({ where: { id }, data: { ...columnsOf(values), updatedById: userId } as Prisma.DataSourceUpdateInput });
     }
+    return written;
   });
+  const idOf = new Map(saved.map((row) => [row.sampleId.toLowerCase(), row.id]));
   invalidateDataSourceCaches();
-  return { rows: result, summary, created: creates.length, updated: updates.length };
+  return {
+    rows: result,
+    summary,
+    created: creates.length,
+    updated: updates.length,
+    saved: creates.flatMap((values, index) => {
+      const id = idOf.get((values.sampleId ?? "").toLowerCase());
+      return id ? [{ line: createLines[index], id }] : [];
+    }),
+  };
 }

@@ -2,15 +2,16 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 import { Button } from "@/core/components/ui/button";
 import { InlineNotice } from "@/core/components/ui/inline-notice";
 import { PageHeader } from "@/core/components/layout/page-header";
-import { ConfirmDialog } from "@/core/components/feedback/confirm-dialog";
 import { cn } from "@/core/lib/utils";
 import { typesAddedIn, VIEWS } from "@/modules/eksplorasi/lib/data-source-columns";
 import { SheetGrid } from "@/modules/eksplorasi/components/sheet/sheet-grid";
 import { useDataSourceSheet } from "@/modules/eksplorasi/components/sheet/use-data-source-sheet";
+import { useSheetTextSize } from "@/modules/eksplorasi/components/sheet/sheet-preferences";
+import { SheetTabs } from "@/modules/eksplorasi/components/sheet/sheet-tabs";
 import type { DataSourceDTO, DataSourceView, SheetStatus } from "@/modules/eksplorasi/types";
 import { IoAddOutline, IoArrowBack, IoReloadOutline, IoSaveOutline } from "react-icons/io5";
 
@@ -20,9 +21,6 @@ const TONE: Record<SheetStatus, string> = {
   unchanged: "text-muted-foreground",
   invalid: "text-destructive",
 };
-
-/** Height of the sheet's column headings (h-12), held under the bars above them. */
-const HEADINGS_HEIGHT = 48;
 
 /**
  * How far down the window the page's own sticky bars go: the toolbar right
@@ -58,21 +56,23 @@ function useStickyOffsets() {
  * list's type.
  *
  * A page rather than a dialog so a stray click or Esc cannot throw the work
- * away. Leaving with unsaved work asks first: Batal and the back link here,
- * the browser itself on a reload or a closed tab (useDataSourceSheet).
+ * away. The work is kept in this browser as it is typed, and valid rows are
+ * saved on their own (useDataSourceSheet), so leaving -- Batal, the back
+ * link, the sheet tabs under the grid, another menu -- loses nothing. The
+ * text size is picked here too, for the screen at hand.
  */
 export function DataSourceSheetPage({ view, editing }: { view: DataSourceView; editing?: DataSourceDTO }) {
   const t = useTranslations("dataSource");
   const tCommon = useTranslations("common");
+  const format = useFormatter();
   const router = useRouter();
   const listPath = VIEWS[view].path;
   const sheet = useDataSourceSheet(view, () => router.push(listPath), editing);
-  const [confirmLeave, setConfirmLeave] = useState(false);
   const { toolbarRef, toolbarTop, headingsTop } = useStickyOffsets();
+  const textSize = useSheetTextSize();
 
   function leave() {
-    if (sheet.isDirty) setConfirmLeave(true);
-    else router.push(listPath);
+    router.push(listPath);
   }
 
   // Straight into the sample being edited, or the first empty row, once it is
@@ -104,6 +104,19 @@ export function DataSourceSheetPage({ view, editing }: { view: DataSourceView; e
           ...(sheet.openCount > 0 ? [t("sheet.openHint", { count: sheet.openCount })] : []),
         ].join(" ")
       )
+    ) : null;
+
+  const autosave = sheet.autosave.state;
+  const saveState =
+    autosave.status === "saving" ? (
+      <span className="inline-flex items-center gap-1.5 text-xs">
+        <IoReloadOutline className="size-3.5 animate-spin" />
+        {t("sheet.autosaving")}
+      </span>
+    ) : autosave.status === "saved" ? (
+      <span className="text-xs">{t("sheet.autosavedAt", { time: format.dateTime(autosave.at, { hour: "2-digit", minute: "2-digit" }) })}</span>
+    ) : autosave.status === "failed" ? (
+      <span className="text-xs text-destructive">{t("sheet.autosaveFailed")}</span>
     ) : null;
 
   return (
@@ -150,7 +163,26 @@ export function DataSourceSheetPage({ view, editing }: { view: DataSourceView; e
               </span>
             ) : null}
             {hint}
+            {saveState}
+            {sheet.isDirty ? <span className="text-xs">{t("sheet.draftSaved")}</span> : null}
           </div>
+          <div className="flex items-center rounded-xl border" role="group" aria-label={t("sheet.textSize")}>
+            <Button variant="ghost" size="sm" aria-label={t("sheet.smaller")} title={t("sheet.smaller")} disabled={!textSize.canShrink} onClick={textSize.shrink}>
+              A−
+            </Button>
+            <Button variant="ghost" size="sm" aria-label={t("sheet.larger")} title={t("sheet.larger")} disabled={!textSize.canGrow} onClick={textSize.grow}>
+              A+
+            </Button>
+          </div>
+          <label className="inline-flex cursor-pointer items-center gap-1.5 text-sm text-muted-foreground">
+            <input
+              type="checkbox"
+              className="size-4 accent-primary"
+              checked={sheet.autosave.enabled}
+              onChange={(event) => sheet.autosave.setEnabled(event.target.checked)}
+            />
+            {t("sheet.autosave")}
+          </label>
           {sheet.canAddRows ? (
             <Button variant="ghost" size="sm" className="gap-1.5" disabled={sheet.isSaving || sheet.loading} onClick={sheet.addRows}>
               <IoAddOutline className="size-4" />
@@ -176,7 +208,7 @@ export function DataSourceSheetPage({ view, editing }: { view: DataSourceView; e
           </div>
         ) : (
           // A box moved into is scrolled clear of the bars stuck above it.
-          <div style={{ "--sheet-scroll-top": `${headingsTop + HEADINGS_HEIGHT + 8}px` } as CSSProperties}>
+          <div style={{ ...textSize.style, "--sheet-scroll-top": `${headingsTop + textSize.headingsHeight + 8}px` } as CSSProperties}>
             <SheetGrid
               fields={sheet.keys}
               fixedType={VIEWS[view].sampleType}
@@ -199,18 +231,9 @@ export function DataSourceSheetPage({ view, editing }: { view: DataSourceView; e
             />
           </div>
         )}
+        <SheetTabs view={view} />
         <p className="mt-2 text-xs text-muted-foreground">{t("sheet.formats")}</p>
       </div>
-
-      <ConfirmDialog
-        open={confirmLeave}
-        title={t("sheet.leaveTitle")}
-        description={t("sheet.leaveBody")}
-        confirmLabel={t("sheet.leave")}
-        busy={false}
-        onConfirm={() => router.push(listPath)}
-        onClose={() => setConfirmLeave(false)}
-      />
     </div>
   );
 }
